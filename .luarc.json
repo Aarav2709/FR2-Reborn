@@ -1,14 +1,44 @@
 {
   "runtime.version": "LuaJIT",
+  "workspace.checkThirdParty": false,
   "diagnostics.globals": [
     "display",
     "system",
     "timer",
     "Runtime",
-    "network"
+    "network",
+    "audio",
+    "physics",
+    "transition",
+    "native",
+    "sqlite3",
+    "graphics",
+    "easing",
+    "widget",
+    "composer",
+    "json",
+    "lfs",
+    "crypto",
+    "mime",
+    "ltn12",
+    "socket",
+    "device",
+    "CoronaEnvironment",
+    "application"
   ],
   "diagnostics.disable": [
+    "undefined-global",
     "redundant-parameter",
-    "deprecated"
-  ]
+    "undefined-field",
+    "inject-field",
+    "unused-local",
+    "cast-local-type"
+  ],
+  "diagnostics.severity": {
+    "lowercase-global": "Warning",
+    "unused-function": "Hint",
+    "unused-label": "Hint",
+    "unused-vararg": "Hint"
+  },
+  "diagnostics.libraryFiles": "Disable"
 }

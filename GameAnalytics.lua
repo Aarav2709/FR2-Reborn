@@ -59,7 +59,7 @@ local function initDebugPrint()
     l = l .. "-"
     dl = dl .. "="
   end
-  
+
   function msg.initialized()
     if customUserID then
       prt("")
@@ -79,72 +79,72 @@ local function initDebugPrint()
     prt("Session ID:    " .. tostring(sessionId))
     prt(dl)
   end
-  
+
   function msg.wait()
     prt(l)
     prt("GameAnalytics initialization called. GameAnalytics will")
     prt("initialize automatically when custom user id is set!")
     prt(l)
   end
-  
+
   function msg.connection()
     prt(l)
     prt("Device has connection:    " .. tostring(hasConnection) .. "\n")
     prt("Device is roaming:        " .. tostring(isRoaming))
     prt(l)
   end
-  
+
   function msg.save(message)
     prt(dl)
     prt("Saving stored events. File id: " .. message .. ".txt")
     prt(dl)
   end
-  
+
   function msg.disabled()
     prt(l)
     prt("GameAnalytics is disabled in the Corona simulator.")
     prt(l)
   end
-  
+
   function msg.advertisingTrackingDisabled()
     prt(dl)
     prt("Advertising tracking is disabled on this device.")
     prt("No data will be sent to GameAnalytics.")
     prt(dl)
   end
-  
+
   function msg.roamingWarning()
     prt(l)
     prt("WARNING! It is not possible to detect if this device is roaming.")
     prt(l)
   end
-  
+
   function msg.submittingArchivedEvents(message)
     prt(l)
     prt("Submitting " .. message[1] .. " archived event batch(es) from " .. message[2] .. " session(s)")
     prt(l)
   end
-  
+
   function msg.submittingEventBatch(message)
     prt(l)
     prt("Submitting " .. message .. " batched requests.")
     prt(l)
   end
-  
+
   function msg.storyboardWarning()
     prt(l)
     prt("WARNING! You should also enable useStoryboard")
     prt("if you wan't to enable submitStoryboardEvents.")
     prt(l)
   end
-  
+
   function msg.composerWarning()
     prt(l)
     prt("WARNING! You should also enable useComposer")
     prt("if you wan't to enable submitComposerEvents.")
     prt(l)
   end
-  
+
   function msg.maxErrorCount()
     if errorCount - 1 == GameAnalytics.maxErrorCount then
       prt(l)
@@ -153,25 +153,25 @@ local function initDebugPrint()
       prt(l)
     end
   end
-  
+
   function msg.newSession()
     prt(l)
     prt("New session id generated for resume: " .. sessionId)
     prt(l)
   end
-  
+
   function msg.memoryWarningsNotSupported()
     prt(l)
     prt("Notice! Memory warnings are only supported on iOS devices")
     prt(l)
   end
-  
+
   function msg.idfaWarning()
     prt(l)
     prt("WARNING! Add 'plugin.advertisingId' to the plugins table of the build.settings.")
     prt(l)
   end
-  
+
   function msg.event(message)
     local c, m = message[1], message[2]
     local e = "'" .. c .. "': "
@@ -192,7 +192,7 @@ local function initDebugPrint()
     end
     return e
   end
-  
+
   function prt(message, id)
     if GameAnalytics.isDebug then
       if not id then
@@ -807,7 +807,7 @@ function submitEvents(category, ...)
   headers["Content-Type"] = "application/json"
   params.headers = headers
   local post_url = endpointUrl .. category
-  
+
   local function networkListener(event)
     if event.isError then
       storeEvent("unknown error, status=" .. tostring(event.status), category, message)
@@ -816,7 +816,7 @@ function submitEvents(category, ...)
       prt(dbgMsg)
     end
   end
-  
+
   network.request(post_url, "POST", networkListener, params)
 end
 
@@ -952,7 +952,7 @@ function GameAnalytics.setCustomUserID(id)
     else
       customUserID = id
     end
-    
+
     function GameAnalytics.setCustomUserID()
       prt("Warning! You already supplied a custom user id. Your request will be ignored.")
     end

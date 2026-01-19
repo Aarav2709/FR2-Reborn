@@ -6,8 +6,8 @@ settings = {
 
     window = {
         defaultMode = "fullscreen",
-        defaultViewWidth = 1280,
-        defaultViewHeight = 720,
+        defaultViewWidth = 1920,
+        defaultViewHeight = 1080,
         resizable = true,
         titleText = {
             default = "Fun Run 2 - Offline"

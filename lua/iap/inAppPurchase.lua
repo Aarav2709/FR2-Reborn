@@ -228,17 +228,31 @@ local function initInAppPurchase()
     storeType = 1
   elseif system.getInfo("targetAppStore") == "amazon" then
     composer.debugger.debugPrint("iap", "Use Amazon store")
-    store = require("plugin.amazon.iap")
-    store.init(transactionCallback)
-    storeType = 3
+    local success, amazonStore = pcall(require, "plugin.amazon.iap")
+    if success then
+      store = amazonStore
+      store.init(transactionCallback)
+      storeType = 3
+    else
+      print("WARNING: plugin.amazon.iap not available")
+      storeType = 0
+    end
   elseif store.availableStores.google then
     composer.debugger.debugPrint("iap", "Use Google store")
-    store = require("plugin.google.iap.v3")
-    store.init("google", transactionCallback)
-    print("Using Google's Android In-App Billing system.")
-    storeType = 2
-    if not store.isActive then
-      composer.debugger.debugPrint("iap", "Use old Google store")
+    local success, googleStore = pcall(require, "plugin.google.iap.v3")
+    if success then
+      store = googleStore
+      store.init("google", transactionCallback)
+      print("Using Google's Android In-App Billing system.")
+      storeType = 2
+      if not store.isActive then
+        composer.debugger.debugPrint("iap", "Use old Google store")
+        store = require("store")
+        store.init("google", transactionCallback)
+        storeType = 4
+      end
+    else
+      print("WARNING: plugin.google.iap.v3 not available, falling back to standard store")
       store = require("store")
       store.init("google", transactionCallback)
       storeType = 4

@@ -1,5 +1,21 @@
 local M = {}
-local cb = require("plugin.chartboost")
+local cb
+local isSimulator = "simulator" == system.getInfo("environment")
+if not isSimulator then
+  local success, plugin = pcall(require, "plugin.chartboost")
+  if success then cb = plugin end
+end
+-- Stub for simulator/unsupported platforms
+if not cb then
+  cb = {
+    init = function() end,
+    startSession = function() end,
+    cache = function() end,
+    show = function() end,
+    hasCachedInterstitial = function() return false end,
+    hasCachedRewaredVideo = function() return false end
+  }
+end
 local composer = require("composer")
 local chance = 1
 M.shouldInitAds = true

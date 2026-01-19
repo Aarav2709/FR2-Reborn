@@ -43,14 +43,15 @@ function scene:create(event)
   end
 
   local function addMapIcons()
-    local baseX1, baseY1 = 280, 180
-    local baseX2, baseY2 = 400, 180
-    local baseX3, baseY3 = 280, 290
-    local baseX4, baseY4 = 400, 290
+    -- Updated positions for 1920x1080 resolution
+    local baseX1, baseY1 = 244, 114   -- Top-left (STUMPY SLOPES)
+    local baseX2, baseY2 = 384, 114   -- Top-right (BOUNCY FOREST)
+    local baseX3, baseY3 = 244, 218   -- Bottom-left (THORNY SCRUB)
+    local baseX4, baseY4 = 384, 218   -- Bottom-right (SPEED MEADOW)
     for i = 1, numberOfMaps do
       local baseZone = math.ceil(i / 4)
       local basePos = i % 4
-      local padding = (baseZone - 1) * 480
+      local padding = (baseZone - 1) * 1920  -- Adjusted for 1920 width
       local mapData = composer.data.getMapInfo(i)
       if not mapData then
         print("WARNING: NO DATA FOR MAP NR: ", i)
@@ -95,8 +96,8 @@ function scene:create(event)
         practiseButtonsText[i] = composer.newText({
           string = mapData.name,
           size = 14,
-          x = practiseButtons[i].x - 100,
-          y = practiseButtons[i].y - 72
+          x = practiseButtons[i].x + 136,  -- Text offset for 1920x1080
+          y = practiseButtons[i].y + 86
         })
       end
       mapIconsGroup:insert(practiseButtons[i])
@@ -112,7 +113,7 @@ function scene:create(event)
     if lookingAtZone < maksZones then
       btnNextZone.isVisible = true
     end
-    local newXPos = -1 * (lookingAtZone - 1) * 480
+    local newXPos = -1 * (lookingAtZone - 1) * 1920  -- Adjusted for 1920 width
     transition.to(mapIconsGroup, { time = 200, x = newXPos })
   end
 
@@ -133,7 +134,7 @@ function scene:create(event)
     if lookingAtZone >= maksZones then
       btnNextZone.isVisible = false
     end
-    local newXPos = -1 * (lookingAtZone - 1) * 480
+    local newXPos = -1 * (lookingAtZone - 1) * 1920  -- Adjusted for 1920 width
     transition.to(mapIconsGroup, { time = 200, x = newXPos })
   end
 

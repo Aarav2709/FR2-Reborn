@@ -1,7 +1,11 @@
 local composer = require("composer")
 local scene = composer.newScene()
 local clean, cleanEnter, checkForNewNotifications
-local notificationPlugin = require("plugin.notifications")
+local notificationPlugin
+if "simulator" ~= system.getInfo("environment") then
+  local success, plugin = pcall(require, "plugin.notifications")
+  if success then notificationPlugin = plugin end
+end
 local backgroundImage, bearHead, logo, buttonStick
 local btnPlay, btnSettings, btnRanking, btnFriends, btnCustomize, btnEarnCoins
 local tutorialLoadingScreen, loadText

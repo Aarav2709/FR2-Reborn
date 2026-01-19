@@ -46,10 +46,10 @@ CREATE TABLE IF NOT EXISTS user_settings (id INTEGER PRIMARY KEY, username VARCH
 end
 
 function M.updatePlayerInfo(username, usernameCode)
-  local currentPlayerInfo = M.getPlayerInformation()
-  if not currentPlayerInfo then
-    return
-  end
+    local currentPlayerInfo = M.getPlayerInformation()
+    if not currentPlayerInfo then
+        return
+    end
   M.setPlayerInformation(username, usernameCode, currentPlayerInfo.playerId, currentPlayerInfo.token)
 end
 

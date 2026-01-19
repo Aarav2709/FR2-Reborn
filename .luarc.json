@@ -28,9 +28,9 @@
   ],
   "diagnostics.disable": [
     "undefined-global",
+    "redundant-parameter",
     "undefined-field",
     "inject-field",
-    "redundant-parameter",
     "unused-local",
     "cast-local-type"
   ],

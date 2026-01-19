@@ -31,14 +31,14 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   powerUpImages.markPlayerImage = display.newImageRect("images/game/markIcon.png", 37, 34)
   powerUpImages.markBarImage = display.newImageRect("images/game/markIcon.png", 24, 22)
   local speeds = {}
-  speeds.defaultTopSpeed = 350
-  speeds.defaultAcceleration = 30
-  speeds.topSpeedX = 350
-  speeds.accelerateX = 25
-  speeds.tempSpeedX = 350
+  speeds.defaultTopSpeed =450
+  speeds.defaultAcceleration = 40
+  speeds.topSpeedX = 400
+  speeds.accelerateX = 35
+  speeds.tempSpeedX = 400
   speeds.boostMaks = speeds.topSpeedX * 2.5
   speeds.boostMaksSlide = speeds.topSpeedX * 2
-  speeds.slowMaks = speeds.topSpeedX * 0.4
+  speeds.slowMaks = speeds.topSpeedX * 0.5
   local gameTimes = {}
   gameTimes.groundTime = 0
   gameTimes.playerDeadtime = 3000
@@ -136,6 +136,10 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     end
     local vx, vy = player:getLinearVelocity()
     return vx, vy
+  end
+
+  local function getTopSpeedX()
+    return speeds.topSpeedX
   end
 
   local function getPlayerPositionInWorld()
@@ -1566,10 +1570,6 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
 
   local function startBot()
     bot = botModule.new(player)
-    local botSpeed = math.random(335, 345)
-    speeds.defaultTopSpeed = botSpeed
-    speeds.topSpeedX = botSpeed
-    speeds.tempSpeedX = botSpeed
   end
 
   if isSimulator and composer.config.bot and mainPlayer then
@@ -1646,6 +1646,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   player.tutorialPause = tutorialPause
   player.canOtherPlayerUsePU = canOtherPlayerUsePU
   player.getLinearVelocityOnPlayer = getLinearVelocityOnPlayer
+  player.getTopSpeedX = getTopSpeedX
   player.setLinearVelocityOnPlayer = setLinearVelocityOnPlayer
   player.getPlayerPositionInWorld = getPlayerPositionInWorld
   player.setPlayerPositionInWorld = setPlayerPositionInWorld

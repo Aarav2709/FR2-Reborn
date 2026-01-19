@@ -32,7 +32,7 @@
     "inject-field",
     "redundant-parameter",
     "unused-local",
-    "missing-module"
+    "cast-local-type"
   ],
   "diagnostics.severity": {
     "lowercase-global": "Warning",
@@ -40,6 +40,5 @@
     "unused-label": "Hint",
     "unused-vararg": "Hint"
   },
-  "diagnostics.libraryFiles": "Disable",
-  "workspace.library": ["./.editor", "./types/solar2d"]
+  "diagnostics.libraryFiles": "Disable"
 }

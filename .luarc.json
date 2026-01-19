@@ -1,0 +1,14 @@
+{
+  "runtime.version": "LuaJIT",
+  "diagnostics.globals": [
+    "display",
+    "system",
+    "timer",
+    "Runtime",
+    "network"
+  ],
+  "diagnostics.disable": [
+    "redundant-parameter",
+    "deprecated"
+  ]
+}

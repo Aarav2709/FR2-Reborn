@@ -86,7 +86,7 @@ function scene:create(event)
     end
   end
   itemSelected = 1
-  
+
   local function commCallback(data)
     if data.m == tcpFormat.purchaseItem() or data.m == httpsFormat.buyCrystalIOS() or data.m == httpsFormat.buyCrystalGoogle() or data.m == httpsFormat.buyCrystalAmazon() then
       boughtItems = composer.database.getItems()
@@ -94,12 +94,12 @@ function scene:create(event)
       updateTableView()
     end
   end
-  
+
   local function createItemEffect()
     trailHelper.createTrail(itemTrailSelected, monster.getGroup().x - 5, monster.getGroup().y - 50, screenGroup)
     screenGroup:insert(monster.getGroup())
   end
-  
+
   local function playItemEffect()
     if oldEffect ~= itemTrailSelected then
       oldEffect = itemTrailSelected
@@ -113,7 +113,7 @@ function scene:create(event)
       end
     end
   end
-  
+
   local function changeAvatar(spriteType, index)
     if currentMarketData[index] == nil then
       return
@@ -162,7 +162,7 @@ function scene:create(event)
       playItemEffect()
     end
   end
-  
+
   local function findIndexOnKey(key)
     for i = 1, #currentMarketData do
       if tonumber(currentMarketData[i].key) == tonumber(key) then
@@ -170,7 +170,7 @@ function scene:create(event)
       end
     end
   end
-  
+
   local function findIndexOnId(key)
     key = tonumber(key)
     if key < 200 then
@@ -191,7 +191,7 @@ function scene:create(event)
       return 10
     end
   end
-  
+
   local function isItemBought(itemData)
     if itemData and boughtItems[tostring(itemData.key)] then
       return true
@@ -200,7 +200,7 @@ function scene:create(event)
     end
     return false
   end
-  
+
   local function updateItemTitle(index)
     local newTitle = ""
     if currentMarketData[index] then
@@ -226,7 +226,7 @@ function scene:create(event)
     })
     screenGroup:insert(title)
   end
-  
+
   local function updateTextInfo(index)
     if masterSkinBackground then
       masterSkinBackground:removeSelf()
@@ -250,14 +250,14 @@ function scene:create(event)
     if currentMarketData[index] == nil then
       return
     end
-    
+
     local function addMasterSkinBackground()
       masterSkinBackground = display.newImageRect("images/gui/market/masterWindow.png", 100, 32)
       masterSkinBackground.x = 280
       masterSkinBackground.y = 304
       screenGroup:insert(masterSkinBackground)
     end
-    
+
     if currentMarketData[index].master then
       local currentWins = composer.database.getWinsForAvatar(currentMarketData[index].characterId)
       local reqWins = currentMarketData[index].winsReq
@@ -360,7 +360,10 @@ function scene:create(event)
       screenGroup:insert(masterSkinInfo)
     elseif tabSelected == 8 and currentMarketData[itemSelected].characterId and not boughtItems[tostring(currentMarketData[itemSelected].characterId)] then
       addMasterSkinBackground()
-      local text = composer.localized.get("Buy") .. " " .. composer.storeConfig.getItem(currentMarketData[itemSelected].characterId).title .. " " .. composer.localized.get("First")
+      local text = composer.localized.get("Buy") ..
+      " " ..
+      composer.storeConfig.getItem(currentMarketData[itemSelected].characterId).title ..
+      " " .. composer.localized.get("First")
       masterSkinInfo = composer.newText({
         string = text,
         size = 14,
@@ -391,13 +394,15 @@ function scene:create(event)
         }
       })
       screenGroup:insert(masterSkinInfo)
-      bubbleWindow = display.newImageRect("images/gui/market/items/boosts/" .. currentMarketData[itemSelected].key .. "_2.png", 100, 69)
+      bubbleWindow = display.newImageRect(
+      "images/gui/market/items/boosts/" .. currentMarketData[itemSelected].key .. "_2.png", 100, 69)
       bubbleWindow.x = 210
       bubbleWindow.y = 50
       screenGroup:insert(bubbleWindow)
     elseif not isItemBought(currentMarketData[1]) and tabSelected == 2 and itemSelected ~= 1 then
       addMasterSkinBackground()
-      local text = composer.localized.get("Buy") .. " " .. currentMarketData[1].title .. " " .. composer.localized.get("First")
+      local text = composer.localized.get("Buy") ..
+      " " .. currentMarketData[1].title .. " " .. composer.localized.get("First")
       masterSkinInfo = composer.newText({
         string = text,
         size = 14,
@@ -412,7 +417,7 @@ function scene:create(event)
       screenGroup:insert(masterSkinInfo)
     end
   end
-  
+
   local function updateBuyButtonState(index)
     if index and currentMarketData[index].spinningPrize then
       btnBuy.isVisible = false
@@ -428,7 +433,7 @@ function scene:create(event)
       btnBuy.isVisible = true
     end
   end
-  
+
   function updateMarketplace(spriteType, newIndex)
     composer.debugger.debugTable("network", "currentMarketData :", currentMarketData)
     local index = tonumber(newIndex)
@@ -451,7 +456,7 @@ function scene:create(event)
     end
     updateBuyButtonState(index)
   end
-  
+
   function updateMoneyLabel()
     moneyValue = composer.database.getMoney()
     if moneyLabel then
@@ -472,7 +477,7 @@ function scene:create(event)
     })
     screenGroup:insert(moneyLabel)
   end
-  
+
   local function findItemSelectedForSpriteType(currentMonster)
     local inedxToSearchFor = tonumber(monsterData[tabSelected])
     if currentMonster then
@@ -490,7 +495,7 @@ function scene:create(event)
     end
     itemSelected = 1
   end
-  
+
   local function btnBackRelease(event)
     if composer.onboarding.isActive == true then
       composer.onboarding.stepDone()
@@ -499,7 +504,7 @@ function scene:create(event)
       composer.removeScene("lua.scenes.marketplace")
     end
   end
-  
+
   local function giveNoticeOfSkinChanges()
     local newSkin = 0
     if 1 < itemSelected then
@@ -510,7 +515,7 @@ function scene:create(event)
       composer.comm.changeSkin(currentMarketData[1].key, newSkin)
     end
   end
-  
+
   local function storeTempMonsterChanges()
     if not currentMarketData then
       return
@@ -537,7 +542,7 @@ function scene:create(event)
       end
     end
   end
-  
+
   local function updateMarketTabSelected(newTabId, currentMonster)
     local deselectIndex
     if 0 < tabSelected and tabSelected ~= 2 then
@@ -582,20 +587,20 @@ function scene:create(event)
     end
     updateTableView()
   end
-  
+
   local function setUpForAvatar(oldMonster)
     storeTempMonsterChanges()
     currentMarketData = composer.storeConfig.getAllCharactersSortedOnPrice()
     updateMarketTabSelected(1, oldMonster)
   end
-  
+
   local function btnAvatarRelease()
     if tabSelected ~= 1 then
       composer.audio.play("button_press")
       setUpForAvatar()
     end
   end
-  
+
   local function btnSkinRelease()
     if startedClean then
       return
@@ -614,7 +619,7 @@ function scene:create(event)
       setUpForAvatar(currentMarketData[1].key)
     end
   end
-  
+
   local function btnHeadRelease()
     if tabSelected ~= 3 then
       composer.audio.play("button_press")
@@ -623,7 +628,7 @@ function scene:create(event)
       updateMarketTabSelected(3)
     end
   end
-  
+
   local function btnFacewearRelease()
     if tabSelected ~= 4 then
       composer.audio.play("button_press")
@@ -632,7 +637,7 @@ function scene:create(event)
       updateMarketTabSelected(4)
     end
   end
-  
+
   local function btnNeckRelease()
     if tabSelected ~= 5 then
       composer.audio.play("button_press")
@@ -641,7 +646,7 @@ function scene:create(event)
       updateMarketTabSelected(5)
     end
   end
-  
+
   local function btnItemRelease(self, event)
     if tabSelected ~= 6 then
       composer.audio.play("button_press")
@@ -650,7 +655,7 @@ function scene:create(event)
       updateMarketTabSelected(6)
     end
   end
-  
+
   local function btnFeetRelease(self, event)
     if tabSelected ~= 7 then
       composer.audio.play("button_press")
@@ -659,7 +664,7 @@ function scene:create(event)
       updateMarketTabSelected(7)
     end
   end
-  
+
   local function btnSaleRelease(self, event, noSound)
     if tabSelected ~= 8 then
       if not noSound then
@@ -676,10 +681,10 @@ function scene:create(event)
       updateMarketTabSelected(8, currentMonster)
     end
   end
-  
+
   marketTable = tableHelper.new(4, 0, 100, 240, 58, nil, "market", function()
   end, 32)
-  
+
   local function createMarketButtonTable()
     marketTableList = {
       {
@@ -762,10 +767,10 @@ function scene:create(event)
     end
     marketTable.createTable(marketTableList, screenGroup)
   end
-  
+
   local function tableViewCellButtonRelease()
   end
-  
+
   local function isLocked()
     if horizontalTableView.dataTable and horizontalTableView.dataTable[itemSelected] then
       local cell = horizontalTableView.dataTable[itemSelected].group
@@ -776,7 +781,7 @@ function scene:create(event)
     end
     return false
   end
-  
+
   local function btnBuyRelease(event)
     local item = currentMarketData[itemSelected]
     if item and item.key then
@@ -810,12 +815,12 @@ function scene:create(event)
       local itemIAPStatus = inApp.loadSpecificProduct(itemKeyToLoad)
       local options = {
         isModal = true,
-        params = {item = item, itemIAPStatus = itemIAPStatus}
+        params = { item = item, itemIAPStatus = itemIAPStatus }
       }
       composer.showOverlay("lua.overlays.marketBuy", options)
     end
   end
-  
+
   local function onTableViewScrollEnd(item, isClick)
     if isClick and itemSelected == item and (tabSelected == 1 or tabSelected == 2) then
       timer.performWithDelay(100, btnSkinRelease)
@@ -824,7 +829,7 @@ function scene:create(event)
       updateMarketplace(tabSelected, itemSelected)
     end
   end
-  
+
   local btnBack = composer.newButton({
     image = "images/gui/common/buttonHome.png",
     width = 90,
@@ -861,7 +866,7 @@ function scene:create(event)
     x = 365,
     y = 291
   })
-  
+
   local function getTimeLeftInText(timeLeft)
     if timeLeft then
       local minutes = math.floor(timeLeft / 60)
@@ -874,7 +879,7 @@ function scene:create(event)
     end
     return ""
   end
-  
+
   function updateTableView()
     if horizontalTableView then
       horizontalTableView:cleanUp()
@@ -1079,13 +1084,13 @@ function scene:create(event)
           }
         })
         group:insert(priceLabel)
-        
+
         local function isLocked()
           return haveLock
         end
-        
+
         group.isLocked = isLocked
-        
+
         local function bounceLock()
           if locked then
             transition.to(locked, {
@@ -1101,7 +1106,7 @@ function scene:create(event)
             })
           end
         end
-        
+
         group.bounceLock = bounceLock
         return group
       end
@@ -1116,7 +1121,7 @@ function scene:create(event)
     updateItemTitle(itemSelected)
     screenGroup:insert(leftBarDisplayGroup)
   end
-  
+
   local function updateDisplayGroup()
     screenGroup:insert(marketBackground)
     screenGroup:insert(leftBarDisplayGroup)
@@ -1129,7 +1134,7 @@ function scene:create(event)
     screenGroup:insert(btnSkin)
     screenGroup:insert(btnSkinBack)
   end
-  
+
   function clean()
     startedClean = true
     display.remove(btnBack)
@@ -1167,7 +1172,7 @@ function scene:create(event)
       monster = nil
     end
   end
-  
+
   function scene:overlayEnded(data)
     composer.comm.setCallback(commCallback)
     if data and type(data) == "table" then
@@ -1177,7 +1182,7 @@ function scene:create(event)
       updateBuyButtonState(itemSelected)
     end
   end
-  
+
   createMarketButtonTable()
   updateDisplayGroup()
   if marketTableList[1].active then
@@ -1214,7 +1219,7 @@ function scene:show(event)
   end
   Runtime:addEventListener("resize", resizeListener)
   resizeListener()
-  
+
   function cleanEnter()
     androidLogic.removeBackButton()
   end

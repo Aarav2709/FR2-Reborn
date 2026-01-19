@@ -8,17 +8,17 @@ local layoutStartScreen, resizeListener
 function scene:create(event)
   local screenGroup = self.view
   composer.cheater = false
-  
+
   local function btnRegisterRelease(event)
-    local options = {isModal = true}
+    local options = { isModal = true }
     composer.showOverlay("lua.overlays.createUser", options)
   end
-  
+
   local function btnLoginRelease(event)
-    local options = {isModal = true}
+    local options = { isModal = true }
     composer.showOverlay("lua.overlays.loginUser", options)
   end
-  
+
   backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 480, 320)
   screenGroup:insert(backgroundImage)
   logo = display.newImageRect("images/gui/common/logo.png", 224, 135)
@@ -71,17 +71,17 @@ function scene:create(event)
       btnLogin.y = contentTop + contentHeight * 0.78
     end
   end
-  
+
   local function updateDisplayGroups()
     screenGroup:insert(btnRegister)
     screenGroup:insert(btnLogin)
   end
-  
+
   function clean()
     display.remove(btnRegister)
     display.remove(btnLogin)
   end
-  
+
   updateDisplayGroups()
   if layoutStartScreen then
     layoutStartScreen()
@@ -103,11 +103,11 @@ function scene:show(event)
     composer.database.setOnboardingPartDone(1)
     composer.commHttps.sendRegisterMessage(newName)
   end
-  
+
   function cleanEnter()
     androidLogic.removeBackButton()
   end
-  
+
   resizeListener = function()
     if layoutStartScreen then
       layoutStartScreen()

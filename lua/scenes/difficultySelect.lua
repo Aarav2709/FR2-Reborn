@@ -210,6 +210,7 @@ function scene:create(event)
     display.remove(btnHard)
     display.remove(btnBack)
   end
+
   if layoutDifficultySelect then
     layoutDifficultySelect()
   end

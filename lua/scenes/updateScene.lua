@@ -8,7 +8,7 @@ function scene:create(event)
   local screenGroup = self.view
   local androidLogic = require("lua.modules.androidBackButton")
   composer.cheater = false
-  
+
   local function btnUpdateRelease(event)
     if isAndroid then
       local address = "market://details?id=com.dirtybit.funrun2"
@@ -20,7 +20,7 @@ function scene:create(event)
       system.openURL("https://itunes.apple.com/us/app/fun-run-2-multiplayer-race/id920482331?l=nb&ls=1&mt=8")
     end
   end
-  
+
   backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 480, 320)
   logo = display.newImageRect("images/gui/common/logo.png", 224, 135)
   infoText = composer.newText({
@@ -69,19 +69,19 @@ function scene:create(event)
       btnUpdate.y = contentTop + contentHeight * (250 / 320)
     end
   end
-  
+
   local function updateDisplayGroups()
     screenGroup:insert(backgroundImage)
     screenGroup:insert(logo)
     screenGroup:insert(btnUpdate)
     screenGroup:insert(infoText)
   end
-  
+
   function clean()
     display.remove(btnUpdate)
     androidLogic.removeBackButton()
   end
-  
+
   updateDisplayGroups()
   if layoutUpdateScene then
     layoutUpdateScene()

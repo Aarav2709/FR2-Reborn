@@ -47,12 +47,12 @@ function scene:show(event)
   end
   Runtime:addEventListener("resize", resizeListener)
   resizeListener()
-  
+
   local function startGame()
     composer.gotoScene("lua.scenes.gamePlay")
     composer.removeScene("lua.scenes.bufferScene")
   end
-  
+
   function cleanEnter()
     statedClean = true
     if startGameTimer then
@@ -60,7 +60,7 @@ function scene:show(event)
       startGameTimer = nil
     end
   end
-  
+
   print("Starting timer")
   startGame()
 end

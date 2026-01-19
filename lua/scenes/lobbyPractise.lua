@@ -252,13 +252,14 @@ function scene:show(event)
   function cleanEnter()
     androidLogic.removeBackButton()
   end
-    resizeListener = function()
-      if layoutLobbyPractise then
-        layoutLobbyPractise()
-      end
+
+  resizeListener = function()
+    if layoutLobbyPractise then
+      layoutLobbyPractise()
     end
-    Runtime:addEventListener("resize", resizeListener)
-    resizeListener()
+  end
+  Runtime:addEventListener("resize", resizeListener)
+  resizeListener()
 
   androidLogic.addBackButton("lua.scenes.playMenu", "lua.scenes.lobbyPractise")
 end
@@ -271,10 +272,10 @@ function scene:hide(event)
       cleanEnter = nil
     end
   elseif phase == "did" then
-      if resizeListener then
-        Runtime:removeEventListener("resize", resizeListener)
-        resizeListener = nil
-      end
+    if resizeListener then
+      Runtime:removeEventListener("resize", resizeListener)
+      resizeListener = nil
+    end
   end
 end
 

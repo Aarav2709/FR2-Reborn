@@ -72,7 +72,7 @@ function scene:create(event)
   local tableBackground = display.newImageRect("images/gui/ranking/cell.png", 480, 320)
   tableBackground.x = display.contentWidth * 0.5
   tableBackground.y = display.contentHeight * 0.5
-  
+
   local function updateUsername()
     local playerInfo = composer.database.getPlayerInformation()
     if playerInfo.usernameCode then
@@ -84,12 +84,12 @@ function scene:create(event)
     end
     usernameTag.x = username.x + username.width * 0.5
   end
-  
+
   local function homeButtonEvent()
     composer.gotoScene("lua.scenes.mainMenu")
     composer.removeScene("lua.scenes.settings")
   end
-  
+
   local homeButton = composer.newButton({
     image = "images/gui/common/buttonHome.png",
     width = 90,
@@ -98,11 +98,11 @@ function scene:create(event)
     x = 50,
     y = 292
   })
-  
+
   local function editNameButtonEvent()
-    composer.showOverlay("lua.overlays.editUsername", {isModal = true})
+    composer.showOverlay("lua.overlays.editUsername", { isModal = true })
   end
-  
+
   local editNameButton = composer.newButton({
     x = 75,
     y = 35,
@@ -111,7 +111,7 @@ function scene:create(event)
     image = "images/gui/settings/buttonRename.png",
     onRelease = editNameButtonEvent
   })
-  
+
   local function updateDisplayGroup()
     group:insert(tableBackground)
     group:insert(creditsTable.getTable())
@@ -122,10 +122,10 @@ function scene:create(event)
     group:insert(tableTitleText)
     group:insert(homeButton)
   end
-  
+
   local function tableCallback(data)
   end
-  
+
   local function onTutorialClick()
     composer.onboarding.init()
     composer.onboarding.activate()
@@ -133,7 +133,7 @@ function scene:create(event)
     composer.onboarding.setStep("1")
     composer.onboarding.activateStep()
   end
-  
+
   local function onMusicClick()
     local oldState = composer.database.getSound()
     if oldState == 1 then
@@ -151,7 +151,7 @@ function scene:create(event)
     end
     settingsTable.refreshTable()
   end
-  
+
   local function onSoundClick()
     local oldState = composer.database.getSound()
     if oldState == 1 then
@@ -169,7 +169,7 @@ function scene:create(event)
     end
     settingsTable.refreshTable()
   end
-  
+
   local function onViolenceClick()
     local oldState = composer.database.getViolence()
     print("Old violence state", oldState)
@@ -188,7 +188,7 @@ function scene:create(event)
     end
     settingsTable.refreshTable()
   end
-  
+
   local function onFacebookClick()
     if not composer.database.getFacebookId() then
       composer.analytics.newEvent("design", {
@@ -201,33 +201,33 @@ function scene:create(event)
     end
     settingsTable.refreshTable()
   end
-  
+
   local function onAccountClick()
-    composer.showOverlay("lua.overlays.editAccountData", {isModal = true})
+    composer.showOverlay("lua.overlays.editAccountData", { isModal = true })
   end
-  
+
   local function onEmailClick()
-    composer.showOverlay("lua.overlays.editEmail", {isModal = true})
+    composer.showOverlay("lua.overlays.editEmail", { isModal = true })
   end
-  
+
   local function onPasswordClick()
-    composer.showOverlay("lua.overlays.editPassword", {isModal = true})
+    composer.showOverlay("lua.overlays.editPassword", { isModal = true })
   end
-  
+
   local function onLogoutClick()
-    composer.showOverlay("lua.overlays.logout", {isModal = true})
+    composer.showOverlay("lua.overlays.logout", { isModal = true })
   end
-  
+
   local function onPushClick()
-    composer.showOverlay("lua.overlays.editNotificationSettings", {isModal = true})
+    composer.showOverlay("lua.overlays.editNotificationSettings", { isModal = true })
   end
-  
+
   settingsTable = tableHelper.new(356, 37, 150, 283, 38, "images/scenes/market/table.png", "settings", tableCallback)
-  
+
   local function updateSettingsList()
     if composer.data.playerInfo.email then
       settingsList = {
-        {sound = true, onClick = onSoundClick},
+        { sound = true, onClick = onSoundClick },
         {
           facebook = true,
           onClick = onFacebookClick,
@@ -261,7 +261,7 @@ function scene:create(event)
       }
     else
       settingsList = {
-        {sound = true, onClick = onSoundClick},
+        { sound = true, onClick = onSoundClick },
         {
           tutorial = true,
           onClick = onTutorialClick,
@@ -290,7 +290,7 @@ function scene:create(event)
       }
     end
   end
-  
+
   local function checkForFacebook()
     if composer.database.getFacebookId() then
       for i = 1, #settingsList do
@@ -301,7 +301,7 @@ function scene:create(event)
       end
     end
   end
-  
+
   local function checkForLogout()
     if not composer.data.playerInfo.email and not composer.database.getFacebookId() and not isSimulator then
       for i = 1, #settingsList do
@@ -312,12 +312,12 @@ function scene:create(event)
       end
     end
   end
-  
+
   function scene:overlayEnded(data)
     updateSettingsList()
     settingsTable.refreshTable(settingsList, group, 1)
   end
-  
+
   function httpsCallback(data)
     print(data.m)
     if data.m == httpsFormat.changeUsername() then
@@ -328,17 +328,17 @@ function scene:create(event)
       settingsTable.refreshTable(settingsList, group, 1)
     end
   end
-  
+
   local function tcpCallback(data)
   end
-  
+
   local function addToCredits(name, specialSize)
-    creditsTableData[#creditsTableData + 1] = {creditInfo = name}
+    creditsTableData[#creditsTableData + 1] = { creditInfo = name }
     if specialSize then
       creditsTableData[#creditsTableData].size = specialSize
     end
   end
-  
+
   local headerFontSize = 20
   local itemFontSize = 15
   addToCredits("")
@@ -390,21 +390,21 @@ function scene:create(event)
   addToCredits("")
   addToCredits("")
   addToCredits("")
-  
+
   local function creditsTableCallback()
   end
-  
+
   local function scrollCredits()
     if startedClean then
       return
     end
   end
-  
+
   local function createCredits()
     creditsTable = tableHelper.new(15, 45, 300, 283, 22, nil, "credits", creditsTableCallback)
     creditsTable.createTable(creditsTableData, group)
   end
-  
+
   function clean()
     startedClean = true
     display.remove(homeButton)
@@ -420,7 +420,7 @@ function scene:create(event)
       settingsTable.cleanTable()
     end
   end
-  
+
   updateSettingsList()
   checkForFacebook()
   checkForLogout()
@@ -451,11 +451,11 @@ function scene:show(event)
   end
   Runtime:addEventListener("resize", resizeListener)
   resizeListener()
-  
+
   function cleanEnter()
     androidLogic.removeBackButton()
   end
-  
+
   androidLogic.addBackButton("lua.scenes.mainMenu", "lua.scenes.settings")
 end
 

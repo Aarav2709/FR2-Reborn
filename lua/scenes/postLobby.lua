@@ -840,7 +840,7 @@ function scene:create(event)
     chest = basicBoostAdModule.init(composer.data.gameInfo.stats.fa, screenGroup, composer.gamesPlayed)
     if composer.data.gameInfo.stats.fa then
       chestCoinEffect = coinRewardModule.createCoinReward(composer.data.gameInfo.stats.h,
-      math.floor(composer.data.gameInfo.stats.g / 2), 5, true)
+        math.floor(composer.data.gameInfo.stats.g / 2), 5, true)
       chestCoinEffect.animateCoins()
       effectGroup:insert(chestCoinEffect)
     end

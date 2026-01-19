@@ -127,12 +127,12 @@ function scene:create(event)
     }
   })
   countdownText.alpha = 0
-  
+
   local function btnBackRelease(event)
     composer.gotoScene("lua.scenes.mainMenu")
     composer.removeScene("lua.scenes.lobbyQuickPlay")
   end
-  
+
   btnBack = composer.newButton({
     image = "images/gui/common/buttonHome.png",
     width = 90,
@@ -226,7 +226,7 @@ function scene:create(event)
       btnBack.y = contentTop + contentHeight * (292 / 320)
     end
   end
-  
+
   function showImages()
     if runOnce then
       runOnce = false
@@ -243,7 +243,7 @@ function scene:create(event)
       btnBack.alpha = 1
     end
   end
-  
+
   local function updateDisplayGroups()
     screenGroup:insert(backgroundImage)
     screenGroup:insert(backgroundImage2)
@@ -258,11 +258,11 @@ function scene:create(event)
     screenGroup:insert(searchText)
     screenGroup:insert(btnBack)
   end
-  
+
   function clean()
     display.remove(btnBack)
   end
-  
+
   updateDisplayGroups()
   if layoutLobbyQuickPlay then
     layoutLobbyQuickPlay()
@@ -278,7 +278,7 @@ function scene:show(event)
   local monsterLoader = require("spine-corona.monsterLoader")
   local androidLogic = require("lua.modules.androidBackButton")
   local tcpFormat = require("lua.network.tcpMessageFormat")
-  local mapAvailable = {0, 0}
+  local mapAvailable = { 0, 0 }
   local votesMap1 = 0
   local votesMap2 = 0
   local playersVote = {
@@ -310,7 +310,7 @@ function scene:show(event)
     {},
     {}
   }
-  
+
   local function removeOldInfo(id)
     if monsters[id] then
       monsters[id].clean()
@@ -321,7 +321,7 @@ function scene:show(event)
       playerAvatarImage[id] = nil
     end
   end
-  
+
   local function setPlate(id, userData)
     local basePath = "images/gui/lobby/6.png"
     if userData then
@@ -333,7 +333,7 @@ function scene:show(event)
     playerAvatarImage[id].y = 32
     avatarDisplayGroupList[id]:insert(playerAvatarImage[id])
   end
-  
+
   local function updateAvatar(id, avatarData, active, name, playerId)
     if active then
       if monsters[id] and monsters[id].playerId == playerId then
@@ -354,7 +354,7 @@ function scene:show(event)
     end
     playerText[id].text = name
   end
-  
+
   local function updateVotes()
     votesMap1 = 0
     votesMap2 = 0
@@ -370,19 +370,19 @@ function scene:show(event)
     screenGroup:insert(map1Text)
     screenGroup:insert(map2Text)
   end
-  
+
   local function levelAlternativ1Release(self, event)
     tcpClient.sendMapSelected(mapAvailable[1])
     if composer.database.getSound() == 1 then
     end
   end
-  
+
   local function levelAlternativ2Release(self, event)
     tcpClient.sendMapSelected(mapAvailable[2])
     if composer.database.getSound() == 1 then
     end
   end
-  
+
   local function updateMapImage(alt1, alt2)
     levelAlternativ1 = display.newImageRect(alt1, 88, 90)
     local mapData1 = composer.data.getMapInfo(mapAvailable[1])
@@ -433,7 +433,7 @@ function scene:show(event)
     levelAlternativ1:addEventListener("tap", levelAlternativ1)
     levelAlternativ2:addEventListener("tap", levelAlternativ2)
   end
-  
+
   local function selectMap(mapSelected)
     if tonumber(mapSelected) == tonumber(mapAvailable[1]) then
       composer.data.gameInfo.map = mapAvailable[1]
@@ -441,7 +441,7 @@ function scene:show(event)
       composer.data.gameInfo.map = mapAvailable[2]
     end
   end
-  
+
   local function setMapImage()
     if runOnce then
       runOnce = false
@@ -450,18 +450,18 @@ function scene:show(event)
       updateMapImage(alt1, alt2)
     end
   end
-  
+
   local function returnToPlayMenu()
     composer.gotoScene("lua.scenes.playMenu")
     composer.removeScene("lua.scenes.lobbyQuickPlay")
   end
-  
+
   local function disconnectAlertComplete(event)
     if "clicked" == event.action then
       returnToPlayMenu()
     end
   end
-  
+
   local function showDisconnectAlert()
     if composer.suspendAlert then
       return
@@ -472,34 +472,36 @@ function scene:show(event)
         composer.gotoScene("lua.scenes.playMenu")
         composer.removeScene("lua.scenes.lobbyQuickPlay")
       else
-        disconnectAlert = native.showAlert(composer.localized.get("Disconnected"), composer.localized.get("You have lost the connection. Press the ok button to return to the menu."), {
+        disconnectAlert = native.showAlert(composer.localized.get("Disconnected"),
+          composer.localized.get("You have lost the connection. Press the ok button to return to the menu."), {
           composer.localized.get("Ok")
         }, disconnectAlertComplete)
       end
     end
   end
-  
+
   local function showOldVersionInfo()
     if not disconnectAlert then
-      oldVersionAlert = native.showAlert(composer.localized.get("OldVersion"), composer.localized.get("PleaseUpdateApp"), {
-        composer.localized.get("Ok")
-      }, disconnectAlertComplete)
+      oldVersionAlert = native.showAlert(composer.localized.get("OldVersion"), composer.localized.get("PleaseUpdateApp"),
+        {
+          composer.localized.get("Ok")
+        }, disconnectAlertComplete)
     end
   end
-  
+
   local function checkForDisconnect()
     if connected and not startGame and tcpClient.isOnline() == false then
       showDisconnectAlert()
     end
   end
-  
+
   local function stopCountdownTimer()
     if countdownTimer then
       timer.cancel(countdownTimer)
       countdownTimer = nil
     end
   end
-  
+
   local function startCountdown(timeLeft)
     stopCountdownTimer()
     local timeAbove = timeLeft % 1000
@@ -507,7 +509,7 @@ function scene:show(event)
     if 0 < numberOfTicks then
       countdownText.text = composer.localized.get("GameStarting") .. numberOfTicks
     end
-    
+
     local function updateCounddownText()
       numberOfTicks = numberOfTicks - 1
       local text = ""
@@ -519,19 +521,19 @@ function scene:show(event)
       countdownText.text = text
       countdownTimer = timer.performWithDelay(1000, updateCounddownText, 1)
     end
-    
+
     countdownTimer = timer.performWithDelay(timeAbove, updateCounddownText, 1)
   end
-  
+
   local function syncClock(newServerClockValue)
     composer.syncedClock = newServerClockValue / 1000000
     composer.serverSyncTime = system.getTimer()
-    
+
     function composer.serverClock()
       return math.round(composer.syncedClock + (system.getTimer() - composer.serverSyncTime))
     end
   end
-  
+
   local function addPlayerInfo(data)
     composer.data.gameInfo.players = {}
     local lobbySize = #data[2].p
@@ -550,7 +552,7 @@ function scene:show(event)
       end
     end
   end
-  
+
   local function receiveUpdateFromNetwork(data)
     if startedClean then
       return
@@ -580,7 +582,7 @@ function scene:show(event)
       updateVotes()
     end
   end
-  
+
   local function stopNetworkTimers()
     if checkNetworkTime then
       timer.cancel(checkNetworkTime)
@@ -591,7 +593,7 @@ function scene:show(event)
       checkDisconnect = nil
     end
   end
-  
+
   local function isConnected()
     if composer.suspendAlert then
       return
@@ -601,7 +603,7 @@ function scene:show(event)
       composer.createCustomOverlay(39)
     end
   end
-  
+
   local function getUpdatesFromServer(data)
     if data.m == tcpFormat.requestGame() then
       if data.r then
@@ -614,7 +616,7 @@ function scene:show(event)
       end
     end
   end
-  
+
   composer.comm.setCallback(getUpdatesFromServer)
   if composer.data.gameInfo.gameType == 1 then
     composer.comm.getGameServerAddress()
@@ -629,7 +631,7 @@ function scene:show(event)
     checkNetworkTime = timer.performWithDelay(8000, isConnected, 1)
     checkDisconnect = timer.performWithDelay(6000, checkForDisconnect, 0)
   end
-  
+
   function cleanEnter()
     startedClean = true
     androidLogic.removeBackButton()

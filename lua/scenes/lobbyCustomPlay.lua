@@ -106,7 +106,7 @@ function scene:create(event)
   avatarDisplayGroupList[3].y = 0
   avatarDisplayGroupList[4].x = 0
   avatarDisplayGroupList[4].y = 0
-  
+
   local function setGameMode(mode, mapId)
     if mode ~= shouldStartQuickPlay then
       tcpClient.sendToggleRandomPlayers(mode)
@@ -115,45 +115,45 @@ function scene:create(event)
       tcpClient.sendMapSelected(mapId)
     end
   end
-  
+
   local function btnBackRelease(event)
     if not startGame and not backgroundImage.isVisible then
       composer.gotoScene("lua.scenes.mainMenu")
       composer.removeScene("lua.scenes.lobbyCustomPlay")
     end
   end
-  
+
   local function btnChatRelease(event)
     if not startGame and not backgroundImage.isVisible then
       startChat = true
-      local options = {isModal = true}
+      local options = { isModal = true }
       composer.showOverlay("lua.overlays.chat", options)
     end
   end
-  
+
   local function btnPlayRelease(event)
     if not startGame and not backgroundImage.isVisible then
       tcpClient.sendStartGame()
     end
   end
-  
+
   local function btnSettingsRelease(event)
     if not startGame and not backgroundImage.isVisible then
       local options = {
         isModal = true,
-        params = {setGameModeFunction = setGameMode}
+        params = { setGameModeFunction = setGameMode }
       }
       composer.showOverlay("lua.overlays.customPlayModeSelect", options)
     end
   end
-  
+
   local function searchForFriendButtonEvent()
     if not backgroundImage.isVisible then
-      local options = {isModal = true}
+      local options = { isModal = true }
       composer.showOverlay("lua.overlays.sendFriendRequest", options)
     end
   end
-  
+
   btnBack = composer.newButton({
     image = "images/gui/common/buttonHome.png",
     width = 90,
@@ -292,7 +292,7 @@ function scene:create(event)
       searchForFriendButton.y = contentTop + contentHeight * (18 / 320)
     end
   end
-  
+
   local function createFriendList()
     local allFriends = composer.database.getFriends()
     local tableFriends = {}
@@ -331,7 +331,7 @@ function scene:create(event)
     end
     return tableFriends
   end
-  
+
   local function tableCallback(friendId)
     local emptpySlots = 4
     for i = 1, #playerAvatarImage do
@@ -352,12 +352,12 @@ function scene:create(event)
       })
     end
   end
-  
+
   local function generateFriendTableView()
     friendTableView = tableHelper.new(306, 44, 180, 276, 40, nil, "friends", tableCallback)
     friendTableView.createTable(createFriendList(), screenGroup)
   end
-  
+
   local function updateDisplayGroups()
     screenGroup:insert(tableBackground)
     screenGroup:insert(friendTableView.getTable())
@@ -376,7 +376,7 @@ function scene:create(event)
     screenGroup:insert(backgroundImage)
     screenGroup:insert(searchText)
   end
-  
+
   function refreshTable()
     if friendTableView then
       local yPos
@@ -387,13 +387,13 @@ function scene:create(event)
       friendTableView.createTable(createFriendList(), screenGroup)
       updateDisplayGroups()
       if yPos and friendTableView.getTable() then
-        friendTableView.getTable():scrollToY({y = yPos, time = 0})
+        friendTableView.getTable():scrollToY({ y = yPos, time = 0 })
       elseif friendTableView.getTable() then
-        friendTableView.getTable():scrollToY({y = 0, time = 0})
+        friendTableView.getTable():scrollToY({ y = 0, time = 0 })
       end
     end
   end
-  
+
   function clean()
     display.remove(btnBack)
     display.remove(btnChat)
@@ -406,7 +406,7 @@ function scene:create(event)
     end
     composer.mapHandler.setNonMapActive()
   end
-  
+
   function showImages()
     if runOnce then
       runOnce = false
@@ -418,7 +418,7 @@ function scene:create(event)
       end
     end
   end
-  
+
   generateFriendTableView()
   updateDisplayGroups()
   if layoutLobbyCustomPlay then
@@ -464,21 +464,21 @@ function scene:show(event)
   end
   Runtime:addEventListener("resize", resizeListener)
   resizeListener()
-  
+
   local function stopChatNotification(id)
     if chatImages[id] then
       chatImages[id]:removeSelf()
       chatImages[id] = nil
     end
   end
-  
+
   local function removeKickButton(id)
     if kickButtons[id] then
       kickButtons[id]:removeSelf()
       kickButtons[id] = nil
     end
   end
-  
+
   local function removeOldInfo(id)
     if monsters[id] then
       monsters[id].clean()
@@ -491,14 +491,14 @@ function scene:show(event)
     stopChatNotification(id)
     removeKickButton(id)
   end
-  
+
   local function addKickButton(id)
     removeKickButton(id)
-    
+
     local function kickPlayer(event)
       tcpClient.sendKickPlayer(id)
     end
-    
+
     if playerAvatarImage[id] then
       kickButtons[id] = composer.newButton({
         x = playerAvatarImage[id].x - 28,
@@ -511,7 +511,7 @@ function scene:show(event)
       avatarDisplayGroupList[id]:insert(kickButtons[id])
     end
   end
-  
+
   local function startChatNotification(id)
     stopChatNotification(id)
     if playerAvatarImage[id] then
@@ -525,7 +525,7 @@ function scene:show(event)
       avatarDisplayGroupList[id]:insert(chatImages[id])
     end
   end
-  
+
   local function setPlate(id, userData)
     local basePath = "images/gui/lobby/6.png"
     if userData then
@@ -540,7 +540,7 @@ function scene:show(event)
       playerAvatarImage[id].player = true
     end
   end
-  
+
   local function updateAvatar(id, avatarData, active, name, playerId)
     if active then
       if monsters[id] and monsters[id].playerId == playerId then
@@ -564,7 +564,7 @@ function scene:show(event)
     end
     playerText[id].text = name
   end
-  
+
   local function setImagePath(path)
     if mapImage then
       mapImage:removeSelf()
@@ -575,7 +575,7 @@ function scene:show(event)
     mapImage.y = display.contentHeight * 0.5
     screenGroup:insert(mapImage)
   end
-  
+
   local function returnToPlayMenu()
     local currentScene = composer.getSceneName("overlay")
     composer.gotoScene("lua.scenes.mainMenu")
@@ -585,7 +585,7 @@ function scene:show(event)
     end
     composer.removeScene("lua.scenes.lobbyCustomPlay")
   end
-  
+
   local function disconnectAlertComplete(event)
     if "clicked" == event.action then
       if composer.suspendAlert then
@@ -594,22 +594,23 @@ function scene:show(event)
       returnToPlayMenu()
     end
   end
-  
+
   local function showDisconnectAlert()
     if composer.suspendAlert then
       return
     end
-    disconnectAlert = native.showAlert(composer.localized.get("Disconnected"), composer.localized.get("LostConnection"), {
-      composer.localized.get("OK")
-    }, disconnectAlertComplete)
+    disconnectAlert = native.showAlert(composer.localized.get("Disconnected"), composer.localized.get("LostConnection"),
+      {
+        composer.localized.get("OK")
+      }, disconnectAlertComplete)
   end
-  
+
   local function checkForDisconnect()
     if connected and tcpClient.isOnline() == false then
       showAlert(1)
     end
   end
-  
+
   local function isConnected()
     if composer.suspendAlert then
       return
@@ -619,7 +620,7 @@ function scene:show(event)
       composer.createCustomOverlay(39)
     end
   end
-  
+
   function showAlert(alertType)
     if composer.suspendAlert then
       return
@@ -631,9 +632,9 @@ function scene:show(event)
       end
     end
   end
-  
+
   numberOfNotifications = 0
-  
+
   local function cleanNotifications()
     if chatNotification then
       chatNotification:removeSelf()
@@ -644,7 +645,7 @@ function scene:show(event)
       chatNotificationText = nil
     end
   end
-  
+
   local function checkForNotifications()
     cleanNotifications()
     if 0 < numberOfNotifications then
@@ -672,18 +673,18 @@ function scene:show(event)
       end
     end
   end
-  
+
   checkForNotifications()
-  
+
   local function syncClock(newServerClockValue)
     composer.syncedClock = newServerClockValue / 1000000
     composer.serverSyncTime = system.getTimer()
-    
+
     function composer.serverClock()
       return math.round(composer.syncedClock + (system.getTimer() - composer.serverSyncTime))
     end
   end
-  
+
   local function updateModeName()
     if shouldStartQuickPlay == 1 then
       if mapText.text ~= composer.localized.get("QuickPlay") then
@@ -703,13 +704,13 @@ function scene:show(event)
       end
     end
   end
-  
+
   local function exitLobby()
     tcpClient.stopTCPClient()
     composer.gotoScene("lua.scenes.playMenu")
     composer.removeScene("lua.scenes.lobbyCustomPlay")
   end
-  
+
   local function addPlayerInfo(data)
     composer.data.gameInfo.players = {}
     local lobbySize = #data[2].p
@@ -728,7 +729,7 @@ function scene:show(event)
       end
     end
   end
-  
+
   local function receiveUpdateFromNetwork(data)
     if startedClean then
       return
@@ -744,7 +745,7 @@ function scene:show(event)
         local options = {
           effect = "crossFade",
           time = 400,
-          params = {gameInfo = gameStateInfo}
+          params = { gameInfo = gameStateInfo }
         }
         composer.gotoScene("lua.scenes.lobbyQuickPlay", options)
         composer.removeScene("lua.scenes.lobbyCustomPlay")
@@ -812,7 +813,7 @@ function scene:show(event)
       print("ERROR NETWORK: Got this stuff, dunno what to do: ", data)
     end
   end
-  
+
   local function tcpCallback(data)
     if startedClean then
       return
@@ -837,14 +838,14 @@ function scene:show(event)
       refreshTable()
     end
   end
-  
+
   function scene:overlayEnded()
     composer.comm.setCallback(tcpCallback)
     if refreshTable then
       refreshTable()
     end
   end
-  
+
   local function startNetworkLogic()
     composer.comm.setCallback(tcpCallback)
     if composer.data.gameInfo.gameType == 3 then
@@ -861,10 +862,10 @@ function scene:show(event)
       print("WARNING: gameType is ", composer.data.gameInfo.gameType)
     end
   end
-  
+
   checkNetworkTime = timer.performWithDelay(8000, isConnected, 1)
   local checkDisconnect = timer.performWithDelay(6000, checkForDisconnect, 0)
-  
+
   function cleanEnter()
     startedClean = true
     if not startGame then
@@ -887,7 +888,7 @@ function scene:show(event)
     end
     cleanNotifications()
   end
-  
+
   startNetworkLogic()
 end
 

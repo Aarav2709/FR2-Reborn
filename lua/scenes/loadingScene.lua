@@ -89,6 +89,7 @@ function scene:create(event)
       })
     end
   end
+
   if layoutLoadingScene then
     layoutLoadingScene()
   end
@@ -277,7 +278,7 @@ function scene:show(event)
       return
     end
     local configFilesDownloadFailure = composer.configDownloadFailure or composer.awardsDownloadFailure or
-    composer.storeDownloadFailure or composer.mapDownloadFailure
+        composer.storeDownloadFailure or composer.mapDownloadFailure
     if configFilesDownloadFailure then
       composer.comm.stopTCPSocial(true)
       composer.createCustomOverlay(46)

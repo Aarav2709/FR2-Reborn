@@ -20,7 +20,7 @@ function scene:create(event)
   local weeklyListName = "dino league"
   local globalListName = "global"
   local friendListName = "friends"
-  
+
   local function copyList(listToCopy)
     local chanceList = {}
     local index = 1
@@ -33,7 +33,7 @@ function scene:create(event)
     end
     return chanceList
   end
-  
+
   background = display.newImageRect("images/gui/ranking/main.png", 480, 320)
   background.anchorX = 0
   background.anchorY = 0
@@ -213,7 +213,7 @@ function scene:create(event)
     y = 68,
     ax = 1
   })
-  
+
   local function updateMonsterStats(playerData)
     if playerData then
       if playerData.ae then
@@ -236,7 +236,7 @@ function scene:create(event)
       end
     end
   end
-  
+
   local function cleanMonsters()
     if monsterShowing then
       monsterShowing.clean()
@@ -247,12 +247,12 @@ function scene:create(event)
       itemTrailRef = nil
     end
   end
-  
+
   local function createItemEffect()
     trailHelper.createTrail(itemTrailSelected, monsterShowing.getGroup().x - 5, monsterShowing.getGroup().y - 50, group)
     group:insert(monsterShowing.getGroup())
   end
-  
+
   local function createMonsterModules(data, playerData)
     if data == nil then
       return
@@ -271,7 +271,7 @@ function scene:create(event)
     end
     group:insert(monsterGroup)
   end
-  
+
   local function updateSelfText(isSelected)
     if selfName == nil or selfRating == nil then
       print("WARNING: selfName is ", selfName)
@@ -288,7 +288,7 @@ function scene:create(event)
       selfName:setFillColor(0, 0, 0)
     end
   end
-  
+
   local function getTimeLeftInText(timeLeft)
     if timeLeft then
       local minutes = math.floor(timeLeft / 60)
@@ -301,12 +301,12 @@ function scene:create(event)
     end
     return ""
   end
-  
+
   local function btnBackRelease()
     composer.gotoScene("lua.scenes.mainMenu")
     composer.removeScene("lua.scenes.ranking")
   end
-  
+
   local backButton = composer.newButton({
     image = "images/gui/common/buttonHome.png",
     width = 90,
@@ -315,7 +315,7 @@ function scene:create(event)
     x = 50,
     y = 292
   })
-  
+
   local function weeklyButtonRelease()
     if tableActive == 1 then
       return
@@ -327,7 +327,7 @@ function scene:create(event)
       composer.comm.getRankingListOnName(weeklyListName)
     end
   end
-  
+
   local weeklyButton = composer.newButton({
     image = "images/transparent.png",
     width = 67,
@@ -336,7 +336,7 @@ function scene:create(event)
     x = 304,
     y = 26
   })
-  
+
   local function friendsButtonRelease()
     if tableActive == 2 then
       return
@@ -348,7 +348,7 @@ function scene:create(event)
       composer.comm.getRankingListOnName(friendListName)
     end
   end
-  
+
   local friendsButton = composer.newButton({
     image = "images/transparent.png",
     width = 67,
@@ -357,7 +357,7 @@ function scene:create(event)
     x = 373,
     y = 26
   })
-  
+
   local function globalButtonRelease()
     if tableActive == 3 then
       return
@@ -369,7 +369,7 @@ function scene:create(event)
       composer.comm.getRankingListOnName(globalListName)
     end
   end
-  
+
   local globalButton = composer.newButton({
     image = "images/transparent.png",
     width = 67,
@@ -378,13 +378,13 @@ function scene:create(event)
     x = 443,
     y = 26
   })
-  
+
   local function selfButtonRelease()
     if mySelfDataTable[tableActive] then
       tableCallback(nil, nil, mySelfDataTable[tableActive])
     end
   end
-  
+
   local selfButton = composer.newButton({
     image = "images/transparent.png",
     width = 200,
@@ -393,15 +393,15 @@ function scene:create(event)
     x = 378,
     y = 70
   })
-  
+
   local function prizeButtonEvent()
     local options = {
       isModal = true,
-      params = {prize = prizeInfo}
+      params = { prize = prizeInfo }
     }
     composer.showOverlay("lua.overlays.weeklyPrizes", options)
   end
-  
+
   local prizeButton = composer.newButton({
     image = "images/gui/ranking/prizes.png",
     width = 60,
@@ -410,7 +410,7 @@ function scene:create(event)
     x = 238,
     y = 294
   })
-  
+
   local function deselectAll()
     if rankingList then
       for i = 1, #rankingList do
@@ -418,7 +418,7 @@ function scene:create(event)
       end
     end
   end
-  
+
   local function updateSelectedRow()
     if selectedRowIndex == nil then
       return
@@ -434,7 +434,7 @@ function scene:create(event)
       oldRow.setSelected(false)
     end
   end
-  
+
   local function addWeeklyListCells()
     local firstTier = {}
     firstTier.tier = true
@@ -465,7 +465,7 @@ function scene:create(event)
       table.insert(rankingList, 25, fifthTier)
     end
   end
-  
+
   function tableCallback(playerData, index, selfData)
     updateSelectedRow()
     if selfData then
@@ -480,7 +480,7 @@ function scene:create(event)
       updateSelfText(false)
     end
   end
-  
+
   local function updateDisplayGroup()
     group:insert(background)
     textGroup:insert(avatarName)
@@ -509,7 +509,7 @@ function scene:create(event)
       group:insert(monsterShowing.getGroup())
     end
   end
-  
+
   function setUpTable(newData, oldData)
     if rankingTable and rankingTable.cleanTable then
       rankingTable.cleanTable()
@@ -541,7 +541,7 @@ function scene:create(event)
     group:insert(rankingTable.getTable())
     updateDisplayGroup()
   end
-  
+
   local function tcpCallback(data)
     if startedClean then
       return
@@ -563,7 +563,7 @@ function scene:create(event)
       end
     end
   end
-  
+
   function clean()
     startedClean = true
     if rankingList then
@@ -583,7 +583,7 @@ function scene:create(event)
       rankingTable.cleanTable()
     end
   end
-  
+
   group:insert(tableBackground)
   rankingTable = tableHelper.new(280, 86, 200, 234, 30, nil, "ranking", tableCallback)
   updateDisplayGroup()
@@ -609,11 +609,11 @@ function scene:show(event)
   end
   Runtime:addEventListener("resize", resizeListener)
   resizeListener()
-  
+
   function cleanEnter()
     androidLogic.removeBackButton()
   end
-  
+
   androidLogic.addBackButton("lua.scenes.mainMenu", "lua.scenes.ranking")
 end
 

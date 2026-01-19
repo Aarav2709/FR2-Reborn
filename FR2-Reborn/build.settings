@@ -1,17 +1,26 @@
--- Source: OriginalSourceCode/AndroidManifest.xml (rewritten)
--- Behavior inferred from DecompiledLua/configuration.lua (rewritten)
-
 settings = {
     orientation = {
         default = "landscapeRight",
         supported = { "landscapeRight", "landscapeLeft" }
     },
+    
+    window = {
+        defaultMode = "fullscreen", 
+        defaultViewWidth = 1280,
+        defaultViewHeight = 720,
+        resizable = true, -- Pencereyi manuel büyütmene izin verir
+        titleText = {
+            default = "Fun Run 2 - Offline"
+        }
+    },
+
     iphone = {
         plist = {
             UIStatusBarHidden = true,
-            CFBundleDisplayName = "FR2 Reborn"
+            CFBundleDisplayName = "FR2 Offline"
         }
     },
+
     android = {
         versionCode = "1",
         usesPermissions = {

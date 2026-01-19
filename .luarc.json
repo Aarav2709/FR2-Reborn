@@ -5,10 +5,14 @@
     "system",
     "timer",
     "Runtime",
-    "network"
+    "network",
+    "audio",
+    "physics",
+    "transition",
+    "native",
+    "sqlite3"
   ],
-  "diagnostics.disable": [
-    "redundant-parameter",
-    "deprecated"
+  "workspace.library": [
+    "./.editor"
   ]
 }

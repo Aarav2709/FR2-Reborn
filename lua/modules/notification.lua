@@ -1,5 +1,20 @@
 local composer = require("composer")
-local notificationPlugin = require("plugin.notifications")
+local isSimulator = "simulator" == system.getInfo("environment")
+local notificationPlugin
+if not isSimulator then
+  local success, plugin = pcall(require, "plugin.notifications")
+  if success then
+    notificationPlugin = plugin
+  end
+end
+
+if not notificationPlugin then
+  notificationPlugin = {
+    scheduleNotification = function() return nil end,
+    cancelNotification = function() end,
+    registerForPushNotifications = function() end
+  }
+end
 local M = {}
 local messageType
 local queuedLocalPushNotifications = {}

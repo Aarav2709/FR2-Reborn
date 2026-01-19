@@ -37,6 +37,11 @@ require("lua.modules.monsterConvert")
 require("lua.overlays.customOverlay")
 require("lua.modules.onboardingModule")
 
+-- Developer tools (press 'D' to toggle sprite editor)
+if isSimulator then
+  require("lua.modules.devTools")
+end
+
 local function clearMemory()
   if composer.data then
   end

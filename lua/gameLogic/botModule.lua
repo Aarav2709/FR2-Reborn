@@ -85,9 +85,17 @@ local function new(player)
     if botPlayer then
       local vx, vy = botPlayer:getLinearVelocity()
 
-      -- Keep strong forward speed for the bot (like the player but faster)
-      if gameState == 1 and vx < 800 then
-        botPlayer:setLinearVelocity(math.max(vx + 100, 500), vy)
+      local targetSpeed = 0
+      if botPlayer.getTopSpeedX then
+        targetSpeed = botPlayer.getTopSpeedX()
+      end
+      if targetSpeed <= 0 then
+        targetSpeed = 400
+      end
+
+      -- Keep the bot moving at the same pace as the player.
+      if gameState == 1 and vx < targetSpeed then
+        botPlayer:setLinearVelocity(math.min(vx + 100, targetSpeed), vy)
       end
       if 0 < vx and gameState == 0 then
         gameState = 1

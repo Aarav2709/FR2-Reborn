@@ -1,6 +1,20 @@
 local M = {}
 local provider = "adrally"
-local adrally = require("plugin.adrally")
+local isSimulator = "simulator" == system.getInfo("environment")
+local adrally
+if not isSimulator then
+  local success, plugin = pcall(require, "plugin.adrally")
+  if success then adrally = plugin end
+end
+-- Stub for simulator/unsupported platforms
+if not adrally then
+  adrally = {
+    init = function() end,
+    load = function() end,
+    show = function() end,
+    checkLoaded = function() end
+  }
+end
 local appId = "com.dirtybit.funrun2"
 local composer = require("composer")
 local adrallyStarted = false

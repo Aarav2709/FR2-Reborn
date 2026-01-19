@@ -159,8 +159,8 @@ local function createCustomOverlay(infoTextId, doNotOverrideMessage, extra)
   background = display.newImageRect("images/gui/common/generalPopup.png", 248, 105)
   background.anchorX = 0.5
   background.anchorY = 0
-  background.x = 240
-  background.y = 100
+  background.x = 745
+  background.y = 4
   alphaBackground = display.newRect(0, 0, display.contentWidth, display.contentHeight)
   alphaBackground.anchorX = 0
   alphaBackground.anchorY = 0
@@ -170,8 +170,8 @@ local function createCustomOverlay(infoTextId, doNotOverrideMessage, extra)
   info = composer.newText({
     string = text,
     size = 22,
-    x = 240,
-    y = 140,
+    x = 745,
+    y = 46,
     width = 220,
     height = 60,
     align = "center",
@@ -188,8 +188,8 @@ local function createCustomOverlay(infoTextId, doNotOverrideMessage, extra)
   end
   
   contiuneButton = composer.newButton({
-    x = 240,
-    y = 200,
+    x = 745,
+    y = 82,
     width = 126,
     height = 40,
     text = composer.localized.get("OK"),

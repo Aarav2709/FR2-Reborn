@@ -1,6 +1,7 @@
 local composer = require("composer")
 local scene = composer.newScene()
 local clean, cleanEnter, httpsCallback
+local background, layoutSettings, resizeListener
 
 function scene:create(event)
   local group = self.view
@@ -10,11 +11,27 @@ function scene:create(event)
   local creditsTableData = {}
   local startedClean = false
   local scrollTimer
-  local background = display.newImageRect("images/gui/settings/main.png", 480, 320)
+  background = display.newImageRect("images/gui/settings/main.png", 480, 320)
   background.anchorX = 0
   background.anchorY = 0
   background.x = 0
   background.y = 0
+  layoutSettings = function()
+    local contentLeft = display.screenOriginX
+    local contentTop = display.screenOriginY
+    local contentWidth = display.actualContentWidth
+    local contentHeight = display.actualContentHeight
+
+    group.x = contentLeft
+    group.y = contentTop
+    if background then
+      background.xScale = 1
+      background.yScale = 1
+      local scale = math.max(contentWidth / background.width, contentHeight / background.height)
+      background.xScale = scale
+      background.yScale = scale
+    end
+  end
   local username = composer.newText({
     string = "",
     size = 25,
@@ -414,6 +431,9 @@ function scene:create(event)
   settingsTable.createTable(settingsList, group)
   updateUsername()
   scrollTimer = timer.performWithDelay(2000, scrollCredits, 1)
+  if layoutSettings then
+    layoutSettings()
+  end
 end
 
 function scene:show(event)
@@ -423,6 +443,14 @@ function scene:show(event)
   end
   local group = self.view
   local androidLogic = require("lua.modules.androidBackButton")
+
+  resizeListener = function()
+    if layoutSettings then
+      layoutSettings()
+    end
+  end
+  Runtime:addEventListener("resize", resizeListener)
+  resizeListener()
   
   function cleanEnter()
     androidLogic.removeBackButton()
@@ -437,6 +465,10 @@ function scene:hide(event)
     return
   end
   local group = self.view
+  if resizeListener then
+    Runtime:removeEventListener("resize", resizeListener)
+    resizeListener = nil
+  end
   if cleanEnter then
     cleanEnter()
   end

@@ -2,6 +2,8 @@ local composer = require("composer")
 local tcpClient = require("lua.network.tcpClient")
 local scene = composer.newScene()
 local clean, cleanEnter, playerAvatarImage, playerText, map1Text, map2Text, countdownText, showImages, avatarDisplayGroupList
+local backgroundImage, backgroundImage2, voteText, searchText, btnBack
+local layoutLobbyQuickPlay, resizeListener
 
 function scene:create(event)
   local screenGroup = self.view
@@ -15,17 +17,13 @@ function scene:create(event)
   playerAvatarImage = {}
   playerText = {}
   avatarDisplayGroupList = {}
-  local backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 480, 320)
-  backgroundImage.x = display.contentWidth * 0.5
-  backgroundImage.y = display.contentHeight * 0.5
-  local backgroundImage2 = display.newImageRect("images/gui/lobby/static.png", 480, 320)
-  backgroundImage2.x = display.contentWidth * 0.5
-  backgroundImage2.y = display.contentHeight * 0.5
+  backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 480, 320)
+  backgroundImage2 = display.newImageRect("images/gui/lobby/static.png", 480, 320)
   backgroundImage2.alpha = 0
-  local voteText = composer.newText({
+  voteText = composer.newText({
     string = composer.localized.get("Vote"),
-    x = display.contentWidth * 0.11,
-    y = display.contentHeight * 0.05,
+    x = 0,
+    y = 0,
     size = 30,
     color = {
       1,
@@ -38,10 +36,10 @@ function scene:create(event)
     avatarDisplayGroupList[i] = display.newGroup()
     screenGroup:insert(avatarDisplayGroupList[i])
   end
-  local searchText = composer.newText({
+  searchText = composer.newText({
     string = composer.localized.get("SearchingForGame"),
-    x = display.contentWidth * 0.5,
-    y = display.contentHeight * 0.5,
+    x = 0,
+    y = 0,
     size = 27
   })
   playerAvatarImage[1] = display.newImageRect("images/gui/lobby/6.png", 81, 28)
@@ -51,8 +49,8 @@ function scene:create(event)
   avatarDisplayGroupList[1]:insert(playerAvatarImage[1])
   playerText[1] = composer.newText({
     string = composer.localized.get("Searching"),
-    x = display.contentWidth * 0.45,
-    y = display.contentHeight * 0.53,
+    x = 0,
+    y = 0,
     size = 20
   })
   playerText[1].alpha = 0
@@ -63,8 +61,8 @@ function scene:create(event)
   avatarDisplayGroupList[2]:insert(playerAvatarImage[2])
   playerText[2] = composer.newText({
     string = composer.localized.get("Searching"),
-    x = display.contentWidth * 0.77,
-    y = display.contentHeight * 0.53,
+    x = 0,
+    y = 0,
     size = 20
   })
   playerText[2].alpha = 0
@@ -75,8 +73,8 @@ function scene:create(event)
   avatarDisplayGroupList[3]:insert(playerAvatarImage[3])
   playerText[3] = composer.newText({
     string = composer.localized.get("Searching"),
-    x = display.contentWidth * 0.45,
-    y = display.contentHeight * 0.96,
+    x = 0,
+    y = 0,
     size = 20
   })
   playerText[3].alpha = 0
@@ -87,39 +85,39 @@ function scene:create(event)
   avatarDisplayGroupList[4]:insert(playerAvatarImage[4])
   playerText[4] = composer.newText({
     string = composer.localized.get("Searching"),
-    x = display.contentWidth * 0.77,
-    y = display.contentHeight * 0.96,
+    x = 0,
+    y = 0,
     size = 20
   })
   playerText[4].alpha = 0
-  avatarDisplayGroupList[1].x = display.contentWidth * 0.45
-  avatarDisplayGroupList[1].y = display.contentHeight * 0.35
-  avatarDisplayGroupList[2].x = display.contentWidth * 0.77
-  avatarDisplayGroupList[2].y = display.contentHeight * 0.35
-  avatarDisplayGroupList[3].x = display.contentWidth * 0.45
-  avatarDisplayGroupList[3].y = display.contentHeight * 0.78
-  avatarDisplayGroupList[4].x = display.contentWidth * 0.77
-  avatarDisplayGroupList[4].y = display.contentHeight * 0.78
+  avatarDisplayGroupList[1].x = 0
+  avatarDisplayGroupList[1].y = 0
+  avatarDisplayGroupList[2].x = 0
+  avatarDisplayGroupList[2].y = 0
+  avatarDisplayGroupList[3].x = 0
+  avatarDisplayGroupList[3].y = 0
+  avatarDisplayGroupList[4].x = 0
+  avatarDisplayGroupList[4].y = 0
   map1Text = composer.newText({
     string = "0",
-    x = 50,
-    y = 66,
+    x = 0,
+    y = 0,
     size = 20
   })
   map1Text:setFillColor(voteTextColor[1], voteTextColor[2], voteTextColor[3], voteTextColor[4])
   map1Text.alpha = 0
   map2Text = composer.newText({
     string = "0",
-    x = 50,
-    y = 170,
+    x = 0,
+    y = 0,
     size = 20
   })
   map2Text:setFillColor(voteTextColor[1], voteTextColor[2], voteTextColor[3], voteTextColor[4])
   map2Text.alpha = 0
   countdownText = composer.newText({
     string = "0",
-    x = 200,
-    y = 14,
+    x = 0,
+    y = 0,
     size = 24,
     ax = 0,
     color = {
@@ -135,15 +133,99 @@ function scene:create(event)
     composer.removeScene("lua.scenes.lobbyQuickPlay")
   end
   
-  local btnBack = composer.newButton({
+  btnBack = composer.newButton({
     image = "images/gui/common/buttonHome.png",
     width = 90,
     height = 57,
     onRelease = btnBackRelease,
-    x = 50,
-    y = 292
+    x = 0,
+    y = 0
   })
   btnBack.alpha = 0
+
+  layoutLobbyQuickPlay = function()
+    local contentLeft = display.screenOriginX
+    local contentTop = display.screenOriginY
+    local contentWidth = display.actualContentWidth
+    local contentHeight = display.actualContentHeight
+    local centerX = contentLeft + contentWidth * 0.5
+    local centerY = contentTop + contentHeight * 0.5
+
+    if backgroundImage then
+      backgroundImage.x = centerX
+      backgroundImage.y = centerY
+      backgroundImage.xScale = 1
+      backgroundImage.yScale = 1
+      local scale = math.max(contentWidth / backgroundImage.width, contentHeight / backgroundImage.height)
+      backgroundImage.xScale = scale
+      backgroundImage.yScale = scale
+    end
+    if backgroundImage2 then
+      backgroundImage2.x = centerX
+      backgroundImage2.y = centerY
+      backgroundImage2.xScale = 1
+      backgroundImage2.yScale = 1
+      local scale = math.max(contentWidth / backgroundImage2.width, contentHeight / backgroundImage2.height)
+      backgroundImage2.xScale = scale
+      backgroundImage2.yScale = scale
+    end
+    if voteText then
+      voteText.x = contentLeft + contentWidth * 0.11
+      voteText.y = contentTop + contentHeight * 0.05
+    end
+    if searchText then
+      searchText.x = centerX
+      searchText.y = centerY
+    end
+    if avatarDisplayGroupList[1] then
+      avatarDisplayGroupList[1].x = contentLeft + contentWidth * 0.45
+      avatarDisplayGroupList[1].y = contentTop + contentHeight * 0.35
+    end
+    if avatarDisplayGroupList[2] then
+      avatarDisplayGroupList[2].x = contentLeft + contentWidth * 0.77
+      avatarDisplayGroupList[2].y = contentTop + contentHeight * 0.35
+    end
+    if avatarDisplayGroupList[3] then
+      avatarDisplayGroupList[3].x = contentLeft + contentWidth * 0.45
+      avatarDisplayGroupList[3].y = contentTop + contentHeight * 0.78
+    end
+    if avatarDisplayGroupList[4] then
+      avatarDisplayGroupList[4].x = contentLeft + contentWidth * 0.77
+      avatarDisplayGroupList[4].y = contentTop + contentHeight * 0.78
+    end
+    if playerText[1] then
+      playerText[1].x = contentLeft + contentWidth * 0.45
+      playerText[1].y = contentTop + contentHeight * 0.53
+    end
+    if playerText[2] then
+      playerText[2].x = contentLeft + contentWidth * 0.77
+      playerText[2].y = contentTop + contentHeight * 0.53
+    end
+    if playerText[3] then
+      playerText[3].x = contentLeft + contentWidth * 0.45
+      playerText[3].y = contentTop + contentHeight * 0.96
+    end
+    if playerText[4] then
+      playerText[4].x = contentLeft + contentWidth * 0.77
+      playerText[4].y = contentTop + contentHeight * 0.96
+    end
+    if map1Text then
+      map1Text.x = contentLeft + contentWidth * (50 / 480)
+      map1Text.y = contentTop + contentHeight * (66 / 320)
+    end
+    if map2Text then
+      map2Text.x = contentLeft + contentWidth * (50 / 480)
+      map2Text.y = contentTop + contentHeight * (170 / 320)
+    end
+    if countdownText then
+      countdownText.x = contentLeft + contentWidth * (200 / 480)
+      countdownText.y = contentTop + contentHeight * (14 / 320)
+    end
+    if btnBack then
+      btnBack.x = contentLeft + contentWidth * (50 / 480)
+      btnBack.y = contentTop + contentHeight * (292 / 320)
+    end
+  end
   
   function showImages()
     if runOnce then
@@ -182,6 +264,9 @@ function scene:create(event)
   end
   
   updateDisplayGroups()
+  if layoutLobbyQuickPlay then
+    layoutLobbyQuickPlay()
+  end
 end
 
 function scene:show(event)
@@ -212,6 +297,13 @@ function scene:show(event)
   local monsters = {}
   local countdownTimer
   androidLogic.addBackButton("lua.scenes.playMenu", "lua.scenes.lobbyQuickPlay")
+  resizeListener = function()
+    if layoutLobbyQuickPlay then
+      layoutLobbyQuickPlay()
+    end
+  end
+  Runtime:addEventListener("resize", resizeListener)
+  resizeListener()
   local spriteImageList = {
     {},
     {},
@@ -564,6 +656,10 @@ function scene:hide(event)
   local phase = event.phase
   if phase == "did" then
     return
+  end
+  if resizeListener then
+    Runtime:removeEventListener("resize", resizeListener)
+    resizeListener = nil
   end
   if cleanEnter then
     cleanEnter()

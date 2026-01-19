@@ -3,6 +3,9 @@ local tcpClient = require("lua.network.tcpClient")
 local scene = composer.newScene()
 local clean, cleanEnter, playerText, refreshTable, mapText, shouldStartQuickPlay, numberOfNotifications, showImages, avatarDisplayGroupList, startGame, startChat
 local playerAvatarImage = {}
+local backgroundImage, backgroundImage2, tableBackground, titleText, searchText
+local btnBack, btnChat, btnPlay, btnSettings, searchForFriendButton
+local layoutLobbyCustomPlay, resizeListener
 
 function scene:create(event)
   local screenGroup = self.view
@@ -13,20 +16,14 @@ function scene:create(event)
   playerText = {}
   startGame = false
   avatarDisplayGroupList = {}
-  local backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 480, 320)
-  backgroundImage.x = display.contentWidth * 0.5
-  backgroundImage.y = display.contentHeight * 0.5
-  local backgroundImage2 = display.newImageRect("images/gui/customplay/bg.png", 480, 320)
-  backgroundImage2.x = display.contentWidth * 0.5
-  backgroundImage2.y = display.contentHeight * 0.5
-  local tableBackground = display.newImageRect("images/gui/ranking/cell.png", 480, 320)
-  tableBackground.x = display.contentWidth * 0.5
-  tableBackground.y = display.contentHeight * 0.5
-  local titleText = composer.newText({
+  backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 480, 320)
+  backgroundImage2 = display.newImageRect("images/gui/customplay/bg.png", 480, 320)
+  tableBackground = display.newImageRect("images/gui/ranking/cell.png", 480, 320)
+  titleText = composer.newText({
     string = composer.localized.get("InviteFriends"),
     size = 24,
-    x = 310,
-    y = 16,
+    x = 0,
+    y = 0,
     ax = 0,
     color = {
       1,
@@ -37,8 +34,8 @@ function scene:create(event)
   mapText = composer.newText({
     string = composer.localized.get("QuickPlay"),
     size = 24,
-    x = 150,
-    y = 12,
+    x = 0,
+    y = 0,
     color = {
       1,
       1,
@@ -51,10 +48,10 @@ function scene:create(event)
     avatarDisplayGroupList[i].yScale = 0.8
   end
   local notConnectedString = composer.localized.get("NotConnected")
-  local searchText = composer.newText({
+  searchText = composer.newText({
     string = composer.localized.get("LoadingGame"),
-    x = display.contentWidth * 0.5,
-    y = display.contentHeight * 0.5,
+    x = 0,
+    y = 0,
     size = 27
   })
   playerAvatarImage[1] = display.newImageRect("images/gui/lobby/6.png", 81, 28)
@@ -63,8 +60,8 @@ function scene:create(event)
   avatarDisplayGroupList[1]:insert(playerAvatarImage[1])
   playerText[1] = composer.newText({
     string = notConnectedString,
-    x = display.contentWidth * 0.14,
-    y = display.contentHeight * 0.42,
+    x = 0,
+    y = 0,
     size = 14,
     ay = 0
   })
@@ -74,8 +71,8 @@ function scene:create(event)
   avatarDisplayGroupList[2]:insert(playerAvatarImage[2])
   playerText[2] = composer.newText({
     string = notConnectedString,
-    x = display.contentWidth * 0.4,
-    y = display.contentHeight * 0.42,
+    x = 0,
+    y = 0,
     size = 14,
     ay = 0
   })
@@ -85,8 +82,8 @@ function scene:create(event)
   avatarDisplayGroupList[3]:insert(playerAvatarImage[3])
   playerText[3] = composer.newText({
     string = notConnectedString,
-    x = display.contentWidth * 0.14,
-    y = display.contentHeight * 0.76,
+    x = 0,
+    y = 0,
     size = 14,
     ay = 0
   })
@@ -96,19 +93,19 @@ function scene:create(event)
   avatarDisplayGroupList[4]:insert(playerAvatarImage[4])
   playerText[4] = composer.newText({
     string = notConnectedString,
-    x = display.contentWidth * 0.4,
-    y = display.contentHeight * 0.76,
+    x = 0,
+    y = 0,
     size = 14,
     ay = 0
   })
-  avatarDisplayGroupList[1].x = display.contentWidth * 0.14
-  avatarDisplayGroupList[1].y = display.contentHeight * 0.3
-  avatarDisplayGroupList[2].x = display.contentWidth * 0.4
-  avatarDisplayGroupList[2].y = display.contentHeight * 0.3
-  avatarDisplayGroupList[3].x = display.contentWidth * 0.14
-  avatarDisplayGroupList[3].y = display.contentHeight * 0.65
-  avatarDisplayGroupList[4].x = display.contentWidth * 0.4
-  avatarDisplayGroupList[4].y = display.contentHeight * 0.65
+  avatarDisplayGroupList[1].x = 0
+  avatarDisplayGroupList[1].y = 0
+  avatarDisplayGroupList[2].x = 0
+  avatarDisplayGroupList[2].y = 0
+  avatarDisplayGroupList[3].x = 0
+  avatarDisplayGroupList[3].y = 0
+  avatarDisplayGroupList[4].x = 0
+  avatarDisplayGroupList[4].y = 0
   
   local function setGameMode(mode, mapId)
     if mode ~= shouldStartQuickPlay then
@@ -157,48 +154,144 @@ function scene:create(event)
     end
   end
   
-  local btnBack = composer.newButton({
+  btnBack = composer.newButton({
     image = "images/gui/common/buttonHome.png",
     width = 90,
     height = 57,
     onRelease = btnBackRelease,
-    x = 50,
-    y = 292
+    x = 0,
+    y = 0
   })
-  local btnChat = composer.newButton({
+  btnChat = composer.newButton({
     image = "images/gui/customplay/buttonChat.png",
     width = 60,
     height = 60,
     onRelease = btnChatRelease,
-    x = 262,
-    y = 290
+    x = 0,
+    y = 0
   })
-  local searchForFriendButton = composer.newButton({
-    x = 460,
-    y = 18,
+  searchForFriendButton = composer.newButton({
+    x = 0,
+    y = 0,
     width = 43,
     height = 38,
     image = "images/gui/friends/add.png",
     onRelease = searchForFriendButtonEvent
   })
-  local btnSettings = composer.newButton({
+  btnSettings = composer.newButton({
     image = "images/gui/customplay/settings.png",
     width = 45,
     height = 45,
     onRelease = btnSettingsRelease,
-    x = 50,
-    y = 30
+    x = 0,
+    y = 0
   })
   btnSettings.alpha = 0
-  local btnPlay = composer.newButton({
+  btnPlay = composer.newButton({
     image = "images/gui/customplay/buttonStart.png",
     width = 60,
     height = 60,
     onRelease = btnPlayRelease,
-    x = 206,
-    y = 290
+    x = 0,
+    y = 0
   })
   btnPlay.alpha = 0
+
+  layoutLobbyCustomPlay = function()
+    local contentLeft = display.screenOriginX
+    local contentTop = display.screenOriginY
+    local contentWidth = display.actualContentWidth
+    local contentHeight = display.actualContentHeight
+    local centerX = contentLeft + contentWidth * 0.5
+    local centerY = contentTop + contentHeight * 0.5
+
+    if backgroundImage then
+      backgroundImage.x = centerX
+      backgroundImage.y = centerY
+      backgroundImage.xScale = 1
+      backgroundImage.yScale = 1
+      local scale = math.max(contentWidth / backgroundImage.width, contentHeight / backgroundImage.height)
+      backgroundImage.xScale = scale
+      backgroundImage.yScale = scale
+    end
+    if backgroundImage2 then
+      backgroundImage2.x = centerX
+      backgroundImage2.y = centerY
+      backgroundImage2.xScale = 1
+      backgroundImage2.yScale = 1
+      local scale = math.max(contentWidth / backgroundImage2.width, contentHeight / backgroundImage2.height)
+      backgroundImage2.xScale = scale
+      backgroundImage2.yScale = scale
+    end
+    if tableBackground then
+      tableBackground.x = centerX
+      tableBackground.y = centerY
+    end
+    if titleText then
+      titleText.x = contentLeft + contentWidth * (310 / 480)
+      titleText.y = contentTop + contentHeight * (16 / 320)
+    end
+    if mapText then
+      mapText.x = contentLeft + contentWidth * (150 / 480)
+      mapText.y = contentTop + contentHeight * (12 / 320)
+    end
+    if searchText then
+      searchText.x = centerX
+      searchText.y = centerY
+    end
+    if avatarDisplayGroupList[1] then
+      avatarDisplayGroupList[1].x = contentLeft + contentWidth * 0.14
+      avatarDisplayGroupList[1].y = contentTop + contentHeight * 0.3
+    end
+    if avatarDisplayGroupList[2] then
+      avatarDisplayGroupList[2].x = contentLeft + contentWidth * 0.4
+      avatarDisplayGroupList[2].y = contentTop + contentHeight * 0.3
+    end
+    if avatarDisplayGroupList[3] then
+      avatarDisplayGroupList[3].x = contentLeft + contentWidth * 0.14
+      avatarDisplayGroupList[3].y = contentTop + contentHeight * 0.65
+    end
+    if avatarDisplayGroupList[4] then
+      avatarDisplayGroupList[4].x = contentLeft + contentWidth * 0.4
+      avatarDisplayGroupList[4].y = contentTop + contentHeight * 0.65
+    end
+    if playerText[1] then
+      playerText[1].x = contentLeft + contentWidth * 0.14
+      playerText[1].y = contentTop + contentHeight * 0.42
+    end
+    if playerText[2] then
+      playerText[2].x = contentLeft + contentWidth * 0.4
+      playerText[2].y = contentTop + contentHeight * 0.42
+    end
+    if playerText[3] then
+      playerText[3].x = contentLeft + contentWidth * 0.14
+      playerText[3].y = contentTop + contentHeight * 0.76
+    end
+    if playerText[4] then
+      playerText[4].x = contentLeft + contentWidth * 0.4
+      playerText[4].y = contentTop + contentHeight * 0.76
+    end
+    if btnBack then
+      btnBack.x = contentLeft + contentWidth * (50 / 480)
+      btnBack.y = contentTop + contentHeight * (292 / 320)
+    end
+    if btnChat then
+      btnChat.x = contentLeft + contentWidth * (262 / 480)
+      btnChat.y = contentTop + contentHeight * (290 / 320)
+    end
+    if btnSettings then
+      btnSettings.x = contentLeft + contentWidth * (50 / 480)
+      btnSettings.y = contentTop + contentHeight * (30 / 320)
+    end
+    if btnPlay then
+      btnPlay.x = contentLeft + contentWidth * (206 / 480)
+      btnPlay.y = contentTop + contentHeight * (290 / 320)
+    end
+    if searchForFriendButton then
+      searchForFriendButton.x = contentLeft + contentWidth * (460 / 480)
+      searchForFriendButton.y = contentTop + contentHeight * (18 / 320)
+    end
+  end
   
   local function createFriendList()
     local allFriends = composer.database.getFriends()
@@ -328,6 +421,9 @@ function scene:create(event)
   
   generateFriendTableView()
   updateDisplayGroups()
+  if layoutLobbyCustomPlay then
+    layoutLobbyCustomPlay()
+  end
 end
 
 function scene:show(event)
@@ -361,6 +457,13 @@ function scene:show(event)
   local kickButtons = {}
   composer.data.chatLog = {}
   androidLogic.addBackButton("lua.scenes.playMenu", "lua.scenes.lobbyCustomPlay")
+  resizeListener = function()
+    if layoutLobbyCustomPlay then
+      layoutLobbyCustomPlay()
+    end
+  end
+  Runtime:addEventListener("resize", resizeListener)
+  resizeListener()
   
   local function stopChatNotification(id)
     if chatImages[id] then
@@ -792,6 +895,10 @@ function scene:hide(event)
   local phase = event.phase
   if phase == "did" then
     return
+  end
+  if resizeListener then
+    Runtime:removeEventListener("resize", resizeListener)
+    resizeListener = nil
   end
   if cleanEnter then
     cleanEnter()

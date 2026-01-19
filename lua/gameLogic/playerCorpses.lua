@@ -20,13 +20,13 @@ local function newCorpsParts(displayGroup, playerToUse)
   local startedClean = false
   local bpForce = 30
   local deathAnimations
-  
+
   local function addSpriteSet(monsterDeathAnimations)
     deathAnimations = monsterDeathAnimations
   end
-  
+
   N.addSpriteSet = addSpriteSet
-  
+
   local function startedCleanNow()
     startedClean = true
     for i = 1, #skullList do
@@ -56,9 +56,9 @@ local function newCorpsParts(displayGroup, playerToUse)
       end
     end
   end
-  
+
   N.startedCleanNow = startedCleanNow
-  
+
   local function dropHuntersMarkHead()
     if not startedClean then
       huntersMarkHead[#huntersMarkHead].x = player.x
@@ -67,9 +67,9 @@ local function newCorpsParts(displayGroup, playerToUse)
       huntersMarkHead[#huntersMarkHead]:toFront()
     end
   end
-  
+
   N.dropHuntersMarkHead = dropHuntersMarkHead
-  
+
   local function readyHuntersMarkHead()
     if not startedClean then
       local hunterMarksPath = deathAnimations.sheetInfo:getFrameIndex("deaths/headSingleShot")
@@ -89,9 +89,9 @@ local function newCorpsParts(displayGroup, playerToUse)
       bodyParts:insert(huntersMarkHead[#huntersMarkHead])
     end
   end
-  
+
   N.readyHuntersMarkHead = readyHuntersMarkHead
-  
+
   local function dropRocketParts(vx, vy)
     if not startedClean then
       local startIndex = #rocketParts - 2
@@ -102,15 +102,17 @@ local function newCorpsParts(displayGroup, playerToUse)
           rocketParts[startIndex].alpha = 1
           rocketParts[startIndex]:setLinearVelocity(vx, vy)
           rocketParts[startIndex]:toFront()
-          rocketParts[startIndex]:applyForce(math.random(-bpForce * 2, bpForce * 2), math.random(-bpForce * 3.5, -bpForce * 2), rocketParts[startIndex].x + math.random(1, 5), rocketParts[startIndex].y)
+          rocketParts[startIndex]:applyForce(math.random(-bpForce * 2, bpForce * 2),
+            math.random(-bpForce * 3.5, -bpForce * 2), rocketParts[startIndex].x + math.random(1, 5),
+            rocketParts[startIndex].y)
           startIndex = startIndex + 1
         end
       end
     end
   end
-  
+
   N.dropRocketParts = dropRocketParts
-  -- Gerçek gib dosyaları gibs_1.png - gibs_9.png şeklinde
+  -- Actual gib files are named gibs_1.png through gibs_9.png
   local gibArray = {
     "gibs_1",
     "gibs_2",
@@ -122,18 +124,18 @@ local function newCorpsParts(displayGroup, playerToUse)
     "gibs_8",
     "gibs_9"
   }
-  
+
   local function clean(gib)
     if gib and gib.removeSelf then
       gib:removeSelf()
       gib = nil
     end
   end
-  
+
   local function createGibObject(imageName, xScale, yScale, x, y, shouldApplyForce, physicsBody)
-    -- Güvenli resim yükleme - hata kontrolü
+    -- Safe image load with error check
     local gib = display.newImage(imageName)
-    
+
     if not gib then
       print("WARNING: Failed to create gib with image: " .. imageName)
       return nil
@@ -168,8 +170,9 @@ local function newCorpsParts(displayGroup, playerToUse)
     bodyParts:insert(gib)
     return gib
   end
-  
-  local function createGibSpriteObject(frameIndex, xScale, yScale, xAnchor, yAnchor, x, y, shouldApplyForce, forceX, forceY, forceDX, forceDY, physicsBody, vx, vy)
+
+  local function createGibSpriteObject(frameIndex, xScale, yScale, xAnchor, yAnchor, x, y, shouldApplyForce, forceX,
+                                       forceY, forceDX, forceDY, physicsBody, vx, vy)
     local gib = display.newImage(deathAnimations.sheet, frameIndex)
     gib.xScale = xScale
     gib.yScale = yScale
@@ -199,15 +202,15 @@ local function newCorpsParts(displayGroup, playerToUse)
     bodyParts:insert(gib)
     return gib
   end
-  
+
   local function dropSawbladeGibs(vx, vy)
     if not startedClean then
       for i = 1, 3 do
         local randomGibIndex = math.random(1, #gibArray)
         local randomGibName = gibArray[randomGibIndex]
         local randomName = "images/game/powerups/" .. randomGibName .. ".png"
-        
-        -- Basit default physics body kullan çünkü gibs için özel physics verisi yok
+
+        -- Use a simple default physics body since gibs have no custom physics data
         local defaultPhysicsBody = {
           density = 2,
           friction = 0.5,
@@ -215,28 +218,31 @@ local function newCorpsParts(displayGroup, playerToUse)
           radius = 10,
           filter = remotePlayerCollisionFilter
         }
-        
-        -- Güvenli gib oluşturma - nil kontrolü
-        local gibObj = createGibObject(randomName, gibPhysicsSmallerScale, gibPhysicsSmallerScale, player.x, player.y, true, defaultPhysicsBody)
+
+        -- Safe gib creation with nil check
+        local gibObj = createGibObject(randomName, gibPhysicsSmallerScale, gibPhysicsSmallerScale, player.x, player.y,
+          true, defaultPhysicsBody)
         if not gibObj then
           print("WARNING: Failed to create sawblade gib, skipping...")
         end
       end
-      
-      -- sawblade physics body'leri mevcut olduğundan bunları kullanabiliriz
+
+      -- Use existing sawblade physics bodies when available
       local sawbladeLeftBody = gibPhysicsData:get("sawbladeLeft")
       local sawbladeRightBody = gibPhysicsData:get("sawbladeRight")
-      
-      -- Eğer sawblade physics data varsa oluştur
+
+      -- Create only if sawblade physics data exists
       if sawbladeLeftBody and sawbladeRightBody then
-        createGibSpriteObject(deathAnimations.sheetInfo:getFrameIndex("deaths/sawbladeLeft"), gibPhysicsScale, gibPhysicsScale, 0.5, 0.5, player.x, player.y, true, 100, -350, 30, -90, sawbladeLeftBody, vx, vy)
-        createGibSpriteObject(deathAnimations.sheetInfo:getFrameIndex("deaths/sawbladeRight"), gibPhysicsScale, gibPhysicsScale, 0.5, 0.5, player.x, player.y, true, -100, -350, -30, -90, sawbladeRightBody, vx, vy)
+        createGibSpriteObject(deathAnimations.sheetInfo:getFrameIndex("deaths/sawbladeLeft"), gibPhysicsScale,
+          gibPhysicsScale, 0.5, 0.5, player.x, player.y, true, 100, -350, 30, -90, sawbladeLeftBody, vx, vy)
+        createGibSpriteObject(deathAnimations.sheetInfo:getFrameIndex("deaths/sawbladeRight"), gibPhysicsScale,
+          gibPhysicsScale, 0.5, 0.5, player.x, player.y, true, -100, -350, -30, -90, sawbladeRightBody, vx, vy)
       else
         print("WARNING: Sawblade physics data not available")
       end
     end
   end
-  
+
   N.dropSawbladeGibs = dropSawbladeGibs
   local hunterGibArray = {
     "gibs_1",
@@ -244,12 +250,12 @@ local function newCorpsParts(displayGroup, playerToUse)
     "gibs_3",
     "gibs_4"
   }
-  
+
   local function dropHunterGibs()
     if not startedClean then
       for i = 1, 4 do
         local randomName = "images/game/powerups/" .. hunterGibArray[i] .. ".png"
-        -- Basit default physics body kullan
+        -- Use a simple default physics body
         local defaultPhysicsBody = {
           density = 2,
           friction = 0.5,
@@ -257,13 +263,14 @@ local function newCorpsParts(displayGroup, playerToUse)
           radius = 10,
           filter = remotePlayerCollisionFilter
         }
-        createGibObject(randomName, gibPhysicsSmallerScale, gibPhysicsSmallerScale, player.x, player.y, true, defaultPhysicsBody)
+        createGibObject(randomName, gibPhysicsSmallerScale, gibPhysicsSmallerScale, player.x, player.y, true,
+          defaultPhysicsBody)
       end
     end
   end
-  
+
   N.dropHunterGibs = dropHunterGibs
-  
+
   local function readyRocketParts()
     if not startedClean then
       local rocketPath = composer.powerUpEffectImageSheetInfo:getFrameIndex("rocketPart1")
@@ -286,9 +293,9 @@ local function newCorpsParts(displayGroup, playerToUse)
       end
     end
   end
-  
+
   N.readyRocketParts = readyRocketParts
-  
+
   local function dropSkull(vx, vy)
     if not startedClean then
       skullList[#skullList].x = player.x
@@ -298,9 +305,9 @@ local function newCorpsParts(displayGroup, playerToUse)
       skullList[#skullList]:toFront()
     end
   end
-  
+
   N.dropSkull = dropSkull
-  
+
   local function readySkull()
     if not startedClean then
       local skullPath = deathAnimations.sheetInfo:getFrameIndex("deaths/headSkull")
@@ -320,9 +327,9 @@ local function newCorpsParts(displayGroup, playerToUse)
       bodyParts:insert(skullList[#skullList])
     end
   end
-  
+
   N.readySkull = readySkull
-  
+
   local function dropHeadShot(vx, vy)
     if not startedClean then
       headShotList[#headShotList].x = player.x
@@ -332,9 +339,9 @@ local function newCorpsParts(displayGroup, playerToUse)
       headShotList[#headShotList]:toFront()
     end
   end
-  
+
   N.dropHeadShot = dropHeadShot
-  
+
   local function readyHeadShot()
     if not startedClean then
       local skullPath = deathAnimations.sheetInfo:getFrameIndex("deaths/headSingleShot")
@@ -354,9 +361,9 @@ local function newCorpsParts(displayGroup, playerToUse)
       bodyParts:insert(headShotList[#headShotList])
     end
   end
-  
+
   N.readyHeadShot = readyHeadShot
-  
+
   local function dropHead(vx, vy)
     if not startedClean then
       headList[#headList].x = player.x
@@ -364,12 +371,13 @@ local function newCorpsParts(displayGroup, playerToUse)
       headList[#headList]:setLinearVelocity(vx, vy)
       headList[#headList].alpha = 1
       headList[#headList]:toFront()
-      headList[#headList]:applyForce(math.random(-bpForce * 0.5, bpForce * 0.5), math.random(-bpForce * 2, -15), headList[#headList].x, headList[#headList].y)
+      headList[#headList]:applyForce(math.random(-bpForce * 0.5, bpForce * 0.5), math.random(-bpForce * 2, -15),
+        headList[#headList].x, headList[#headList].y)
     end
   end
-  
+
   N.dropHead = dropHead
-  
+
   local function readyHead()
     if not startedClean then
       local headPath = deathAnimations.sheetInfo:getFrameIndex("deaths/headSingle")
@@ -389,9 +397,9 @@ local function newCorpsParts(displayGroup, playerToUse)
       bodyParts:insert(headList[#headList])
     end
   end
-  
+
   N.readyHead = readyHead
-  
+
   local function dropBrain(vx, vy)
     if not startedClean then
       brainList[#brainList].x = player.x + 8
@@ -401,9 +409,9 @@ local function newCorpsParts(displayGroup, playerToUse)
       brainList[#brainList]:toFront()
     end
   end
-  
+
   N.dropBrain = dropBrain
-  
+
   local function readyBrain()
     if not startedClean then
       brainList[#brainList + 1] = display.newImage("images/monsters/powerups/sawblade/brain.png")
@@ -422,7 +430,7 @@ local function newCorpsParts(displayGroup, playerToUse)
       bodyParts:insert(brainList[#brainList])
     end
   end
-  
+
   N.readyBrain = readyBrain
   return N
 end

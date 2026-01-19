@@ -4,7 +4,7 @@ local function new(player)
   local composer = require("composer")
   local botPlayer = {}
   local botTimer, roofDontJump, prevY, prevX, noJumpTimer, gameFunction, gameState, counter, systemStartTime, btnPowerUpPress
-  
+
   local function checkIfStuck()
     if 10 < #prevX then
       local lastPosition = prevX[1]
@@ -21,12 +21,12 @@ local function new(player)
       end
     end
   end
-  
+
   local function jumpAgain()
     roofDontJump = false
     prevY = 999999
   end
-  
+
   local function jump(wall)
     if botPlayer.canJump() then
       if botPlayer.y > prevY - 20 then
@@ -40,7 +40,7 @@ local function new(player)
       end
     end
   end
-  
+
   local function createPowerUpList(pType)
     if gameFunction then
       local data = {}
@@ -53,18 +53,18 @@ local function new(player)
       gameFunction(data)
     end
   end
-  
+
   local function usePowerUp(secTime)
     if composer.data.gameInfo.gameType == 0 then
       local pType = botPlayer.getPowerUp()
       if 0 < pType then
         if 50 < pType then
           createPowerUpList(pType)
-          
+
           local function myclosure(event)
             return createPowerUpList(pType - 50)
           end
-          
+
           timer.performWithDelay(200, myclosure, 1)
         else
           createPowerUpList(pType)
@@ -77,15 +77,15 @@ local function new(player)
       btnPowerUpPress(nil, event)
     end
   end
-  
+
   local function updateBot(event)
     if composer.onboarding.isActive == true and composer.onboarding.overrideAI() then
       return
     end
     if botPlayer then
       local vx, vy = botPlayer:getLinearVelocity()
-      
-      -- BOT'A SÜREKLI GÜÇLÜ İLERİ HIZ VER (Oyuncu gibi ama daha hızlı)
+
+      -- Keep strong forward speed for the bot (like the player but faster)
       if gameState == 1 and vx < 800 then
         botPlayer:setLinearVelocity(math.max(vx + 100, 500), vy)
       end
@@ -120,7 +120,7 @@ local function new(player)
       timer.cancel(event.source)
     end
   end
-  
+
   local function startBotModule(player)
     if player then
       botPlayer = player
@@ -133,32 +133,32 @@ local function new(player)
       botTimer = timer.performWithDelay(200, updateBot, 0)
     end
   end
-  
+
   startBotModule(player)
-  
+
   local function setGameFunction(powerUpFunction, startTime, powerUpBtn)
     gameFunction = powerUpFunction
     systemStartTime = startTime
     btnPowerUpPress = powerUpBtn
   end
-  
+
   botPlayer.setGameFunction = setGameFunction
-  
+
   local function botDied()
     jumpAgain()
   end
-  
+
   botPlayer.botDied = botDied
-  
+
   local function cleanBot()
     if botTimer then
       timer.cancel(botTimer)
       botTimer = nil
     end
   end
-  
+
   botPlayer.cleanBot = cleanBot
-  
+
   local function inGoal()
     if gameFunction and botPlayer and gameState == 1 and composer.data.gameInfo.gameType == 0 then
       local event = {}
@@ -174,7 +174,7 @@ local function new(player)
       botTimer = nil
     end
   end
-  
+
   local function forceInGoal(time)
     local event = {}
     event[1] = "15"
@@ -188,7 +188,7 @@ local function new(player)
       botTimer = nil
     end
   end
-  
+
   botPlayer.inGoal = inGoal
   botPlayer.forceInGoal = forceInGoal
   return botPlayer

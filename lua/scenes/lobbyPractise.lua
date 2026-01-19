@@ -1,53 +1,47 @@
 local composer = require("composer")
 local scene = composer.newScene()
 local clean, cleanEnter
+local backgroundImage, buttonStickBottom, window, buttonStickTop
+local btnNextZone, btnPrevZone, btnBack, mapIconsGroup
+local layoutLobbyPractise, resizeListener
 
 function scene:create(event)
   local screenGroup = self.view
   local startedClean = false
-  local mapIconsGroup = display.newGroup()
+  mapIconsGroup = display.newGroup()
   local practiseButtons = {}
   local practiseButtonsText = {}
   local lookingAtZone = 1
   local numberOfMaps = composer.mapHandler.getNumberOfMaps()
   local maksZones = math.ceil(numberOfMaps / 4)
-  local btnNextZone, btnPrevZone
-  local backgroundImage = display.newImageRect("images/gui/common/bgMain.png", 480, 320)
-  backgroundImage.x = display.contentWidth * 0.5
-  backgroundImage.y = display.contentHeight * 0.5
-  local buttonStickBottom = display.newImageRect("images/gui/practice/bottom.png", 42, 45)
-  buttonStickBottom.x = display.contentWidth * 0.5
-  buttonStickBottom.y = display.contentHeight * 0.8
-  local window = display.newImageRect("images/gui/practice/window.png", 284, 222)
-  window.x = buttonStickBottom.x
-  window.y = buttonStickBottom.y - window.height * 0.55
-  local buttonStickTop = display.newImageRect("images/gui/practice/top.png", 22, 14)
-  buttonStickTop.x = window.x
-  buttonStickTop.y = window.y - window.height * 0.51
-  
+  backgroundImage = display.newImageRect("images/gui/common/bgMain.png", 480, 320)
+  buttonStickBottom = display.newImageRect("images/gui/practice/bottom.png", 42, 45)
+  window = display.newImageRect("images/gui/practice/window.png", 284, 222)
+  buttonStickTop = display.newImageRect("images/gui/practice/top.png", 22, 14)
+
   local function startGameOnId(id)
-    -- Oyuncu bilgileri
+    -- Player info
     composer.data.gameInfo.players[1] = {
       username = composer.database.getPlayerInformation().username,
       avatar = composer.database.getAvatarData(),
       playerId = composer.database.getPlayerInformation().playerId
     }
-    
-    -- Bot oyuncuları ekle (Offline Mod)
+
+    -- Add bot players (offline mode)
     local botAI = require("lua.ai.botPlayer")
-    local difficulty = composer.data.gameInfo.difficulty or 2 -- Varsayılan: Orta
+    local difficulty = composer.data.gameInfo.difficulty or 2 -- Default: medium
     local bots = botAI.createBots(difficulty)
-    
-    -- Botları oyuncu listesine ekle
+
+    -- Add bots to the player list
     for i = 1, #bots do
       composer.data.gameInfo.players[i + 1] = bots[i]
     end
-    
+
     composer.data.gameInfo.gameType = 0
     composer.data.gameInfo.map = id
     composer.gotoScene("lua.scenes.gamePlay")
   end
-  
+
   local function addMapIcons()
     local baseX1, baseY1 = 280, 180
     local baseX2, baseY2 = 400, 180
@@ -62,11 +56,11 @@ function scene:create(event)
         print("WARNING: NO DATA FOR MAP NR: ", i)
         return
       end
-      
+
       local function startGame()
         startGameOnId(i)
       end
-      
+
       local imagePath = "images/gui/practice/icon" .. i .. ".png"
       local testImage = display.newImage(imagePath)
       if not testImage then
@@ -109,7 +103,7 @@ function scene:create(event)
       mapIconsGroup:insert(practiseButtonsText[i])
     end
   end
-  
+
   local function btnPrevZoneRelease()
     lookingAtZone = lookingAtZone - 1
     if lookingAtZone == 1 then
@@ -119,18 +113,18 @@ function scene:create(event)
       btnNextZone.isVisible = true
     end
     local newXPos = -1 * (lookingAtZone - 1) * 480
-    transition.to(mapIconsGroup, {time = 200, x = newXPos})
+    transition.to(mapIconsGroup, { time = 200, x = newXPos })
   end
-  
+
   btnPrevZone = composer.newButton({
     image = "images/gui/practice/left.png",
     width = 45,
     height = 45,
     onRelease = btnPrevZoneRelease,
-    x = 116,
-    y = 140
+    x = 0,
+    y = 0
   })
-  
+
   local function btnNextZoneRelease()
     lookingAtZone = lookingAtZone + 1
     if 1 < lookingAtZone then
@@ -140,32 +134,79 @@ function scene:create(event)
       btnNextZone.isVisible = false
     end
     local newXPos = -1 * (lookingAtZone - 1) * 480
-    transition.to(mapIconsGroup, {time = 200, x = newXPos})
+    transition.to(mapIconsGroup, { time = 200, x = newXPos })
   end
-  
+
   btnNextZone = composer.newButton({
     image = "images/gui/practice/right.png",
     width = 45,
     height = 45,
     onRelease = btnNextZoneRelease,
-    x = 364,
-    y = 140
+    x = 0,
+    y = 0
   })
-  
+
   local function btnBackRelease()
     composer.gotoScene("lua.scenes.mainMenu")
     composer.removeScene("lua.scenes.lobbyPractise")
   end
-  
-  local btnBack = composer.newButton({
+
+  btnBack = composer.newButton({
     image = "images/gui/common/buttonHome.png",
     width = 90,
     height = 57,
     onRelease = btnBackRelease,
-    x = 50,
-    y = 292
+    x = 0,
+    y = 0
   })
-  
+
+  layoutLobbyPractise = function()
+    local contentLeft = display.screenOriginX
+    local contentTop = display.screenOriginY
+    local contentWidth = display.actualContentWidth
+    local contentHeight = display.actualContentHeight
+    local centerX = contentLeft + contentWidth * 0.5
+    local centerY = contentTop + contentHeight * 0.5
+
+    if backgroundImage then
+      backgroundImage.x = centerX
+      backgroundImage.y = centerY
+      backgroundImage.xScale = 1
+      backgroundImage.yScale = 1
+      local scale = math.max(contentWidth / backgroundImage.width, contentHeight / backgroundImage.height)
+      backgroundImage.xScale = scale
+      backgroundImage.yScale = scale
+    end
+    if buttonStickBottom then
+      buttonStickBottom.x = centerX
+      buttonStickBottom.y = contentTop + contentHeight * 0.8
+    end
+    if window and buttonStickBottom then
+      window.x = buttonStickBottom.x
+      window.y = buttonStickBottom.y - window.height * 0.55
+    end
+    if buttonStickTop and window then
+      buttonStickTop.x = window.x
+      buttonStickTop.y = window.y - window.height * 0.51
+    end
+    if mapIconsGroup then
+      mapIconsGroup.x = contentLeft
+      mapIconsGroup.y = contentTop
+    end
+    if btnPrevZone then
+      btnPrevZone.x = contentLeft + contentWidth * (116 / 480)
+      btnPrevZone.y = contentTop + contentHeight * (140 / 320)
+    end
+    if btnNextZone then
+      btnNextZone.x = contentLeft + contentWidth * (364 / 480)
+      btnNextZone.y = contentTop + contentHeight * (140 / 320)
+    end
+    if btnBack then
+      btnBack.x = contentLeft + contentWidth * (50 / 480)
+      btnBack.y = contentTop + contentHeight * (292 / 320)
+    end
+  end
+
   local function updateDisplay()
     screenGroup:insert(backgroundImage)
     screenGroup:insert(buttonStickBottom)
@@ -176,7 +217,7 @@ function scene:create(event)
     screenGroup:insert(btnPrevZone)
     screenGroup:insert(btnBack)
   end
-  
+
   function clean()
     startedClean = true
     display.remove(btnBack)
@@ -186,7 +227,7 @@ function scene:create(event)
       display.remove(practiseButtons[i])
     end
   end
-  
+
   updateDisplay()
   addMapIcons()
   if lookingAtZone == 1 then
@@ -194,6 +235,9 @@ function scene:create(event)
   end
   if maksZones == lookingAtZone then
     btnNextZone.isVisible = false
+  end
+  if layoutLobbyPractise then
+    layoutLobbyPractise()
   end
 end
 
@@ -204,11 +248,18 @@ function scene:show(event)
     return
   end
   local androidLogic = require("lua.modules.androidBackButton")
-  
+
   function cleanEnter()
     androidLogic.removeBackButton()
   end
-  
+    resizeListener = function()
+      if layoutLobbyPractise then
+        layoutLobbyPractise()
+      end
+    end
+    Runtime:addEventListener("resize", resizeListener)
+    resizeListener()
+
   androidLogic.addBackButton("lua.scenes.playMenu", "lua.scenes.lobbyPractise")
 end
 
@@ -220,6 +271,10 @@ function scene:hide(event)
       cleanEnter = nil
     end
   elseif phase == "did" then
+      if resizeListener then
+        Runtime:removeEventListener("resize", resizeListener)
+        resizeListener = nil
+      end
   end
 end
 

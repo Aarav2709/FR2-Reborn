@@ -16,7 +16,28 @@ settings = {
 
     plugins = {
         ["plugin.notifications"] = {
-            publisherId = "com.coronalabs"
+            publisherId = "com.solar2d",
+            supportedPlatforms = { iphone = true, android = true }
+        },
+        ["plugin.chartboost"] = {
+            publisherId = "com.solar2d",
+            supportedPlatforms = { iphone = true, android = true }
+        },
+        ["plugin.adrally"] = {
+            publisherId = "com.solar2d",
+            supportedPlatforms = { iphone = true, android = true }
+        },
+        ["plugin.amazon.iap"] = {
+            publisherId = "com.solar2d",
+            supportedPlatforms = { android = true }
+        },
+        ["plugin.google.iap.v3"] = {
+            publisherId = "com.solar2d",
+            supportedPlatforms = { android = true }
+        },
+        ["plugin.advertisingId"] = {
+            publisherId = "com.solar2d",
+            supportedPlatforms = { android = true }
         }
     },
 
@@ -28,7 +49,6 @@ settings = {
     },
 
     android = {
-        versionCode = 1,
         usesPermissions = {
             "android.permission.INTERNET"
         }

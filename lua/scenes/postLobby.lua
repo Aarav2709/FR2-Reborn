@@ -4,6 +4,7 @@ local coinRewardModule = require("lua.modules.coinReward")
 local scene = composer.newScene()
 local cointickloopChannel = 25
 local clean, cleanEnter, addChatBubble
+local backgroundImage, layoutPostLobby, resizeListener
 
 function scene:create(event)
   local screenGroup = self.view
@@ -43,10 +44,28 @@ function scene:create(event)
       end
     end
   end
-  local backgroundImage = display.newImageRect(imagePath, 480, 320)
-  backgroundImage.x = display.contentWidth * 0.5
-  backgroundImage.y = display.contentHeight * 0.5
+  backgroundImage = display.newImageRect(imagePath, 480, 320)
   screenGroup:insert(backgroundImage)
+  layoutPostLobby = function()
+    local contentLeft = display.screenOriginX
+    local contentTop = display.screenOriginY
+    local contentWidth = display.actualContentWidth
+    local contentHeight = display.actualContentHeight
+    local centerX = contentLeft + contentWidth * 0.5
+    local centerY = contentTop + contentHeight * 0.5
+
+    screenGroup.x = contentLeft
+    screenGroup.y = contentTop
+    if backgroundImage then
+      backgroundImage.x = display.contentWidth * 0.5
+      backgroundImage.y = display.contentHeight * 0.5
+      backgroundImage.xScale = 1
+      backgroundImage.yScale = 1
+      local scale = math.max(contentWidth / backgroundImage.width, contentHeight / backgroundImage.height)
+      backgroundImage.xScale = scale
+      backgroundImage.yScale = scale
+    end
+  end
   local backgroundTimeImage = display.newImageRect("images/gui/postgame/windowTimes.png", 182, 131)
   backgroundTimeImage.x = display.contentWidth * 0.8
   backgroundTimeImage.y = display.contentHeight * 0.2
@@ -80,7 +99,7 @@ function scene:create(event)
       1
     }
   })
-  
+
   function addChatBubble(playerId, chatId)
     local playerIndex = 1
     local text, chatBubble
@@ -89,7 +108,7 @@ function scene:create(event)
         playerIndex = i
       end
     end
-    
+
     local function cleanBubble()
       if startedClean then
         return
@@ -103,7 +122,7 @@ function scene:create(event)
         text = nil
       end
     end
-    
+
     if composer.data.gameInfo.players[playerIndex].pos == 1 then
       chatBubble = display.newImageRect("images/gui/postgame/bubbleTalk.png", 159, 47)
       chatBubble.x = composer.data.gameInfo.players[playerIndex].x + 30
@@ -151,7 +170,7 @@ function scene:create(event)
     end
     timer.performWithDelay(4000, cleanBubble)
   end
-  
+
   local function chatButtonRelease()
     if chatButtonOverlay.isVisible then
       chatButtonOverlay.isVisible = false
@@ -167,17 +186,17 @@ function scene:create(event)
       end
     end
   end
-  
+
   local function addChatButtons()
     local basePath = "images/gui/postgame/"
     for i = 1, 5 do
       local function sendChatMessage()
         composer.comm.postGameChat(i, otherPlayersId)
-        
+
         addChatBubble(composer.database.getPlayerInformation().playerId, i)
         chatButtonRelease()
       end
-      
+
       local path
       if i % 2 == 0 then
         path = basePath .. "bubbleListRow1.png"
@@ -201,13 +220,13 @@ function scene:create(event)
       screenGroup:insert(chatButtons[i])
     end
   end
-  
+
   local function returnToMenuButtonRelease()
     composer.tcpClient.stopTCPClient()
     composer.gotoScene("lua.scenes.mainMenu")
     composer.removeScene("lua.scenes.postLobby")
   end
-  
+
   local function stopOnboardingComplete(event)
     if "clicked" == event.action then
       local i = event.index
@@ -222,7 +241,7 @@ function scene:create(event)
       end
     end
   end
-  
+
   local function stopOnboarding()
     local message = composer.localized.get("QuitOnboarding")
     quitAlert = native.showAlert(composer.localized.get("Quit"), message, {
@@ -230,7 +249,7 @@ function scene:create(event)
       composer.localized.get("No")
     }, stopOnboardingComplete)
   end
-  
+
   local function rematchButtonRelease()
     if composer.onboarding.isActive == true then
       composer.onboarding.stepDone()
@@ -244,13 +263,13 @@ function scene:create(event)
     end
     composer.removeScene("lua.scenes.postLobby")
   end
-  
+
   local function sendFriendRequest(pos, playerId)
     addFriendButtonList[pos].isVisible = false
     addFriendButtonList[pos].inviteSent = true
     composer.comm.addFriend(playerId, false)
   end
-  
+
   local function addFriendsButtonRelease()
     if friendButtonOverlay.isVisible then
       for i = 1, 4 do
@@ -268,7 +287,7 @@ function scene:create(event)
       friendButtonOverlay.isVisible = true
     end
   end
-  
+
   local function marketButtonRelease()
     composer.tcpClient.stopTCPClient()
     if composer.comm.isOnline() then
@@ -285,7 +304,7 @@ function scene:create(event)
       composer.createCustomOverlay(1)
     end
   end
-  
+
   local returnToMenuButton = composer.newButton({
     image = "images/gui/common/buttonClosePopup.png",
     width = 43,
@@ -343,7 +362,7 @@ function scene:create(event)
     avatarDisplayGroupList[i] = display.newGroup()
     screenGroup:insert(avatarDisplayGroupList[i])
   end
-  
+
   local function updateAvatar(indexInList, username, pos)
     local networkFormat = true
     if composer.data.gameInfo.gameType == 0 then
@@ -395,7 +414,7 @@ function scene:create(event)
       local function addFriendButtonRelease()
         sendFriendRequest(pos, playerId)
       end
-      
+
       addFriendButtonList[pos] = composer.newButton({
         image = "images/gui/postgame/buttonFriendsAdd.png",
         width = 30,
@@ -409,7 +428,7 @@ function scene:create(event)
       screenGroup:insert(addFriendButtonList[pos])
     end
   end
-  
+
   local function getSign(number)
     if -1 < number then
       return "+ "
@@ -417,7 +436,7 @@ function scene:create(event)
       return "- "
     end
   end
-  
+
   local function sign(number)
     if number < 0 then
       return -1
@@ -425,7 +444,7 @@ function scene:create(event)
       return 1
     end
   end
-  
+
   local function updateRank(rating, deltaRating, extraDelay)
     if deltaRating then
       local ratingX = 176
@@ -465,7 +484,7 @@ function scene:create(event)
       totalRating.y = 10
       newTotalStatsGroup:insert(totalRating)
       local counterRating = 0
-      
+
       local function updateRating()
         counterRating = counterRating + 1
         prevRating = math.floor(prevRating + sign(deltaRating))
@@ -473,7 +492,7 @@ function scene:create(event)
         if counterRating == math.abs(deltaRating) then
           prevRating = rating
           composer.audio.stop(cointickloopChannel)
-          composer.audio.play("rating_end", {channel = cointickloopChannel})
+          composer.audio.play("rating_end", { channel = cointickloopChannel })
           if composer.contextualOnboarding.isActive == true then
             local gt = composer.data.gameInfo.gameType
             local onlineGamePlayed = gt == 1 or gt == 3 or gt == 4
@@ -490,12 +509,12 @@ function scene:create(event)
           newTotalStatsGroup:insert(totalRating)
         end
       end
-      
+
       local function setRating()
         if deltaRating == 0 then
           rankingEarned.text = "+0"
           composer.audio.stop(cointickloopChannel)
-          composer.audio.play("rating_end", {channel = cointickloopChannel})
+          composer.audio.play("rating_end", { channel = cointickloopChannel })
         else
           composer.audio.stop(cointickloopChannel)
           composer.audio.play("rating", {
@@ -506,11 +525,11 @@ function scene:create(event)
           ratingTimer = timer.performWithDelay(40, updateRating, math.abs(deltaRating))
         end
       end
-      
+
       startRatingTimer = timer.performWithDelay(2000 + extraDelay, setRating, 1)
     end
   end
-  
+
   local function updateMoney(money, deltaMoney, indexInList)
     if money then
       composer.database.setMoney(money)
@@ -567,25 +586,25 @@ function scene:create(event)
       if 30 < deltaMoney then
         moneyToAddPerTick = deltaMoney / 30
       end
-      
+
       local function updateMoney()
         counterMoney = counterMoney + moneyToAddPerTick
         prevMoney = prevMoney + moneyToAddPerTick
         if counterMoney == deltaMoney then
           prevMoney = money
           composer.audio.stop(cointickloopChannel)
-          composer.audio.play("coins_end", {channel = cointickloopChannel})
+          composer.audio.play("coins_end", { channel = cointickloopChannel })
         end
         if totalMoneyText then
           moneyText.text = " + " .. math.round(counterMoney)
           totalMoneyText.text = math.round(prevMoney)
         end
       end
-      
+
       local function setMoney()
         if deltaMoney == 0 then
           composer.audio.stop(cointickloopChannel)
-          composer.audio.play("coins_end", {channel = cointickloopChannel})
+          composer.audio.play("coins_end", { channel = cointickloopChannel })
           moneyText.text = "+0"
         else
           composer.audio.play("coins", {
@@ -596,11 +615,11 @@ function scene:create(event)
           moneyTimer = timer.performWithDelay(50, updateMoney, numberOfTicks)
         end
       end
-      
+
       startMoneyTimer = timer.performWithDelay(650, setMoney, 1)
     end
   end
-  
+
   function updateStats(indexInList)
     local list = composer.data.gameInfo.stats
     if list then
@@ -612,7 +631,7 @@ function scene:create(event)
       end
     end
   end
-  
+
   local function controllString(textString)
     textString = "" .. textString
     local dotPosition = string.find(textString, "%.")
@@ -630,10 +649,10 @@ function scene:create(event)
     end
     return textString
   end
-  
+
   local rankingTextLabels = {}
   local timeTextLabels = {}
-  
+
   local function setUpRankingTable(rankingTableFromComposer)
     local rankingTable = rankingTableFromComposer
     if rankingTable and #rankingTable < 5 then
@@ -725,7 +744,7 @@ function scene:create(event)
       screenGroup:insert(errorText)
     end
   end
-  
+
   local function createOnlinePostLobby()
     chatButton.isVisible = true
     chatButton.isVisible = true
@@ -734,7 +753,7 @@ function scene:create(event)
     backgroundStatsImage.y = 293
     screenGroup:insert(backgroundStatsImage)
   end
-  
+
   local function updateDisplayGroups()
     screenGroup:insert(backgroundTimeImage)
     screenGroup:insert(mapName)
@@ -751,7 +770,7 @@ function scene:create(event)
       screenGroup:insert(exitOnboarding)
     end
   end
-  
+
   function clean()
     startedClean = true
     if startMoneyTimer then
@@ -799,13 +818,13 @@ function scene:create(event)
       coinEffect.clean()
     end
   end
-  
+
   if composer.config.showPostLobby then
     composer.data.gameInfo.quickPlayerRankingTable = {
-      {username = "gunnar", goalTime = 10000},
-      {username = "per", goalTime = 13000},
-      {username = "arne", goalTime = 40000},
-      {username = "ole", goalTime = 20000}
+      { username = "gunnar", goalTime = 10000 },
+      { username = "per",    goalTime = 13000 },
+      { username = "arne",   goalTime = 40000 },
+      { username = "ole",    goalTime = 20000 }
     }
     composer.data.gameInfo.stats = {}
     composer.data.gameInfo.stats.a = 15
@@ -816,16 +835,17 @@ function scene:create(event)
     composer.data.gameInfo.stats.r = 5
     composer.data.gameInfo.stats.fa = nil
   end
-  
+
   local function createChest()
     chest = basicBoostAdModule.init(composer.data.gameInfo.stats.fa, screenGroup, composer.gamesPlayed)
     if composer.data.gameInfo.stats.fa then
-      chestCoinEffect = coinRewardModule.createCoinReward(composer.data.gameInfo.stats.h, math.floor(composer.data.gameInfo.stats.g / 2), 5, true)
+      chestCoinEffect = coinRewardModule.createCoinReward(composer.data.gameInfo.stats.h,
+      math.floor(composer.data.gameInfo.stats.g / 2), 5, true)
       chestCoinEffect.animateCoins()
       effectGroup:insert(chestCoinEffect)
     end
   end
-  
+
   if composer.data.gameInfo.gameType ~= 0 then
     createChest()
   else
@@ -864,14 +884,21 @@ function scene:show(event)
   local startedClean = false
   local tcpFormat = require("lua.network.tcpMessageFormat")
   local androidLogic = require("lua.modules.androidBackButton")
-  
-  -- OFFLINE MOD: Reklam modülünü yükleme!
+
+  -- Offline mode: do not load the ads module
   local adModule
   if not composer.config.offlineMode then
     adModule = require("lua.ads.adModule")
   end
   androidLogic.addBackButton("lua.scenes.mainMenu", "lua.scenes.postLobby")
-  
+  resizeListener = function()
+    if layoutPostLobby then
+      layoutPostLobby()
+    end
+  end
+  Runtime:addEventListener("resize", resizeListener)
+  resizeListener()
+
   local function receiveUpdateFromNetworkGamePlay(data)
     if startedClean then
       return
@@ -889,9 +916,9 @@ function scene:show(event)
       print("ERROR NETWORK: Got this stuff, dunno what to do: ", data)
     end
   end
-  
+
   composer.tcpClient.setReceiveFunction(receiveUpdateFromNetworkGamePlay)
-  
+
   local function callbackFunction(data)
     if startedClean then
       return
@@ -900,18 +927,18 @@ function scene:show(event)
       addChatBubble(data.a, data.b)
     end
   end
-  
+
   composer.comm.setCallback(callbackFunction)
-  
+
   local function runBotAgain()
     if isSimulator and composer.config.bot then
       composer.gotoScene("lua.scenes.mainMenu")
       composer.removeScene("lua.scenes.postLobby")
     end
   end
-  
+
   local botTimer = timer.performWithDelay(2000, runBotAgain, 1)
-  
+
   function cleanEnter()
     startedClean = true
     androidLogic.removeBackButton()
@@ -923,7 +950,7 @@ function scene:show(event)
       composer.tcpClient.stopTCPClient()
     end
   end
-  
+
   if adModule and adModule.shouldShowAds() and composer.showingDailyChallange == false then
     adModule.showAds()
     timer.performWithDelay(composer.adsTable.showTime, adModule.hideAds, 1)
@@ -934,6 +961,10 @@ function scene:hide(event)
   local sceneGroup = self.view
   local phase = event.phase
   if phase == "will" then
+    if resizeListener then
+      Runtime:removeEventListener("resize", resizeListener)
+      resizeListener = nil
+    end
     if cleanEnter then
       cleanEnter()
       cleanEnter = nil

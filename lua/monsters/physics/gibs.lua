@@ -475,9 +475,9 @@ function M.physicsData(scale)
       end
     end
   end
-  
+
   function physics:get(name)
-    -- Güvenli unpack - nil kontrolü
+    -- Safe unpack with nil check
     if self.data[name] and type(self.data[name]) == "table" then
       return unpack(self.data[name])
     else
@@ -485,11 +485,11 @@ function M.physicsData(scale)
       return nil
     end
   end
-  
+
   function physics:getFixtureId(name, index)
     return self.data[name][index].pe_fixture_id
   end
-  
+
   return physics
 end
 

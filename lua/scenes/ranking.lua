@@ -1,6 +1,7 @@
 local composer = require("composer")
 local scene = composer.newScene()
 local clean, cleanEnter
+local background, layoutRanking, resizeListener
 
 function scene:create(event)
   local group = self.view
@@ -33,11 +34,27 @@ function scene:create(event)
     return chanceList
   end
   
-  local background = display.newImageRect("images/gui/ranking/main.png", 480, 320)
+  background = display.newImageRect("images/gui/ranking/main.png", 480, 320)
   background.anchorX = 0
   background.anchorY = 0
   background.x = 0
   background.y = 0
+  layoutRanking = function()
+    local contentLeft = display.screenOriginX
+    local contentTop = display.screenOriginY
+    local contentWidth = display.actualContentWidth
+    local contentHeight = display.actualContentHeight
+
+    group.x = contentLeft
+    group.y = contentTop
+    if background then
+      background.xScale = 1
+      background.yScale = 1
+      local scale = math.max(contentWidth / background.width, contentHeight / background.height)
+      background.xScale = scale
+      background.yScale = scale
+    end
+  end
   local tableBackground = display.newImageRect("images/gui/ranking/cell.png", 480, 320)
   tableBackground.x = display.contentWidth * 0.5
   tableBackground.y = display.contentHeight * 0.5
@@ -572,6 +589,9 @@ function scene:create(event)
   updateDisplayGroup()
   composer.comm.setCallback(tcpCallback)
   composer.comm.getRankingListOnName(weeklyListName)
+  if layoutRanking then
+    layoutRanking()
+  end
 end
 
 function scene:show(event)
@@ -581,6 +601,14 @@ function scene:show(event)
     return
   end
   local androidLogic = require("lua.modules.androidBackButton")
+
+  resizeListener = function()
+    if layoutRanking then
+      layoutRanking()
+    end
+  end
+  Runtime:addEventListener("resize", resizeListener)
+  resizeListener()
   
   function cleanEnter()
     androidLogic.removeBackButton()
@@ -593,6 +621,10 @@ function scene:hide(event)
   local phase = event.phase
   if phase == "did" then
     return
+  end
+  if resizeListener then
+    Runtime:removeEventListener("resize", resizeListener)
+    resizeListener = nil
   end
   cleanEnter()
 end

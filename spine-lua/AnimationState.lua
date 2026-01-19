@@ -163,7 +163,7 @@ function AnimationState.new(data)
     local animation = self.data.skeletonData:findAnimation(animationName)
     if not animation then
       print("⚠️ WARNING: Animation not found: " .. animationName .. " - skipping")
-      return nil  -- Hata yerine nil dön
+      return nil -- Return nil instead of throwing an error
     end
     return self:setAnimation(trackIndex, animation, loop)
   end

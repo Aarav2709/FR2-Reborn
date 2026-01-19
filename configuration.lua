@@ -5,9 +5,9 @@ composer.config.fullVersion = "1.2.4-OFFLINE-BETA"
 composer.config.onboardingVersion = "0.1"
 composer.config.abTest = ""
 composer.config.serverVersion = 24
-composer.config.newItems = {version = 7, number = 0}
+composer.config.newItems = { version = 7, number = 0 }
 composer.config.numberOfMonsters = 1
-composer.config.offlineMode = true -- OFFLINE MOD AKTIF
+composer.config.offlineMode = true -- Offline mode enabled
 composer.config.tcpSocial = "minttuentrypoint.dirtybit.no"
 composer.config.configAddress = "http://minttuconfig.dirtybit.no"
 composer.config.httpsClient = "https://minttuentrypoint.dirtybit.no:6389"

@@ -153,7 +153,7 @@ function scene:create(event)
     composer.onboarding.addGuiReference("selfArrow", selfArrowImage)
     composer.onboarding.addGuiReference("exit", homeButton)
   end
-  
+
   function clean()
     if homeButton then
       homeButton:removeEventListener("touch", homeButton)
@@ -204,17 +204,17 @@ function scene:show(event)
   local stopSend = false
   local btnPowerUpPress, changeSceneTimer, shineTimer
   system.activate("multitouch")
-  
+
   local function playSound(soundType, channelIndex)
     if composer.database.getSound() == 1 then
       if channelIndex then
-        composer.audio.play(soundType, {channel = channelIndex})
+        composer.audio.play(soundType, { channel = channelIndex })
       else
         composer.audio.play(soundType)
       end
     end
   end
-  
+
   local soundLevelOnScreen = 0.9
   local soundLevelClose = 0.7
   local soundLevelFar = 0.4
@@ -222,7 +222,7 @@ function scene:show(event)
   local distanceThreshold1 = display.contentWidth
   local distanceThreshold2 = display.contentWidth * 2
   local distanceThreshold3 = display.contentWidth * 4
-  
+
   local function determineVolume(x1, x2)
     local distance = math.abs(x1 - x2)
     if distance < distanceThreshold1 then
@@ -236,7 +236,7 @@ function scene:show(event)
     end
     return soundLevelOff
   end
-  
+
   local function initPlayers(startXPos, startYPos)
     composer.mainPlayer = nil
     local list = composer.data.gameInfo.players
@@ -252,7 +252,8 @@ function scene:show(event)
         elseif powerUp == 8 then
           powerUp = 6
         end
-        playerList[i] = basicPlayer.new(i, list[i].username, list[i].avatar, powerUp, mainPlayer, playerList, startXPos + (i - 1) * 40, startYPos)
+        playerList[i] = basicPlayer.new(i, list[i].username, list[i].avatar, powerUp, mainPlayer, playerList,
+          startXPos + (i - 1) * 40, startYPos)
         playerList[i].addPlaySoundFunction(playSound)
         playerList[i].playerId = list[i].playerId
         if mainPlayer then
@@ -268,7 +269,7 @@ function scene:show(event)
       networkGame = false
     end
   end
-  
+
   local function getPuIcon(puType, size)
     local powerUpImage
     if puType == 0 then
@@ -300,7 +301,7 @@ function scene:show(event)
     end
     return powerUpImage
   end
-  
+
   local function removePowerUpImage()
     if powerUpImage then
       powerUpImage:removeSelf()
@@ -311,19 +312,19 @@ function scene:show(event)
     powerUpButtonFX:setSequence("close")
     powerUpButtonFX:play()
   end
-  
+
   local function hidePowerUpButtonFX()
     if powerUpButtonFX and powerUpButtonFX.alpha then
       powerUpButtonFX.alpha = 0
     end
   end
-  
+
   local function hideShineEffect()
     if shineEffect and shineEffect.alpha then
       shineEffect.alpha = 0
     end
   end
-  
+
   local function playShineEffect()
     if powerUpButtonFX.alpha == 0 then
       shineEffect.alpha = 1
@@ -332,7 +333,7 @@ function scene:show(event)
       timer.performWithDelay(200, hideShineEffect)
     end
   end
-  
+
   local function setPowerUpImage(puType)
     if powerUpImage then
       powerUpImage:removeSelf()
@@ -350,11 +351,11 @@ function scene:show(event)
     powerUpButtonFX:play()
     timer.performWithDelay(80, hidePowerUpButtonFX)
   end
-  
+
   local function updatePowerUpImage(puType)
     setPowerUpImage(puType)
   end
-  
+
   local function updateArrow()
     if playerSelf.ninjaMark then
       selfHuntersMark.alpha = 1
@@ -362,24 +363,24 @@ function scene:show(event)
       selfHuntersMark.alpha = 0
     end
   end
-  
+
   local function updateBottomBar(index)
     bottomBarList[index].x = playerList[index].x / (mapInterface.getLength() - 10) * bottomBarLength2 + bottomBarLength
   end
-  
+
   local function updatePositionNumber(position)
     if position ~= positionNumber.text and positionTexts then
       positionNumber.text = positionTexts[position]
     end
   end
-  
+
   local function removeKillText(object)
     if object and not startedClean then
       object:removeSelf()
       object = nil
     end
   end
-  
+
   local function setKillText(killerId, puType, killedId)
     if playerList and not startedClean then
       local killerName = playerList[killerId].getUsername()
@@ -401,22 +402,22 @@ function scene:show(event)
       text.anchorY = 0
       text.x = display.contentWidth * 0.99
       text.y = 0 - (#killTextMessages / 3 + 1) * display.contentHeight * 0.05
-      
+
       local function killTextClosure(event)
         return removeKillText(text)
       end
-      
+
       timer.performWithDelay(showTime, killTextClosure, 1)
       local puIcon = getPuIcon(puType, 26)
       puIcon.anchorX = 1
       puIcon.anchorY = 0
       puIcon.x = text.x - text.width
       puIcon.y = 2 - (#killTextMessages / 3 + 1) * display.contentHeight * 0.05
-      
+
       local function killTextClosure(event)
         return removeKillText(puIcon)
       end
-      
+
       timer.performWithDelay(showTime, killTextClosure, 1)
       local text2 = composer.newText({
         string = killerName,
@@ -431,11 +432,11 @@ function scene:show(event)
       text2.anchorY = 0
       text2.x = puIcon.x - puIcon.width
       text2.y = 0 - (#killTextMessages / 3 + 1) * display.contentHeight * 0.05
-      
+
       local function killTextClosure(event)
         return removeKillText(text2)
       end
-      
+
       timer.performWithDelay(showTime, killTextClosure, 1)
       killTextMessages[#killTextMessages + 1] = 1
       killTextMessages[#killTextMessages + 1] = 1
@@ -446,19 +447,19 @@ function scene:show(event)
       UIgroup:insert(killMessagesGroup)
     end
   end
-  
+
   local function createKillText(killerId, puType, killedId)
     local transitionTime = 200
     local newY = killMessagesGroup.y + display.contentHeight * 0.05
     killMessagesGroup.y = newY
-    
+
     local function killTextClosure(event)
       return setKillText(killerId, puType, killedId)
     end
-    
+
     timer.performWithDelay(transitionTime, killTextClosure, 1)
   end
-  
+
   function composer.isOnScreen(x, y)
     if not playerSelf then
       return false
@@ -471,11 +472,11 @@ function scene:show(event)
       return true
     end
   end
-  
+
   local function playerInScreen(id)
     return composer.isOnScreen(playerList[id].x, playerList[id].y)
   end
-  
+
   local function gameController(event)
     composer.debugger.logFPS()
     composer.debugger.logMemUsage()
@@ -519,15 +520,15 @@ function scene:show(event)
     end
     composer.debugger.profile("gameLoop")
   end
-  
+
   local function goToNextScreen()
     if not startedClean then
       if composer.onboarding.isActive == true then
         composer.onboarding.stepDone()
       else
-        -- OFFLINE MOD: Skor ekranı göster veya tekrar oyna seçeneği
+        -- Offline mode: show the score screen or replay option
         if composer.config.offlineMode then
-          -- Skor ekranına git
+          -- Go to the score screen
           composer.gotoScene("lua.scenes.postLobby")
           composer.removeScene("lua.scenes.gamePlay")
         else
@@ -537,7 +538,7 @@ function scene:show(event)
       end
     end
   end
-  
+
   local function endGame(playerInGoal)
     if not startedClean and not allInGoal then
       local playersInGoal = 0
@@ -584,7 +585,7 @@ function scene:show(event)
       end
     end
   end
-  
+
   local function gameOver()
     playerSelf.setCurrentGameTime(system.getTimer() - systemStartTime)
     if gameRunning and networkGame then
@@ -599,7 +600,7 @@ function scene:show(event)
       endGame(playerSelf.id)
     end
   end
-  
+
   local function updatePlayers()
     if gameRunning and not startedClean then
       playerPosition = 1
@@ -634,16 +635,16 @@ function scene:show(event)
       end
     end
   end
-  
+
   local function fadecountdownField()
-    transition.to(countdownField, {time = 400, alpha = 1})
+    transition.to(countdownField, { time = 400, alpha = 1 })
     transition.to(countdownField, {
       time = 400,
       delay = 500,
       alpha = 0
     })
   end
-  
+
   local function quitGameClean()
     if startedClean then
       return
@@ -661,7 +662,7 @@ function scene:show(event)
       composer.tcpClient.stopTCPClient()
     end
   end
-  
+
   local function createCountdownImage(imageText)
     if countdownImg then
       countdownImg:removeSelf()
@@ -681,28 +682,28 @@ function scene:show(event)
       UIgroup:insert(countdownImg)
     end
   end
-  
+
   local function fadecountdownImage()
-    transition.to(countdownImg, {time = 400, alpha = 1})
+    transition.to(countdownImg, { time = 400, alpha = 1 })
     transition.to(countdownImg, {
       time = 400,
       delay = 500,
       alpha = 0
     })
   end
-  
+
   local function goToNextScene()
     composer.gotoScene("lua.scenes.mainMenu")
     composer.removeScene("lua.scenes.gamePlay")
   end
-  
+
   local function disconnectAlertComplete(event)
     if "clicked" == event.action then
       quitGameClean()
       timer.performWithDelay(200, goToNextScene, 1)
     end
   end
-  
+
   local function quitAlertComplete(event)
     if "clicked" == event.action then
       local i = event.index
@@ -719,7 +720,7 @@ function scene:show(event)
       end
     end
   end
-  
+
   local function quitAlertCompleteIOS(event)
     if "clicked" == event.action then
       local i = event.index
@@ -736,14 +737,15 @@ function scene:show(event)
       end
     end
   end
-  
+
   local function showDisconnectAlert(allOtherPlayers)
     if 1 < #playerList and not disconnectAlert then
       quitGameClean()
       if isSimulator and composer.config.bot then
         timer.performWithDelay(200, goToNextScene, 1)
       else
-        disconnectAlert = native.showAlert(composer.localized.get("Disconnected"), composer.localized.get("LostConnection"), {
+        disconnectAlert = native.showAlert(composer.localized.get("Disconnected"),
+          composer.localized.get("LostConnection"), {
           composer.localized.get("Ok")
         }, disconnectAlertComplete)
         composer.analytics.newEvent("design", {
@@ -753,7 +755,7 @@ function scene:show(event)
       end
     end
   end
-  
+
   local function showQuitAlert()
     local message = composer.localized.get("QuitGame")
     if networkGame then
@@ -777,7 +779,7 @@ function scene:show(event)
       }, quitAlertCompleteIOS)
     end
   end
-  
+
   local function checkForAntiStuck()
     if playerSelf then
       if math.abs(playerSelf.x - oldX) < 50 then
@@ -787,14 +789,15 @@ function scene:show(event)
       end
       if antiStuckCounter == 3 then
         composer.tcpClient.stopTCPClient()
-        disconnectAlert = native.showAlert(composer.localized.get("Disconnected"), composer.localized.get("DidNotMove"), {
-          composer.localized.get("Ok")
-        }, disconnectAlertComplete)
+        disconnectAlert = native.showAlert(composer.localized.get("Disconnected"), composer.localized.get("DidNotMove"),
+          {
+            composer.localized.get("Ok")
+          }, disconnectAlertComplete)
       end
       oldX = playerSelf.x
     end
   end
-  
+
   local function receiveUpdateFromNetworkGamePlay(data)
     if startedClean then
       return
@@ -866,13 +869,13 @@ function scene:show(event)
       print("ERROR NETWORK: Got this stuff, dunno what to do: ", data)
     end
   end
-  
+
   local function sendPing()
     local msgID = composer.gameConfig.getClientMessageTypeForName("HEARTBEAT")
     local msg = "[" .. msgID .. "]"
     composer.tcpClient.sendMinimizedMessage(msg)
   end
-  
+
   local function checkForDisconnect()
     if networkGame and 1 < #playerList then
       local currentTime = system.getTimer()
@@ -897,7 +900,7 @@ function scene:show(event)
       end
     end
   end
-  
+
   local function countdownCompleted()
     gameRunning = true
     systemStartTime = system.getTimer()
@@ -911,7 +914,7 @@ function scene:show(event)
       playSound("start")
     end
   end
-  
+
   local function localCountdown(event)
     if not startedClean then
       if countdownMessage ~= composer.localized.get("Go") and 5 < countdownMessage then
@@ -931,7 +934,7 @@ function scene:show(event)
       end
     end
   end
-  
+
   function send(powerUp, jump)
     if networkGame and not startedClean and not stopSend then
       checkForDisconnect()
@@ -948,11 +951,11 @@ function scene:show(event)
       end
     end
   end
-  
+
   local function sendClosure(event)
     return send(nil, nil)
   end
-  
+
   local function btnJumpPress(self, event)
     if event.phase == "began" and gameRunning then
       if composer.onboarding.isActive == true then
@@ -967,16 +970,17 @@ function scene:show(event)
       return true
     end
   end
-  
+
   local function trimNumber(number)
     number = number * 100
     number = math.floor(number)
     number = number * 0.01
     return number
   end
-  
+
   local function powerUpDelay(powerUpId)
-    local xPos, yPos = powerUps.usePowerUp(powerUpId, playerSelf.id, myPlayerId, playerSelf, 0, 0, cameraGroup, screenGroup, playerList)
+    local xPos, yPos = powerUps.usePowerUp(powerUpId, playerSelf.id, myPlayerId, playerSelf, 0, 0, cameraGroup,
+      screenGroup, playerList)
     local trimmedX = trimNumber(xPos)
     local trimmedY = trimNumber(yPos)
     local list = {
@@ -986,7 +990,7 @@ function scene:show(event)
     }
     send(list)
   end
-  
+
   function btnPowerUpPress(self, event)
     if event.phase == "began" and gameRunning then
       local tutorialPU = false
@@ -996,7 +1000,8 @@ function scene:show(event)
       local powerUpId = playerSelf.getPowerUp()
       if 0 < powerUpId and powerUpImageReady or tutorialPU then
         playerSelf.usedPowerUp()
-        local xPos, yPos = powerUps.usePowerUp(powerUpId, playerSelf.id, myPlayerId, playerSelf, 0, 0, cameraGroup, screenGroup, playerList)
+        local xPos, yPos = powerUps.usePowerUp(powerUpId, playerSelf.id, myPlayerId, playerSelf, 0, 0, cameraGroup,
+          screenGroup, playerList)
         local list = {
           t = powerUpId,
           x = xPos,
@@ -1007,7 +1012,7 @@ function scene:show(event)
           local function myclosure(event)
             return powerUpDelay(powerUpId - 50)
           end
-          
+
           timer.performWithDelay(200, myclosure, 1)
         end
         removePowerUpImage()
@@ -1020,13 +1025,13 @@ function scene:show(event)
       return true
     end
   end
-  
+
   local function homeButtonPress(self, event)
     if event.phase == "began" then
       showQuitAlert()
     end
   end
-  
+
   local function checkIfAllPlayersStarted()
     local numberThatDisconnected = 0
     for i = 1, #playerList do
@@ -1037,7 +1042,7 @@ function scene:show(event)
       end
     end
   end
-  
+
   local function stopTimers()
     if playerTimer then
       timer.cancel(playerTimer)
@@ -1081,7 +1086,7 @@ function scene:show(event)
       botStuckTimer = nil
     end
   end
-  
+
   local function removeAlerts()
     if disconnectAlert then
       native.cancelAlert(disconnectAlert)
@@ -1092,22 +1097,22 @@ function scene:show(event)
       quitAlert = nil
     end
   end
-  
+
   local function activateBackbutton(event)
     if not composer.onboarding.isActive == true then
       canPressButton = true
     end
   end
-  
+
   local function showPUButton()
     powerupButtonImage.alpha = 1
   end
-  
+
   local function showJumpButton()
     jumpButton.alpha = 1
     jumpButtonImage.alpha = 1
   end
-  
+
   local function addListeners()
     if composer.getSceneName("current") == "lua.scenes.gamePlay" then
       jumpButton.touch = btnJumpPress
@@ -1119,7 +1124,7 @@ function scene:show(event)
       activateBackbutton()
     end
   end
-  
+
   local function updateLayers()
     UIgroup:insert(homeButton)
     UIgroup:insert(positionNumber)
@@ -1132,7 +1137,7 @@ function scene:show(event)
     powerUpButtonGroup:insert(shineEffect)
     screenGroup:insert(UIgroup)
   end
-  
+
   local function updateDisplayGroup()
     if startedClean then
       return
@@ -1148,21 +1153,21 @@ function scene:show(event)
       end
     end
   end
-  
+
   local function hideUI()
     if UIgroup then
       UIgroup.isVisible = false
       UIgroup.isHitTestable = true
     end
   end
-  
+
   local function androidButtonListener(event)
     if backButtonPushed == true then
       backButtonPushed = false
       showQuitAlert()
     end
   end
-  
+
   local function androidKeyEvent(event)
     local phase = event.phase
     local keyName = event.keyName
@@ -1174,7 +1179,7 @@ function scene:show(event)
     end
     return false
   end
-  
+
   function cleanEnter()
     startedClean = true
     if gameController then
@@ -1207,26 +1212,26 @@ function scene:show(event)
       composer.onboarding.clean()
     end
   end
-  
+
   local function startNetworkCountdown()
     local timeToStartGame = composer.data.gameInfo.timeToStartGame - system.getTimer()
     local restTime = timeToStartGame % 1000
     local ticks = math.floor((timeToStartGame - restTime) / 1000)
-    
+
     local function startLocalCountdown()
       if 0 < ticks then
         countdownMessage = ticks - 1
         localCountdownTimer = timer.performWithDelay(1000, localCountdown, ticks)
       end
     end
-    
+
     if 0 < restTime then
       localCountdownTimer = timer.performWithDelay(restTime, startLocalCountdown)
     else
       startLocalCountdown()
     end
   end
-  
+
   local function setUpGame()
     composer.debugger.clean()
     physics.setVelocityIterations(3)
@@ -1293,7 +1298,7 @@ function scene:show(event)
     Runtime:addEventListener("key", androidKeyEvent)
     Runtime:addEventListener("enterFrame", androidButtonListener)
   end
-  
+
   setUpGame()
   if composer.onboarding.isActive == true then
     composer.onboarding.addGuiReference("killMessages", killMessagesGroup)

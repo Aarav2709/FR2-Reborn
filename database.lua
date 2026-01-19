@@ -35,9 +35,9 @@ CREATE TABLE IF NOT EXISTS user_settings (id INTEGER PRIMARY KEY, username VARCH
                                                         CREATE TABLE IF NOT EXISTS facebook (id INTEGER PRIMARY KEY, facebookId INTEGER);
                                                         CREATE TABLE IF NOT EXISTS adTime (id INTEGER PRIMARY KEY, value INTEGER);
                             CREATE TABLE IF NOT EXISTS marketNotification (id INTEGER PRIMARY KEY, version INTEGER, number INTEGER);
-                            CREATE TABLE IF NOT EXISTS push_enabled (id INTEGER PRIMARY KEY, gameInvite INTEGER, friendRequest INTEGER, general INTEGER);    
+                            CREATE TABLE IF NOT EXISTS push_enabled (id INTEGER PRIMARY KEY, gameInvite INTEGER, friendRequest INTEGER, general INTEGER);
                             CREATE TABLE IF NOT EXISTS onboarding (part INTEGER PRIMARY KEY, done INTEGER default 0);
-                            CREATE TABLE IF NOT EXISTS onboardingIntro (id INTEGER PRIMARY KEY, done INTEGER default 0);                   
+                            CREATE TABLE IF NOT EXISTS onboardingIntro (id INTEGER PRIMARY KEY, done INTEGER default 0);
     ]]
   db:exec(createTables)
   db:close()
@@ -101,7 +101,13 @@ local function setAvatarData(avatarData, networkFormat)
   if avatarData == nil or avatarData == "null" then
     tablefill = "INSERT OR REPLACE INTO user_avatar VALUES(1,101,0,0,0,0,0,0);"
   else
-    tablefill = "INSERT OR REPLACE INTO user_avatar VALUES(1," .. avatarData[1] .. ", " .. avatarData[2] .. ", " .. avatarData[3] .. ", " .. avatarData[4] .. ", " .. avatarData[5] .. ", " .. avatarData[6] .. ", " .. avatarData[7] .. ");"
+    tablefill = "INSERT OR REPLACE INTO user_avatar VALUES(1," ..
+    avatarData[1] ..
+    ", " ..
+    avatarData[2] ..
+    ", " ..
+    avatarData[3] ..
+    ", " .. avatarData[4] .. ", " .. avatarData[5] .. ", " .. avatarData[6] .. ", " .. avatarData[7] .. ");"
   end
   db = sqlite3.open(path)
   db:exec(tablefill)
@@ -246,7 +252,8 @@ local function checkForFriendsWithSameName()
     end
   end
   for i = 1, #sameNameId do
-    composer.databaseData.friends[sameNameId[i]].n2 = composer.databaseData.friends[sameNameId[i]].n .. "#" .. composer.databaseData.friends[sameNameId[i]].t
+    composer.databaseData.friends[sameNameId[i]].n2 = composer.databaseData.friends[sameNameId[i]].n ..
+    "#" .. composer.databaseData.friends[sameNameId[i]].t
   end
 end
 
@@ -399,11 +406,11 @@ function M.setAllOnlineFriendsState(friends)
     local function closure()
       if friends and friends[1] then
         friends[1].delay = true
-        
+
         M.setAllOnlineFriendsState(friends)
       end
     end
-    
+
     timer.performWithDelay(2000, closure, 1)
   end
 end
@@ -514,7 +521,8 @@ end
 function M.addReceipt(transaction, storeType)
   local db = sqlite3.open(path)
   local transactionBase64, receiptHash = M.encodeTransaction(transaction)
-  db:exec("INSERT INTO receipts(encodedTransaction, hash, storeType) VALUES(\"" .. transactionBase64 .. "\", \"" .. receiptHash .. "\", " .. storeType .. ");")
+  db:exec("INSERT INTO receipts(encodedTransaction, hash, storeType) VALUES(\"" ..
+  transactionBase64 .. "\", \"" .. receiptHash .. "\", " .. storeType .. ");")
   db:close()
   db = nil
 end
@@ -826,7 +834,7 @@ local function getMarketNotification()
     return composer.databaseData.marketNotification
   else
     db = sqlite3.open(path)
-    local marketNotification = {version = 0, number = 0}
+    local marketNotification = { version = 0, number = 0 }
     for row in db:nrows("SELECT version, number FROM marketNotification;") do
       marketNotification = {
         version = row.version,
@@ -834,7 +842,8 @@ local function getMarketNotification()
       }
     end
     if marketNotificationConfig.version ~= marketNotification.version then
-      local tablefill = "INSERT OR REPLACE INTO marketNotification VALUES(1," .. marketNotificationConfig.version .. ", " .. marketNotificationConfig.number .. ");"
+      local tablefill = "INSERT OR REPLACE INTO marketNotification VALUES(1," ..
+      marketNotificationConfig.version .. ", " .. marketNotificationConfig.number .. ");"
       db = sqlite3.open(path)
       db:exec(tablefill)
       composer.databaseData.marketNotification = marketNotificationConfig
@@ -864,7 +873,8 @@ M.resetMarketNotification = resetMarketNotification
 
 function M.setPushEnableStatus(gameInvite, friendRequest, general)
   local db = sqlite3.open(path)
-  db:exec("INSERT OR REPLACE INTO push_enabled VALUES(1, " .. gameInvite .. ", " .. friendRequest .. ", " .. general .. ");")
+  db:exec("INSERT OR REPLACE INTO push_enabled VALUES(1, " ..
+  gameInvite .. ", " .. friendRequest .. ", " .. general .. ");")
   db:close()
   db = nil
 end
@@ -965,27 +975,26 @@ function M.initPlayerVariables()
   composer.todayChallenges = {}
   composer.todayChallenges.shouldShow = true
   setupTables()
-  
-  -- OFFLINE MOD: Otomatik oyuncu oluştur
+
+  -- Offline mode: create a default player
   if composer.config.offlineMode then
     M.createDefaultOfflinePlayer()
   end
 end
 
--- OFFLINE MOD: Varsayılan oyuncu oluştur
+-- Offline mode: create a default player
 function M.createDefaultOfflinePlayer()
   local playerInfo = M.getPlayerInformation()
   if not playerInfo then
-    print("OFFLINE MOD: Varsayılan oyuncu oluşturuluyor...")
-    M.setPlayerInformation("Oyuncu", 1234, "OFFLINE_PLAYER_" .. os.time(), "offline_token_123")
-    M.setAvatarData({1, 0, 0, 0, 0, 0, 0}, false) -- Varsayılan avatar c1s0
-    M.setMoney(10000) -- Başlangıç parası
-    M.setSound(1) -- Ses açık
-    M.setViolence(1) -- Şiddet açık
-    print("OFFLINE MOD: Varsayılan oyuncu oluşturuldu!")
+    print("OFFLINE MODE: Creating default player...")
+    M.setPlayerInformation("Player", 1234, "OFFLINE_PLAYER_" .. os.time(), "offline_token_123")
+    M.setAvatarData({ 1, 0, 0, 0, 0, 0, 0 }, false) -- Default avatar c1s0
+    M.setMoney(10000)                             -- Starting money
+    M.setSound(1)                                 -- Sound enabled
+    M.setViolence(1)                              -- Violence enabled
+    print("OFFLINE MODE: Default player created!")
   end
 end
-
 
 local function reset()
   M.initPlayerVariables()

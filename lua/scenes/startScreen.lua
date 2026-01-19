@@ -2,6 +2,8 @@ local composer = require("composer")
 local assetLoader = require("lua.modules.assetLoader")
 local scene = composer.newScene()
 local clean, cleanEnter
+local backgroundImage, logo, btnRegister, btnLogin
+local layoutStartScreen, resizeListener
 
 function scene:create(event)
   local screenGroup = self.view
@@ -17,31 +19,58 @@ function scene:create(event)
     composer.showOverlay("lua.overlays.loginUser", options)
   end
   
-  local backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 480, 320)
-  backgroundImage.x = display.contentWidth * 0.5
-  backgroundImage.y = display.contentHeight * 0.5
+  backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 480, 320)
   screenGroup:insert(backgroundImage)
-  local logo = display.newImageRect("images/gui/common/logo.png", 224, 135)
-  logo.x = display.contentWidth * 0.5
-  logo.y = display.contentHeight * 0.25
+  logo = display.newImageRect("images/gui/common/logo.png", 224, 135)
   screenGroup:insert(logo)
-  local btnRegister = composer.newButton({
+  btnRegister = composer.newButton({
     image = "images/gui/common/buttonTextA.png",
     text = composer.localized.get("NewPlayer"),
     onRelease = btnRegisterRelease,
     width = 126,
     height = 40,
-    x = display.contentWidth * 0.45,
-    y = 250
+    x = 0,
+    y = 0
   })
-  local btnLogin = composer.newButton({
+  btnLogin = composer.newButton({
     image = "images/gui/login/login.png",
     onRelease = btnLoginRelease,
     width = 50,
     height = 40,
-    x = display.contentWidth * 0.65,
-    y = 250
+    x = 0,
+    y = 0
   })
+
+  layoutStartScreen = function()
+    local contentLeft = display.screenOriginX
+    local contentTop = display.screenOriginY
+    local contentWidth = display.actualContentWidth
+    local contentHeight = display.actualContentHeight
+    local centerX = contentLeft + contentWidth * 0.5
+    local centerY = contentTop + contentHeight * 0.5
+
+    if backgroundImage then
+      backgroundImage.x = centerX
+      backgroundImage.y = centerY
+      backgroundImage.xScale = 1
+      backgroundImage.yScale = 1
+      local scale = math.max(contentWidth / backgroundImage.width, contentHeight / backgroundImage.height)
+      backgroundImage.xScale = scale
+      backgroundImage.yScale = scale
+    end
+    if logo then
+      logo.x = centerX
+      logo.y = contentTop + contentHeight * 0.25
+    end
+    if btnRegister then
+      btnRegister.x = contentLeft + contentWidth * 0.45
+      btnRegister.y = contentTop + contentHeight * 0.78
+    end
+    if btnLogin then
+      btnLogin.x = contentLeft + contentWidth * 0.65
+      btnLogin.y = contentTop + contentHeight * 0.78
+    end
+  end
   
   local function updateDisplayGroups()
     screenGroup:insert(btnRegister)
@@ -54,6 +83,9 @@ function scene:create(event)
   end
   
   updateDisplayGroups()
+  if layoutStartScreen then
+    layoutStartScreen()
+  end
 end
 
 function scene:show(event)
@@ -76,6 +108,14 @@ function scene:show(event)
     androidLogic.removeBackButton()
   end
   
+  resizeListener = function()
+    if layoutStartScreen then
+      layoutStartScreen()
+    end
+  end
+  Runtime:addEventListener("resize", resizeListener)
+  resizeListener()
+
   androidLogic.addBackButton()
   tcpSocial.toggleNetworkAlert()
   composer.commHttps.getUserOnDeviceId()
@@ -84,6 +124,10 @@ end
 function scene:hide(event)
   local phase = event.phase
   if phase == "will" then
+    if resizeListener then
+      Runtime:removeEventListener("resize", resizeListener)
+      resizeListener = nil
+    end
     if cleanEnter then
       cleanEnter()
       cleanEnter = nil

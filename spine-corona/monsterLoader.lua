@@ -11,33 +11,33 @@ local function new(monsterData, networkFormat)
   local blinkIndex = 0
   local blinkState = 1
   local paused = false
-  
+
   local function isCustomMonsterImage(attachment)
-    -- Attachment name parse et: "c1s0/misc/eyes_normal" gibi
+    -- Parse attachment name, e.g. "c1s0/misc/eyes_normal"
     local i, j = string.find(attachment, path .. "/")
-    
+
     if i == 1 then
-      -- path prefix'i var, kaldır
+      -- Strip the path prefix
       local restOfPath = string.sub(attachment, j + 1, string.len(attachment))
-      
-      -- powerups kontrolü
+
+      -- Check for powerups
       local powerupCheck = string.find(restOfPath, "powerups/")
       if powerupCheck == 1 then
-        return "powerups", string.sub(restOfPath, 10) -- "powerups/" kaldır
+        return "powerups", string.sub(restOfPath, 10) -- Strip "powerups/"
       end
-      
+
       return nil, restOfPath
     end
-    
-    -- powerups direkt kontrolü
+
+    -- Direct powerups check
     local k, l = string.find(attachment, "powerups/")
     if k == 1 then
       return "powerups", string.sub(attachment, l + 1)
     end
-    
+
     return false
   end
-  
+
   local function setRunAnimation(board)
     if board then
       runAnimation = "run_board"
@@ -49,77 +49,76 @@ local function new(monsterData, networkFormat)
       runAnimation = "run3"
     end
   end
-  
+
   local function overrideSkeletonFunctions()
     function skeleton:createImage(attachment)
-        composer.debugger.profile("CreateImage")
-        
-        -- 1. ADIM: Eşleşme sorununu çözmek için ismi temizle
-        -- attachment.name genelde "c1s0/head" gelir, bunu "head" yapmalıyız
-        local attachmentName = attachment.name
-        local prepath, restOfPath = isCustomMonsterImage(attachmentName)
-        
-        -- Eğer isCustomMonsterImage düzgün ayıklayamazsa manuel temizlik yapalım
-        if not restOfPath then
-            restOfPath = attachmentName:gsub(".*/", "") 
+      composer.debugger.profile("CreateImage")
+
+      -- Step 1: Clean the name to fix matching issues
+      -- attachment.name is usually "c1s0/head", we need "head"
+      local attachmentName = attachment.name
+      local prepath, restOfPath = isCustomMonsterImage(attachmentName)
+
+      -- If isCustomMonsterImage fails to parse, clean manually
+      if not restOfPath then
+        restOfPath = attachmentName:gsub(".*/", "")
+      end
+
+      local image
+
+      -- Step 2: Accept both Region and Mesh attachment types
+      -- The original code missed this check, which caused body misalignment
+      if (attachment.type == spine.AttachmentType.region or attachment.type == spine.AttachmentType.mesh) and imageSheetInfo then
+        local imagePath = imageSheetInfo:getFrameIndex(restOfPath)
+
+        if not imagePath then
+          print("ERROR: Frame not found! Character: " .. (path or "N/A") .. ", Looking for: " .. restOfPath)
+          return nil
         end
 
-        local image
-        
-        -- 2. ADIM: Sadece Region değil, Mesh tipini de kabul etmeliyiz
-        -- Senin orijinal kodunda bu kontrol eksik olduğu için gövde yamuk çıkıyor
-        if (attachment.type == spine.AttachmentType.region or attachment.type == spine.AttachmentType.mesh) and imageSheetInfo then
-            local imagePath = imageSheetInfo:getFrameIndex(restOfPath)
-            
-            if not imagePath then
-                print("ERROR: Frame not found! Character: " .. (path or "N/A") .. ", Looking for: " .. restOfPath)
-                return nil
-            end
-            
-            print("SUCCESS: Loading frame: " .. restOfPath .. " = frameIndex " .. imagePath)
-            image = display.newSprite(imageSheet, characterSequence)
-            image:setFrame(imagePath)
-            
-            -- 3. ADIM: Hizalama (Yamukluğu giderir)
-            image.anchorX = 0.5
-            image.anchorY = 0.5
+        print("SUCCESS: Loading frame: " .. restOfPath .. " = frameIndex " .. imagePath)
+        image = display.newSprite(imageSheet, characterSequence)
+        image:setFrame(imagePath)
 
-        elseif prepath and prepath == "powerups" and effectImageSheetInfo then
-            local imagePath = effectImageSheetInfo:getFrameIndex(restOfPath)
-            if imagePath then
-                image = display.newSprite(effectImageSheet, effectsSequence)
-                image:setFrame(imagePath)
-            end
-        else
-            -- Eğer ImageSheet'te yoksa direkt PNG ara
-            print("INFO: Loading direct PNG: " .. attachmentName)
-            local path = "images/monsters/" .. attachmentName
-            image = display.newImage(path .. ".png")
+        -- Step 3: Alignment (prevents skew)
+        image.anchorX = 0.5
+        image.anchorY = 0.5
+      elseif prepath and prepath == "powerups" and effectImageSheetInfo then
+        local imagePath = effectImageSheetInfo:getFrameIndex(restOfPath)
+        if imagePath then
+          image = display.newSprite(effectImageSheet, effectsSequence)
+          image:setFrame(imagePath)
         end
-        
-        composer.debugger.profile("CreateImage")
-        return image
+      else
+        -- If not in the image sheet, load a PNG directly
+        print("INFO: Loading direct PNG: " .. attachmentName)
+        local path = "images/monsters/" .. attachmentName
+        image = display.newImage(path .. ".png")
+      end
+
+      composer.debugger.profile("CreateImage")
+      return image
     end
-    
+
     function skeleton:modifyImage(image, attachment)
-        if image and image.setFrame then
-            composer.debugger.profile("ModifyImage")
-            local attachmentName = attachment.name
-            local _, restOfPath = isCustomMonsterImage(attachmentName)
-            
-            if not restOfPath then restOfPath = attachmentName:gsub(".*/", "") end
-            
-            local imagePath = imageSheetInfo:getFrameIndex(restOfPath)
-            if imagePath then
-                image:setFrame(imagePath)
-                composer.debugger.profile("ModifyImage")
-                return true
-            end
+      if image and image.setFrame then
+        composer.debugger.profile("ModifyImage")
+        local attachmentName = attachment.name
+        local _, restOfPath = isCustomMonsterImage(attachmentName)
+
+        if not restOfPath then restOfPath = attachmentName:gsub(".*/", "") end
+
+        local imagePath = imageSheetInfo:getFrameIndex(restOfPath)
+        if imagePath then
+          image:setFrame(imagePath)
+          composer.debugger.profile("ModifyImage")
+          return true
         end
-        return false
+      end
+      return false
     end
-end
-  
+  end
+
   local function setIdAndSkinDefault()
     id = 1
     skin = 0
@@ -127,17 +126,17 @@ end
     path = "c" .. id .. "s" .. skin
     loadMonsterToMemory()
   end
-  
+
   function loadMonsterToMemory()
     memoryIndex = tonumber(id .. skin)
     path = "c" .. id .. "s" .. skin
-    
+
     print("=== LOADING CHARACTER: " .. path .. " (id=" .. id .. ", skin=" .. skin .. ") ===")
-    
+
     local function safeLoad()
       composer.data.monsterInMemory[memoryIndex].sheetInfo = require("lua.monsters." .. path)
     end
-    
+
     if not composer.data.monsterInMemory[memoryIndex] then
       composer.data.monsterInMemory[memoryIndex] = {}
       local sucess = pcall(safeLoad)
@@ -148,7 +147,8 @@ end
         return
       end
       print("SUCCESS: Loaded lua sheet: lua/monsters/" .. path .. ".lua")
-      composer.data.monsterInMemory[memoryIndex].sheet = graphics.newImageSheet("images/monsters/" .. path .. "/monster.png", composer.data.monsterInMemory[memoryIndex].sheetInfo:getSheet())
+      composer.data.monsterInMemory[memoryIndex].sheet = graphics.newImageSheet(
+      "images/monsters/" .. path .. "/monster.png", composer.data.monsterInMemory[memoryIndex].sheetInfo:getSheet())
       print("SUCCESS: Loaded PNG: images/monsters/" .. path .. "/monster.png")
     else
       print("INFO: Character " .. path .. " already in memory, reusing")
@@ -156,11 +156,11 @@ end
     imageSheetInfo = composer.data.monsterInMemory[memoryIndex].sheetInfo
     imageSheet = composer.data.monsterInMemory[memoryIndex].sheet
   end
-  
+
   function monster.resetBones()
     skeleton:setBonesToSetupPose()
   end
-  
+
   local function setHat()
     if hat == nil or hat == 0 then
       skeleton:setAttachment("hat", nil)
@@ -177,7 +177,7 @@ end
       end
     end
   end
-  
+
   local function setNeck()
     if neck == nil or neck == 0 then
       skeleton:setAttachment("neck", nil)
@@ -191,7 +191,7 @@ end
       end
     end
   end
-  
+
   local function setEyeware()
     if facewear == nil or facewear == 0 then
       skeleton:setAttachment("facewear", nil)
@@ -205,14 +205,14 @@ end
       end
     end
   end
-  
+
   local function setSkin()
     local function setSkinSafe()
-      -- Her karakterin kendi skin'i var! "c1s0", "c2s0" gibi
+      -- Each character has its own skin, e.g. "c1s0", "c2s0"
       skeleton:setSkin(path)
       print("INFO: Skin set to '" .. path .. "'")
     end
-    
+
     local sucess = pcall(setSkinSafe)
     if not sucess then
       print("ERROR: Skin '" .. path .. "' not found! Trying fallback...")
@@ -220,7 +220,7 @@ end
       pcall(function() skeleton:setSkin("c1s0") end)
     end
   end
-  
+
   local function setFeet()
     if boots == nil or boots == 0 then
       skeleton:setAttachment("board", nil)
@@ -253,7 +253,7 @@ end
       print("WARNING: failed to find foot or board in spine, set default")
     end
   end
-  
+
   function monster.setBandage(isOn)
     skeleton:setAttachment("bandage_arm_lower", nil)
     skeleton:setAttachment("bandage_arm_upper", nil)
@@ -274,7 +274,7 @@ end
       skeleton:setAttachment("bandage_eyes", "bandage_eyes")
     end
   end
-  
+
   local function setDefaultSkin()
     setSkin()
     setHat()
@@ -283,7 +283,7 @@ end
     setFeet()
     monster.setBandage(nil)
   end
-  
+
   local function blinkEyes()
     blinkIndex = blinkIndex + 1
     local openEyesTime = math.random(4, 6)
@@ -299,7 +299,7 @@ end
       skeleton:setAttachment("eyes", "eyes_normal")
     end
   end
-  
+
   local function changeIdleAnimation()
     local changeIdleAnimation = math.random(1, 100)
     if 95 < changeIdleAnimation then
@@ -308,7 +308,7 @@ end
       monster.setAnimation("idle_var2", true, nil)
     end
   end
-  
+
   local function update()
     if startedClean then
       return
@@ -329,7 +329,7 @@ end
     composer.debugger.profile("monsterUpdate")
     blinkEyes()
   end
-  
+
   local function init()
     composer.debugger.debugTable("spine", "monsterData :", monsterData)
     if networkFormat then
@@ -364,8 +364,8 @@ end
           skin = 0
         end
       end
-      -- Avatar ID düzeltmesi: Eğer 100'den büyükse -100 yap
-      -- Eğer 10'dan küçükse (1-10 arası) olduğu gibi bırak
+      -- Avatar ID fix: if greater than 100, subtract 100
+      -- If below 10 (1-10), keep as is
       if id > 100 then
         id = id - 100
       end
@@ -386,39 +386,39 @@ end
     skeletonData = spineLoader.getSkeletonData()
     animationHandler = spineLoader.getAnimationState()
     overrideSkeletonFunctions()
-    
-    -- Skeleton'u setup pose'a ayarla (vücut parçaları doğru pozisyonda)
+
+    -- Set the skeleton to the setup pose (correct part positions)
     skeleton:setToSetupPose()
     skeleton:setSlotsToSetupPose()
     setDefaultSkin()
     skeleton:updateWorldTransform()
     monsterGroup = skeleton.group
     monsterGroup.y = 24
-    
-    -- Skeleton scale düzeltmesi - karakterlere göre ayarla
-    -- Varsayılan scale 1.0, bazı karakterler için ayar gerekebilir
+
+    -- Skeleton scale adjustments by character
+    -- Default scale is 1.0, some characters need tweaks
     local scaleX = 1.0
     local scaleY = 1.0
-    
-    -- Karakter bazlı scale ayarları
-    if id == 2 then  -- Character 2 (koyun) biraz büyük
+
+    -- Character-specific scale adjustments
+    if id == 2 then -- Character 2 (sheep) is slightly large
       scaleX = 0.95
       scaleY = 0.95
-    elseif id == 3 then  -- Character 3
+    elseif id == 3 then -- Character 3
       scaleX = 1.0
       scaleY = 1.0
     end
-    
+
     monsterGroup.xScale = scaleX
     monsterGroup.yScale = scaleY
-    
+
     lastUpdateTime = system.getTimer() / 1000
     animationSpeedFactor = 1
     animationHandler:addAnimationByName(0, "idle", true, nil)
     animationHandler:getCurrent(0).time = math.random(0, 150)
     Runtime:addEventListener("enterFrame", update)
   end
-  
+
   function monster.updateSpeed(newFactor)
     if newFactor < 0.1 then
       newFactor = 0.1
@@ -427,7 +427,7 @@ end
     end
     animationSpeedFactor = newFactor
   end
-  
+
   local function hasCurrentAnimationCompleted()
     local track = animationHandler:getCurrent(0)
     if track then
@@ -435,7 +435,7 @@ end
     end
     return true
   end
-  
+
   local function isLockedAnimation()
     do return false end
     local currentAnimation = animationHandler:getCurrent(0).animation.name
@@ -446,18 +446,18 @@ end
     end
     return false
   end
-  
+
   local function isAnimationPlaying(newAnimation)
     if animationHandler:getCurrent(0) and animationHandler:getCurrent(0).animation.name == newAnimation then
       return true
     end
     return false
   end
-  
+
   function monster.stopAllAnimation()
     Runtime:removeEventListener("enterFrame", update)
   end
-  
+
   function monster.cleanUseAnimationImages()
     if animationHandler:getCurrent(2) then
       animationHandler:clearTrack(2)
@@ -466,11 +466,11 @@ end
     skeleton:setAttachment("rifle", nil)
     skeleton:setAttachment("rifleEffect", nil)
   end
-  
+
   function monster.playUseAnimation(newAnimation)
     monster.cleanUseAnimationImages()
     if newAnimation then
-      -- Animasyon kontrolü - playUseAnimation için
+      -- Animation check for playUseAnimation
       local hasAnimation = false
       if animationHandler and animationHandler.skeletonData then
         local animations = animationHandler.skeletonData:getAnimations()
@@ -481,16 +481,16 @@ end
           end
         end
       end
-      
+
       if not hasAnimation then
         print("WARNING: Use animation '" .. newAnimation .. "' not found, skipping...")
         return
       end
-      
+
       animationHandler:setAnimationByName(2, newAnimation, false)
     end
   end
-  
+
   function monster.cleanBuffAnimationImages()
     if animationHandler:getCurrent(1) then
       animationHandler:clearTrack(1)
@@ -504,11 +504,11 @@ end
     skeleton:setAttachment("PU_rocket", nil)
     skeleton:setAttachment("PU_rocketFire", nil)
   end
-  
+
   function monster.playBuffAnimation(newAnimation, loop)
     monster.cleanBuffAnimationImages()
     if newAnimation then
-      -- Animasyon kontrolü - eğer animasyon yoksa devam etme
+      -- Animation check: skip if missing
       local hasAnimation = false
       if animationHandler and animationHandler.skeletonData then
         local animations = animationHandler.skeletonData:getAnimations()
@@ -519,12 +519,12 @@ end
           end
         end
       end
-      
+
       if not hasAnimation then
         print("WARNING: Animation '" .. newAnimation .. "' not found, skipping...")
         return
       end
-      
+
       animationHandler:setAnimationByName(1, newAnimation, loop)
       if newAnimation == "speed_start" then
         animationHandler:addAnimationByName(1, "speed_active", true)
@@ -537,12 +537,12 @@ end
       end
     end
   end
-  
+
   function monster.cleanAnimationImages()
     monster.playBuffAnimation(nil)
     monster.playUseAnimation(nil)
   end
-  
+
   function monster.setAnimation(newAnimation, loop, hard)
     if newAnimation == "run" then
       newAnimation = runAnimation
@@ -562,7 +562,7 @@ end
       end
     end
   end
-  
+
   function monster.getHead()
     local monsterHead = display.newGroup()
     local partsToRender = {
@@ -601,11 +601,11 @@ end
     monsterHead.yScale = 0.17
     return monsterHead
   end
-  
+
   function monster.getMemoryIndex()
     return memoryIndex
   end
-  
+
   function monster.clean()
     if startedClean then
       return
@@ -615,15 +615,15 @@ end
     monsterGroup:removeSelf()
     monsterGroup = nil
   end
-  
+
   function monster.getGroup()
     return monsterGroup
   end
-  
+
   function monster.setPaused(isPaused)
     paused = isPaused
   end
-  
+
   init()
   return monster
 end

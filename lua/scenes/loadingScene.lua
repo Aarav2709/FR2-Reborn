@@ -2,47 +2,84 @@ local composer = require("composer")
 local assetLoader = require("lua.modules.assetLoader")
 local scene = composer.newScene()
 local updateLoadbar, cleanEnter
+local backgroundImage, logo, text1, loadBarBG, loadBarRect, loadBar, loadBarForground
+local downloadText, layoutLoadingScene, resizeListener
 
 function scene:create(event)
   local screenGroup = self.view
   local transitionTime = 200
-  local backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 480, 320)
-  backgroundImage.x = display.contentWidth * 0.5
-  backgroundImage.y = display.contentHeight * 0.5
+  backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 480, 320)
   screenGroup:insert(backgroundImage)
-  local logo = display.newImageRect("images/gui/common/logo.png", 224, 135)
-  logo.x = display.contentWidth * 0.5
-  logo.y = display.contentHeight * 0.25
+  logo = display.newImageRect("images/gui/common/logo.png", 224, 135)
   screenGroup:insert(logo)
-  local text1 = composer.newText({
+  text1 = composer.newText({
     string = composer.localized.get("DirtybitGame"),
-    x = display.contentWidth * 0.5,
-    y = display.contentHeight * 0.9,
+    x = 0,
+    y = 0,
     size = 22
   })
   screenGroup:insert(text1)
-  local loadBarBG = display.newImageRect("images/gui/loading/loadingBarBG.png", 200, 22)
-  loadBarBG.x = display.contentWidth * 0.5
-  loadBarBG.y = display.contentHeight * 0.7
+  loadBarBG = display.newImageRect("images/gui/loading/loadingBarBG.png", 200, 22)
   screenGroup:insert(loadBarBG)
-  local loadBar = display.newRect(0, 0, 0, 20)
-  loadBar:setFillColor(1, 1, 1, 1)
+  loadBarRect = display.newRect(0, 0, 0, 20)
+  loadBarRect:setFillColor(1, 1, 1, 1)
+  loadBarRect.anchorX = 0
+  loadBarRect.anchorY = 0.5
+  screenGroup:insert(loadBarRect)
+  loadBar = display.newImageRect("images/gui/loading/loadingBarFiller.png", 12, 20)
   loadBar.anchorX = 0
   loadBar.anchorY = 0.5
-  loadBar.x = 140
-  loadBar.y = display.contentHeight * 0.5
   screenGroup:insert(loadBar)
-  local loadBar = display.newImageRect("images/gui/loading/loadingBarFiller.png", 12, 20)
-  loadBar.anchorX = 0
-  loadBar.anchorY = 0.5
-  loadBar.x = 140
-  loadBar.y = display.contentHeight * 0.7
-  screenGroup:insert(loadBar)
-  local loadBarForground = display.newImageRect("images/gui/loading/loadingBar.png", 220, 40)
-  loadBarForground.x = display.contentWidth * 0.5
-  loadBarForground.y = display.contentHeight * 0.7
+  loadBarForground = display.newImageRect("images/gui/loading/loadingBar.png", 220, 40)
   screenGroup:insert(loadBarForground)
-  
+
+  layoutLoadingScene = function()
+    local contentLeft = display.screenOriginX
+    local contentTop = display.screenOriginY
+    local contentWidth = display.actualContentWidth
+    local contentHeight = display.actualContentHeight
+    local centerX = contentLeft + contentWidth * 0.5
+    local centerY = contentTop + contentHeight * 0.5
+
+    if backgroundImage then
+      backgroundImage.x = centerX
+      backgroundImage.y = centerY
+      backgroundImage.xScale = 1
+      backgroundImage.yScale = 1
+      local scale = math.max(contentWidth / backgroundImage.width, contentHeight / backgroundImage.height)
+      backgroundImage.xScale = scale
+      backgroundImage.yScale = scale
+    end
+    if logo then
+      logo.x = centerX
+      logo.y = contentTop + contentHeight * 0.25
+    end
+    if text1 then
+      text1.x = centerX
+      text1.y = contentTop + contentHeight * 0.9
+    end
+    if loadBarBG then
+      loadBarBG.x = centerX
+      loadBarBG.y = contentTop + contentHeight * 0.7
+    end
+    if loadBarRect then
+      loadBarRect.x = contentLeft + contentWidth * (140 / 480)
+      loadBarRect.y = contentTop + contentHeight * 0.5
+    end
+    if loadBar then
+      loadBar.x = contentLeft + contentWidth * (140 / 480)
+      loadBar.y = contentTop + contentHeight * 0.7
+    end
+    if loadBarForground then
+      loadBarForground.x = centerX
+      loadBarForground.y = contentTop + contentHeight * 0.7
+    end
+    if downloadText then
+      downloadText.x = centerX
+      downloadText.y = contentTop + contentHeight * 0.8
+    end
+  end
+
   function updateLoadbar()
     if loadBar and loadBar.width then
       transition.to(loadBar, {
@@ -51,6 +88,9 @@ function scene:create(event)
         x = loadBar.x
       })
     end
+  end
+  if layoutLoadingScene then
+    layoutLoadingScene()
   end
 end
 
@@ -71,29 +111,39 @@ function scene:show(event)
   local updateConfig = false
   local configFilesCorruptOnFirstRead = false
   local loadBaseTimer, startToLoadTimer, nextStepTimer
-  local downloadText = composer.newText({
+  downloadText = composer.newText({
     string = composer.localized.get("Downloading"),
-    x = display.contentWidth * 0.5,
-    y = display.contentHeight * 0.8,
+    x = 0,
+    y = 0,
     size = 22
   })
   downloadText.isVisible = false
   screenGroup:insert(downloadText)
-  
+  if layoutLoadingScene then
+    layoutLoadingScene()
+  end
+  resizeListener = function()
+    if layoutLoadingScene then
+      layoutLoadingScene()
+    end
+  end
+  Runtime:addEventListener("resize", resizeListener)
+  resizeListener()
+
   local function updateDownloadTextWithMaps(success)
     totalFilesToDownloaded = totalFilesToDownloaded + composer.mapHandler.getNumberOfMaps()
     downloadText.text = composer.localized.get("Downloading") .. filesThatAreDownloaded .. "/" .. totalFilesToDownloaded
     downloadText.isVisible = true
     updateMaps = true
   end
-  
+
   local function updateDownloadTextWithConfig(success)
     totalFilesToDownloaded = totalFilesToDownloaded + 3
     downloadText.text = composer.localized.get("Downloading") .. filesThatAreDownloaded .. "/" .. totalFilesToDownloaded
     downloadText.isVisible = true
     updateConfig = true
   end
-  
+
   local function downloadNewJsonFilesDone(success)
     updateAttempsLeft = updateAttempsLeft + 1
     if success then
@@ -101,7 +151,7 @@ function scene:show(event)
     end
     downloadText.text = composer.localized.get("Downloading") .. filesThatAreDownloaded .. "/" .. totalFilesToDownloaded
   end
-  
+
   local function checkForFacebookLogin()
     local function goToStartScene()
       if composer.comm and composer.playerInfo then
@@ -120,48 +170,48 @@ function scene:show(event)
       composer.gotoScene("lua.scenes.startScreen")
       composer.removeScene(currentScene)
     end
-    
+
     if composer.database.getFacebookId() and not composer.facebook.isLoggedIn() and not composer.facebookLogin then
       function onLoginComplete(event)
         if event.phase ~= "login" then
-          native.showAlert("Error", "Could not login with Facebook.", {"Ok"}, goToStartScene)
+          native.showAlert("Error", "Could not login with Facebook.", { "Ok" }, goToStartScene)
         elseif event.isError then
-          native.showAlert("Error", "Could not login with Facebook.", {"Ok"}, goToStartScene)
+          native.showAlert("Error", "Could not login with Facebook.", { "Ok" }, goToStartScene)
         end
       end
-      
+
       composer.facebook.login({}, onLoginComplete)
     end
   end
-  
+
   local function scrollText()
     updateLoadbar()
   end
-  
+
   local function loadSounds()
     assetLoader.loadSounds()
     scrollText()
     nextStepTimer = timer.performWithDelay(waitTime, startToLoad, 1)
   end
-  
+
   local function loadAnimations3()
     assetLoader.loadAnimations3()
     scrollText()
     nextStepTimer = timer.performWithDelay(waitTime, loadSounds, 1)
   end
-  
+
   local function loadAnimations2()
     assetLoader.loadAnimations1()
     assetLoader.loadAnimations2()
     scrollText()
     nextStepTimer = timer.performWithDelay(waitTime, loadAnimations3, 1)
   end
-  
+
   local function continueLoadingConfigCritical()
     assetLoader.createConfigChecksum()
     assetLoader.createMapChecksum()
-    
-    -- OFFLINE MOD: IAP ve online özellikler devre dışı
+
+    -- Offline mode: disable IAP and online features
     if not composer.config.offlineMode then
       assetLoader.loadIAP()
       composer.comm.startSocialTCP()
@@ -169,7 +219,7 @@ function scene:show(event)
       local cb = require("lua.ads.chartboostModule")
       cb.initAds()
     end
-    
+
     composer.tableHelper = require("lua.modules.tableUtil")
     composer.loadScene("lua.scenes.mainMenu")
     assetLoader.loadSpine()
@@ -177,7 +227,7 @@ function scene:show(event)
     scrollText()
     nextStepTimer = timer.performWithDelay(waitTime, loadAnimations2, 1)
   end
-  
+
   local function downloadConfigDone(event)
     if event.success == false then
       print("Warning: Failed to update config file.")
@@ -197,7 +247,7 @@ function scene:show(event)
           local function closeApp()
             native.requestExit()
           end
-          
+
           native.showAlert(composer.localized.get("CorruptedFiles"), composer.localized.get("CorruptedFilesText"), {
             composer.localized.get("Ok")
           }, closeApp)
@@ -210,7 +260,7 @@ function scene:show(event)
     end
     downloadNewJsonFilesDone(event.success)
   end
-  
+
   local function downloadMapDone(event)
     if event.success == false then
       print("Warning: Failed to update map.")
@@ -219,14 +269,15 @@ function scene:show(event)
     fileDownloadAttempts = fileDownloadAttempts + 1
     downloadNewJsonFilesDone(event.success)
   end
-  
+
   function startToLoad()
     if not (composer.updatingConfingFiles or composer.updatingMaps) or composer.config.ignoreJsonConfig then
     else
       startToLoadTimer = timer.performWithDelay(200, startToLoad)
       return
     end
-    local configFilesDownloadFailure = composer.configDownloadFailure or composer.awardsDownloadFailure or composer.storeDownloadFailure or composer.mapDownloadFailure
+    local configFilesDownloadFailure = composer.configDownloadFailure or composer.awardsDownloadFailure or
+    composer.storeDownloadFailure or composer.mapDownloadFailure
     if configFilesDownloadFailure then
       composer.comm.stopTCPSocial(true)
       composer.createCustomOverlay(46)
@@ -246,7 +297,7 @@ function scene:show(event)
       composer.removeScene("lua.scenes.loadingScene")
     end
   end
-  
+
   local function checkAndReloadConfigFiles()
     local filessAreOk = assetLoader.readJsonConfigFiles()
     if filessAreOk == 0 then
@@ -255,7 +306,7 @@ function scene:show(event)
       assetLoader.updateConfigFiles()
     end
   end
-  
+
   function loadBase()
     assetLoader.loadFacebook()
     checkAndReloadConfigFiles()
@@ -266,14 +317,14 @@ function scene:show(event)
       continueLoadingConfigCritical()
     end
   end
-  
+
   scrollText()
   nextStepTimer = timer.performWithDelay(waitTime * 1.5, loadBase, 1)
   Runtime:addEventListener("downloadConfigDone", downloadConfigDone)
   Runtime:addEventListener("downloadMapDone", downloadMapDone)
   Runtime:addEventListener("downloadStartConfig", updateDownloadTextWithConfig)
   Runtime:addEventListener("downloadStartMaps", updateDownloadTextWithMaps)
-  
+
   function cleanEnter()
     Runtime:removeEventListener("downloadStartMaps", updateDownloadTextWithMaps)
     Runtime:removeEventListener("downloadStartConfig", updateDownloadTextWithConfig)
@@ -297,6 +348,10 @@ end
 function scene:hide(event)
   local phase = event.phase
   if phase == "will" then
+    if resizeListener then
+      Runtime:removeEventListener("resize", resizeListener)
+      resizeListener = nil
+    end
     if cleanEnter then
       cleanEnter()
       cleanEnter = nil

@@ -1,6 +1,8 @@
 local composer = require("composer")
 local scene = composer.newScene()
 local clean, cleanEnter
+local marketBackground, backgroundCoins, backgroundRoof, backgroundBottom, leftBarImage
+local layoutMarketplace, resizeListener
 
 function scene:create(event)
   local screenGroup = self.view
@@ -23,32 +25,66 @@ function scene:create(event)
   local moneyValue = composer.database.getMoney()
   local boughtItems = composer.database.getItems()
   local startedClean = false
-  local marketBackground = display.newImageRect("images/gui/market/bg.png", 480, 320)
+  marketBackground = display.newImageRect("images/gui/market/bg.png", 480, 320)
   marketBackground.anchorX = 0
   marketBackground.anchorY = 0
   marketBackground.x = 0
   marketBackground.y = 0
-  local backgroundCoins = display.newImageRect("images/gui/market/currentCoins.png", 70, 53)
+  backgroundCoins = display.newImageRect("images/gui/market/currentCoins.png", 70, 53)
   backgroundCoins.anchorX = 0
   backgroundCoins.anchorY = 0
   backgroundCoins.x = 400
   backgroundCoins.y = 0
-  local backgroundRoof = display.newImageRect("images/gui/market/roof.png", 480, 30)
+  backgroundRoof = display.newImageRect("images/gui/market/roof.png", 480, 30)
   backgroundRoof.anchorX = 0
   backgroundRoof.anchorY = 0
   backgroundRoof.x = 0
   backgroundRoof.y = 0
-  local backgroundBottom = display.newImageRect("images/gui/market/categoryCover.png", 119, 80)
+  backgroundBottom = display.newImageRect("images/gui/market/categoryCover.png", 119, 80)
   backgroundBottom.anchorX = 0
   backgroundBottom.anchorY = 1
   backgroundBottom.x = 0
   backgroundBottom.y = 320
-  local leftBarImage = display.newImageRect("images/gui/market/categoryPanel.png", 117, 261)
+  leftBarImage = display.newImageRect("images/gui/market/categoryPanel.png", 117, 261)
   leftBarImage.anchorX = 0
   leftBarImage.anchorY = 0
   leftBarImage.x = 0
   leftBarImage.y = 0
   leftBarDisplayGroup:insert(leftBarImage)
+  layoutMarketplace = function()
+    local contentLeft = display.screenOriginX
+    local contentTop = display.screenOriginY
+    local contentWidth = display.actualContentWidth
+    local contentHeight = display.actualContentHeight
+    local centerX = contentLeft + contentWidth * 0.5
+    local centerY = contentTop + contentHeight * 0.5
+
+    if marketBackground then
+      marketBackground.x = contentLeft
+      marketBackground.y = contentTop
+      marketBackground.xScale = 1
+      marketBackground.yScale = 1
+      local scale = math.max(contentWidth / marketBackground.width, contentHeight / marketBackground.height)
+      marketBackground.xScale = scale
+      marketBackground.yScale = scale
+    end
+    if backgroundRoof then
+      backgroundRoof.x = contentLeft
+      backgroundRoof.y = contentTop
+    end
+    if backgroundBottom then
+      backgroundBottom.x = contentLeft
+      backgroundBottom.y = contentTop + contentHeight
+    end
+    if leftBarImage then
+      leftBarImage.x = contentLeft
+      leftBarImage.y = contentTop
+    end
+    if backgroundCoins then
+      backgroundCoins.x = contentLeft + contentWidth * (400 / 480)
+      backgroundCoins.y = contentTop
+    end
+  end
   itemSelected = 1
   
   local function commCallback(data)
@@ -1157,6 +1193,9 @@ function scene:create(event)
     composer.onboarding.updateDisplayGroups(nil, screenGroup)
     composer.onboarding.addGuiReference("marketplace_back", btnBack)
   end
+  if layoutMarketplace then
+    layoutMarketplace()
+  end
 end
 
 function scene:show(event)
@@ -1168,6 +1207,13 @@ function scene:show(event)
   local androidLogic = require("lua.modules.androidBackButton")
   androidLogic.addBackButton("lua.scenes.mainMenu", "lua.scenes.marketplace")
   composer.database.resetMarketNotification()
+  resizeListener = function()
+    if layoutMarketplace then
+      layoutMarketplace()
+    end
+  end
+  Runtime:addEventListener("resize", resizeListener)
+  resizeListener()
   
   function cleanEnter()
     androidLogic.removeBackButton()
@@ -1178,6 +1224,10 @@ function scene:hide(event)
   local phase = event.phase
   if phase == "did" then
     return
+  end
+  if resizeListener then
+    Runtime:removeEventListener("resize", resizeListener)
+    resizeListener = nil
   end
   local syncAvatarWithServer = false
   clean()

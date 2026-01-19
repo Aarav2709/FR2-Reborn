@@ -1,13 +1,33 @@
 local composer = require("composer")
 local scene = composer.newScene()
 local cleanEnter
+local backgroundImage, layoutBufferScene, resizeListener
 
 function scene:create(event)
   local group = self.view
-  local backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 480, 320)
-  backgroundImage.x = display.contentWidth * 0.5
-  backgroundImage.y = display.contentHeight * 0.5
+  backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 480, 320)
   group:insert(backgroundImage)
+  layoutBufferScene = function()
+    local contentLeft = display.screenOriginX
+    local contentTop = display.screenOriginY
+    local contentWidth = display.actualContentWidth
+    local contentHeight = display.actualContentHeight
+    local centerX = contentLeft + contentWidth * 0.5
+    local centerY = contentTop + contentHeight * 0.5
+
+    if backgroundImage then
+      backgroundImage.x = centerX
+      backgroundImage.y = centerY
+      backgroundImage.xScale = 1
+      backgroundImage.yScale = 1
+      local scale = math.max(contentWidth / backgroundImage.width, contentHeight / backgroundImage.height)
+      backgroundImage.xScale = scale
+      backgroundImage.yScale = scale
+    end
+  end
+  if layoutBufferScene then
+    layoutBufferScene()
+  end
   print("Creating bufferscene")
 end
 
@@ -20,6 +40,13 @@ function scene:show(event)
   local group = self.view
   local statedClean = false
   local startGameTimer
+  resizeListener = function()
+    if layoutBufferScene then
+      layoutBufferScene()
+    end
+  end
+  Runtime:addEventListener("resize", resizeListener)
+  resizeListener()
   
   local function startGame()
     composer.gotoScene("lua.scenes.gamePlay")
@@ -45,6 +72,10 @@ function scene:hide(event)
     return
   end
   local group = self.view
+  if resizeListener then
+    Runtime:removeEventListener("resize", resizeListener)
+    resizeListener = nil
+  end
   if cleanEnter then
     cleanEnter()
   end

@@ -90,7 +90,8 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   local currentVolume = -1
   local playSoundOnChannel, playSound, playKillMessage
   player.mainPlayer = mainPlayer
-  local playerEffects = basicPlayerEffects.createEffects(player, playerCorpses, monster, booleanStates, spriteDisplay, bodyParts, screenGroup)
+  local playerEffects = basicPlayerEffects.createEffects(player, playerCorpses, monster, booleanStates, spriteDisplay,
+    bodyParts, screenGroup)
   local disconnectBar = display.newImageRect("images/game/avatar/disconnected.png", 18, 18)
   local headBarBackground
   if mainPlayer then
@@ -98,23 +99,23 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   else
     headBarBackground = display.newImageRect("images/game/playerOtherNormal.png", 40, 40)
   end
-  
+
   local function radToDegree(rad)
     return rad * 180 / 3.14
   end
-  
+
   local function hidePlayerSprite()
     spriteDisplay.alpha = 0
     monster.cleanAnimationImages()
   end
-  
+
   local function showPlayerSprite()
     if not booleanStates.startedClean then
       monster.setBandage(false)
       booleanStates.playerInvulnerable = false
     end
   end
-  
+
   local function partlyShowPlayerSprite()
     monster.setBandage(true)
     playerEffects.playBloodSquirt()
@@ -125,10 +126,10 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     end
     timer.performWithDelay(delay, showPlayerSprite, 1)
   end
-  
+
   local deathAnimation = composer.data.monsterInMemory[monster.getMemoryIndex()]
   playerCorpses.addSpriteSet(deathAnimation)
-  
+
   local function getLinearVelocityOnPlayer()
     if booleanStates.startedClean then
       return 1, 1
@@ -136,29 +137,29 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     local vx, vy = player:getLinearVelocity()
     return vx, vy
   end
-  
+
   local function getPlayerPositionInWorld()
     if booleanStates.startedClean then
       return 1, 1
     end
     return player.x, player.y
   end
-  
+
   local function setPlayerPositionInWorld(x, y)
     player.x = x
     player.y = y
   end
-  
+
   local function setLinearVelocityOnPlayer(vx, vy)
     player:setLinearVelocity(vx, vy)
     playerGhost:setLinearVelocity(vx, vy)
   end
-  
+
   local function applyForceOnPlayer(vx, vy)
     player:applyForce(vx, vy, player.x, player.y)
     playerGhost:applyForce(vx, vy, playerGhost.x, playerGhost.y)
   end
-  
+
   local function createItemEffect()
     if networkGame and accessorize.f and accessorize.f > 0 then
       trailHelper.createTrail(accessorize.f, player.x - 5, player.y - 10, bodyParts, 0.5)
@@ -166,11 +167,11 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       trailHelper.createTrail(tonumber(accessorize[6]), player.x - 5, player.y - 10, bodyParts, 0.5)
     end
   end
-  
+
   local function stopPowerUpSpeed(showPlayer)
     if not booleanStates.startedClean then
       if showPlayer then
-        -- Güvenli animasyon çalma
+        -- Safe animation playback
         pcall(function()
           monster.playBuffAnimation("speed_end", false)
         end)
@@ -187,10 +188,10 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       monster.cleanBuffAnimationImages()
     end
   end
-  
+
   local function hidePowerUpArmor()
     playSound("armor_end")
-    -- Güvenli animasyon çalma
+    -- Safe animation playback
     pcall(function()
       monster.playBuffAnimation("sacrifice_end", false)
     end)
@@ -199,21 +200,21 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       powerUpLinks.armor = nil
     end
   end
-  
+
   local function playPowerUpArmor()
-    -- Güvenli animasyon çalma - hata yakalama
+    -- Safe animation playback with error handling
     local success = pcall(function()
       monster.playBuffAnimation("sacrifice_start", true)
     end)
     if not success then
       print("WARNING: Failed to play sacrifice_start animation, using fallback")
-      -- Fallback olarak normal run animasyonu kullan
+      -- Fall back to the normal run animation
       pcall(function()
         monster.setAnimation("run", true, false)
       end)
     end
   end
-  
+
   local function hideRocketEffect(checkForKill)
     monster.setAnimation("run", true, false)
     if powerUpLinks.rocket then
@@ -229,26 +230,26 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     end
     monster.cleanBuffAnimationImages()
   end
-  
+
   local function pauseAnimations(shouldPause)
     monster.setPaused(shouldPause)
   end
-  
+
   local function setPlayerPosition(newPosition, newNumberOfPlayers)
     playerPosition = newPosition
     numberOfPlayers = newNumberOfPlayers
   end
-  
+
   local function getPlayerPosition()
     return playerPosition
   end
-  
+
   local function setUpdatePowerUpImageFunction(gamePlayFunction)
     updatePowerUpImageFunction = gamePlayFunction
   end
-  
+
   local testTime
-  
+
   local function removeNinjaMark()
     if not booleanStates.startedClean then
       powerUpImages.markPlayerImage.alpha = 0
@@ -256,7 +257,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       player.ninjaMark = false
     end
   end
-  
+
   local function addNinjaMark()
     if not booleanStates.startedClean then
       if not mainPlayer then
@@ -271,7 +272,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       player.ninjaMark = true
     end
   end
-  
+
   local function isValidNinjaPlayer(ninjaMarkIndex)
     if ninjaMarkIndex > #playerList then
       return false
@@ -281,7 +282,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     end
     return true
   end
-  
+
   local function playNinjaEffect()
     if (powerUpType == 59 or powerUpType == 9) and not booleanStates.startedClean and gameTimes.goalTime < 1 and mainPlayer then
       if ninjaEffectTimer == nil then
@@ -321,19 +322,19 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
           end
         end
       end
-      
+
       timer.performWithDelay(501, cleanNinjaMarks, 1)
       ninjaEffectTimer = nil
     end
   end
-  
+
   local function setPowerUp(powerUp)
     powerUpType = powerUp
     if mainPlayer then
       updatePowerUpImageFunction(powerUpType)
     end
   end
-  
+
   local function selectRandomPowerUp()
     powerUpAt = player.x
     powerUpType = powerUpChance.selectRandomPowerUp(player, playerPosition, numberOfPlayers, playerList)
@@ -348,11 +349,11 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       end
     end
   end
-  
+
   local function isDead()
     return booleanStates.playerDead
   end
-  
+
   local function getPowerUp()
     if booleanStates.playerDead then
       return 0
@@ -360,7 +361,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     powerUpType = powerUpChance.convertPowerUp(powerUpType)
     return powerUpType
   end
-  
+
   local function canOtherPlayerUsePU()
     if composer.data.gameInfo.gameType == 0 then
       return true
@@ -370,17 +371,17 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       return false
     end
   end
-  
+
   local function usedPowerUp()
     powerUpType = 0
   end
-  
+
   local function pauseSprite()
     if booleanStates.spriteIsRunning and not booleanStates.startedClean then
       booleanStates.spriteIsRunning = false
     end
   end
-  
+
   local function tutorialPause(isPaused)
     if isPaused == true then
       booleanStates.tutorialPause = true
@@ -389,7 +390,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       booleanStates.tutorialPause = false
     end
   end
-  
+
   local function pauseSpriteAminationInAir()
     if not booleanStates.spriteIsInAir and not booleanStates.startedClean then
       booleanStates.spriteIsInAir = true
@@ -398,7 +399,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       end
     end
   end
-  
+
   local function resumeSpriteAnimationOnGround()
     if booleanStates.startedClean or gameTimes.goalTime > 0 then
       return
@@ -413,7 +414,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       end
     end
   end
-  
+
   local function setGround()
     if player then
       local newTime = system.getTimer()
@@ -423,7 +424,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       end
     end
   end
-  
+
   local function setSpriteSpeed(vx)
     if gameTimes.goalTime > 0 then
       return
@@ -440,13 +441,13 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       speed = 0.05
     end
   end
-  
+
   local function removeBlendEffect(object)
     if object then
       object[1].blendMode = "normal"
     end
   end
-  
+
   local function canGetPowerUp()
     if lastTimePowerUp + 500 > system.getTimer() then
       return false
@@ -459,7 +460,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     end
     return false
   end
-  
+
   local function castRayAgainstMapElement(x1, y1, x2, y2)
     if booleanStates.startedClean then
       return
@@ -478,21 +479,22 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     end
     return false
   end
-  
+
   local function tryToSpawnLandEffect()
     local ray = castRayAgainstMapElement(player.x, player.y + 12, player.x, player.y + 30)
     if ray then
-      playerEffects.playLandEffect(ray.position.x, ray.position.y, radToDegree(math.atan2(ray.normal.y, ray.normal.x)) + 90)
+      playerEffects.playLandEffect(ray.position.x, ray.position.y,
+        radToDegree(math.atan2(ray.normal.y, ray.normal.x)) + 90)
     end
   end
-  
+
   local function cannonFunction(cannonObject)
     if player and not booleanStates.startedClean then
       player.setPlayerPositionInWorld(cannonObject.x, cannonObject.y)
       player.setLinearVelocityOnPlayer(780, -490)
     end
   end
-  
+
   local function onCollision(self, collisionEvent)
     if collisionEvent.phase == "began" then
       if collisionEvent.other.mapElement then
@@ -587,11 +589,11 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
             local list = {
               collisionEvent.other
             }
-            
+
             local function blendClosure(event)
               return removeBlendEffect(list)
             end
-            
+
             timer.performWithDelay(200, blendClosure, 1)
             playSound("pickup")
             lastTimePowerUp = system.getTimer()
@@ -603,7 +605,8 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
             collisionEvent.other:setFillColor(0.5450980392156862, 0.5137254901960784, 0.47058823529411764, 1)
           end
           if composer.data.gameInfo.gameType ~= 0 and mainPlayer then
-            composer.tcpClient.sendPowerBoxMessage(powerUpType, player.x, player.y, math.round(collisionEvent.other.x), math.round(collisionEvent.other.y))
+            composer.tcpClient.sendPowerBoxMessage(powerUpType, player.x, player.y, math.round(collisionEvent.other.x),
+              math.round(collisionEvent.other.y))
           end
         end
       elseif collisionEvent.other.cannon then
@@ -619,9 +622,9 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       timer.performWithDelay(300, setGround, 1)
     end
   end
-  
+
   local testCounter = 1
-  
+
   local function calculateRotation()
     local vx, vy = player:getLinearVelocity()
     if vy < -400 then
@@ -660,10 +663,10 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     end
     testCounter = testCounter + 1
   end
-  
+
   local lastAccelerateTime = 0
   local runOnceAccelerate = true
-  
+
   local function accelerate()
     if not booleanStates.startedClean and not booleanStates.disconnected then
       if runOnceAccelerate then
@@ -721,7 +724,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       monster.updateSpeed(vx / speeds.defaultTopSpeed)
     end
   end
-  
+
   local function castRayAgainstMapElementWithDecal(x1, y1, x2, y2)
     if booleanStates.startedClean then
       return
@@ -737,7 +740,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     end
     return false
   end
-  
+
   local function canJump()
     if booleanStates.startedClean or player == nil then
       return false
@@ -759,7 +762,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       return false
     end
   end
-  
+
   local function tryToSpawnJumpEffect()
     local ray = castRayAgainstMapElement(player.x, player.y + 12, player.x, player.y + 30)
     if ray then
@@ -771,17 +774,18 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
         vxPercentage = 1
       end
       vxPercentage = 1 - vxPercentage - 0.4
-      playerEffects.playJumpEffect(ray.position.x, ray.position.y, radToDegree(math.atan2(ray.normal.y, ray.normal.x)) + 90, vxPercentage)
+      playerEffects.playJumpEffect(ray.position.x, ray.position.y,
+        radToDegree(math.atan2(ray.normal.y, ray.normal.x)) + 90, vxPercentage)
     end
   end
-  
+
   local function jump()
     gameTimes.lastJumpTime = system.getTimer()
     changeSpeedState = 1
     local vx, vy = player:getLinearVelocity()
-    local jumpForce = -350 -- Daha güçlü zıplama! (önceden -200)
+    local jumpForce = -350 -- Stronger jump (was -200)
     if booleanStates.rocketActive then
-      jumpForce = -300 -- Rocket modda da daha güçlü (önceden -200)
+      jumpForce = -300     -- Stronger in rocket mode (was -200)
       if vy < -300 then
         jumpForce = -10
       end
@@ -810,7 +814,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     booleanStates.spriteIsInAir = true
     tryToSpawnJumpEffect()
   end
-  
+
   local function stopPlayer()
     if not booleanStates.startedClean then
       if booleanStates.rocketActive then
@@ -834,30 +838,30 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       end
     end
   end
-  
+
   local function getPlayerGoalTime()
     return gameTimes.goalTime
   end
-  
+
   local function setPlayerGoalTime(newTime)
     gameTimes.goalTime = newTime
   end
-  
+
   local function getUsername()
     return name
   end
-  
+
   local function getPlayerHead()
     return playerHead
   end
-  
+
   local function trimNumber(number)
     number = number * 100
     number = math.floor(number)
     number = number * 0.01
     return number
   end
-  
+
   local function createStatusList(finish)
     local vx, vy = player:getLinearVelocity()
     local x = player.x
@@ -877,74 +881,74 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     end
     return list
   end
-  
+
   local function getPlayerStatus()
     local list = createStatusList(false)
     return list
   end
-  
+
   local function getPlayerFinish()
     local list = createStatusList(true)
     return list
   end
-  
+
   local function getCurrentGameTime()
     return gameTimes.currentGameTime
   end
-  
+
   local function setCurrentGameTime(newTime)
     gameTimes.currentGameTime = newTime
   end
-  
+
   local function getBodyPartsGroup()
     return bodyParts
   end
-  
+
   local function getScreenGroup()
     return screenGroup
   end
-  
+
   local function getGhostGroup()
     return playerGhost
   end
-  
+
   local function shieldPowerUp()
     disablePreviousPowerUp()
     playerEffects.playPowerUpShieldStart()
   end
-  
+
   local function armorPowerUp()
     disablePreviousPowerUp()
     playPowerUpArmor()
   end
-  
+
   local function speedPowerUp()
     disablePreviousPowerUp()
     speeds.topSpeedX = speeds.topSpeedX * 1.5
     speeds.accelerateX = speeds.accelerateX * 1.5
     applyForceOnPlayer(300, 0)
-    -- Güvenli animasyon çalma
+    -- Safe animation playback
     pcall(function()
       monster.playBuffAnimation("speed_start", false)
     end)
   end
-  
+
   local function rocketPowerUp()
     disablePreviousPowerUp()
-    -- Güvenli animasyon çalma
+    -- Safe animation playback
     pcall(function()
       monster.playBuffAnimation("rocket_start", false)
     end)
-    
+
     local function startBlink()
       pcall(function()
         monster.playBuffAnimation("rocket_end", true)
       end)
     end
-    
+
     rocketBlinkTimer = timer.performWithDelay(3500, startBlink, 1)
   end
-  
+
   local function magnetPowerUp(killer)
     playSound("magnet_hit")
     local dirRight
@@ -958,12 +962,12 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     end
     playerEffects.playMagnetEffect(dirRight)
   end
-  
+
   local function bounceTrapPowerUp()
     setLinearVelocityOnPlayer(0, 0)
     applyForceOnPlayer(-300, -150)
   end
-  
+
   function disablePreviousPowerUp()
     if booleanStates.shieldActive then
       playerEffects.hidePowerUpShield()
@@ -979,45 +983,45 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     end
     monster.setAnimation("run", true, false)
   end
-  
+
   local function createLightning()
     playerEffects.playLightningStrike()
   end
-  
+
   local function removeBladeAnimation()
     powerUpImages.bladeImage.alpha = 0
   end
-  
+
   local function createBladeAnimation()
     powerUpImages.bladeImage.alpha = 1
-    transition.to(powerUpImages.bladeImage, {time = 200, rotation = 355})
+    transition.to(powerUpImages.bladeImage, { time = 200, rotation = 355 })
   end
-  
+
   local function removeTrapAnimation()
     powerUpImages.trapImage.alpha = 0
   end
-  
+
   local function createTrapAnimation()
     powerUpImages.trapImage.alpha = 1
   end
-  
+
   local function removeBounceTrapAnimation()
     powerUpImages.bounceTrapImage.alpha = 0
   end
-  
+
   local function createBounceTrapAnimation()
     powerUpImages.bounceTrapImage.alpha = 1
   end
-  
+
   local function createHuntersMarkAnimation()
     monster.playUseAnimation("mark_active", false)
   end
-  
+
   local function createMagnetAnimation()
     monster.playUseAnimation("magnet_start", false)
     playKillMessage(playerId, 7, playerId)
   end
-  
+
   local function isMainPlayerCloseEnough()
     if mainPlayer then
       return true
@@ -1031,7 +1035,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     end
     return false
   end
-  
+
   local function tryToSpawnBloodDecal()
     if booleanStates.startedClean then
       return
@@ -1063,7 +1067,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       bodyParts:insert(decal)
     end
   end
-  
+
   local function tryToSpawnBurntDecal()
     local ray1 = castRayAgainstMapElementWithDecal(player.x, player.y + 12, player.x - 30, player.y + 50)
     local ray2 = castRayAgainstMapElementWithDecal(player.x, player.y + 12, player.x, player.y + 50)
@@ -1073,7 +1077,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       local imageRotation = radToDegree(math.atan2(ray2.normal.y, ray2.normal.x)) + 90
       decal:scale(0.35, 0.35)
       decal.yScale = 0.01
-      transition.to(decal, {time = 85, yScale = 0.35})
+      transition.to(decal, { time = 85, yScale = 0.35 })
       decal.rotation = imageRotation
       decal.anchorX = 0.5
       decal.anchorY = 0
@@ -1082,20 +1086,20 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       bodyParts:insert(decal)
     end
   end
-  
+
   local function returnToPreviousSpeed()
     if not booleanStates.playerDead and player then
       speeds.topSpeedX = speeds.tempSpeedX
       player.alpha = 1
     end
   end
-  
+
   local function hidePlayer()
     if player then
       player.alpha = 0
     end
   end
-  
+
   local function setPlayerAlive()
     booleanStates.playerDead = false
     partlyShowPlayerSprite()
@@ -1104,11 +1108,11 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       stopPowerUpSpeed(false)
     end
   end
-  
+
   local function setKillMessageFunction(newFunction)
     playKillMessage = newFunction
   end
-  
+
   local function isFarAhead()
     local diff = 5000
     for i = 1, #playerList do
@@ -1124,19 +1128,19 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     end
     return 2
   end
-  
+
   local function changeBody()
     if player then
       player.bodyType = "static"
     end
   end
-  
+
   local function stopPlayerSafe()
     if player then
       setLinearVelocityOnPlayer(0, 0)
     end
   end
-  
+
   local function setDisconnected()
     if player and not booleanStates.startedClean then
       pcall(stopPlayerSafe)
@@ -1147,16 +1151,16 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       timer.performWithDelay(10, changeBody, 1)
     end
   end
-  
+
   local function isDisconnected()
     return booleanStates.disconnected
   end
-  
+
   local function playBloodScreen(override)
     playSound("blood")
     playerEffects.runBloodScreen(override)
   end
-  
+
   local function playHitAnimation(puType, hitType, killer)
     if puType == 1 then
       playSound("blade_hit")
@@ -1277,15 +1281,15 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       end
     end
   end
-  
+
   local function playAnimation(animation, loop, override)
     monster.setAnimation(animation, loop, override)
   end
-  
+
   local function resetBones()
     monster.resetBones()
   end
-  
+
   local function onCollisionPowerUp(killer, puType)
     if booleanStates.startedClean then
     elseif gameTimes.goalTime == -1 and not booleanStates.playerInvulnerable then
@@ -1313,7 +1317,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       return hitType
     end
   end
-  
+
   local function forcePlayer()
     if mainPlayer or composer.data.gameInfo.gameType == 0 then
       return
@@ -1325,7 +1329,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       player.y = playerGhost.y
     end
   end
-  
+
   local function interpolation()
     if mainPlayer then
       return
@@ -1357,7 +1361,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       player:applyForce(-3, 0, player.x, player.y)
     end
   end
-  
+
   local function corrigateOtherPlayers(newPosX, newPosY, newVelX, newVelY)
     if not booleanStates.startedClean then
       playerGhost:setLinearVelocity(newVelX, newVelY)
@@ -1366,11 +1370,11 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       player:setLinearVelocity(newVelX, newVelY)
     end
   end
-  
+
   local function addPlaySoundFunction(playSoundFunction)
     playSoundOnChannel = playSoundFunction
   end
-  
+
   function playSound(sound)
     playSoundOnChannel(sound, channelList[channelCounter])
     channelCounter = channelCounter + 1
@@ -1378,7 +1382,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       channelCounter = 1
     end
   end
-  
+
   local function setSoundVolume(volume)
     if volume == currentVolume then
       return 1
@@ -1386,10 +1390,10 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     currentVolume = volume
     for i = 1, reservedChannels do
       local index = channelList[i]
-      local didSetVolume = audio.setVolume(volume, {channel = index})
+      local didSetVolume = audio.setVolume(volume, { channel = index })
     end
   end
-  
+
   local function stopTimers()
     if rocketBlinkTimer then
       timer.cancel(rocketBlinkTimer)
@@ -1404,7 +1408,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       hidePlayerTimer = nil
     end
   end
-  
+
   local function clean()
     booleanStates.startedClean = true
     playerCorpses.startedCleanNow()
@@ -1421,7 +1425,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     player:removeSelf()
     player = nil
   end
-  
+
   player:insert(spriteDisplay)
   player:insert(powerUpImages.bladeImage)
   player:insert(powerUpImages.trapImage)
@@ -1559,7 +1563,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   powerUpImages.bounceTrapImage.alpha = 0
   powerUpImages.markPlayerImage.alpha = 0
   powerUpImages.markPlayerImage.y = -43
-  
+
   local function startBot()
     bot = botModule.new(player)
     local botSpeed = math.random(335, 345)
@@ -1567,19 +1571,19 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     speeds.topSpeedX = botSpeed
     speeds.tempSpeedX = botSpeed
   end
-  
+
   if isSimulator and composer.config.bot and mainPlayer then
     startBot()
   elseif composer.data.gameInfo.gameType == 0 and not mainPlayer then
     startBot()
   end
-  
+
   local function setBotModuleFunction(newFunction, systemStartTime, puBtn)
     if bot then
       bot.setGameFunction(newFunction, systemStartTime, puBtn)
     end
   end
-  
+
   player.collision = onCollision
   player.onCollisionPowerUp = onCollisionPowerUp
   player.stopPlayer = stopPlayer

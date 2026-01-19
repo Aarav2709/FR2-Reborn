@@ -7,11 +7,11 @@ if isAndroid then
   font = "BradyBunchRemastered"
   native.setProperty("androidSystemUiVisibility", "immersiveSticky")
 end
-localPlayerCollisionFilter = {categoryBits = 1, maskBits = 10}
-remotePlayerCollisionFilter = {categoryBits = 16, maskBits = 2}
-obstacleFilter = {categoryBits = 2, maskBits = 21}
-powerUpFilter = {categoryBits = 4, maskBits = 2}
-sensorFilter = {categoryBits = 8, maskBits = 1}
+localPlayerCollisionFilter = { categoryBits = 1, maskBits = 10 }
+remotePlayerCollisionFilter = { categoryBits = 16, maskBits = 2 }
+obstacleFilter = { categoryBits = 2, maskBits = 21 }
+powerUpFilter = { categoryBits = 4, maskBits = 2 }
+sensorFilter = { categoryBits = 8, maskBits = 1 }
 if audio.supportsSessionProperty == true then
   audio.setSessionProperty(audio.MixMode, audio.AmbientMixMode)
 end
@@ -19,7 +19,7 @@ local closeTime = os.time()
 local composer = require("composer")
 require("lua.modules.debugMode")
 local config = require("configuration")
--- OFFLINE MOD: Push notification devre dışı
+-- Offline mode: push notifications disabled
 -- local notificationPlugin = require("plugin.notifications")
 -- notificationPlugin.registerForPushNotifications()
 composer.localized = require("localization")
@@ -147,10 +147,10 @@ local function main()
   composer.errorTable.showServerError = true
   composer.suspendAlert = false
   composer.wifiOn = true
-  
+
   function composer.facebookCallback()
   end
-  
+
   composer.onlineFriends = {}
   composer.gameType = 0
   composer.gameInvites = {}

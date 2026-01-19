@@ -148,7 +148,7 @@ local function new(monsterData, networkFormat)
       end
       print("SUCCESS: Loaded lua sheet: lua/monsters/" .. path .. ".lua")
       composer.data.monsterInMemory[memoryIndex].sheet = graphics.newImageSheet(
-      "images/monsters/" .. path .. "/monster.png", composer.data.monsterInMemory[memoryIndex].sheetInfo:getSheet())
+        "images/monsters/" .. path .. "/monster.png", composer.data.monsterInMemory[memoryIndex].sheetInfo:getSheet())
       print("SUCCESS: Loaded PNG: images/monsters/" .. path .. "/monster.png")
     else
       print("INFO: Character " .. path .. " already in memory, reusing")
@@ -169,7 +169,8 @@ local function new(monsterData, networkFormat)
       skeleton:setAttachment("hat", hat)
       skeleton:setAttachment("hair", nil)
     end
-    if not skeleton:findSlot("hat").attachment then
+    local hatSlot = skeleton:findSlot("hat")
+    if not hatSlot or not hatSlot.attachment then
       skeleton:setAttachment("hat", nil)
       skeleton:setAttachment("hair", "hair")
       if hat ~= nil and hat ~= 0 then
@@ -184,7 +185,8 @@ local function new(monsterData, networkFormat)
     else
       skeleton:setAttachment("neck", neck)
     end
-    if not skeleton:findSlot("neck").attachment then
+    local neckSlot = skeleton:findSlot("neck")
+    if not neckSlot or not neckSlot.attachment then
       skeleton:setAttachment("neck", nil)
       if neck ~= nil and neck ~= 0 then
         print("WARNING: failed to find neck in spine, set default")
@@ -198,7 +200,8 @@ local function new(monsterData, networkFormat)
     else
       skeleton:setAttachment("facewear", facewear)
     end
-    if not skeleton:findSlot("facewear").attachment then
+    local facewearSlot = skeleton:findSlot("facewear")
+    if not facewearSlot or not facewearSlot.attachment then
       skeleton:setAttachment("facewear", nil)
       if facewear ~= nil and facewear ~= 0 then
         print("WARNING: failed to find facewear in spine, set default")

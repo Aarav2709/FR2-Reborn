@@ -32,7 +32,7 @@ function scene:create(event)
   backgroundWindow.y = 0
 
   local function createSaleIcon()
-        local path, amount
+    local path, amount
     local x
     if item.saleTier then
       path = "images/gui/market/saleCash.png"
@@ -59,7 +59,7 @@ function scene:create(event)
       }
     })
     saleGroup:insert(saleText)
-end
+  end
 
   local function getCashPrice()
     if event.params.itemIAPStatus == 1 then
@@ -241,7 +241,7 @@ end
         if item.mysteryBox then
           local options = {
             isModal = true,
-            params = {mysteryBox = true}
+            params = { mysteryBox = true }
           }
           composer.showOverlay("lua.overlays.messages", options)
         else

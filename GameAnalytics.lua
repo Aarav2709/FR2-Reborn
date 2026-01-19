@@ -452,7 +452,7 @@ local function submitArchivedEvents()
         end
       end
       if 0 < eventCount then
-        prt({eventCount, sessionCount}, "submittingArchivedEvents")
+        prt({ eventCount, sessionCount }, "submittingArchivedEvents")
       end
       eventsArchived = false
     end
@@ -740,7 +740,7 @@ local function initSceneListener(type)
     local sceneName
     if sceneInfo.isComposer then
       sceneName = manager.getSceneName("current")
-      sceneEvents = {"show", "hide"}
+      sceneEvents = { "show", "hide" }
       if GameAnalytics.submitComposerEvents then
         sceneInfo.submitEvents = true
       end
@@ -761,7 +761,9 @@ local function initSceneListener(type)
       sceneInfo.currentSceneName = "main"
       addSceneEventListeners()
     else
-      error("GA: You MUST require " .. managerType .. " and call " .. managerType .. ".gotoScene BEFORE initializing Game Analytics in your main file.", 3)
+      error(
+      "GA: You MUST require " ..
+      managerType .. " and call " .. managerType .. ".gotoScene BEFORE initializing Game Analytics in your main file.", 3)
     end
   end
 end
@@ -787,7 +789,7 @@ function submitEvents(category, ...)
   else
     eventType = "custom"
   end
-  local dbgMsg = prt({category, message}, "event")
+  local dbgMsg = prt({ category, message }, "event")
   for k, v in pairs(message) do
     if type(v) ~= "table" then
       error("GA: Attempt to submit non-table event!", 4)
@@ -822,7 +824,7 @@ end
 
 function newEvent(category, ...)
   if not disabled then
-    local message, area = {
+    local message = {
       ...
     }
     if sceneInfo and sceneInfo.currentSceneName then

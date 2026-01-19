@@ -1,5 +1,6 @@
 {
   "runtime.version": "LuaJIT",
+  "workspace.checkThirdParty": false,
   "diagnostics.globals": [
     "display",
     "system",
@@ -10,9 +11,35 @@
     "physics",
     "transition",
     "native",
-    "sqlite3"
+    "sqlite3",
+    "graphics",
+    "easing",
+    "widget",
+    "composer",
+    "json",
+    "lfs",
+    "crypto",
+    "mime",
+    "ltn12",
+    "socket",
+    "device",
+    "CoronaEnvironment",
+    "application"
   ],
-  "workspace.library": [
-    "./.editor"
-  ]
+  "diagnostics.disable": [
+    "undefined-global",
+    "undefined-field",
+    "inject-field",
+    "redundant-parameter",
+    "unused-local",
+    "missing-module"
+  ],
+  "diagnostics.severity": {
+    "lowercase-global": "Warning",
+    "unused-function": "Hint",
+    "unused-label": "Hint",
+    "unused-vararg": "Hint"
+  },
+  "diagnostics.libraryFiles": "Disable",
+  "workspace.library": ["./.editor", "./types/solar2d"]
 }

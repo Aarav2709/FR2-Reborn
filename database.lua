@@ -18,6 +18,7 @@ composer.databaseData = {
   money = nil
 }
 local path = system.pathForFile("data.sqlite3", system.DocumentsDirectory)
+---@type sqlite3_db|nil
 local db
 local M = {}
 
@@ -46,6 +47,9 @@ end
 
 function M.updatePlayerInfo(username, usernameCode)
   local currentPlayerInfo = M.getPlayerInformation()
+  if not currentPlayerInfo then
+    return
+  end
   M.setPlayerInformation(username, usernameCode, currentPlayerInfo.playerId, currentPlayerInfo.token)
 end
 
@@ -102,12 +106,12 @@ local function setAvatarData(avatarData, networkFormat)
     tablefill = "INSERT OR REPLACE INTO user_avatar VALUES(1,101,0,0,0,0,0,0);"
   else
     tablefill = "INSERT OR REPLACE INTO user_avatar VALUES(1," ..
-    avatarData[1] ..
-    ", " ..
-    avatarData[2] ..
-    ", " ..
-    avatarData[3] ..
-    ", " .. avatarData[4] .. ", " .. avatarData[5] .. ", " .. avatarData[6] .. ", " .. avatarData[7] .. ");"
+        avatarData[1] ..
+        ", " ..
+        avatarData[2] ..
+        ", " ..
+        avatarData[3] ..
+        ", " .. avatarData[4] .. ", " .. avatarData[5] .. ", " .. avatarData[6] .. ", " .. avatarData[7] .. ");"
   end
   db = sqlite3.open(path)
   db:exec(tablefill)
@@ -253,7 +257,7 @@ local function checkForFriendsWithSameName()
   end
   for i = 1, #sameNameId do
     composer.databaseData.friends[sameNameId[i]].n2 = composer.databaseData.friends[sameNameId[i]].n ..
-    "#" .. composer.databaseData.friends[sameNameId[i]].t
+        "#" .. composer.databaseData.friends[sameNameId[i]].t
   end
 end
 
@@ -522,7 +526,7 @@ function M.addReceipt(transaction, storeType)
   local db = sqlite3.open(path)
   local transactionBase64, receiptHash = M.encodeTransaction(transaction)
   db:exec("INSERT INTO receipts(encodedTransaction, hash, storeType) VALUES(\"" ..
-  transactionBase64 .. "\", \"" .. receiptHash .. "\", " .. storeType .. ");")
+    transactionBase64 .. "\", \"" .. receiptHash .. "\", " .. storeType .. ");")
   db:close()
   db = nil
 end
@@ -843,7 +847,7 @@ local function getMarketNotification()
     end
     if marketNotificationConfig.version ~= marketNotification.version then
       local tablefill = "INSERT OR REPLACE INTO marketNotification VALUES(1," ..
-      marketNotificationConfig.version .. ", " .. marketNotificationConfig.number .. ");"
+          marketNotificationConfig.version .. ", " .. marketNotificationConfig.number .. ");"
       db = sqlite3.open(path)
       db:exec(tablefill)
       composer.databaseData.marketNotification = marketNotificationConfig
@@ -874,7 +878,7 @@ M.resetMarketNotification = resetMarketNotification
 function M.setPushEnableStatus(gameInvite, friendRequest, general)
   local db = sqlite3.open(path)
   db:exec("INSERT OR REPLACE INTO push_enabled VALUES(1, " ..
-  gameInvite .. ", " .. friendRequest .. ", " .. general .. ");")
+    gameInvite .. ", " .. friendRequest .. ", " .. general .. ");")
   db:close()
   db = nil
 end
@@ -989,9 +993,9 @@ function M.createDefaultOfflinePlayer()
     print("OFFLINE MODE: Creating default player...")
     M.setPlayerInformation("Player", 1234, "OFFLINE_PLAYER_" .. os.time(), "offline_token_123")
     M.setAvatarData({ 1, 0, 0, 0, 0, 0, 0 }, false) -- Default avatar c1s0
-    M.setMoney(10000)                             -- Starting money
-    M.setSound(1)                                 -- Sound enabled
-    M.setViolence(1)                              -- Violence enabled
+    M.setMoney(10000)                               -- Starting money
+    M.setSound(1)                                   -- Sound enabled
+    M.setViolence(1)                                -- Violence enabled
     print("OFFLINE MODE: Default player created!")
   end
 end

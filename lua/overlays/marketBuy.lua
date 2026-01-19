@@ -30,9 +30,10 @@ function scene:create(event)
   backgroundWindow.anchorY = 0
   backgroundWindow.x = display.contentWidth * 0.5
   backgroundWindow.y = 0
-  
+
   local function createSaleIcon()
     local path, amount
+    local x
     if item.saleTier then
       path = "images/gui/market/saleCash.png"
       amount = math.ceil(item.saleTier / item.tier * 100) - 100
@@ -59,7 +60,7 @@ function scene:create(event)
     })
     saleGroup:insert(saleText)
   end
-  
+
   local function getCashPrice()
     if event.params.itemIAPStatus == 1 then
       cashPrice = composer.localized.get("loading")
@@ -72,7 +73,7 @@ function scene:create(event)
     end
     return cashPrice
   end
-  
+
   if item.salePrice then
     coinPrice = item.salePrice
     createSaleIcon()
@@ -124,7 +125,6 @@ function scene:create(event)
   })
   local orText = composer.newText({
     string = composer.localized.get("or"),
-    size = 14,
     x = windowInfo.x,
     y = windowInfo.y + 170,
     ax = 0.5,
@@ -178,14 +178,14 @@ function scene:create(event)
     }
   })
   moneyLabelRed.alpha = 0
-  
+
   local function stopIAPCashTimer()
     if iapPriceTimeout then
       timer.cancel(iapPriceTimeout)
       iapPriceTimeout = nil
     end
   end
-  
+
   local function stopTimers()
     if lockTimer then
       timer.cancel(lockTimer)
@@ -193,27 +193,27 @@ function scene:create(event)
     end
     stopIAPCashTimer()
   end
-  
+
   local function showAppAgain()
     composer.data.iapOverlayActive = false
     stopTimers()
     alphaBackground.isVisible = false
     overlayInfo.text = ""
   end
-  
+
   local function unlockBasedOnTimeout()
     overlayInfo.text = ""
     errorInfo.text = composer.localized.get("timeout")
     showAppAgain()
   end
-  
+
   local function lockScreen()
     composer.data.iapOverlayActive = true
     stopTimers()
     lockTimer = timer.performWithDelay(9000, unlockBasedOnTimeout)
     alphaBackground.isVisible = true
   end
-  
+
   local function inAppCallback(text, failed)
     if type(text) == "string" then
       if failed then
@@ -224,7 +224,7 @@ function scene:create(event)
       end
     end
   end
-  
+
   local function httpsCallback(data)
     if data.m == httpsFormat.buyCrystalIOS() or data.m == httpsFormat.buyCrystalGoogle() or data.m == httpsFormat.buyCrystalAmazon() then
       tryingToBuy = false
@@ -241,7 +241,7 @@ function scene:create(event)
         if item.mysteryBox then
           local options = {
             isModal = true,
-            params = {mysteryBox = true}
+            params = { mysteryBox = true }
           }
           composer.showOverlay("lua.overlays.messages", options)
         else
@@ -251,7 +251,7 @@ function scene:create(event)
       end
     end
   end
-  
+
   local function commCallback(data)
     if data.m == tcpFormat.purchaseItem() then
       tryingToBuy = false
@@ -277,7 +277,7 @@ function scene:create(event)
       end
     end
   end
-  
+
   local function giveCoinFeedback()
     local newSize = 1.2
     local timeToUse = 100
@@ -307,7 +307,7 @@ function scene:create(event)
       alpha = 0
     })
   end
-  
+
   local function btnWithCoinsRelease()
     if tryingToBuy then
       errorInfo.text = composer.localized.get("trying to buy item")
@@ -336,7 +336,7 @@ function scene:create(event)
       end
     end
   end
-  
+
   local btnWithCoins = composer.newButton({
     image = "images/gui/market/popup/buttonCoins.png",
     onRelease = btnWithCoinsRelease,
@@ -351,7 +351,7 @@ function scene:create(event)
     x = backgroundWindow.x - 60,
     y = backgroundWindow.y + 250
   })
-  
+
   local function btnWithCashRelease()
     if tryingToBuy then
       errorInfo.text = composer.localized.get("trying to buy item")
@@ -378,7 +378,7 @@ function scene:create(event)
       errorInfo.text = "iap in progress"
     end
   end
-  
+
   local btnWithCash = composer.newButton({
     image = "images/gui/market/popup/buttonCash.png",
     onRelease = btnWithCashRelease,
@@ -393,11 +393,11 @@ function scene:create(event)
     x = backgroundWindow.x + 60,
     y = backgroundWindow.y + 250
   })
-  
+
   local function btnExitRelease()
     composer.hideOverlay()
   end
-  
+
   local btnExit = composer.newButton({
     image = "images/gui/common/buttonClosePopup.png",
     onRelease = btnExitRelease,
@@ -406,7 +406,7 @@ function scene:create(event)
     x = backgroundWindow.x + 100,
     y = backgroundWindow.y + 80
   })
-  
+
   local function addjustButtons()
     if not item.price then
       btnWithCoins.isVisible = false
@@ -421,13 +421,13 @@ function scene:create(event)
       saleGroup.x = 60
     end
   end
-  
+
   local function checkForDescriptionText()
     if item.description then
       descriptionText.text = composer.localized.get(item.description)
     end
   end
-  
+
   local function updateDisplayGroups()
     sceneGroup:insert(backgroundImage)
     sceneGroup:insert(backgroundCoins)
@@ -449,32 +449,32 @@ function scene:create(event)
     sceneGroup:insert(alphaBackground)
     sceneGroup:insert(overlayInfo)
   end
-  
+
   local function escapeTouchEvent(event)
     if event.phase == "ended" then
       composer.hideOverlay()
     end
     return true
   end
-  
+
   local function backgroundImageTouchEvent(event)
     if event.phase == "ended" then
     end
     return true
   end
-  
+
   local function iapUpdated()
     stopIAPCashTimer()
     btnWithCash.changeText(getCashPrice())
   end
-  
+
   local function addListeners()
     alphaBackground:addEventListener("touch", backgroundImageTouchEvent)
     backgroundImage:addEventListener("touch", escapeTouchEvent)
     backgroundWindow:addEventListener("touch", backgroundImageTouchEvent)
     Runtime:addEventListener("iapDone", iapUpdated)
   end
-  
+
   function clean()
     display.remove(btnWithCoins)
     display.remove(btnWithCash)
@@ -485,7 +485,7 @@ function scene:create(event)
     backgroundWindow:removeEventListener("touch", backgroundImageTouchEvent)
     Runtime:removeEventListener("iapDone", iapUpdated)
   end
-  
+
   updateDisplayGroups()
   addListeners()
   addjustButtons()
@@ -504,11 +504,11 @@ function scene:show(event)
     return
   end
   local androidLogic = require("lua.modules.androidBackButton")
-  
+
   function cleanEnter()
     androidLogic.isOverlay(false)
   end
-  
+
   androidLogic.isOverlay(true)
 end
 

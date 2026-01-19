@@ -3,14 +3,20 @@ settings = {
         default = "landscapeRight",
         supported = { "landscapeRight", "landscapeLeft" }
     },
-    
+
     window = {
-        defaultMode = "fullscreen", 
+        defaultMode = "fullscreen",
         defaultViewWidth = 1280,
         defaultViewHeight = 720,
-        resizable = true, -- Pencereyi manuel büyütmene izin verir
+        resizable = true,
         titleText = {
             default = "Fun Run 2 - Offline"
+        }
+    },
+
+    plugins = {
+        ["plugin.notifications"] = {
+            publisherId = "com.coronalabs"
         }
     },
 
@@ -22,7 +28,7 @@ settings = {
     },
 
     android = {
-        versionCode = "1",
+        versionCode = 1,
         usesPermissions = {
             "android.permission.INTERNET"
         }

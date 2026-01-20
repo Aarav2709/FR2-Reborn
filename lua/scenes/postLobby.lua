@@ -67,8 +67,8 @@ function scene:create(event)
     end
   end
   local backgroundTimeImage = display.newImageRect("images/gui/postgame/windowTimes.png", 182, 131)
-  backgroundTimeImage.x = display.contentWidth * 0.8
-  backgroundTimeImage.y = display.contentHeight * 0.2
+  backgroundTimeImage.x = 761
+  backgroundTimeImage.y = 88
   local chatButtonOverlay = display.newImageRect("images/gui/postgame/buttonToggle.png", 55, 52)
   chatButtonOverlay.x = 30
   chatButtonOverlay.y = 294
@@ -90,9 +90,10 @@ function scene:create(event)
   end
   local mapName = composer.newText({
     string = name,
-    size = 22,
-    x = backgroundTimeImage.x,
-    y = backgroundTimeImage.y - 44,
+    size = 118,
+    z = 7,
+    x = 761,
+    y = 22,
     color = {
       1,
       1,
@@ -707,8 +708,9 @@ function scene:create(event)
           ax = 0,
           ay = 0
         })
-        rankingTextLabels[i].x = display.contentWidth * 0.4
-        rankingTextLabels[i].y = display.contentHeight * 0.2 * (i * 0.3)
+        -- Fixed positions for 1920x1080: names at x=466, y starting at 21 with 20px spacing
+        rankingTextLabels[i].x = 466
+        rankingTextLabels[i].y = 21 + (i - 1) * 20
         rankingTextGroup:insert(rankingTextLabels[i])
         timeTextLabels[i] = composer.newText({
           string = timeText,
@@ -721,7 +723,8 @@ function scene:create(event)
           ax = 1,
           ay = 0
         })
-        timeTextLabels[i].x = display.contentWidth * 0.75
+        -- Fixed positions: times at x=633
+        timeTextLabels[i].x = 633
         timeTextLabels[i].y = rankingTextLabels[i].y
         rankingTextGroup:insert(timeTextLabels[i])
         updateAvatar(index, username, i)
@@ -730,8 +733,8 @@ function scene:create(event)
       rankingTextGroup.anchorX = 0
       rankingTextGroup.anchorY = 0
       rankingTextGroup.anchorChildren = true
-      rankingTextGroup.x = display.contentWidth * 0.63
-      rankingTextGroup.y = 36
+      rankingTextGroup.x = 0  -- Labels have absolute positions now
+      rankingTextGroup.y = 0
       screenGroup:insert(rankingTextGroup)
       effectGroup:toFront()
     else

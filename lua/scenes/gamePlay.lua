@@ -1171,6 +1171,15 @@ function scene:show(event)
   local function androidKeyEvent(event)
     local phase = event.phase
     local keyName = event.keyName
+    if phase == "down" and not event.isRepeat then
+      if keyName == "space" or keyName == "spacebar" then
+        btnJumpPress(nil, { phase = "began" })
+        return true
+      elseif keyName == "x" then
+        btnPowerUpPress(nil, { phase = "began" })
+        return true
+      end
+    end
     if phase == "up" and keyName == "back" then
       if canPressButton then
         backButtonPushed = true

@@ -146,8 +146,8 @@ function scene:create(event)
       bearHead.y = contentTop + contentHeight * 0.78
     end
     if tipBackground then
-      tipBackground.x = centerX
-      tipBackground.y = contentTop + contentHeight * (30 / 320)
+      tipBackground.x = 450
+      tipBackground.y = 28
     end
     if btnSingleplayerStick then
       btnSingleplayerStick.x = contentLeft + contentWidth * 0.17
@@ -293,11 +293,11 @@ function scene:show(event)
   end
   infoText = composer.newText({
     string = tipToUse,
-    x = 0,
-    y = 0,
+    x = 453,
+    y = 39,
     size = 12,
     width = 290,
-    height = 50,
+    height = 49,
     color = {
       1,
       1,

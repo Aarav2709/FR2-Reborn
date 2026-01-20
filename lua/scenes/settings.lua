@@ -14,8 +14,8 @@ function scene:create(event)
   background = display.newImageRect("images/gui/settings/main.png", 480, 320)
   background.anchorX = 0
   background.anchorY = 0
-  background.x = 0
-  background.y = 0
+  background.x = 1
+  background.y = 42
   layoutSettings = function()
     local contentLeft = display.screenOriginX
     local contentTop = display.screenOriginY
@@ -95,8 +95,8 @@ function scene:create(event)
     width = 90,
     height = 57,
     onRelease = homeButtonEvent,
-    x = 50,
-    y = 292
+    x = 58,
+    y = 384
   })
 
   local function editNameButtonEvent()
@@ -104,8 +104,8 @@ function scene:create(event)
   end
 
   local editNameButton = composer.newButton({
-    x = 75,
-    y = 35,
+    x = 36,
+    y = 26,
     width = 45,
     height = 42,
     image = "images/gui/settings/buttonRename.png",
@@ -222,7 +222,7 @@ function scene:create(event)
     composer.showOverlay("lua.overlays.editNotificationSettings", { isModal = true })
   end
 
-  settingsTable = tableHelper.new(356, 37, 150, 283, 38, "images/scenes/market/table.png", "settings", tableCallback)
+  settingsTable = tableHelper.new(482, 309, 150, 283, 38, "images/scenes/market/table.png", "settings", tableCallback)
 
   local function updateSettingsList()
     if composer.data.playerInfo.email then
@@ -401,7 +401,7 @@ function scene:create(event)
   end
 
   local function createCredits()
-    creditsTable = tableHelper.new(15, 45, 300, 283, 22, nil, "credits", creditsTableCallback)
+    creditsTable = tableHelper.new(158, 264, 300, 283, 22, nil, "credits", creditsTableCallback)
     creditsTable.createTable(creditsTableData, group)
   end
 

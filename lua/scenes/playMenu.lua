@@ -28,8 +28,7 @@ function scene:create(event)
   end
 
   local function btnPracticePlayPlayRelease(event)
-    -- Offline mode: go directly to difficulty selection
-    composer.gotoScene("lua.scenes.difficultySelect")
+    composer.gotoScene("lua.scenes.lobbyPractice")
   end
 
   local function btnQuickPlayRelease(event)
@@ -85,7 +84,7 @@ function scene:create(event)
     },
     width = practiceButtonScaledWidth,
     height = practiceButtonScaledHeight,
-    onRelease = btnPractisePlayPlayRelease,
+    onRelease = btnPracticePlayPlayRelease,
     x = 0,
     y = 0
   })
@@ -184,8 +183,8 @@ function scene:create(event)
       btnCustomPlay.y = contentTop + contentHeight * 0.52
     end
     if btnBack then
-      btnBack.x = contentLeft + contentWidth * (50 / 480)
-      btnBack.y = contentTop + contentHeight * (292 / 320)
+      btnBack.x = 120
+      btnBack.y = 385
     end
     if infoText then
       infoText.x = contentLeft + contentWidth * (242 / 480)

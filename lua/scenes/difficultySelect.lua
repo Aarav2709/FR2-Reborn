@@ -199,8 +199,8 @@ function scene:create(event)
       hardDesc.y = contentTop + contentHeight * 0.5 + contentHeight * (70 / 320)
     end
     if btnBack then
-      btnBack.x = contentLeft + contentWidth * (50 / 480)
-      btnBack.y = contentTop + contentHeight * (292 / 320)
+      btnBack.x = 120
+      btnBack.y = 385
     end
   end
 

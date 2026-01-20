@@ -272,8 +272,8 @@ function scene:create(event)
       playerText[4].y = contentTop + contentHeight * 0.76
     end
     if btnBack then
-      btnBack.x = contentLeft + contentWidth * (50 / 480)
-      btnBack.y = contentTop + contentHeight * (292 / 320)
+      btnBack.x = 120
+      btnBack.y = 385
     end
     if btnChat then
       btnChat.x = contentLeft + contentWidth * (262 / 480)

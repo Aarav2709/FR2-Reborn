@@ -196,7 +196,6 @@ function scene:create(event)
     if mapIconsGroup then
       mapIconsGroup.x = 0
       mapIconsGroup.y = 0
-      updateMapIconPositions()
     end
     if btnPrevZone then
       btnPrevZone.x = contentLeft + contentWidth * (116 / 480)
@@ -207,8 +206,8 @@ function scene:create(event)
       btnNextZone.y = contentTop + contentHeight * (140 / 320)
     end
     if btnBack then
-      btnBack.x = contentLeft + contentWidth * (50 / 480)
-      btnBack.y = contentTop + contentHeight * (292 / 320)
+      btnBack.x = 120
+      btnBack.y = 385
     end
   end
 

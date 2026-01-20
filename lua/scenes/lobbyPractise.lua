@@ -43,15 +43,9 @@ function scene:create(event)
   end
 
   local function addMapIcons()
-    -- Updated positions for 1920x1080 resolution
-    local baseX1, baseY1 = 244, 114   -- Top-left (STUMPY SLOPES)
-    local baseX2, baseY2 = 384, 114   -- Top-right (BOUNCY FOREST)
-    local baseX3, baseY3 = 244, 218   -- Bottom-left (THORNY SCRUB)
-    local baseX4, baseY4 = 384, 218   -- Bottom-right (SPEED MEADOW)
     for i = 1, numberOfMaps do
       local baseZone = math.ceil(i / 4)
       local basePos = i % 4
-      local padding = (baseZone - 1) * 1920  -- Adjusted for 1920 width
       local mapData = composer.data.getMapInfo(i)
       if not mapData then
         print("WARNING: NO DATA FOR MAP NR: ", i)
@@ -79,29 +73,53 @@ function scene:create(event)
         x = -100,
         y = -100
       })
+      if mapData.name then
+        practiseButtonsText[i] = composer.newText({
+          string = mapData.name,
+          size = 14,
+          x = 0,
+          y = 0
+        })
+      end
+      mapIconsGroup:insert(practiseButtons[i])
+      if practiseButtonsText[i] then
+        mapIconsGroup:insert(practiseButtonsText[i])
+      end
+    end
+  end
+
+  local function updateMapIconPositions()
+    if not window then
+      return
+    end
+    local pageWidth = display.actualContentWidth
+    local windowWidth = window.width
+    local windowHeight = window.height
+    local baseX1 = window.x - windowWidth * 0.22
+    local baseX2 = window.x + windowWidth * 0.22
+    local baseY1 = window.y - windowHeight * 0.18
+    local baseY2 = window.y + windowHeight * 0.18
+    for i = 1, numberOfMaps do
+      local baseZone = math.ceil(i / 4)
+      local basePos = i % 4
+      local padding = (baseZone - 1) * pageWidth
       if basePos == 1 then
         practiseButtons[i].x = baseX1 + padding
         practiseButtons[i].y = baseY1
       elseif basePos == 2 then
         practiseButtons[i].x = baseX2 + padding
-        practiseButtons[i].y = baseY2
+        practiseButtons[i].y = baseY1
       elseif basePos == 3 then
-        practiseButtons[i].x = baseX3 + padding
-        practiseButtons[i].y = baseY3
+        practiseButtons[i].x = baseX1 + padding
+        practiseButtons[i].y = baseY2
       elseif basePos == 0 then
-        practiseButtons[i].x = baseX4 + padding
-        practiseButtons[i].y = baseY4
+        practiseButtons[i].x = baseX2 + padding
+        practiseButtons[i].y = baseY2
       end
-      if mapData.name then
-        practiseButtonsText[i] = composer.newText({
-          string = mapData.name,
-          size = 14,
-          x = practiseButtons[i].x + 136,  -- Text offset for 1920x1080
-          y = practiseButtons[i].y + 86
-        })
+      if practiseButtonsText[i] then
+        practiseButtonsText[i].x = practiseButtons[i].x
+        practiseButtonsText[i].y = practiseButtons[i].y + practiseButtons[i].height * 0.65
       end
-      mapIconsGroup:insert(practiseButtons[i])
-      mapIconsGroup:insert(practiseButtonsText[i])
     end
   end
 
@@ -113,7 +131,7 @@ function scene:create(event)
     if lookingAtZone < maksZones then
       btnNextZone.isVisible = true
     end
-    local newXPos = -1 * (lookingAtZone - 1) * 1920  -- Adjusted for 1920 width
+    local newXPos = -1 * (lookingAtZone - 1) * display.actualContentWidth
     transition.to(mapIconsGroup, { time = 200, x = newXPos })
   end
 
@@ -134,7 +152,7 @@ function scene:create(event)
     if lookingAtZone >= maksZones then
       btnNextZone.isVisible = false
     end
-    local newXPos = -1 * (lookingAtZone - 1) * 1920  -- Adjusted for 1920 width
+    local newXPos = -1 * (lookingAtZone - 1) * display.actualContentWidth
     transition.to(mapIconsGroup, { time = 200, x = newXPos })
   end
 
@@ -191,8 +209,9 @@ function scene:create(event)
       buttonStickTop.y = window.y - window.height * 0.51
     end
     if mapIconsGroup then
-      mapIconsGroup.x = contentLeft
-      mapIconsGroup.y = contentTop
+      mapIconsGroup.x = 0
+      mapIconsGroup.y = 0
+      updateMapIconPositions()
     end
     if btnPrevZone then
       btnPrevZone.x = contentLeft + contentWidth * (116 / 480)

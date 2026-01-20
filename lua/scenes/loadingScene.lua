@@ -62,13 +62,13 @@ function scene:create(event)
       loadBarBG.x = centerX
       loadBarBG.y = contentTop + contentHeight * 0.7
     end
-    if loadBarRect then
-      loadBarRect.x = contentLeft + contentWidth * (140 / 480)
-      loadBarRect.y = contentTop + contentHeight * 0.5
+    if loadBarRect and loadBarBG then
+      loadBarRect.x = loadBarBG.x - loadBarBG.width * 0.5
+      loadBarRect.y = loadBarBG.y
     end
-    if loadBar then
-      loadBar.x = contentLeft + contentWidth * (140 / 480)
-      loadBar.y = contentTop + contentHeight * 0.7
+    if loadBar and loadBarBG then
+      loadBar.x = loadBarBG.x - loadBarBG.width * 0.5
+      loadBar.y = loadBarBG.y
     end
     if loadBarForground then
       loadBarForground.x = centerX

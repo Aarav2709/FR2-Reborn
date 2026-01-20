@@ -64,8 +64,18 @@ function scene:create(event)
   btnSingleplayerStick = display.newImageRect("images/gui/play/buttonStickPractice.png", 39, 153)
   btnQuickPlayrStick = display.newImageRect("images/gui/play/buttonQuickplayStick.png", 50, 200)
   btnCustomPlayStick = display.newImageRect("images/gui/play/buttonStickFriends.png", 38, 159)
+  local practiceButtonSize = display.newImage("images/gui/play/button2v2Play.png")
+  local practiceButtonWidth = practiceButtonSize.width
+  local practiceButtonHeight = practiceButtonSize.height
+  local targetPracticeWidth = 116
+  local targetPracticeHeight = 103
+  local practiceScale = math.min(targetPracticeWidth / practiceButtonWidth, targetPracticeHeight / practiceButtonHeight)
+  local practiceButtonScaledWidth = math.floor(practiceButtonWidth * practiceScale + 0.5)
+  local practiceButtonScaledHeight = math.floor(practiceButtonHeight * practiceScale + 0.5)
+  practiceButtonSize:removeSelf()
+  practiceButtonSize = nil
   btnSingleplayer = composer.newButton({
-    image = "images/gui/play/buttonPractice.png",
+    image = "images/gui/play/button2v2Play.png",
     text = {
       string = composer.localized.get("Practice"),
       size = 20,
@@ -73,8 +83,8 @@ function scene:create(event)
       y = 30,
       x = 0
     },
-    width = 116,
-    height = 103,
+    width = practiceButtonScaledWidth,
+    height = practiceButtonScaledHeight,
     onRelease = btnPractisePlayPlayRelease,
     x = 0,
     y = 0

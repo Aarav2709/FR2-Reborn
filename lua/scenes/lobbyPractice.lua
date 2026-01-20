@@ -11,12 +11,15 @@ function scene:create(event)
   mapIconsGroup = display.newGroup()
   local practiceButtons = {}
   local practiceButtonsText = {}
+  local iconsPerPage = 6
+  local iconWidth = 88
+  local iconHeight = 90
   local lookingAtZone = 1
   local numberOfMaps = composer.mapHandler.getNumberOfMaps()
-  local maksZones = math.ceil(numberOfMaps / 4)
+  local maksZones = math.ceil(numberOfMaps / iconsPerPage)
   backgroundImage = display.newImageRect("images/gui/common/bgMain.png", 480, 320)
   buttonStickBottom = display.newImageRect("images/gui/practice/bottom.png", 42, 45)
-  window = display.newImageRect("images/gui/practice/window.png", 284, 222)
+  window = display.newImageRect("images/gui/practice/window.png", 440, 240)
   buttonStickTop = display.newImageRect("images/gui/practice/top.png", 22, 14)
 
   local function startGameOnId(id)
@@ -41,24 +44,27 @@ function scene:create(event)
 
   local function addMapIcons()
     local iconPositions = {
-      [1] = { x = 486, y = 250 }, -- STUMPY SLOPES
-      [2] = { x = 631, y = 250 }, -- BOUNCY FOREST
-      [3] = { x = 488, y = 350 }, -- THORNY SCRUB
-      [4] = { x = 631, y = 350 }  -- SPEED MEADOW
+      [1] = { x = 410, y = 250 }, -- STUMPY SLOPES
+      [2] = { x = 555, y = 250 }, -- BOUNCY FOREST
+      [3] = { x = 700, y = 250 }, -- THORNY SCRUB
+      [4] = { x = 410, y = 350 }, -- SPEED MEADOW
+      [5] = { x = 555, y = 350 }, -- HASTY HILLS
+      [6] = { x = 700, y = 350 }  -- FOREST FALL
     }
     local textPositions = {
-      [1] = { x = 388, y = 179 }, -- STUMPY SLOPES
-      [2] = { x = 533, y = 179 }, -- BOUNCY FOREST
-      [3] = { x = 388, y = 282 }, -- THORNY SCRUB
-      [4] = { x = 533, y = 282 }  -- SPEED MEADOW
+      [1] = { x = 312, y = 179 }, -- STUMPY SLOPES
+      [2] = { x = 457, y = 179 }, -- BOUNCY FOREST
+      [3] = { x = 602, y = 179 }, -- THORNY SCRUB
+      [4] = { x = 312, y = 282 }, -- SPEED MEADOW
+      [5] = { x = 457, y = 282 }, -- HASTY HILLS
+      [6] = { x = 602, y = 282 }  -- FOREST FALL
     }
     for i = 1, numberOfMaps do
-      local baseZone = math.ceil(i / 4)
-      local basePos = i % 4
+      local baseZone = math.ceil(i / iconsPerPage)
+      local basePos = i % iconsPerPage
       if basePos == 0 then
-        basePos = 4
+        basePos = iconsPerPage
       end
-      local padding = (baseZone - 1) * 1920
       local mapData = composer.data.getMapInfo(i)
       if not mapData then
         print("WARNING: NO DATA FOR MAP NR: ", i)
@@ -80,23 +86,30 @@ function scene:create(event)
       end
       practiceButtons[i] = composer.newButton({
         image = imagePath,
-        width = 88,
-        height = 90,
+        width = iconWidth,
+        height = iconHeight,
         onRelease = startGame,
         x = -100,
         y = -100
       })
-      local iconPos = iconPositions[basePos]
-      practiceButtons[i].x = iconPos.x + padding
-      practiceButtons[i].y = iconPos.y
       if mapData.name then
-        local textPos = textPositions[basePos]
         practiceButtonsText[i] = composer.newText({
           string = mapData.name,
           size = 14,
-          x = textPos.x + padding,
-          y = textPos.y
+          x = -100,
+          y = -100
         })
+      end
+      local iconPos = iconPositions[basePos]
+      local textPos = textPositions[basePos]
+      if iconPos then
+        local padding = (baseZone - 1) * 1920
+        practiceButtons[i].x = iconPos.x + padding
+        practiceButtons[i].y = iconPos.y
+        if practiceButtonsText[i] and textPos then
+          practiceButtonsText[i].x = textPos.x + padding
+          practiceButtonsText[i].y = textPos.y
+        end
       end
       mapIconsGroup:insert(practiceButtons[i])
       mapIconsGroup:insert(practiceButtonsText[i])

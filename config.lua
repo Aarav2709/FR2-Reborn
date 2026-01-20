@@ -1,7 +1,7 @@
 application = {
   content = {
-    width = 1920,
-    height = 1080,
+    width = 480,
+    height = 320,
     scale = "adaptive",
     xAlign = "center",
     yAlign = "center",

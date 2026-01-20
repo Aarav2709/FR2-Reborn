@@ -1,8 +1,8 @@
 application = {
   content = {
-    width = 480,
-    height = 320,
-    scale = "letterbox",
+    width = 1920,
+    height = 1080,
+    scale = "adaptive",
     xAlign = "center",
     yAlign = "center",
     fps = 60

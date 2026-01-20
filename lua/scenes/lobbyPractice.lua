@@ -3,14 +3,14 @@ local scene = composer.newScene()
 local clean, cleanEnter
 local backgroundImage, buttonStickBottom, window, buttonStickTop
 local btnNextZone, btnPrevZone, btnBack, mapIconsGroup
-local layoutLobbyPractise, resizeListener
+local layoutLobbyPractice, resizeListener
 
 function scene:create(event)
   local screenGroup = self.view
   local startedClean = false
   mapIconsGroup = display.newGroup()
-  local practiseButtons = {}
-  local practiseButtonsText = {}
+  local practiceButtons = {}
+  local practiceButtonsText = {}
   local lookingAtZone = 1
   local numberOfMaps = composer.mapHandler.getNumberOfMaps()
   local maksZones = math.ceil(numberOfMaps / 4)
@@ -78,7 +78,7 @@ function scene:create(event)
         testImage:removeSelf()
         testImage = nil
       end
-      practiseButtons[i] = composer.newButton({
+      practiceButtons[i] = composer.newButton({
         image = imagePath,
         width = 88,
         height = 90,
@@ -87,23 +87,23 @@ function scene:create(event)
         y = -100
       })
       local iconPos = iconPositions[basePos]
-      practiseButtons[i].x = iconPos.x + padding
-      practiseButtons[i].y = iconPos.y
+      practiceButtons[i].x = iconPos.x + padding
+      practiceButtons[i].y = iconPos.y
       if mapData.name then
         local textPos = textPositions[basePos]
-        practiseButtonsText[i] = composer.newText({
+        practiceButtonsText[i] = composer.newText({
           string = mapData.name,
           size = 14,
           x = textPos.x + padding,
           y = textPos.y
         })
       end
-      mapIconsGroup:insert(practiseButtons[i])
-      mapIconsGroup:insert(practiseButtonsText[i])
+      mapIconsGroup:insert(practiceButtons[i])
+      mapIconsGroup:insert(practiceButtonsText[i])
     end
     for i = 1, numberOfMaps do
-      if practiseButtonsText[i] then
-        practiseButtonsText[i]:toFront()
+      if practiceButtonsText[i] then
+        practiceButtonsText[i]:toFront()
       end
     end
   end
@@ -152,7 +152,7 @@ function scene:create(event)
 
   local function btnBackRelease()
     composer.gotoScene("lua.scenes.mainMenu")
-    composer.removeScene("lua.scenes.lobbyPractise")
+    composer.removeScene("lua.scenes.lobbyPractice")
   end
 
   btnBack = composer.newButton({
@@ -164,7 +164,7 @@ function scene:create(event)
     y = 0
   })
 
-  layoutLobbyPractise = function()
+  layoutLobbyPractice = function()
     local contentLeft = display.screenOriginX
     local contentTop = display.screenOriginY
     local contentWidth = display.actualContentWidth
@@ -227,8 +227,8 @@ function scene:create(event)
     display.remove(btnBack)
     display.remove(btnNextZone)
     display.remove(btnPrevZone)
-    for i = 1, #practiseButtons do
-      display.remove(practiseButtons[i])
+    for i = 1, #practiceButtons do
+      display.remove(practiceButtons[i])
     end
   end
 
@@ -240,8 +240,8 @@ function scene:create(event)
   if maksZones == lookingAtZone then
     btnNextZone.isVisible = false
   end
-  if layoutLobbyPractise then
-    layoutLobbyPractise()
+  if layoutLobbyPractice then
+    layoutLobbyPractice()
   end
 end
 
@@ -258,14 +258,14 @@ function scene:show(event)
   end
 
   resizeListener = function()
-    if layoutLobbyPractise then
-      layoutLobbyPractise()
+    if layoutLobbyPractice then
+      layoutLobbyPractice()
     end
   end
   Runtime:addEventListener("resize", resizeListener)
   resizeListener()
 
-  androidLogic.addBackButton("lua.scenes.playMenu", "lua.scenes.lobbyPractise")
+  androidLogic.addBackButton("lua.scenes.playMenu", "lua.scenes.lobbyPractice")
 end
 
 function scene:hide(event)

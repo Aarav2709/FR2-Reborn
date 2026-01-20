@@ -27,7 +27,7 @@ function scene:create(event)
     end
   end
 
-  local function btnPractisePlayPlayRelease(event)
+  local function btnPracticePlayPlayRelease(event)
     -- Offline mode: go directly to difficulty selection
     composer.gotoScene("lua.scenes.difficultySelect")
   end
@@ -75,7 +75,7 @@ function scene:create(event)
     },
     width = 116,
     height = 103,
-    onRelease = btnPractisePlayPlayRelease,
+    onRelease = btnPracticePlayPlayRelease,
     x = 0,
     y = 0
   })

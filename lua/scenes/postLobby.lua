@@ -256,7 +256,7 @@ function scene:create(event)
       composer.onboarding.stepDone()
       return
     elseif composer.data.gameInfo.gameType == 0 then
-      composer.gotoScene("lua.scenes.lobbyPractise")
+      composer.gotoScene("lua.scenes.lobbyPractice")
     elseif composer.data.gameInfo.gameType == 1 then
       composer.gotoScene("lua.scenes.lobbyQuickPlay")
     elseif composer.data.gameInfo.gameType == 3 or composer.data.gameInfo.gameType == 4 then

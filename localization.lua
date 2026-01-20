@@ -1147,7 +1147,7 @@ localization.translation = {
     de = "4"
   },
   DirtybitGame = {
-    en = "A Dirtybit Game",
+    en = "A game by Dirtybit, recreated by Us.",
     ja = "Dirtybit \227\130\178\227\131\188\227\131\160",
     zh = "Dirtybit\229\135\186\229\147\129",
     ar = "\217\133\217\134 \216\165\217\134\216\170\216\167\216\172 DirtyBit",

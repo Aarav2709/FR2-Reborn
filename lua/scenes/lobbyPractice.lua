@@ -194,8 +194,9 @@ function scene:create(event)
       buttonStickTop.y = window.y - window.height * 0.51
     end
     if mapIconsGroup then
-      mapIconsGroup.x = contentLeft
-      mapIconsGroup.y = contentTop
+      mapIconsGroup.x = 0
+      mapIconsGroup.y = 0
+      updateMapIconPositions()
     end
     if btnPrevZone then
       btnPrevZone.x = contentLeft + contentWidth * (116 / 480)

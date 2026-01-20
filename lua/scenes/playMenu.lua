@@ -187,8 +187,10 @@ function scene:create(event)
       btnBack.y = 385
     end
     if infoText then
-      infoText.x = contentLeft + contentWidth * (242 / 480)
-      infoText.y = contentTop + contentHeight * (36 / 320)
+      if tipBackground then
+        infoText.x = tipBackground.x
+        infoText.y = tipBackground.y + 13
+      end
     end
   end
 

@@ -2,14 +2,17 @@ local composer = require("composer")
 local assetLoader = require("lua.modules.assetLoader")
 local scene = composer.newScene()
 local updateLoadbar, cleanEnter
-local backgroundImage, logo, text1, loadBarBG, loadBarRect, loadBar, loadBarForground
+local backgroundSnapshot, backgroundSource, logo, text1, loadBarBG, loadBarRect, loadBar, loadBarForground
 local downloadText, layoutLoadingScene, resizeListener
 
 function scene:create(event)
   local screenGroup = self.view
   local transitionTime = 200
-  backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 480, 320)
-  screenGroup:insert(backgroundImage)
+  backgroundSnapshot = display.newSnapshot(480, 320)
+  backgroundSnapshot.fill.effect = "filter.blur"
+  backgroundSnapshot.fill.effect.blurSize = 6
+  screenGroup:insert(backgroundSnapshot)
+  backgroundSource = display.newImageRect(backgroundSnapshot.group, "images/gui/common/bgMain.png", 480, 320)
   logo = display.newImageRect("images/gui/common/logo.png", 224, 135)
   screenGroup:insert(logo)
   text1 = composer.newText({
@@ -41,14 +44,15 @@ function scene:create(event)
     local centerX = contentLeft + contentWidth * 0.5
     local centerY = contentTop + contentHeight * 0.5
 
-    if backgroundImage then
-      backgroundImage.x = centerX
-      backgroundImage.y = centerY
-      backgroundImage.xScale = 1
-      backgroundImage.yScale = 1
-      local scale = math.max(contentWidth / backgroundImage.width, contentHeight / backgroundImage.height)
-      backgroundImage.xScale = scale
-      backgroundImage.yScale = scale
+    if backgroundSnapshot then
+      backgroundSnapshot.x = centerX
+      backgroundSnapshot.y = centerY
+      backgroundSnapshot.xScale = 1
+      backgroundSnapshot.yScale = 1
+      local scale = math.max(contentWidth / backgroundSnapshot.width, contentHeight / backgroundSnapshot.height)
+      backgroundSnapshot.xScale = scale
+      backgroundSnapshot.yScale = scale
+      backgroundSnapshot:invalidate()
     end
     if logo then
       logo.x = centerX

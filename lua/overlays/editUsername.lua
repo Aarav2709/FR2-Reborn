@@ -13,22 +13,23 @@ function scene:create(event)
   if isAndroid then
     textFieldSize = 35
   end
-  local background = display.newImageRect("images/gui/settings/windowRename.png", 350, 137)
+  local background = display.newImageRect("images/gui/settings/windowRename.png", 405, 137)
   background.anchorX = 0.5
   background.anchorY = 0
-  background.x = 240
-  background.y = 0
+  background.x = 250
+  background.y = -4
   local backgroundCoins = display.newImageRect("images/gui/market/currentCoins.png", 70, 53)
   backgroundCoins.anchorX = 0
   backgroundCoins.anchorY = 0
-  backgroundCoins.x = 400
+  backgroundCoins.x = 450
   backgroundCoins.y = 0
   local moneyValue = composer.database.getMoney()
+  local gemValue = composer.database.getGems()
   local moneyLabel = composer.newText({
     string = moneyValue,
     size = 14,
-    x = 424,
-    y = 40,
+    x = 476,
+    y = 45,
     ax = 0,
     color = {
       1,
@@ -39,8 +40,8 @@ function scene:create(event)
   local moneyLabelRed = composer.newText({
     string = moneyValue,
     size = 14,
-    x = 424,
-    y = 40,
+    x = 476,
+    y = 45,
     ax = 0,
     color = {
       1,
@@ -49,6 +50,31 @@ function scene:create(event)
     }
   })
   moneyLabelRed.alpha = 0
+  local gemLabel = composer.newText({
+    string = gemValue,
+    size = 14,
+    x = 476,
+    y = 27,
+    ax = 0,
+    color = {
+      1,
+      1,
+      1
+    }
+  })
+  local gemLabelRed = composer.newText({
+    string = gemValue,
+    size = 14,
+    x = 476,
+    y = 27,
+    ax = 0,
+    color = {
+      1,
+      0,
+      0
+    }
+  })
+  gemLabelRed.alpha = 0
   local alphaBackground = display.newRect(0, 0, display.contentWidth, display.contentHeight)
   alphaBackground.anchorX = 0
   alphaBackground.anchorY = 0
@@ -66,8 +92,8 @@ function scene:create(event)
   })
   info.anchorX = 0.5
   info.anchorY = 0.5
-  info.x = 240
-  info.y = 25
+  info.x = 251
+  info.y = 20
   local inputFieldDescriptionText = composer.newText({
     string = composer.localized.get("Username"),
     color = {
@@ -159,7 +185,7 @@ function scene:create(event)
   end
   
   local closeButton = composer.newButton({
-    x = 380,
+    x = 415,
     y = 26,
     width = 43,
     height = 38,
@@ -207,6 +233,8 @@ function scene:create(event)
     dropdownGroup:insert(backgroundCoins)
     dropdownGroup:insert(moneyLabel)
     dropdownGroup:insert(moneyLabelRed)
+    dropdownGroup:insert(gemLabel)
+    dropdownGroup:insert(gemLabelRed)
     dropdownGroup:insert(info)
     dropdownGroup:insert(nameTextField)
     dropdownGroup:insert(inputFieldDescriptionText)

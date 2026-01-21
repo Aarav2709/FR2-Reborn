@@ -15,7 +15,11 @@ composer.databaseData = {
     [6] = {},
     [7] = {}
   },
-  money = nil
+  money = nil,
+  gems = nil,
+  xp = nil,
+  economyLoaded = false,
+  itemsLoaded = false
 }
 local path = system.pathForFile("data.sqlite3", system.DocumentsDirectory)
 ---@type sqlite3_db|nil
@@ -39,6 +43,8 @@ CREATE TABLE IF NOT EXISTS user_settings (id INTEGER PRIMARY KEY, username VARCH
                             CREATE TABLE IF NOT EXISTS push_enabled (id INTEGER PRIMARY KEY, gameInvite INTEGER, friendRequest INTEGER, general INTEGER);
                             CREATE TABLE IF NOT EXISTS onboarding (part INTEGER PRIMARY KEY, done INTEGER default 0);
                             CREATE TABLE IF NOT EXISTS onboardingIntro (id INTEGER PRIMARY KEY, done INTEGER default 0);
+                            CREATE TABLE IF NOT EXISTS economy (id INTEGER PRIMARY KEY, coins INTEGER, gems INTEGER, xp INTEGER);
+                            CREATE TABLE IF NOT EXISTS ownedItems (id INTEGER PRIMARY KEY, data TEXT);
     ]]
   db:exec(createTables)
   db:close()
@@ -46,10 +52,10 @@ CREATE TABLE IF NOT EXISTS user_settings (id INTEGER PRIMARY KEY, username VARCH
 end
 
 function M.updatePlayerInfo(username, usernameCode)
-    local currentPlayerInfo = M.getPlayerInformation()
-    if not currentPlayerInfo then
-        return
-    end
+  local currentPlayerInfo = M.getPlayerInformation()
+  if not currentPlayerInfo then
+    return
+  end
   M.setPlayerInformation(username, usernameCode, currentPlayerInfo.playerId, currentPlayerInfo.token)
 end
 
@@ -419,15 +425,91 @@ function M.setAllOnlineFriendsState(friends)
   end
 end
 
+local function ensureItemSlots()
+  if not composer.databaseData.items then
+    composer.databaseData.items = {}
+  end
+  for i = 1, 7 do
+    if composer.databaseData.items[i] == nil then
+      composer.databaseData.items[i] = {}
+    end
+  end
+end
+
+local function saveItemsToDb()
+  ensureItemSlots()
+  db = sqlite3.open(path)
+  local itemsJson = json.encode(composer.databaseData.items or {})
+  if itemsJson then
+    itemsJson = itemsJson:gsub("'", "''")
+    db:exec("INSERT OR REPLACE INTO ownedItems VALUES(1, '" .. itemsJson .. "');")
+  end
+  db:close()
+  db = nil
+end
+
+local function loadItemsFromDb()
+  if composer.databaseData.itemsLoaded then
+    return
+  end
+  db = sqlite3.open(path)
+  local itemsJson
+  for row in db:nrows("SELECT data FROM ownedItems;") do
+    itemsJson = row.data
+  end
+  db:close()
+  db = nil
+  if itemsJson then
+    local decoded = json.decode(itemsJson)
+    if type(decoded) == "table" then
+      composer.databaseData.items = decoded
+    end
+  end
+  ensureItemSlots()
+  composer.databaseData.itemsLoaded = true
+end
+
+local function loadEconomyFromDb()
+  if composer.databaseData.economyLoaded then
+    return
+  end
+  db = sqlite3.open(path)
+  local coins, gems, xp
+  for row in db:nrows("SELECT coins, gems, xp FROM economy;") do
+    coins = row.coins
+    gems = row.gems
+    xp = row.xp
+  end
+  db:close()
+  db = nil
+  composer.databaseData.money = coins or composer.databaseData.money or 0
+  composer.databaseData.gems = gems or composer.databaseData.gems or 0
+  composer.databaseData.xp = xp or composer.databaseData.xp or 0
+  composer.databaseData.economyLoaded = true
+end
+
+local function saveEconomyToDb()
+  local coins = composer.databaseData.money or 0
+  local gems = composer.databaseData.gems or 0
+  local xp = composer.databaseData.xp or 0
+  db = sqlite3.open(path)
+  db:exec("INSERT OR REPLACE INTO economy VALUES(1, " .. coins .. ", " .. gems .. ", " .. xp .. ");")
+  db:close()
+  db = nil
+end
+
 local function setItems(items)
   composer.databaseData.items = items
+  composer.databaseData.itemsLoaded = true
   local avatarData = getAvatarData()
   M.setNewDefaultSkinForAvatar(avatarData.avatar, avatarData.skin)
+  saveItemsToDb()
 end
 
 M.setItems = setItems
 
 function M.setNewDefaultSkinForAvatar(avatarId, skinId)
+  loadItemsFromDb()
   if composer.databaseData.items then
     for key, item in pairs(composer.databaseData.items) do
       if tonumber(key) == tonumber(avatarId) then
@@ -435,9 +517,11 @@ function M.setNewDefaultSkinForAvatar(avatarId, skinId)
       end
     end
   end
+  saveItemsToDb()
 end
 
 function M.getDefaultSkinForAvatar(avatarId)
+  loadItemsFromDb()
   if composer.databaseData.items then
     for key, item in pairs(composer.databaseData.items) do
       if tonumber(key) == tonumber(avatarId) and item.s then
@@ -449,6 +533,7 @@ function M.getDefaultSkinForAvatar(avatarId)
 end
 
 function M.getWinsForAvatar(avatarId)
+  loadItemsFromDb()
   if composer.databaseData.items then
     for key, item in pairs(composer.databaseData.items) do
       if tonumber(key) == tonumber(avatarId) and item.w then
@@ -463,6 +548,7 @@ function M.updateWinsForAvatar()
   local avatarData = getAvatarData()
   composer.debugger.debugTable("database", "getAvatarData :", avatarData)
   local avatarId = avatarData[1]
+  loadItemsFromDb()
   if composer.databaseData.items then
     for key, item in pairs(composer.databaseData.items) do
       if tonumber(key) == tonumber(avatarId) and item.w then
@@ -470,9 +556,11 @@ function M.updateWinsForAvatar()
       end
     end
   end
+  saveItemsToDb()
 end
 
 local function getItems()
+  loadItemsFromDb()
   return composer.databaseData.items
 end
 
@@ -480,40 +568,99 @@ M.getItems = getItems
 
 local function addItem(itemId)
   local itemString = "" .. itemId
+  loadItemsFromDb()
   if composer.databaseData.items then
     composer.databaseData.items[itemString] = {}
   end
+  saveItemsToDb()
 end
 
 M.addItem = addItem
 
 local function increaseMoney(money)
-  composer.databaseData.money = composer.databaseData.money + money
+  loadEconomyFromDb()
+  composer.databaseData.money = (composer.databaseData.money or 0) + money
+  saveEconomyToDb()
 end
 
 M.increaseMoney = increaseMoney
 
 local function decreaseMoney(money)
-  composer.databaseData.money = composer.databaseData.money - money
+  loadEconomyFromDb()
+  composer.databaseData.money = (composer.databaseData.money or 0) - money
+  saveEconomyToDb()
 end
 
 M.decreaseMoney = decreaseMoney
 
 local function setMoney(money)
+  loadEconomyFromDb()
   composer.databaseData.money = money
+  saveEconomyToDb()
 end
 
 M.setMoney = setMoney
 
 local function getMoney()
-  if composer.databaseData.money then
-    return composer.databaseData.money
-  else
-    return 0
-  end
+  loadEconomyFromDb()
+  return composer.databaseData.money or 0
 end
 
 M.getMoney = getMoney
+
+local function setGems(gems)
+  loadEconomyFromDb()
+  composer.databaseData.gems = gems
+  saveEconomyToDb()
+end
+
+M.setGems = setGems
+
+local function getGems()
+  loadEconomyFromDb()
+  return composer.databaseData.gems or 0
+end
+
+M.getGems = getGems
+
+local function increaseGems(gems)
+  loadEconomyFromDb()
+  composer.databaseData.gems = (composer.databaseData.gems or 0) + gems
+  saveEconomyToDb()
+end
+
+M.increaseGems = increaseGems
+
+local function decreaseGems(gems)
+  loadEconomyFromDb()
+  composer.databaseData.gems = (composer.databaseData.gems or 0) - gems
+  saveEconomyToDb()
+end
+
+M.decreaseGems = decreaseGems
+
+local function setXp(xp)
+  loadEconomyFromDb()
+  composer.databaseData.xp = xp
+  saveEconomyToDb()
+end
+
+M.setXp = setXp
+
+local function getXp()
+  loadEconomyFromDb()
+  return composer.databaseData.xp or 0
+end
+
+M.getXp = getXp
+
+local function increaseXp(xp)
+  loadEconomyFromDb()
+  composer.databaseData.xp = (composer.databaseData.xp or 0) + xp
+  saveEconomyToDb()
+end
+
+M.increaseXp = increaseXp
 
 function M.encodeTransaction(transaction)
   local transactionJsonObject = json.encode(transaction)
@@ -994,8 +1141,10 @@ function M.createDefaultOfflinePlayer()
     M.setPlayerInformation("Player", 1234, "OFFLINE_PLAYER_" .. os.time(), "offline_token_123")
     M.setAvatarData({ 1, 0, 0, 0, 0, 0, 0 }, false) -- Default avatar c1s0
     M.setMoney(10000)                               -- Starting money
-    M.setSound(1)                                   -- Sound enabled
-    M.setViolence(1)                                -- Violence enabled
+    M.setGems(0)
+    M.setXp(0)
+    M.setSound(1)    -- Sound enabled
+    M.setViolence(1) -- Violence enabled
     print("OFFLINE MODE: Default player created!")
   end
 end
@@ -1016,9 +1165,14 @@ local function reset()
       [3] = {},
       [4] = {},
       [5] = {},
-      [6] = {}
+      [6] = {},
+      [7] = {}
     },
-    money = nil
+    money = nil,
+    gems = nil,
+    xp = nil,
+    economyLoaded = false,
+    itemsLoaded = false
   }
   db = sqlite3.open(path)
   db:exec("DELETE FROM user_settings;")
@@ -1032,6 +1186,8 @@ local function reset()
   db:exec("DELETE FROM marketNotification;")
   db:exec("DELETE FROM push_enabled;")
   db:exec("DELETE FROM marketItemId;")
+  db:exec("DELETE FROM economy;")
+  db:exec("DELETE FROM ownedItems;")
   db:close()
   db = nil
   return true
@@ -1049,14 +1205,21 @@ local function resetWithoutReceipts()
       [3] = {},
       [4] = {},
       [5] = {},
-      [6] = {}
+      [6] = {},
+      [7] = {}
     },
-    money = nil
+    money = nil,
+    gems = nil,
+    xp = nil,
+    economyLoaded = false,
+    itemsLoaded = false
   }
   db = sqlite3.open(path)
   db:exec("DELETE FROM user_settings;")
   db:exec("DELETE FROM facebook;")
   db:exec("DELETE FROM user_avatar;")
+  db:exec("DELETE FROM economy;")
+  db:exec("DELETE FROM ownedItems;")
   db:close()
   db = nil
 end

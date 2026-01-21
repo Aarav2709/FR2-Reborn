@@ -19,6 +19,7 @@ function scene:create(event)
   local tabSelected = 0
   local oldEffect = 0
   local itemTimer, horizontalTableView, currentMarketData, updateTableView, marketTable, marketTableList, monster, updateMoneyLabel, updateMarketplace, btnSkin, btnSkinBack, btnBuy, tableViewData, masterSkinBackground, masterSkinInfo, masterSkinText, bubbleWindow
+  local gemLabel, gemIcon
   local monsterData = composer.database.getAvatarData()
   local itemTrailSelected = monsterData[6]
   local startMonsterData = composer.tableHelper.deepCopy(monsterData)
@@ -361,9 +362,9 @@ function scene:create(event)
     elseif tabSelected == 8 and currentMarketData[itemSelected].characterId and not boughtItems[tostring(currentMarketData[itemSelected].characterId)] then
       addMasterSkinBackground()
       local text = composer.localized.get("Buy") ..
-      " " ..
-      composer.storeConfig.getItem(currentMarketData[itemSelected].characterId).title ..
-      " " .. composer.localized.get("First")
+          " " ..
+          composer.storeConfig.getItem(currentMarketData[itemSelected].characterId).title ..
+          " " .. composer.localized.get("First")
       masterSkinInfo = composer.newText({
         string = text,
         size = 14,
@@ -395,14 +396,14 @@ function scene:create(event)
       })
       screenGroup:insert(masterSkinInfo)
       bubbleWindow = display.newImageRect(
-      "images/gui/market/items/boosts/" .. currentMarketData[itemSelected].key .. "_2.png", 100, 69)
+        "images/gui/market/items/boosts/" .. currentMarketData[itemSelected].key .. "_2.png", 100, 69)
       bubbleWindow.x = 210
       bubbleWindow.y = 50
       screenGroup:insert(bubbleWindow)
     elseif not isItemBought(currentMarketData[1]) and tabSelected == 2 and itemSelected ~= 1 then
       addMasterSkinBackground()
       local text = composer.localized.get("Buy") ..
-      " " .. currentMarketData[1].title .. " " .. composer.localized.get("First")
+          " " .. currentMarketData[1].title .. " " .. composer.localized.get("First")
       masterSkinInfo = composer.newText({
         string = text,
         size = 14,
@@ -463,6 +464,14 @@ function scene:create(event)
       moneyLabel:removeSelf()
       moneyLabel = nil
     end
+    if gemLabel then
+      gemLabel:removeSelf()
+      gemLabel = nil
+    end
+    if gemIcon then
+      gemIcon:removeSelf()
+      gemIcon = nil
+    end
     moneyLabel = composer.newText({
       string = moneyValue,
       size = 14,
@@ -476,6 +485,23 @@ function scene:create(event)
       }
     })
     screenGroup:insert(moneyLabel)
+    gemIcon = display.newImageRect("images/gui/common/gem_small.png", 14, 14)
+    gemIcon.x = 410
+    gemIcon.y = 20
+    screenGroup:insert(gemIcon)
+    gemLabel = composer.newText({
+      string = composer.database.getGems(),
+      size = 14,
+      x = 424,
+      y = 20,
+      ax = 0,
+      color = {
+        1,
+        1,
+        1
+      }
+    })
+    screenGroup:insert(gemLabel)
   end
 
   local function findItemSelectedForSpriteType(currentMonster)
@@ -910,6 +936,7 @@ function scene:create(event)
       tableViewData[i] = {
         image = imagePath,
         price = currentMarketData[i].price,
+        gemPrice = currentMarketData[i].gemPrice,
         master = currentMarketData[i].master,
         weeklyPrice = currentMarketData[i].weeklyPrice,
         spinningPrize = currentMarketData[i].spinningPrize,
@@ -951,6 +978,16 @@ function scene:create(event)
           priceBackground.x = 40
           priceBackground.y = 82
           group:insert(priceBackground)
+        elseif data.gemPrice then
+          priceText = data.gemPrice
+          local priceBackground = display.newImageRect("images/gui/market/pricetag.png", 60, 18)
+          priceBackground.x = 40
+          priceBackground.y = 82
+          group:insert(priceBackground)
+          local gemIcon = display.newImageRect("images/gui/common/gem_small.png", 12, 12)
+          gemIcon.x = 16
+          gemIcon.y = 82
+          group:insert(gemIcon)
         elseif data.tier then
           priceText = inApp.getLocalizedPrice(data.tier, data.key)
           local priceBackground = display.newImageRect("images/gui/market/pricetagTier.png", 60, 18)
@@ -1178,6 +1215,7 @@ function scene:create(event)
     if data and type(data) == "table" then
       commCallback(data)
     end
+    updateMoneyLabel()
     if itemSelected then
       updateBuyButtonState(itemSelected)
     end

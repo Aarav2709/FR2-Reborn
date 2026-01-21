@@ -8,6 +8,8 @@ local headerBar
 local title
 local scenesButton
 local devToolsButton
+local placeholdersButton
+local postLobbyButtonsButton
 local backButton
 local resizeHandle
 local scenesContainer
@@ -16,6 +18,8 @@ local sceneItems = {}
 local scenesContainerHasListener = false
 local isOpen = false
 local isScenesOpen = false
+local placeholdersVisible = true
+local postLobbyButtonsVisible = true
 local resizeListener
 local isDragging = false
 local dragOffsetX = 0
@@ -167,9 +171,17 @@ local function updateLayout()
     devToolsButton.group.x = panel.x + panelWidth - 70
     devToolsButton.group.y = panel.y + headerHeight + 20
   end
+  if placeholdersButton then
+    placeholdersButton.group.x = panel.x + panelWidth * 0.5
+    placeholdersButton.group.y = panel.y + headerHeight + 84
+  end
+  if postLobbyButtonsButton then
+    postLobbyButtonsButton.group.x = panel.x + panelWidth * 0.5
+    postLobbyButtonsButton.group.y = panel.y + headerHeight + 116
+  end
   if backButton then
     backButton.x = panel.x + panelWidth * 0.5
-    backButton.y = panel.y + headerHeight + 52
+    backButton.y = panel.y + headerHeight + 148
   end
   if resizeHandle then
     resizeHandle.x = panel.x + panelWidth - 8
@@ -250,6 +262,22 @@ local function buildMenu()
             composer.devTools.disable()
         elseif composer.devTools then
             composer.devTools.enable()
+        end
+    end) }
+
+    placeholdersButton = { group = makeButton("PostLobby UI", 0, 0, function()
+        placeholdersVisible = not placeholdersVisible
+        local sceneObj = composer.getScene("lua.scenes.postLobby")
+        if sceneObj and sceneObj.setPostLobbyPlaceholdersVisible then
+            sceneObj.setPostLobbyPlaceholdersVisible(placeholdersVisible)
+        end
+    end) }
+
+    postLobbyButtonsButton = { group = makeButton("PostLobby Buttons", 0, 0, function()
+        postLobbyButtonsVisible = not postLobbyButtonsVisible
+        local sceneObj = composer.getScene("lua.scenes.postLobby")
+        if sceneObj and sceneObj.setPostLobbyButtonsVisible then
+            sceneObj.setPostLobbyButtonsVisible(postLobbyButtonsVisible)
         end
     end) }
 

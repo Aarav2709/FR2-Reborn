@@ -12,7 +12,7 @@ function scene:create(event)
   backgroundSnapshot.fill.effect = "filter.blur"
   backgroundSnapshot.fill.effect.blurSize = 6
   screenGroup:insert(backgroundSnapshot)
-  backgroundSource = display.newImageRect(backgroundSnapshot.group, "images/gui/common/bgMain.png", 480, 320)
+  backgroundSource = display.newImageRect(backgroundSnapshot.group, "images/gui/common/bgMain_blur.png", 480, 320)
   logo = display.newImageRect("images/gui/common/logo.png", 224, 135)
   screenGroup:insert(logo)
   text1 = composer.newText({
@@ -256,7 +256,7 @@ function scene:show(event)
           native.showAlert(composer.localized.get("CorruptedFiles"), composer.localized.get("CorruptedFilesText"), {
             composer.localized.get("Ok")
           }, closeApp)
-          print("Warning: Coudl not get new config files and current ones are currupted. Closing app.")
+          print("Warning: Could not get new config files and current ones are currupted. Closing app.")
           return
         end
         continueLoadingConfigCritical()

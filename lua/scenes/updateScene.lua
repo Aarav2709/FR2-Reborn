@@ -21,7 +21,7 @@ function scene:create(event)
     end
   end
 
-  backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 480, 320)
+  backgroundImage = display.newImageRect("images/gui/common/bgMain_blur.png", 480, 320)
   logo = display.newImageRect("images/gui/common/logo.png", 224, 135)
   infoText = composer.newText({
     string = composer.localized.get("PleaseUpdateApp"),

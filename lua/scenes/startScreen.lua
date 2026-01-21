@@ -19,7 +19,7 @@ function scene:create(event)
     composer.showOverlay("lua.overlays.loginUser", options)
   end
 
-  backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 480, 320)
+  backgroundImage = display.newImageRect("images/gui/common/bgMain_blur.png", 480, 320)
   screenGroup:insert(backgroundImage)
   logo = display.newImageRect("images/gui/common/logo.png", 224, 135)
   screenGroup:insert(logo)

@@ -1147,14 +1147,14 @@ localization.translation = {
     de = "4"
   },
   DirtybitGame = {
-    en = "A game by Dirtybit, recreated by Us.",
-    ja = "Dirtybit \227\130\178\227\131\188\227\131\160",
-    zh = "Dirtybit\229\135\186\229\147\129",
-    ar = "\217\133\217\134 \216\165\217\134\216\170\216\167\216\172 DirtyBit",
-    ko = "Dirtybit \234\178\140\236\158\132",
-    es = "Un juego de Dirtybit",
-    fr = "Un jeu Dirtybit",
-    de = "Ein Spiel von Dirtybit"
+    en = "A game by Dirtybit, recreated for the community",
+    ja = "Dirtybit\227\129\174\227\130\178\227\131\188\227\131\160\227\130\146\227\130\179\227\131\159\227\131\165\227\131\139\227\131\134\227\130\163\229\144\145\227\129\145\227\129\171\229\134\141\231\143\190",
+    zh = "Dirtybit\231\154\132\230\184\184\230\136\143\239\188\140\228\184\186\231\164\190\229\140\186\233\135\141\229\136\182",
+    ar = "\217\132\216\185\216\168\216\169 \217\133\217\134 Dirtybit\216\140 \216\163\216\185\217\138\216\175 \216\181\217\134\216\185\217\135\216\167 \217\132\217\132\217\133\216\172\216\170\217\133\216\185",
+    ko = "Dirtybit\236\157\152 \234\178\140\236\158\132, \236\187\164\235\174\164\235\139\136\237\139\176\235\165\188 \236\156\132\237\149\180 \236\158\172\237\152\132\235\144\152\236\151\136\236\138\181\235\139\136\235\139\164",
+    es = "Un juego de Dirtybit, recreado para la comunidad",
+    fr = "Un jeu de Dirtybit, recree pour la communaute",
+    de = "Ein Spiel von Dirtybit, fuer die Community neu erstellt"
   },
   NewerVersion = {
     en = "A newer version is available, please update",

@@ -42,6 +42,12 @@ function scene:create(event)
   }
   local otherPlayersId = {}
   local coinEffect, chestCoinEffect, updateStats
+  composer.data.gameInfo = composer.data.gameInfo or {}
+  composer.data.gameInfo.players = composer.data.gameInfo.players or {}
+  composer.data.gameInfo.stats = composer.data.gameInfo.stats
+  if composer.data.gameInfo.map == nil then
+    composer.data.gameInfo.map = 1
+  end
   local mapId = tonumber(composer.data.gameInfo.map)
   if mapId and mapId < 1000 then
     local mapData = composer.data.getMapInfo(mapId)
@@ -139,13 +145,10 @@ function scene:create(event)
     }
   })
 
-  local placeholdersEnabled = false
+  local placeholdersEnabled = true
   local placeholderGroup = display.newGroup()
   local placeholderMapX = 755
   local placeholderMapY = 21
-  local placeholderListX = 609
-  local placeholderListY = 63
-  local placeholderListSpacing = 24
   local mapPlaceholder = composer.newText({
     string = "STUMPY SLOPES",
     size = 30,
@@ -154,19 +157,6 @@ function scene:create(event)
     color = { 1, 1, 1 }
   })
   placeholderGroup:insert(mapPlaceholder)
-  local resultPlaceholders = {}
-  for i = 1, 4 do
-    local label = composer.newText({
-      string = i .. ". Player" .. "                     0.00 s",
-      size = 23,
-      x = placeholderListX,
-      y = placeholderListY + (i - 1) * placeholderListSpacing,
-      ax = 0,
-      color = { 1, 1, 1 }
-    })
-    placeholderGroup:insert(label)
-    resultPlaceholders[i] = label
-  end
   placeholderGroup.isVisible = placeholdersEnabled
   local function setPlaceholdersVisible(isVisible)
     placeholdersEnabled = not not isVisible
@@ -421,7 +411,7 @@ function scene:create(event)
     x = friendButtonOverlay.x,
     y = friendButtonOverlay.y
   })
-  addFriendsButton.isVisible = false
+  addFriendsButton.isVisible = true
   local chatButton = composer.newButton({
     image = "images/gui/postgame/buttonChat.png",
     width = 65,
@@ -430,7 +420,7 @@ function scene:create(event)
     x = chatButtonOverlay.x,
     y = chatButtonOverlay.y
   })
-  chatButton.isVisible = false
+  chatButton.isVisible = true
   local marketButton = composer.newButton({
     image = "images/gui/postgame/buttonMarket.png",
     width = 65,
@@ -439,7 +429,7 @@ function scene:create(event)
     x = marketButtonOverlay.x,
     y = marketButtonOverlay.y
   })
-  marketButton.isVisible = false
+  marketButton.isVisible = true
   local exitOnboarding
   if composer.onboarding.isActive == true then
     exitOnboarding = composer.newButton({
@@ -451,7 +441,7 @@ function scene:create(event)
       y = 25.5
     })
   end
-  local postLobbyButtonsVisible = false
+  local postLobbyButtonsVisible = true
   local function setPostLobbyButtonsVisible(isVisible)
     postLobbyButtonsVisible = not not isVisible
     addFriendsButton.isVisible = postLobbyButtonsVisible
@@ -464,6 +454,9 @@ function scene:create(event)
   end
 
   local function updateAvatar(indexInList, username, pos)
+    if not composer.data.gameInfo.players or not composer.data.gameInfo.players[indexInList] then
+      return
+    end
     local networkFormat = true
     if composer.data.gameInfo.gameType == 0 then
       networkFormat = false
@@ -563,11 +556,13 @@ function scene:create(event)
       rankingEarned.y = 10
       newStatsGroup:insert(rankingEarned)
       local ratingIcon = display.newImageRect("images/gui/postgame/iconRating.png", 22, 14)
-      ratingIcon.anchorX = 1
-      ratingIcon.anchorY = 0
-      ratingIcon.x = ratingX + 26
-      ratingIcon.y = 15
-      newTotalStatsGroup:insert(ratingIcon)
+      if ratingIcon then
+        ratingIcon.anchorX = 1
+        ratingIcon.anchorY = 0
+        ratingIcon.x = ratingX + 26
+        ratingIcon.y = 15
+        newTotalStatsGroup:insert(ratingIcon)
+      end
       local prevRating = rating - deltaRating
       local totalRating = composer.newText({
         string = prevRating,
@@ -826,6 +821,17 @@ function scene:create(event)
         { username = "Player 4", goalTime = 16000, index = 4 }
       }
     end
+    if not composer.data.gameInfo.players or #composer.data.gameInfo.players == 0 then
+      composer.data.gameInfo.players = {}
+      local defaultAvatar = composer.database.getAvatarData()
+      for i = 1, 4 do
+        composer.data.gameInfo.players[i] = {
+          username = "Player " .. i,
+          avatar = defaultAvatar,
+          playerId = i
+        }
+      end
+    end
     if rankingTable and #rankingTable < 5 then
       local fastestTime
       table.sort(rankingTable, function(a, b)
@@ -895,10 +901,8 @@ function scene:create(event)
         timeTextLabels[i].x = 267
         timeTextLabels[i].y = rankingTextLabels[i].y
         rankingTextGroup:insert(timeTextLabels[i])
-        if composer.data.gameInfo.players and composer.data.gameInfo.players[index] then
-          updateAvatar(index, username, i)
-          sendFriendRequestTable[#sendFriendRequestTable + 1] = username
-        end
+        updateAvatar(index, username, i)
+        sendFriendRequestTable[#sendFriendRequestTable + 1] = username
       end
       rankingTextGroup.anchorX = 0
       rankingTextGroup.anchorY = 0
@@ -946,6 +950,9 @@ function scene:create(event)
     screenGroup:insert(effectGroup)
     if exitOnboarding then
       screenGroup:insert(exitOnboarding)
+    end
+    if placeholdersEnabled and placeholderGroup then
+      placeholderGroup:toFront()
     end
     if photoIcon then
       photoIcon:toFront()
@@ -1037,8 +1044,13 @@ function scene:create(event)
   if composer.data.gameInfo.gameType ~= 0 then
     createOnlinePostLobby()
   end
-  if composer.data.gameInfo.stats then
+  if composer.data.gameInfo.stats and next(composer.data.gameInfo.stats) then
     updateStats(1)
+  else
+    updateRank(1000, 0, 0)
+    updateMoney(1000, 0, 1)
+    updateXpAndGems(0, 0, 0, 0)
+    updatePlacementText(1)
   end
   newStatsGroup.x = 95
   newStatsGroup.y = display.contentHeight - 62

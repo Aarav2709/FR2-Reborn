@@ -9,6 +9,7 @@ function scene:create(event)
   local item = event.params.item
   local moneyValue = composer.database.getMoney()
   local coinPrice = 0
+  local gemPrice = item.gemPrice
   local inApp = require("lua.iap.inAppPurchase")
   local cashPrice = "error"
   local lockTimer
@@ -153,6 +154,7 @@ function scene:create(event)
   backgroundCoins.x = 400
   backgroundCoins.y = 0
   local moneyValue = composer.database.getMoney()
+  local gemValue = composer.database.getGems()
   local moneyLabel = composer.newText({
     string = moneyValue,
     size = 14,
@@ -178,6 +180,34 @@ function scene:create(event)
     }
   })
   moneyLabelRed.alpha = 0
+  local gemIcon = display.newImageRect("images/gui/common/gem_small.png", 14, 14)
+  gemIcon.x = 410
+  gemIcon.y = 20
+  local gemLabel = composer.newText({
+    string = gemValue,
+    size = 14,
+    x = 424,
+    y = 20,
+    ax = 0,
+    color = {
+      1,
+      1,
+      1
+    }
+  })
+  local gemLabelRed = composer.newText({
+    string = gemValue,
+    size = 14,
+    x = 424,
+    y = 20,
+    ax = 0,
+    color = {
+      1,
+      0,
+      0
+    }
+  })
+  gemLabelRed.alpha = 0
 
   local function stopIAPCashTimer()
     if iapPriceTimeout then
@@ -278,6 +308,24 @@ function scene:create(event)
     end
   end
 
+  local function completeLocalPurchase(currency, price)
+    if currency == "coins" then
+      composer.database.decreaseMoney(price)
+      moneyValue = composer.database.getMoney()
+      moneyLabel.text = moneyValue
+      moneyLabelRed.text = moneyValue
+    elseif currency == "gems" then
+      composer.database.decreaseGems(price)
+      gemValue = composer.database.getGems()
+      gemLabel.text = gemValue
+      gemLabelRed.text = gemValue
+    end
+    composer.database.addItem(item.key)
+    overlayEndedData = { localPurchase = true, i = item.key }
+    composer.audio.play("buy_item")
+    composer.hideOverlay()
+  end
+
   local function giveCoinFeedback()
     local newSize = 1.2
     local timeToUse = 100
@@ -308,11 +356,45 @@ function scene:create(event)
     })
   end
 
+  local function giveGemFeedback()
+    local newSize = 1.2
+    local timeToUse = 100
+    local delayToUse = 200
+    transition.to(gemLabel, {
+      time = timeToUse,
+      xScale = newSize,
+      yScale = newSize
+    })
+    transition.to(gemLabel, {
+      time = timeToUse,
+      delay = delayToUse,
+      xScale = 1,
+      yScale = 1
+    })
+    transition.to(gemLabelRed, {
+      time = timeToUse,
+      xScale = newSize,
+      yScale = newSize,
+      alpha = 1
+    })
+    transition.to(gemLabelRed, {
+      time = timeToUse,
+      delay = delayToUse,
+      xScale = 1,
+      yScale = 1,
+      alpha = 0
+    })
+  end
+
   local function btnWithCoinsRelease()
     if tryingToBuy then
       errorInfo.text = composer.localized.get("trying to buy item")
       return
-    elseif moneyValue < coinPrice then
+    end
+    moneyValue = composer.database.getMoney()
+    moneyLabel.text = moneyValue
+    moneyLabelRed.text = moneyValue
+    if moneyValue < coinPrice then
       composer.analytics.newEvent("design", {
         event_id = "market:coinPurchase:notEnough:" .. item.key,
         value = moneyValue,
@@ -320,6 +402,8 @@ function scene:create(event)
       })
       composer.audio.play("no_powerup")
       giveCoinFeedback()
+    elseif composer.config.offlineMode or not composer.comm.isOnline() then
+      completeLocalPurchase("coins", coinPrice)
     else
       tryingToBuy = true
       errorInfo.text = composer.localized.get("Purchasing")
@@ -349,6 +433,45 @@ function scene:create(event)
     width = 77,
     height = 50,
     x = backgroundWindow.x - 60,
+    y = backgroundWindow.y + 250
+  })
+
+  local function btnWithGemsRelease()
+    if tryingToBuy then
+      errorInfo.text = composer.localized.get("trying to buy item")
+      return
+    end
+    if not gemPrice then
+      return
+    end
+    gemValue = composer.database.getGems()
+    gemLabel.text = gemValue
+    gemLabelRed.text = gemValue
+    if gemValue < gemPrice then
+      composer.analytics.newEvent("design", {
+        event_id = "market:gemPurchase:notEnough:" .. item.key,
+        value = gemValue,
+        area = composer.config.fullVersion
+      })
+      composer.audio.play("no_powerup")
+      giveGemFeedback()
+    else
+      completeLocalPurchase("gems", gemPrice)
+    end
+  end
+
+  local btnWithGems = composer.newButton({
+    image = "images/gui/market/popup/buttonGems.png",
+    onRelease = btnWithGemsRelease,
+    text = {
+      string = gemPrice or "",
+      x = 0,
+      y = 10,
+      size = 14
+    },
+    width = 77,
+    height = 50,
+    x = backgroundWindow.x,
     y = backgroundWindow.y + 250
   })
 
@@ -408,17 +531,32 @@ function scene:create(event)
   })
 
   local function addjustButtons()
-    if not item.price then
-      btnWithCoins.isVisible = false
-      orText.isVisible = false
-      btnWithCash.x = -60
-      saleGroup.x = -60
+    local buttons = {}
+    btnWithCoins.isVisible = item.price ~= nil
+    btnWithGems.isVisible = gemPrice ~= nil
+    btnWithCash.isVisible = item.tier ~= nil
+    if btnWithCoins.isVisible then
+      buttons[#buttons + 1] = btnWithCoins
     end
-    if not item.tier then
-      btnWithCash.isVisible = false
-      orText.isVisible = false
-      btnWithCoins.x = 60
-      saleGroup.x = 60
+    if btnWithGems.isVisible then
+      buttons[#buttons + 1] = btnWithGems
+    end
+    if btnWithCash.isVisible then
+      buttons[#buttons + 1] = btnWithCash
+    end
+    orText.isVisible = #buttons == 2
+    if #buttons == 1 then
+      buttons[1].x = backgroundWindow.x
+      saleGroup.x = 0
+    elseif #buttons == 2 then
+      buttons[1].x = backgroundWindow.x - 60
+      buttons[2].x = backgroundWindow.x + 60
+      saleGroup.x = 0
+    elseif #buttons == 3 then
+      buttons[1].x = backgroundWindow.x - 90
+      buttons[2].x = backgroundWindow.x
+      buttons[3].x = backgroundWindow.x + 90
+      saleGroup.x = 0
     end
   end
 
@@ -433,8 +571,12 @@ function scene:create(event)
     sceneGroup:insert(backgroundCoins)
     sceneGroup:insert(moneyLabel)
     sceneGroup:insert(moneyLabelRed)
+    sceneGroup:insert(gemIcon)
+    sceneGroup:insert(gemLabel)
+    sceneGroup:insert(gemLabelRed)
     dropdownGroup:insert(backgroundWindow)
     dropdownGroup:insert(btnWithCoins)
+    dropdownGroup:insert(btnWithGems)
     dropdownGroup:insert(btnWithCash)
     dropdownGroup:insert(btnExit)
     dropdownGroup:insert(itemInfo)
@@ -477,8 +619,12 @@ function scene:create(event)
 
   function clean()
     display.remove(btnWithCoins)
+    display.remove(btnWithGems)
     display.remove(btnWithCash)
     display.remove(btnExit)
+    display.remove(gemIcon)
+    display.remove(gemLabel)
+    display.remove(gemLabelRed)
     stopTimers()
     alphaBackground:removeEventListener("touch", backgroundImageTouchEvent)
     backgroundImage:removeEventListener("touch", escapeTouchEvent)

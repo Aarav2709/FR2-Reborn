@@ -55,8 +55,8 @@ local function new(monsterData, networkFormat)
       composer.debugger.profile("CreateImage")
 
       -- Step 1: Clean the name to fix matching issues
-      -- attachment.name is usually "c1s0/head", we need "head"
-      local attachmentName = attachment.name
+      -- attachment.name is usually "eyes_normal"; attachment.path holds full path like "c1s0/misc/eyes_normal"
+      local attachmentName = attachment.path or attachment.name
       local prepath, restOfPath = isCustomMonsterImage(attachmentName)
 
       -- If isCustomMonsterImage fails to parse, clean manually
@@ -103,7 +103,7 @@ local function new(monsterData, networkFormat)
     function skeleton:modifyImage(image, attachment)
       if image and image.setFrame then
         composer.debugger.profile("ModifyImage")
-        local attachmentName = attachment.name
+        local attachmentName = attachment.path or attachment.name
         local _, restOfPath = isCustomMonsterImage(attachmentName)
 
         if not restOfPath then restOfPath = attachmentName:gsub(".*/", "") end

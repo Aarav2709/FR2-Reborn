@@ -539,6 +539,32 @@ function scene:show(event)
     end
   end
 
+  local function awardLocalRewards(placement)
+    if composer.data.gameInfo.stats and composer.data.gameInfo.stats.rewardsApplied then
+      return
+    end
+    local rewardTable = {
+      [1] = { coins = 60, xp = 40, gems = 1 },
+      [2] = { coins = 40, xp = 30, gems = 0 },
+      [3] = { coins = 25, xp = 20, gems = 0 },
+      [4] = { coins = 15, xp = 15, gems = 0 }
+    }
+    local reward = rewardTable[placement] or rewardTable[4]
+    composer.database.increaseMoney(reward.coins)
+    composer.database.increaseXp(reward.xp)
+    if reward.gems and reward.gems > 0 then
+      composer.database.increaseGems(reward.gems)
+    end
+    composer.data.gameInfo.stats.g = reward.coins
+    composer.data.gameInfo.stats.h = composer.database.getMoney()
+    composer.data.gameInfo.stats.xp = reward.xp
+    composer.data.gameInfo.stats.xpTotal = composer.database.getXp()
+    composer.data.gameInfo.stats.gems = reward.gems
+    composer.data.gameInfo.stats.gemsTotal = composer.database.getGems()
+    composer.data.gameInfo.stats.place = placement
+    composer.data.gameInfo.stats.rewardsApplied = true
+  end
+
   local function endGame(playerInGoal)
     if not startedClean and not allInGoal then
       local playersInGoal = 0
@@ -567,6 +593,7 @@ function scene:show(event)
         updatePositionNumber(thisPlayerPosition)
       end
       if playersInGoal == #playerList and not allInGoal then
+        awardLocalRewards(thisPlayerPosition)
         if composer.data.gameInfo.gameType == 0 then
           allInGoal = true
           timer.performWithDelay(2000, goToNextScreen, 1)
@@ -746,8 +773,8 @@ function scene:show(event)
       else
         disconnectAlert = native.showAlert(composer.localized.get("Disconnected"),
           composer.localized.get("LostConnection"), {
-          composer.localized.get("Ok")
-        }, disconnectAlertComplete)
+            composer.localized.get("Ok")
+          }, disconnectAlertComplete)
         composer.analytics.newEvent("design", {
           event_id = "gamePlay:lost connection",
           area = composer.config.fullVersion

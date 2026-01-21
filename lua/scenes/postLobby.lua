@@ -621,6 +621,62 @@ function scene:create(event)
     end
   end
 
+  local function updateXpAndGems(totalXp, earnedXp, totalGems, earnedGems)
+    if earnedXp == nil and earnedGems == nil then
+      return
+    end
+    local deltaText = "XP +" .. (earnedXp or 0) .. "  |  Gems +" .. (earnedGems or 0)
+    local totalText = "XP " .. (totalXp or 0) .. "  |  Gems " .. (totalGems or 0)
+    local xpGemDelta = composer.newText({
+      string = deltaText,
+      size = 14,
+      color = {
+        1,
+        1,
+        1
+      }
+    })
+    xpGemDelta.anchorX = 1
+    xpGemDelta.anchorY = 0
+    xpGemDelta.x = 90
+    xpGemDelta.y = 28
+    newStatsGroup:insert(xpGemDelta)
+    local xpGemTotal = composer.newText({
+      string = totalText,
+      size = 14,
+      color = {
+        1,
+        1,
+        1
+      }
+    })
+    xpGemTotal.anchorX = 1
+    xpGemTotal.anchorY = 0
+    xpGemTotal.x = 90
+    xpGemTotal.y = 28
+    newTotalStatsGroup:insert(xpGemTotal)
+  end
+
+  local function updatePlacementText(placement)
+    if not placement then
+      return
+    end
+    local placementText = composer.newText({
+      string = "Place: " .. placement,
+      size = 12,
+      color = {
+        1,
+        1,
+        1
+      }
+    })
+    placementText.anchorX = 1
+    placementText.anchorY = 0
+    placementText.x = 90
+    placementText.y = 0
+    newStatsGroup:insert(placementText)
+  end
+
   function updateStats(indexInList)
     local list = composer.data.gameInfo.stats
     if list then
@@ -629,6 +685,12 @@ function scene:create(event)
       end
       if list.h and list.g then
         updateMoney(list.h, list.g, indexInList)
+      end
+      if list.xp or list.gems then
+        updateXpAndGems(list.xpTotal, list.xp, list.gemsTotal, list.gems)
+      end
+      if list.place then
+        updatePlacementText(list.place)
       end
     end
   end

@@ -953,13 +953,15 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
     iconBackground.y = 10
     if text then
       local description = composer.newText({
-        string = params.text
+        string = params.text,
+        size = 14
       })
       row:insert(description)
       description.anchorX = 0.5
       description.anchorY = 0.5
       description.x = 60
       description.y = 29
+      description:setFillColor(0, 0, 0)
     end
     
     local function clickButton()

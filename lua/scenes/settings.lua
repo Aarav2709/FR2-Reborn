@@ -7,34 +7,35 @@ function scene:create(event)
   local group = self.view
   local httpsFormat = require("lua.network.httpsMessageFormat")
   local tableHelper = require("lua.modules.tableHelper")
-  local settingsTable, settingsList, creditsTable
+  local settingsTable, settingsList, creditsTable, infoTable
   local creditsTableData = {}
+  local infoTableData = {}
+  local buttonsGroup
+  local useButtonsGroup = true
   local startedClean = false
   local scrollTimer
-  background = display.newImageRect("images/gui/settings/main.png", 480, 320)
+  background = display.newImageRect("images/gui/settings/main.png", 911, 412)
   background.anchorX = 0
   background.anchorY = 0
-  background.x = 1
-  background.y = 42
+  background.x = -1
+  background.y = -2
   layoutSettings = function()
-    local contentLeft = display.screenOriginX
-    local contentTop = display.screenOriginY
-    local contentWidth = display.actualContentWidth
-    local contentHeight = display.actualContentHeight
-
-    group.x = contentLeft
-    group.y = contentTop
+    group.x = 0
+    group.y = 0
     if background then
       background.xScale = 1
       background.yScale = 1
-      local scale = math.max(contentWidth / background.width, contentHeight / background.height)
-      background.xScale = scale
-      background.yScale = scale
+      background.x = -1
+      background.y = -2
+    end
+    if tableBackground then
+      tableBackground.x = 331
+      tableBackground.y = 169
     end
   end
   local username = composer.newText({
     string = "",
-    size = 25,
+    size = 35,
     color = {
       1,
       1,
@@ -43,11 +44,11 @@ function scene:create(event)
   })
   username.anchorX = 0.5
   username.anchorY = 0.5
-  username.x = 160
-  username.y = 20
+  username.x = 180
+  username.y = 26
   local usernameTag = composer.newText({
     string = "",
-    size = 25,
+    size = 35,
     color = {
       1,
       1,
@@ -56,8 +57,8 @@ function scene:create(event)
   })
   usernameTag.anchorX = 0
   usernameTag.anchorY = 0.5
-  usernameTag.x = username.x
-  usernameTag.y = username.y
+  usernameTag.x = 220
+  usernameTag.y = 26
   local tableTitleText = composer.newText({
     string = composer.localized.get("Settings"),
     size = 30,
@@ -67,11 +68,11 @@ function scene:create(event)
       1
     }
   })
-  tableTitleText.x = 410
+  tableTitleText.x = 783
   tableTitleText.y = 16
-  local tableBackground = display.newImageRect("images/gui/ranking/cell.png", 480, 320)
-  tableBackground.x = display.contentWidth * 0.5
-  tableBackground.y = display.contentHeight * 0.5
+  local tableBackground = display.newImageRect("images/gui/ranking/cell.png", 960, 640)
+  tableBackground.x = 331
+  tableBackground.y = 169
 
   local function updateUsername()
     local playerInfo = composer.database.getPlayerInformation()
@@ -82,7 +83,7 @@ function scene:create(event)
       username.text = ""
       usernameTag.text = ""
     end
-    usernameTag.x = username.x + username.width * 0.5
+    usernameTag.x = 220
   end
 
   local function homeButtonEvent()
@@ -95,8 +96,8 @@ function scene:create(event)
     width = 90,
     height = 57,
     onRelease = homeButtonEvent,
-    x = 58,
-    y = 384
+    x = 120,
+    y = 385
   })
 
   local function editNameButtonEvent()
@@ -104,7 +105,7 @@ function scene:create(event)
   end
 
   local editNameButton = composer.newButton({
-    x = 36,
+    x = 350,
     y = 26,
     width = 45,
     height = 42,
@@ -112,15 +113,51 @@ function scene:create(event)
     onRelease = editNameButtonEvent
   })
 
+  buttonsGroup = display.newGroup()
+  buttonsGroup.x = 730
+  buttonsGroup.y = 100
+
+  local function setButtonsGrouped(isGrouped)
+    useButtonsGroup = not not isGrouped
+  end
+
   local function updateDisplayGroup()
-    group:insert(tableBackground)
-    group:insert(creditsTable.getTable())
-    group:insert(background)
+    group:insert(1, tableBackground)
+    group:insert(2, background)
+    if settingsTable and settingsTable.getTable then
+      local settingsTableView = settingsTable.getTable()
+      if useButtonsGroup then
+        if settingsTableView and settingsTableView.parent ~= buttonsGroup then
+          buttonsGroup:insert(settingsTableView)
+        end
+        group:insert(buttonsGroup)
+      else
+        group:insert(settingsTableView)
+      end
+    end
+    if creditsTable and creditsTable.getTable then
+      group:insert(creditsTable.getTable())
+    end
+    if infoTable and infoTable.getTable then
+      group:insert(infoTable.getTable())
+    end
     group:insert(username)
     group:insert(usernameTag)
+    if useButtonsGroup then
+      group:insert(buttonsGroup)
+    end
+    group:insert(homeButton)
     group:insert(editNameButton)
     group:insert(tableTitleText)
-    group:insert(homeButton)
+    if creditsTable and creditsTable.getTable then
+      creditsTable.getTable():toFront()
+    end
+    if infoTable and infoTable.getTable then
+      infoTable.getTable():toFront()
+    end
+    if useButtonsGroup and buttonsGroup then
+      buttonsGroup:toFront()
+    end
   end
 
   local function tableCallback(data)
@@ -222,7 +259,7 @@ function scene:create(event)
     composer.showOverlay("lua.overlays.editNotificationSettings", { isModal = true })
   end
 
-  settingsTable = tableHelper.new(482, 309, 150, 283, 38, "images/scenes/market/table.png", "settings", tableCallback)
+  settingsTable = tableHelper.new(0, 0, 150, 283, 38, "images/scenes/market/table.png", "settings", tableCallback)
 
   local function updateSettingsList()
     if composer.data.playerInfo.email then
@@ -315,7 +352,12 @@ function scene:create(event)
 
   function scene:overlayEnded(data)
     updateSettingsList()
-    settingsTable.refreshTable(settingsList, group, 1)
+    local targetGroup = group
+    if useButtonsGroup and buttonsGroup then
+      targetGroup = buttonsGroup
+    end
+    settingsTable.refreshTable(settingsList, targetGroup, 1)
+    updateDisplayGroup()
   end
 
   function httpsCallback(data)
@@ -342,54 +384,12 @@ function scene:create(event)
   local headerFontSize = 20
   local itemFontSize = 15
   addToCredits("")
-  addToCredits("Fun Run 2 V: " .. composer.config.fullVersion, headerFontSize)
-  addToCredits("")
-  addToCredits("facebook.com/funrungame", itemFontSize)
-  addToCredits("@TheFunRun", itemFontSize)
-  addToCredits("#funrun2", itemFontSize)
-  addToCredits("/r/funrun", itemFontSize)
+  addToCredits("FR2-Reborn V: " .. composer.config.fullVersion, headerFontSize)
   addToCredits("")
   addToCredits(composer.localized.get("Credits"), headerFontSize)
-  addToCredits("")
-  addToCredits("Dirtybit", headerFontSize)
-  addToCredits("Erlend B. Haugsdal", itemFontSize)
-  addToCredits("Nicolaj B. Petersen", itemFontSize)
-  addToCredits("Martin N. Vagstad", itemFontSize)
-  addToCredits("Fredrik Fors Hansen", itemFontSize)
-  addToCredits("Matthew Guise", itemFontSize)
-  addToCredits("Ida Vilhelmiina Oltedal", itemFontSize)
-  addToCredits("Aleksander Aa. Elvemo", itemFontSize)
-  addToCredits("Aurora K. Berg", itemFontSize)
-  addToCredits("Anne Marte Markussen", itemFontSize)
-  addToCredits("Maxime Montera", itemFontSize)
-  addToCredits("Kasper K. Berg", itemFontSize)
-  addToCredits("")
-  addToCredits(composer.localized.get("Sound design"), headerFontSize)
-  addToCredits("Martin Kvale", itemFontSize)
-  addToCredits("")
-  addToCredits(composer.localized.get("Character Assets"), headerFontSize)
-  addToCredits("Vellko Pajko", itemFontSize)
-  addToCredits("")
-  addToCredits(composer.localized.get("SpecialThanks"), headerFontSize)
-  addToCredits("Helene E. Wiik", itemFontSize)
-  addToCredits("Mirna Besirovic", itemFontSize)
-  addToCredits("Benedicte H. St\195\184rksen", itemFontSize)
-  addToCredits("Torstein Berteig", itemFontSize)
-  addToCredits("Silje Valla", itemFontSize)
-  addToCredits("James Portnow", itemFontSize)
-  addToCredits("")
-  addToCredits("")
-  addToCredits("")
-  addToCredits("")
-  addToCredits("Dirtybit.com", headerFontSize)
-  addToCredits("")
-  addToCredits("")
-  addToCredits("")
-  addToCredits("")
-  addToCredits("")
-  addToCredits("")
-  addToCredits("")
-  addToCredits("")
+  addToCredits("Malik Johnson", itemFontSize)
+  addToCredits("Aarav Gupta", itemFontSize)
+  addToCredits("UncBuddy", itemFontSize)
 
   local function creditsTableCallback()
   end
@@ -401,12 +401,18 @@ function scene:create(event)
   end
 
   local function createCredits()
-    creditsTable = tableHelper.new(158, 264, 300, 283, 22, nil, "credits", creditsTableCallback)
+    creditsTable = tableHelper.new(10, 80, 300, 283, 22, nil, "credits", creditsTableCallback)
     creditsTable.createTable(creditsTableData, group)
+  end
+
+  local function createInfoTable()
+    infoTable = tableHelper.new(240, 102, 300, 283, 22, nil, "credits", creditsTableCallback)
+    infoTable.createTable(infoTableData, group)
   end
 
   function clean()
     startedClean = true
+    display.remove(buttonsGroup)
     display.remove(homeButton)
     display.remove(editNameButton)
     if scrollTimer then
@@ -416,6 +422,9 @@ function scene:create(event)
     if creditsTable then
       creditsTable.cleanTable()
     end
+    if infoTable then
+      infoTable.cleanTable()
+    end
     if settingsTable then
       settingsTable.cleanTable()
     end
@@ -424,16 +433,25 @@ function scene:create(event)
   updateSettingsList()
   checkForFacebook()
   checkForLogout()
+  infoTableData[#infoTableData + 1] = { creditInfo = "NOTES", size = headerFontSize }
+  infoTableData[#infoTableData + 1] = { creditInfo = "" }
+  infoTableData[#infoTableData + 1] = { creditInfo = "Made for Fun Run 2 lovers" }
+  infoTableData[#infoTableData + 1] = { creditInfo = "Who wanted to feel a bit of" }
+  infoTableData[#infoTableData + 1] = { creditInfo = "nostalgia." }
+  infoTableData[#infoTableData + 1] = { creditInfo = "" }
+  infoTableData[#infoTableData + 1] = { creditInfo = "You asked for it, you got it." }
   createCredits()
-  updateDisplayGroup()
+  createInfoTable()
   composer.comm.setCallback(tcpCallback)
   composer.commHttps.setCallback(httpsCallback)
   settingsTable.createTable(settingsList, group)
+  updateDisplayGroup()
   updateUsername()
   scrollTimer = timer.performWithDelay(2000, scrollCredits, 1)
   if layoutSettings then
     layoutSettings()
   end
+  scene.setButtonsGrouped = setButtonsGrouped
 end
 
 function scene:show(event)

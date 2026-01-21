@@ -7,6 +7,7 @@ if "simulator" ~= system.getInfo("environment") then
   if success then notificationPlugin = plugin end
 end
 local backgroundImage, bearHead, logo, buttonStick
+local playerAvatarGroup, playerAvatar
 local btnPlay, btnSettings, btnRanking, btnFriends, btnCustomize, btnEarnCoins
 local tutorialLoadingScreen, loadText
 local layoutMainMenu, layoutSaleGroup, resizeListener
@@ -119,6 +120,18 @@ function scene:create(event)
     y = 0
   })
 
+  local monsterLoader = require("spine-corona.monsterLoader")
+  playerAvatarGroup = display.newGroup()
+  local avatarData = composer.database.getAvatarData()
+  playerAvatar = monsterLoader.new(avatarData, true)
+  if playerAvatar and playerAvatar.stopAllAnimation then
+    playerAvatar.stopAllAnimation()
+  end
+  local avatarGroup = playerAvatar.getGroup()
+  avatarGroup.xScale = 0.6
+  avatarGroup.yScale = 0.6
+  playerAvatarGroup:insert(avatarGroup)
+
   layoutMainMenu = function()
     local contentLeft = display.screenOriginX
     local contentTop = display.screenOriginY
@@ -140,6 +153,10 @@ function scene:create(event)
     if logo then
       logo.x = centerX
       logo.y = contentTop + contentHeight * 0.25
+    end
+    if playerAvatarGroup then
+      playerAvatarGroup.x = 200
+      playerAvatarGroup.y = 317
     end
     if buttonStick then
       buttonStick.x = centerX
@@ -307,6 +324,7 @@ function scene:create(event)
 
   local function updateDisplay()
     screenGroup:insert(backgroundImage)
+    screenGroup:insert(playerAvatarGroup)
     screenGroup:insert(logo)
     screenGroup:insert(buttonStick)
     screenGroup:insert(btnPlay)
@@ -333,6 +351,12 @@ function scene:create(event)
     display.remove(btnFriends)
     display.remove(btnCustomize)
     display.remove(btnEarnCoins)
+    if playerAvatar then
+      playerAvatar.clean()
+      playerAvatar = nil
+    end
+    display.remove(playerAvatarGroup)
+    playerAvatarGroup = nil
   end
 
   updateDisplay()

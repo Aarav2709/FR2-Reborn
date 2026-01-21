@@ -380,10 +380,14 @@ local function new(monsterData, networkFormat)
     }
     effectImageSheetInfo = composer.characterPowerUpEffectsImageSheetInfo
     effectImageSheet = composer.characterPowerUpEffectsImageSheet
-    effectsSequence = {
-      start = 1,
-      count = #effectImageSheetInfo:getSheet().frames
-    }
+    if effectImageSheetInfo and effectImageSheet then
+      effectsSequence = {
+        start = 1,
+        count = #effectImageSheetInfo:getSheet().frames
+      }
+    else
+      effectsSequence = nil
+    end
     spineLoader = spineInterface.newMonster()
     skeleton = spineLoader.getSkeleton()
     skeletonData = spineLoader.getSkeletonData()

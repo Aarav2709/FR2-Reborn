@@ -135,7 +135,7 @@ end
 
 local function buildSceneList(parent, startY)
     local listHeight = math.min(#sceneItems * rowHeight, 150)
-    
+
     sceneScrollView = widget.newScrollView({
         width = menuWidth,
         height = listHeight,
@@ -150,18 +150,18 @@ local function buildSceneList(parent, startY)
     local contentY = 0
     local current = composer.getSceneName("current")
     hoverRows = {}
-    
+
     for i = 1, #sceneItems do
         local sceneName = sceneItems[i]
         local fullName = "lua.scenes." .. sceneName
         local isSelected = (current == fullName)
-        
+
         local row = display.newGroup()
         local hover = display.newRect(row, menuWidth * 0.5, contentY + (rowHeight * 0.5), menuWidth, rowHeight)
         hover.isHitTestable = false
         hover:setFillColor(0.4, 0.4, 0.4)
         hover.alpha = 0
-        
+
         local label = display.newText({
             parent = row,
             text = isSelected and (sceneName .. " *") or sceneName,

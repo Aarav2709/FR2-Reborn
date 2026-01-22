@@ -35,10 +35,12 @@ function scene:create(event)
   end
 
   background = display.newImageRect("images/gui/ranking/main.png", 480, 320)
-  background.anchorX = 0
-  background.anchorY = 0
-  background.x = 0
-  background.y = 0
+  if background then
+    background.anchorX = 0
+    background.anchorY = 0
+    background.x = 0
+    background.y = 0
+  end
   layoutRanking = function()
     local contentLeft = display.screenOriginX
     local contentTop = display.screenOriginY

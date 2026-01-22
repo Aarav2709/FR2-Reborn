@@ -67,7 +67,7 @@ function scene:create(event)
   end
 
   composer.playerInfo = composer.database.getPlayerInformation()
-  backgroundImage = display.newImageRect("images/gui/common/bgMain.png", 480, 320)
+  backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 480, 320)
   bearHead = display.newImageRect("images/gui/common/bgMainBear.png", 62, 60)
   logo = display.newImageRect("images/gui/common/logo.png", 224, 135)
   buttonStick = display.newImageRect("images/gui/mainMenu/buttonPlayStick.png", 130, 120)

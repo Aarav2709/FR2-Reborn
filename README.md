@@ -48,15 +48,6 @@ Current issues include:
 
 These issues are expected and are part of ongoing fixes.
 
-## Running the Project
-
-1. Install the Solar2D Simulator
-2. Open the repository folder in the simulator
-3. Run on a **mobile device profile**, not desktop
-4. Expect visual glitches and broken layouts
-
-This project is **not plug-and-play**.
-
 ## Legal Notice
 
 This is a fan-made, non-commercial project.

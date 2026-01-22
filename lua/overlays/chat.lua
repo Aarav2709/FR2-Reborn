@@ -17,7 +17,7 @@ function scene:create(event)
   local actualMoveHeight = 0
   local lastPerson = ""
   local chatAddTimer, addListenersTimer
-  
+
   local function limitTextField(length)
     length = length or 1000
     return function(event)
@@ -34,7 +34,7 @@ function scene:create(event)
       end
     end
   end
-  
+
   local textFieldSize = 25
   if isAndroid then
     textFieldSize = 35
@@ -62,12 +62,12 @@ function scene:create(event)
   bottomTableBackground.anchorY = 1
   bottomTableBackground.x = 240
   bottomTableBackground.y = 320
-  
+
   local function closeButtonEvent()
     composer.hideOverlay()
     native.setKeyboardFocus(nil)
   end
-  
+
   local closeButton = composer.newButton({
     x = 360,
     y = 20,
@@ -76,18 +76,18 @@ function scene:create(event)
     image = "images/gui/common/buttonClosePopup.png",
     onRelease = closeButtonEvent
   })
-  
+
   local function tableCallback()
   end
-  
+
   local function getMapChangeText(id)
     local mapId = tonumber(id)
     local text = composer.localized.get("HostSelect") .. "some map"
     return text
   end
-  
+
   chatTable = tableHelper.new(130, 0, 220, 270, 138, nil, "chat", tableCallback)
-  
+
   local function generateChatMessage(data)
     local chatMessageType = data[2]
     local chatMessageFrom = data[3]
@@ -112,7 +112,7 @@ function scene:create(event)
     end
     return text
   end
-  
+
   local function addChatToTable(data, extraHeight)
     if startedClean then
       return
@@ -187,9 +187,9 @@ function scene:create(event)
     text:removeSelf()
     text = nil
   end
-  
+
   composer.chatListener = addChatToTable
-  
+
   local function moveToBottom()
     local chat = chatTable.getTable()
     local bottomTableY = tableHeight + chat:getContentPosition()
@@ -200,7 +200,7 @@ function scene:create(event)
       chat:scrollToY({y = newPos, time = 0})
     end
   end
-  
+
   local function closeOnTouchEvent(event)
     if event.phase == "ended" then
       composer.hideOverlay()
@@ -208,7 +208,7 @@ function scene:create(event)
     end
     return true
   end
-  
+
   local function doNothingOnTouchEvent(event)
     if keyboardIsUp and not isAndroid then
       moveText(false)
@@ -216,7 +216,7 @@ function scene:create(event)
     end
     return true
   end
-  
+
   local function sendButtonEvent()
     local chatMessage = chatTextField.text
     if isSimulator then
@@ -230,7 +230,7 @@ function scene:create(event)
     end
     return true
   end
-  
+
   local sendButton = composer.newButton({
     x = 426,
     y = 298,
@@ -239,7 +239,7 @@ function scene:create(event)
     image = "images/gui/customplay/buttonSendmsg.png",
     onRelease = sendButtonEvent
   })
-  
+
   function moveText(moveUp)
     local chat = chatTable.getTable()
     keyboardIsUp = moveUp
@@ -266,20 +266,20 @@ function scene:create(event)
       tcpClient.sendStopTyping()
     end
   end
-  
+
   local function updateDisplayGroup()
     group:insert(alphaBackground)
     group:insert(tableBackground)
     group:insert(closeButton)
   end
-  
+
   local function updateDisplayGroup2()
     group:insert(bottomTableBackground)
     group:insert(closeButton)
     group:insert(chatTextField)
     group:insert(sendButton)
   end
-  
+
   local function addListeners()
     if not startedClean then
       alphaBackground:addEventListener("touch", closeOnTouchEvent)
@@ -287,7 +287,7 @@ function scene:create(event)
       tableBackground:addEventListener("tap", doNothingOnTouchEvent)
     end
   end
-  
+
   function clean()
     if startedClean then
       return
@@ -313,13 +313,15 @@ function scene:create(event)
     tableBackground:removeEventListener("touch", doNothingOnTouchEvent)
     tableBackground:removeEventListener("tap", doNothingOnTouchEvent)
   end
-  
+
   updateDisplayGroup()
   chatTable.createTable({}, group)
   updateDisplayGroup2()
   addListenersTimer = timer.performWithDelay(200, addListeners)
-  for i = 1, #composer.data.chatLog do
-    addChatToTable(composer.data.chatLog[i])
+  if composer.data.chatLog then
+    for i = 1, #composer.data.chatLog do
+      addChatToTable(composer.data.chatLog[i])
+    end
   end
   moveToBottom()
   originalSendButtonY = sendButton.y
@@ -339,11 +341,11 @@ function scene:show(event)
     return
   end
   local androidLogic = require("lua.modules.androidBackButton")
-  
+
   function cleanEnter()
     androidLogic.isOverlay(false)
   end
-  
+
   androidLogic.isOverlay(true)
 end
 

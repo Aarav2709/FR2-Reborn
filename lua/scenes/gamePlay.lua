@@ -357,6 +357,9 @@ function scene:show(event)
   end
 
   local function updateArrow()
+    if not playerSelf then
+      return
+    end
     if playerSelf.ninjaMark then
       selfHuntersMark.alpha = 1
     else
@@ -1153,16 +1156,16 @@ function scene:show(event)
   end
 
   local function updateLayers()
-    UIgroup:insert(homeButton)
-    UIgroup:insert(positionNumber)
-    UIgroup:insert(killMessagesGroup)
-    jumpButtonGroup:insert(jumpButton)
-    jumpButtonGroup:insert(jumpButtonImage)
-    powerUpButtonGroup:insert(powerupButtonImage)
-    powerUpButtonGroup:insert(powerUpButtonFX)
-    powerUpButtonGroup:insert(powerUpImage)
-    powerUpButtonGroup:insert(shineEffect)
-    screenGroup:insert(UIgroup)
+    if UIgroup and homeButton then UIgroup:insert(homeButton) end
+    if UIgroup and positionNumber then UIgroup:insert(positionNumber) end
+    if UIgroup and killMessagesGroup then UIgroup:insert(killMessagesGroup) end
+    if jumpButtonGroup and jumpButton then jumpButtonGroup:insert(jumpButton) end
+    if jumpButtonGroup and jumpButtonImage then jumpButtonGroup:insert(jumpButtonImage) end
+    if powerUpButtonGroup and powerupButtonImage then powerUpButtonGroup:insert(powerupButtonImage) end
+    if powerUpButtonGroup and powerUpButtonFX then powerUpButtonGroup:insert(powerUpButtonFX) end
+    if powerUpButtonGroup and powerUpImage then powerUpButtonGroup:insert(powerUpImage) end
+    if powerUpButtonGroup and shineEffect then powerUpButtonGroup:insert(shineEffect) end
+    if screenGroup and UIgroup then screenGroup:insert(UIgroup) end
   end
 
   local function updateDisplayGroup()
@@ -1250,6 +1253,10 @@ function scene:show(event)
   end
 
   local function startNetworkCountdown()
+    if not composer.data.gameInfo.timeToStartGame then
+      localCountdownTimer = timer.performWithDelay(1000, localCountdown, 7)
+      return
+    end
     local timeToStartGame = composer.data.gameInfo.timeToStartGame - system.getTimer()
     local restTime = timeToStartGame % 1000
     local ticks = math.floor((timeToStartGame - restTime) / 1000)
@@ -1293,17 +1300,27 @@ function scene:show(event)
       playerList[i].connected = false
       playerList[i].setKillMessageFunction(createKillText)
     end
+    if not playerSelf and #playerList > 0 then
+      playerSelf = playerList[1]
+      playerPosition = #playerList
+      playerSelf.setUpdatePowerUpImageFunction(updatePowerUpImage)
+      playerSelf.mobileUser = true
+    end
     powerUps.init()
     powerUps.addPlaySoundFunction(playSound)
-    updatePowerUpImage(playerSelf.getPowerUp())
+    if playerSelf then
+      updatePowerUpImage(playerSelf.getPowerUp())
+    end
     for i = 1, #playerList do
       bottomBarList[i] = playerList[i].getPlayerHead()
       bottomBarList[i].x = playerList[i].x / (mapInterface.getLength() - 10) * bottomBarLength2 + bottomBarLength
       bottomBarList[i].y = display.contentHeight
       UIgroup:insert(bottomBarList[i])
     end
-    UIgroup:insert(bottomBarList[playerSelf.id])
-    updatePositionNumber(playerPosition)
+    if playerSelf then
+      UIgroup:insert(bottomBarList[playerSelf.id])
+      updatePositionNumber(playerPosition)
+    end
     playerTimer = timer.performWithDelay(100, updatePlayers, 0)
     shineTimer = timer.performWithDelay(4000, playShineEffect, 0)
     if networkGame then

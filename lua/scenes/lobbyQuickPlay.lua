@@ -17,8 +17,8 @@ function scene:create(event)
     playerAvatarImage = {}
     playerText = {}
     avatarDisplayGroupList = {}
-    backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 480, 320)
-    backgroundImage2 = display.newImageRect("images/gui/common/bgMain.png", 480, 320)
+    backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 1920, 1080)
+    -- backgroundImage2 = display.newImageRect("images/gui/common/bgMain.png", 1920, 1080)
     backgroundImage2.alpha = 0
     voteText = composer.newText({
         string = composer.localized.get("Vote"),

@@ -349,7 +349,7 @@ local function new(monsterData, networkFormat)
         0
       }
     end
-    id = monsterData[1]
+    id = tonumber(monsterData[1]) or monsterData[1]
     skin = tonumber(monsterData[2])
     hat = monsterData[3]
     facewear = monsterData[4]
@@ -357,7 +357,7 @@ local function new(monsterData, networkFormat)
     item = monsterData[6]
     boots = monsterData[7]
     runningType = composer.storeConfig.getRunningType(monsterData[1])
-    if id == nil or skin == nil then
+    if type(id) ~= "number" or skin == nil then
       id = 1
       skin = 0
     else

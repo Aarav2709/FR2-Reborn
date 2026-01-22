@@ -26,7 +26,7 @@ function scene:create(event)
   local moneyValue = composer.database.getMoney()
   local boughtItems = composer.database.getItems()
   local startedClean = false
-  marketBackground = display.newImageRect("images/gui/market/bg.png", 480, 320)
+  marketBackground = display.newImageRect("images/gui/market/bg.png", 1920, 1080)
   marketBackground.anchorX = 0
   marketBackground.anchorY = 0
   marketBackground.x = 0

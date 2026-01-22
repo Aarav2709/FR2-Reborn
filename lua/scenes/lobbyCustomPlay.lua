@@ -16,8 +16,8 @@ function scene:create(event)
     playerText = {}
     startGame = false
     avatarDisplayGroupList = {}
-    backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 480, 320)
-    backgroundImage2 = display.newImageRect("images/gui/common/bgMain.png", 480, 320)
+    backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 1920, 1080)
+    -- backgroundImage2 = display.newImageRect("images/gui/common/bgMain.png", 1920, 1080)
     tableBackground = display.newImageRect("images/gui/ranking/cell.png", 480, 320)
     titleText = composer.newText({
         string = composer.localized.get("InviteFriends"),

@@ -2,6 +2,12 @@
 local composer = require("composer")
 local M = {}
 
+local colTitleBg = { 0.18, 0.45, 0.85, 1 }
+local colMenuBg = { 0.08, 0.08, 0.08, 0.9 }
+local colText = { 1, 1, 1, 1 }
+local colHeader = { 1, 0.78, 0, 1 }
+local colShortcut = { 0.7, 0.7, 0.7, 1 }
+
 M.enabled = false
 M.selectedObject = nil
 M.infoText = nil
@@ -44,6 +50,11 @@ M.showHidden = false
 
 M.objectListPanel = nil
 M.objectListItems = {}
+M.hudDragX = 0
+M.hudDragY = 0
+M.infoLines = {}
+M.hudPosX = 20
+M.hudPosY = 40
 
 local function getUniqueId(obj)
   if not obj then return "nil" end
@@ -326,75 +337,135 @@ local function getHandleAtPoint(x, y)
 end
 
 local function createUI()
-  if M.infoBackground then pcall(function() M.infoBackground:removeSelf() end) end
-  if M.infoText then pcall(function() M.infoText:removeSelf() end) end
+  if M.hudGroup then display.remove(M.hudGroup); M.hudGroup = nil end
 
-  M.infoBackground = display.newRect(display.contentCenterX, 50, 1000, 100)
-  M.infoBackground:setFillColor(0, 0, 0, 0.9)
-  M.infoBackground.strokeWidth = 3
-  M.infoBackground:setStrokeColor(0, 1, 0)
-  M.infoBackground._isDevUI = true
+  M.hudGroup = display.newGroup()
+  M.hudGroup.x, M.hudGroup.y = M.hudPosX, M.hudPosY
+  M.hudGroup.alpha = 0
 
-  local modeText = M.resizeMode and "[RESIZE]" or "[MOVE]"
-  local hiddenText = M.showHidden and " +HIDDEN" or ""
-  M.infoText = display.newText({
-    text = string.format("DEV %s%s | Zoom: %.0f%% | R=resize H=hidden | [ ]=z-order | Scroll=zoom MMB=pan",
-      modeText, hiddenText, M.zoomLevel * 100),
-    x = display.contentCenterX,
-    y = 50,
-    width = 980,
-    fontSize = 16,
-    font = native.systemFontBold,
-    align = "center"
+  local hudWidth = 260
+  local hudHeight = 160
+  local padding = 10
+
+  local bg = display.newRect(M.hudGroup, 0, 0, hudWidth, hudHeight)
+  bg.anchorX, bg.anchorY = 0, 0
+  bg:setFillColor(unpack(colMenuBg))
+  M.infoBackground = bg
+
+  local titleBar = display.newRect(M.hudGroup, 0, -22, hudWidth, 22)
+  titleBar.anchorX, titleBar.anchorY = 0, 0
+  titleBar:setFillColor(unpack(colTitleBg))
+  titleBar.isHitTestable = true
+
+  local titleText = display.newText({
+    parent = M.hudGroup,
+    text = "DEV",
+    x = padding, y = -11,
+    font = native.systemFontBold, fontSize = 12
   })
-  M.infoText:setFillColor(0, 1, 0)
-  M.infoText._isDevUI = true
+  titleText.anchorX = 0
+
+  M.infoText = display.newText({
+    parent = M.hudGroup,
+    text = "",
+    x = padding, y = padding,
+    width = hudWidth - (padding * 2),
+    font = native.systemFont, fontSize = 13,
+    align = "left"
+  })
+  M.infoText.anchorX, M.infoText.anchorY = 0, 0
+  M.infoText.isVisible = false
+
+  local function onDrag(event)
+    if event.phase == "began" then
+      display.getCurrentStage():setFocus(titleBar)
+      titleBar.isFocus = true
+      M.hudDragX = event.x - M.hudGroup.x
+      M.hudDragY = event.y - M.hudGroup.y
+    elseif titleBar.isFocus and event.phase == "moved" then
+      M.hudGroup.x = event.x - M.hudDragX
+      M.hudGroup.y = event.y - M.hudDragY
+      M.hudPosX = M.hudGroup.x
+      M.hudPosY = M.hudGroup.y
+    else
+      display.getCurrentStage():setFocus(nil)
+      titleBar.isFocus = false
+      M.hudPosX = M.hudGroup.x
+      M.hudPosY = M.hudGroup.y
+    end
+    return true
+  end
+  titleBar:addEventListener("touch", onDrag)
+
+  transition.to(M.hudGroup, { time = 300, alpha = 1, y = 60, transition = easing.outQuad })
 end
 
 local function updateUI()
-  if not M.infoText then return end
-
   local obj = M.selectedObject
-  local modeText = M.resizeMode and "[RESIZE]" or "[MOVE]"
-  local hiddenText = M.showHidden and " +HIDDEN" or ""
+  local modeText = M.resizeMode and "RESIZE" or "MOVE"
+  local hiddenText = M.showHidden and "ON" or "OFF"
 
-  if not obj then
-    M.infoText.text = string.format(
-      "DEV %s%s | Zoom: %.0f%% | R=resize H=hidden | [ ]=z-order | Scroll=zoom MMB=pan | D=exit",
-      modeText, hiddenText, M.zoomLevel * 100)
-    return
+  for i = 1, #M.infoLines do
+    if M.infoLines[i] then
+      display.remove(M.infoLines[i])
+    end
+  end
+  M.infoLines = {}
+
+  local padding = 10
+  local lineY = padding
+  local lineGap = 14
+  local width = 260 - (padding * 2)
+
+  local function addLine(text, color, size, indent)
+    local t = display.newText({
+      parent = M.hudGroup,
+      text = text,
+      x = padding + (indent or 0),
+      y = lineY,
+      width = width - (indent or 0),
+      font = native.systemFont,
+      fontSize = size or 12,
+      align = "left"
+    })
+    t.anchorX, t.anchorY = 0, 0
+    t:setFillColor(unpack(color))
+    M.infoLines[#M.infoLines + 1] = t
+    lineY = lineY + lineGap
   end
 
-  local info = getObjectInfo(obj)
-  local name = getObjectName(obj)
-  local count = #M.objectsAtPoint
-  local zIndex = getObjectZIndex(obj)
-
-  local x1080 = math.floor(info.x or 0)
-  local y1080 = math.floor(info.y or 0)
-  local w = math.floor(info.width or 0)
-  local h = math.floor(info.height or 0)
-
-  local isHidden = (info.isVisible == false) or (info.alpha and info.alpha <= 0)
-  local hiddenTag = isHidden and " [HIDDEN]" or ""
-
-  local cycleText = ""
-  if count > 1 then
-    cycleText = string.format(" [%d/%d]", M.currentObjectIndex, count)
+  addLine("STATUS", colHeader, 12, 0)
+  addLine(string.format("Mode: %s", modeText), colText, 12, 8)
+  addLine(string.format("Zoom: %.0f%%", M.zoomLevel * 100), colText, 12, 8)
+  addLine(string.format("Hidden: %s", hiddenText), colText, 12, 8)
+  lineY = lineY + 6
+  addLine("SELECTION", colHeader, 12, 0)
+  if obj then
+    local info = getObjectInfo(obj)
+    local name = getObjectName(obj)
+    local zIndex = getObjectZIndex(obj)
+    local cycle = #M.objectsAtPoint > 1 and string.format(" (%d/%d)", M.currentObjectIndex, #M.objectsAtPoint) or ""
+    local x1080 = math.floor(info.x or 0)
+    local y1080 = math.floor(info.y or 0)
+    local w = math.floor(info.width or 0)
+    local h = math.floor(info.height or 0)
+    local isHidden = (info.isVisible == false) or (info.alpha and info.alpha <= 0)
+    local hiddenTag = isHidden and " [HIDDEN]" or ""
+    addLine(string.format("Target: %s%s%s", name, cycle, hiddenTag), colText, 12, 8)
+    addLine(string.format("Layer: %d", zIndex), colText, 12, 8)
+    lineY = lineY + 6
+    addLine("TRANSFORM", colHeader, 12, 0)
+    addLine(string.format("Pos: %d, %d", x1080, y1080), colText, 12, 8)
+    addLine(string.format("Size: %d x %d", w, h), colText, 12, 8)
+  else
+    addLine("Target: None", colText, 12, 8)
+    lineY = lineY + 6
+    addLine("TRANSFORM", colHeader, 12, 0)
+    addLine("Pos: --", colText, 12, 8)
+    addLine("Size: --", colText, 12, 8)
   end
 
-  M.infoText.text = string.format(
-    "%s %s%s%s | z-index: %d\nPos: (%d, %d) | Size: %dx%d | Zoom: %.0f%%",
-    modeText, name, cycleText, hiddenTag, zIndex, x1080, y1080, w, h, M.zoomLevel * 100
-  )
-
-  print("")
-  print("=== SELECTED ===")
-  print("Name: " .. name .. hiddenTag)
-  print("Z-Index: " .. zIndex)
-  print(string.format("x=%d, y=%d", x1080, y1080))
-  print(string.format("size: %dx%d", w, h))
-  print("================")
+  M.hudGroup:toFront()
 end
 
 local function updateHighlight()
@@ -872,8 +943,8 @@ function M.enable()
   Runtime:addEventListener("mouse", onMouseWheel)
 
   createUI()
-  M.infoBackground:toFront()
-  M.infoText:toFront()
+  if M.hudGroup then M.hudGroup:toFront() end
+  if M.infoText then M.infoText:toFront() end
 
   print("")
   print("================================================")
@@ -927,6 +998,19 @@ function M.disable()
   Runtime:removeEventListener("mouse", onMouseWheel)
   removeHandles()
 
+  if M.hudGroup then
+    transition.to(M.hudGroup, {
+      time = 200,
+      alpha = 0,
+      y = 40,
+      onComplete = function()
+        display.remove(M.hudGroup)
+        M.hudGroup = nil
+        M.infoText = nil
+      end
+    })
+  end
+
   if M.touchOverlay then
     pcall(function()
       M.touchOverlay:removeEventListener("touch", onTouch)
@@ -937,10 +1021,6 @@ function M.disable()
   if M.infoBackground then
     pcall(function() M.infoBackground:removeSelf() end)
     M.infoBackground = nil
-  end
-  if M.infoText then
-    pcall(function() M.infoText:removeSelf() end)
-    M.infoText = nil
   end
   if M.highlightRect then
     pcall(function() M.highlightRect:removeSelf() end)

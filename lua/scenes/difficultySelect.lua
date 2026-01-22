@@ -11,7 +11,7 @@ function scene:create(event)
   local screenGroup = self.view
 
   -- Background
-  backgroundImage = display.newImageRect("images/gui/common/bgMain.png", 480, 320)
+  backgroundImage = display.newImageRect("images/gui/common/bgMain.png", 1920, 1080)
   screenGroup:insert(backgroundImage)
 
   -- Title

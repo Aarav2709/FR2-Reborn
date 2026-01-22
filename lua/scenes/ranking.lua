@@ -34,7 +34,7 @@ function scene:create(event)
     return chanceList
   end
 
-  background = display.newImageRect("images/gui/ranking/main.png", 480, 320)
+  background = display.newImageRect("images/gui/ranking/main.png", 1920, 1080)
   if background then
     background.anchorX = 0
     background.anchorY = 0

@@ -1,458 +1,477 @@
 local composer = require("composer")
 local lfs = require("lfs")
+local widget = require("widget")
 
 local M = {}
-local menuGroup
-local panel
-local headerBar
-local title
-local scenesButton
-local devToolsButton
-local placeholdersButton
-local postLobbyButtonsButton
-local backButton
-local resizeHandle
-local scenesContainer
-local scenesGroup
+
+local fontName = native.systemFontBold
+local fontSize = 12
+local rowHeight = 22
+local menuWidth = 220
+local paddingX = 8
+
+local colTitleBg = { 0.2, 0.53, 0.86, 1 }
+local colMenuBg = { 0.08, 0.08, 0.08, 0.95 }
+local colText = { 1, 1, 1, 1 }
+local colHeader = { 1, 0.78, 0, 1 }
+local colLine = { 0.3, 0.3, 0.3, 1 }
+local menuOpen = false
+local menuGroup = nil
+local scenesExpanded = false
+local overlaysExpanded = false
 local sceneItems = {}
-local scenesContainerHasListener = false
-local isOpen = false
-local isScenesOpen = false
-local placeholdersVisible = true
-local postLobbyButtonsVisible = true
-local resizeListener
-local isDragging = false
-local dragOffsetX = 0
-local dragOffsetY = 0
-local isResizing = false
-local resizeStartX = 0
-local resizeStartY = 0
-local resizeStartW = 0
-local resizeStartH = 0
-local panelWidth = 360
-local panelHeight = 260
-local headerHeight = 28
-local scenesScrollY = 0
-local scenesMaxScroll = 0
-local isScrolling = false
-local scrollStartY = 0
-local scrollStartOffset = 0
-local lastSceneName
-local onScenesScroll
-local onScenesWheel
+local overlayItems = {}
+local lastSceneName = nil
+local placeholdersEnabled = false
+local buttonsEnabled = false
+local sceneScrollView = nil
+local sceneScrollMax = 0
+local sceneScrollY = 0
+local dragStartX = 0
+local dragStartY = 0
+local menuPosX = display.contentCenterX - (menuWidth * 0.5)
+local menuPosY = display.contentCenterY - 100
+local seedOverlayData = false
+local hoverRows = {}
+local lastMouseX = nil
+local lastMouseY = nil
 
-local function setDevUI(obj)
-    if obj then
-        obj._isDevUI = true
-    end
+local clickSound = audio.loadSound("sound/sfx_button_press.wav")
+
+local function playClick()
+    if clickSound then audio.play(clickSound) end
 end
 
-local function listScenes()
-    local scenes = {}
-    local basePath = system.pathForFile("lua/scenes", system.ResourceDirectory)
-    if not basePath then
-        return scenes
-    end
-
-    for file in lfs.dir(basePath) do
-        if file:match("%.lua$") then
-            local name = file:gsub("%.lua$", "")
-            scenes[#scenes + 1] = "lua.scenes." .. name
-        end
-    end
-
-    table.sort(scenes)
-    return scenes
-end
-
-local function clearSceneItems()
-    for i = 1, #sceneItems do
-        if sceneItems[i] then
-            pcall(function() sceneItems[i]:removeSelf() end)
-            sceneItems[i] = nil
-        end
-    end
+local function refreshSceneList()
     sceneItems = {}
+    local scenePath = system.pathForFile("lua/scenes", system.ResourceDirectory)
+    if not scenePath then return end
+    for file in lfs.dir(scenePath) do
+        if file ~= "." and file ~= ".." and file:sub(-4) == ".lua" then
+            sceneItems[#sceneItems + 1] = file:sub(1, -5)
+        end
+    end
+    table.sort(sceneItems)
 end
 
-local function buildSceneList(container, startX, startY, maxHeight)
-    if not scenesContainer then
-        scenesContainer = display.newContainer(1, 1)
-        container:insert(scenesContainer)
-        setDevUI(scenesContainer)
-        scenesContainerHasListener = false
+local function refreshOverlayList()
+    overlayItems = {}
+    local overlayPath = system.pathForFile("lua/overlays", system.ResourceDirectory)
+    if not overlayPath then return end
+    for file in lfs.dir(overlayPath) do
+        if file ~= "." and file ~= ".." and file:sub(-4) == ".lua" then
+            if file ~= "customOverlay.lua" then
+                local fullPath = overlayPath .. "\\" .. file
+                local fh = io.open(fullPath, "r")
+                if fh then
+                    local content = fh:read("*a")
+                    fh:close()
+                    if content and content:find("composer%.newScene") and content:find("return%s+scene") then
+                        overlayItems[#overlayItems + 1] = file:sub(1, -5)
+                    end
+                end
+            end
+        end
     end
-    if not scenesGroup then
-        scenesGroup = display.newGroup()
-        scenesContainer:insert(scenesGroup)
-        setDevUI(scenesGroup)
-    end
-
-    scenesContainer.width = panelWidth - 24
-    scenesContainer.height = maxHeight
-    scenesContainer.x = startX + scenesContainer.width * 0.5
-    scenesContainer.y = startY + scenesContainer.height * 0.5
-    scenesContainer.isVisible = isScenesOpen
-    scenesGroup.x = 0
-    scenesGroup.y = -scenesScrollY
-
-    clearSceneItems()
-
-    if not isScenesOpen then
-        return
-    end
-
-    if scenesContainer and not scenesContainerHasListener and onScenesScroll then
-        scenesContainer.isHitTestable = true
-        scenesContainer:addEventListener("touch", onScenesScroll)
-        scenesContainerHasListener = true
-    end
-
-    local scenes = listScenes()
-    local lineHeight = 24
-    local leftEdge = -scenesContainer.width * 0.5
-    local topEdge = -scenesContainer.height * 0.5
-    local y = topEdge + lineHeight * 0.5
-    for i = 1, #scenes do
-        local sceneName = scenes[i]
-        local label = display.newText({
-            text = sceneName,
-            x = leftEdge + 6,
-            y = y,
-            fontSize = 16,
-            align = "left",
-            width = 480
-        })
-        label.anchorX = 0
-        label:setFillColor(1, 1, 1)
-        setDevUI(label)
-        scenesGroup:insert(label)
-        sceneItems[#sceneItems + 1] = label
-
-        label:addEventListener("tap", function()
-            M.close()
-            lastSceneName = composer.getSceneName("current")
-            composer.gotoScene(sceneName)
-            return true
-        end)
-        y = y + lineHeight
-    end
-    local totalHeight = #scenes * lineHeight
-    scenesMaxScroll = math.max(0, totalHeight - maxHeight)
-    scenesScrollY = math.min(scenesScrollY, scenesMaxScroll)
-    scenesGroup.y = -scenesScrollY
+    table.sort(overlayItems)
 end
 
-local function updateLayout()
-  if not panel or not menuGroup then
-    return
-  end
-
-  panel.width = panelWidth
-  panel.height = panelHeight
-  panel.x = panel.x
-  panel.y = panel.y
-
-  if headerBar then
-    headerBar.width = panelWidth
-    headerBar.height = headerHeight
-    headerBar.x = panel.x + panelWidth * 0.5
-    headerBar.y = panel.y + headerHeight * 0.5
-  end
-  if title then
-    title.x = panel.x + panelWidth * 0.5
-    title.y = panel.y + headerHeight * 0.5
-  end
-  if scenesButton then
-    scenesButton.group.x = panel.x + 70
-    scenesButton.group.y = panel.y + headerHeight + 20
-  end
-  if devToolsButton then
-    devToolsButton.group.x = panel.x + panelWidth - 70
-    devToolsButton.group.y = panel.y + headerHeight + 20
-  end
-  if placeholdersButton then
-    placeholdersButton.group.x = panel.x + panelWidth * 0.5
-    placeholdersButton.group.y = panel.y + headerHeight + 84
-  end
-  if postLobbyButtonsButton then
-    postLobbyButtonsButton.group.x = panel.x + panelWidth * 0.5
-    postLobbyButtonsButton.group.y = panel.y + headerHeight + 116
-  end
-  if backButton then
-    backButton.x = panel.x + panelWidth * 0.5
-    backButton.y = panel.y + headerHeight + 148
-  end
-  if resizeHandle then
-    resizeHandle.x = panel.x + panelWidth - 8
-    resizeHandle.y = panel.y + panelHeight - 8
-  end
-
-  buildSceneList(menuGroup, panel.x + 12, panel.y + headerHeight + 48, panelHeight - headerHeight - 60)
-end
-
-local function buildMenu()
+local function clearMenu()
     if menuGroup then
-        return
+        display.remove(menuGroup)
+        menuGroup = nil
+        sceneScrollView = nil
+    end
+    hoverRows = {}
+end
+
+local function addSeparator(group, currentY)
+    local lineY = currentY + 2
+    local line = display.newLine(group, 0, lineY, menuWidth, lineY)
+    line:setStrokeColor(unpack(colLine))
+    line.strokeWidth = 1
+    return currentY + 5
+end
+
+local function addRow(group, currentY, textStr, isHeader, hasArrow, onTap)
+    local color = isHeader and colHeader or colText
+    local rowGroup = display.newGroup()
+    group:insert(rowGroup)
+
+    local t = display.newText({
+        parent = rowGroup,
+        text = textStr,
+        x = paddingX,
+        y = currentY + (rowHeight * 0.5),
+        font = fontName,
+        fontSize = fontSize
+    })
+    t.anchorX, t.anchorY = 0, 0.5
+    t:setFillColor(unpack(color))
+
+    if hasArrow then
+        local arrowSize = 4
+        local arrowX = menuWidth - paddingX - arrowSize
+        local arrowY = currentY + (rowHeight * 0.5)
+        local rotation = scenesExpanded and 90 or 0
+        local arrow = display.newPolygon(rowGroup, arrowX, arrowY, { 0,-arrowSize, arrowSize,0, 0,arrowSize })
+        arrow:setFillColor(1, 1, 1)
+        arrow.rotation = rotation
     end
 
-    menuGroup = display.newGroup()
-    setDevUI(menuGroup)
-
-    panel = display.newRoundedRect(menuGroup, display.screenOriginX + 16, display.screenOriginY + 16,
-        panelWidth, panelHeight, 10)
-    panel.anchorX = 0
-    panel.anchorY = 0
-    panel:setFillColor(0.1, 0.1, 0.1, 0.95)
-    panel.strokeWidth = 2
-    panel:setStrokeColor(0.2, 0.6, 0.9)
-    setDevUI(panel)
-
-    headerBar = display.newRoundedRect(menuGroup, panel.x + panelWidth * 0.5, panel.y + headerHeight * 0.5,
-        panelWidth, headerHeight, 10)
-    headerBar:setFillColor(0.15, 0.2, 0.3, 0.95)
-    headerBar.strokeWidth = 0
-    setDevUI(headerBar)
-
-    title = display.newText({
-        text = "DEV MENU",
-        x = headerBar.x,
-        y = headerBar.y,
-        fontSize = 14
-    })
-    title:setFillColor(0.9, 0.95, 1)
-    setDevUI(title)
-    menuGroup:insert(title)
-
-    local function makeButton(labelText, x, y, onTap)
-        local btnGroup = display.newGroup()
-        menuGroup:insert(btnGroup)
-        setDevUI(btnGroup)
-
-        local btn = display.newRoundedRect(btnGroup, x, y, 120, 26, 6)
-        btn:setFillColor(0.2, 0.2, 0.2, 0.95)
-        btn.strokeWidth = 2
-        btn:setStrokeColor(0.3, 0.7, 1)
-        setDevUI(btn)
-
-        local label = display.newText({
-            text = labelText,
-            x = x,
-            y = y,
-            fontSize = 12
-        })
-        label:setFillColor(1, 1, 1)
-        setDevUI(label)
-        btnGroup:insert(label)
-
-        btnGroup:addEventListener("tap", function()
+    if onTap then
+        local hit = display.newRect(rowGroup, menuWidth * 0.5, currentY + (rowHeight * 0.5), menuWidth, rowHeight)
+        hit.isVisible = false
+        hit.isHitTestable = true
+        hit:addEventListener("tap", function()
+            playClick()
             onTap()
             return true
         end)
-        return btnGroup
     end
 
-    scenesButton = { group = makeButton("Scenes", 0, 0, function()
-        isScenesOpen = not isScenesOpen
-        updateLayout()
-    end) }
+    return currentY + rowHeight
+end
 
-    devToolsButton = { group = makeButton("DevTools", 0, 0, function()
-        if composer.devTools and composer.devTools.enabled then
-            composer.devTools.disable()
-        elseif composer.devTools then
-            composer.devTools.enable()
-        end
-    end) }
+local function buildSceneList(parent, startY)
+    local listHeight = math.min(#sceneItems * rowHeight, 150)
+    
+    sceneScrollView = widget.newScrollView({
+        width = menuWidth,
+        height = listHeight,
+        horizontalScrollDisabled = true,
+        hideBackground = true,
+        top = startY,
+        left = 0,
+        backgroundColor = {0,0,0,0.2}
+    })
+    parent:insert(sceneScrollView)
 
-    placeholdersButton = { group = makeButton("PostLobby UI", 0, 0, function()
-        placeholdersVisible = not placeholdersVisible
-        local sceneObj = composer.getScene("lua.scenes.postLobby")
-        if sceneObj and sceneObj.setPostLobbyPlaceholdersVisible then
-            sceneObj.setPostLobbyPlaceholdersVisible(placeholdersVisible)
-        end
-    end) }
+    local contentY = 0
+    local current = composer.getSceneName("current")
+    hoverRows = {}
+    
+    for i = 1, #sceneItems do
+        local sceneName = sceneItems[i]
+        local fullName = "lua.scenes." .. sceneName
+        local isSelected = (current == fullName)
+        
+        local row = display.newGroup()
+        local hover = display.newRect(row, menuWidth * 0.5, contentY + (rowHeight * 0.5), menuWidth, rowHeight)
+        hover.isHitTestable = false
+        hover:setFillColor(0.4, 0.4, 0.4)
+        hover.alpha = 0
+        
+        local label = display.newText({
+            parent = row,
+            text = isSelected and (sceneName .. " *") or sceneName,
+            x = paddingX * 2,
+            y = contentY + (rowHeight * 0.5),
+            font = fontName,
+            fontSize = fontSize
+        })
+        label.anchorX = 0
+        label:setFillColor(unpack(colText))
 
-    postLobbyButtonsButton = { group = makeButton("PostLobby Buttons", 0, 0, function()
-        postLobbyButtonsVisible = not postLobbyButtonsVisible
-        local sceneObj = composer.getScene("lua.scenes.postLobby")
-        if sceneObj and sceneObj.setPostLobbyButtonsVisible then
-            sceneObj.setPostLobbyButtonsVisible(postLobbyButtonsVisible)
-        end
-    end) }
+        local hit = display.newRect(row, menuWidth * 0.5, contentY + (rowHeight * 0.5), menuWidth, rowHeight)
+        hit.isVisible = false
+        hit.isHitTestable = true
+        hit:addEventListener("tap", function()
+            playClick()
+            composer.gotoScene(fullName)
+            return true
+        end)
 
-    backButton = makeButton("Back", 0, 0, function()
-        if lastSceneName and lastSceneName ~= "" then
-            M.close()
-            composer.gotoScene(lastSceneName)
-        end
+        sceneScrollView:insert(row)
+        contentY = contentY + rowHeight
+        hoverRows[#hoverRows + 1] = hover
+    end
+
+    sceneScrollMax = math.max(0, contentY - listHeight)
+    sceneScrollY = 0
+    return startY + listHeight
+end
+
+local function buildOverlayList(parent, startY)
+    local listHeight = math.min(#overlayItems * rowHeight, 150)
+
+    sceneScrollView = widget.newScrollView({
+        width = menuWidth,
+        height = listHeight,
+        horizontalScrollDisabled = true,
+        hideBackground = true,
+        top = startY,
+        left = 0,
+        backgroundColor = {0,0,0,0.2}
+    })
+    parent:insert(sceneScrollView)
+
+    local contentY = 0
+    hoverRows = {}
+    for i = 1, #overlayItems do
+        local overlayName = overlayItems[i]
+        local fullName = "lua.overlays." .. overlayName
+        local row = display.newGroup()
+        local hover = display.newRect(row, menuWidth * 0.5, contentY + (rowHeight * 0.5), menuWidth, rowHeight)
+        hover.isHitTestable = false
+        hover:setFillColor(0.4, 0.4, 0.4)
+        hover.alpha = 0
+        local label = display.newText({
+            parent = row,
+            text = overlayName,
+            x = paddingX * 2,
+            y = contentY + (rowHeight * 0.5),
+            font = fontName,
+            fontSize = fontSize
+        })
+        label.anchorX = 0
+        label:setFillColor(unpack(colText))
+
+        local hit = display.newRect(row, menuWidth * 0.5, contentY + (rowHeight * 0.5), menuWidth, rowHeight)
+        hit.isVisible = false
+        hit.isHitTestable = true
+        hit:addEventListener("tap", function()
+            playClick()
+            if seedOverlayData then
+                composer.data = composer.data or {}
+                if overlayName == "chat" then
+                    composer.data.chatLog = composer.data.chatLog or {}
+                    if #composer.data.chatLog == 0 then
+                        composer.data.chatLog = {
+                            { message = "Hello from dev menu", username = "Player", playerId = 1 },
+                            { message = "Overlay preview", username = "Dev", playerId = 2 }
+                        }
+                    end
+                end
+            end
+            local params = {}
+            if overlayName == "customPlayModeSelect" then
+                params.setGameModeFunction = function() end
+            elseif overlayName == "marketFree" then
+                params.item = {
+                    title = "Dev Item",
+                    plate = "1",
+                    imagePath = "images/gui/market/items/hat/301.png"
+                }
+                params.onCloseFunction = function() end
+            elseif overlayName == "weeklyPrizes" then
+                params.prize = {
+                    { i = 1, a = 100 },
+                    { i = 301, a = 1 }
+                }
+            elseif overlayName == "spinPrize" then
+                params.rewardThatIsWon = { type = "coins", image = "prizeCoins2.png" }
+                params.rewardValue = 100
+            elseif overlayName == "todaysChallenges" then
+                composer.todayChallenges = composer.todayChallenges or {}
+                composer.todayChallenges.time = 3600
+                composer.todayChallenges.data = {
+                    ["1"] = { p = 0, c = 0 },
+                    ["2"] = { p = 0.5, c = 0 }
+                }
+            end
+            composer.showOverlay(fullName, { isModal = true, params = params })
+            return true
+        end)
+
+        sceneScrollView:insert(row)
+        contentY = contentY + rowHeight
+        hoverRows[#hoverRows + 1] = hover
+    end
+
+    sceneScrollMax = math.max(0, contentY - listHeight)
+    sceneScrollY = 0
+    return startY + listHeight
+end
+
+local function buildMenu()
+    clearMenu()
+
+    menuGroup = display.newGroup()
+    menuGroup.x, menuGroup.y = menuPosX, menuPosY
+    menuGroup.alpha = 0
+    menuGroup.xScale, menuGroup.yScale = 0.9, 0.9
+
+    local currentY = 0
+    local bgRect = display.newRect(menuGroup, 0, 0, menuWidth, 100)
+    bgRect.anchorX, bgRect.anchorY = 0, 0
+    bgRect:setFillColor(unpack(colMenuBg))
+
+    currentY = addRow(menuGroup, currentY, "Scenes", true, true, function()
+        scenesExpanded = not scenesExpanded
+        buildMenu()
     end)
 
-    resizeHandle = display.newRect(menuGroup, panel.x + panelWidth - 8, panel.y + panelHeight - 8, 14, 14)
-    resizeHandle:setFillColor(0.3, 0.7, 1, 0.9)
-    setDevUI(resizeHandle)
+    if scenesExpanded then
+        currentY = buildSceneList(menuGroup, currentY)
+    end
+    currentY = addSeparator(menuGroup, currentY)
 
-    local function onHeaderTouch(event)
+    currentY = addRow(menuGroup, currentY, "Overlays", true, true, function()
+        overlaysExpanded = not overlaysExpanded
+        buildMenu()
+    end)
+    if overlaysExpanded then
+        currentY = buildOverlayList(menuGroup, currentY)
+    end
+    currentY = addSeparator(menuGroup, currentY)
+
+    currentY = addRow(menuGroup, currentY, "DevTools", true, false, function()
+        if composer.devTools then
+            if composer.devTools.enabled then composer.devTools.disable() else composer.devTools.enable() end
+        end
+    end)
+    currentY = addSeparator(menuGroup, currentY)
+
+    currentY = addRow(menuGroup, currentY, "PostLobby UI", true, false, function()
+        placeholdersEnabled = not placeholdersEnabled
+        local scene = composer.getScene(composer.getSceneName("current"))
+        if scene and scene.setPostLobbyPlaceholdersVisible then scene.setPostLobbyPlaceholdersVisible(placeholdersEnabled) end
+    end)
+    currentY = addSeparator(menuGroup, currentY)
+
+    currentY = addRow(menuGroup, currentY, "PostLobby Buttons", true, false, function()
+        buttonsEnabled = not buttonsEnabled
+        local scene = composer.getScene(composer.getSceneName("current"))
+        if scene and scene.setPostLobbyButtonsVisible then scene.setPostLobbyButtonsVisible(buttonsEnabled) end
+    end)
+    currentY = addSeparator(menuGroup, currentY)
+
+    currentY = addRow(menuGroup, currentY, "Seed Overlay Data", true, false, function()
+        seedOverlayData = not seedOverlayData
+    end)
+    currentY = addSeparator(menuGroup, currentY)
+
+    currentY = addRow(menuGroup, currentY, "Back", true, false, function()
+        if lastSceneName then composer.gotoScene(lastSceneName) end
+    end)
+
+    bgRect.height = currentY + 4
+
+    local titleHeight = 24
+    local titleBg = display.newRect(menuGroup, 0, -titleHeight, menuWidth, titleHeight)
+    titleBg.anchorX, titleBg.anchorY = 0, 0
+    titleBg:setFillColor(unpack(colTitleBg))
+    titleBg.isHitTestable = true
+
+    local titleText = display.newText({
+        parent = menuGroup,
+        text = "Debug",
+        x = paddingX,
+        y = -titleHeight * 0.5,
+        font = fontName,
+        fontSize = fontSize
+    })
+    titleText.anchorX = 0
+
+    local function onDrag(event)
         if event.phase == "began" then
-            isDragging = true
-            dragOffsetX = event.x - panel.x
-            dragOffsetY = event.y - panel.y
-            display.getCurrentStage():setFocus(event.target)
-            return true
-        elseif event.phase == "moved" and isDragging then
-            panel.x = event.x - dragOffsetX
-            panel.y = event.y - dragOffsetY
-            updateLayout()
-            return true
-        elseif event.phase == "ended" or event.phase == "cancelled" then
-            isDragging = false
+            display.getCurrentStage():setFocus(titleBg)
+            titleBg.isFocus = true
+            dragStartX = event.x - menuGroup.x
+            dragStartY = event.y - menuGroup.y
+        elseif titleBg.isFocus and event.phase == "moved" then
+            menuGroup.x = event.x - dragStartX
+            menuGroup.y = event.y - dragStartY
+        else
             display.getCurrentStage():setFocus(nil)
-            return true
-        end
-        return false
-    end
-
-    headerBar:addEventListener("touch", onHeaderTouch)
-
-    local function onResizeTouch(event)
-        if event.phase == "began" then
-            isResizing = true
-            resizeStartX = event.x
-            resizeStartY = event.y
-            resizeStartW = panelWidth
-            resizeStartH = panelHeight
-            display.getCurrentStage():setFocus(event.target)
-            return true
-        elseif event.phase == "moved" and isResizing then
-            local dx = event.x - resizeStartX
-            local dy = event.y - resizeStartY
-            panelWidth = math.max(240, resizeStartW + dx)
-            panelHeight = math.max(180, resizeStartH + dy)
-            updateLayout()
-            return true
-        elseif event.phase == "ended" or event.phase == "cancelled" then
-            isResizing = false
-            display.getCurrentStage():setFocus(nil)
-            return true
-        end
-        return false
-    end
-
-    resizeHandle:addEventListener("touch", onResizeTouch)
-
-    if scenesContainer and onScenesScroll then
-        scenesContainer.isHitTestable = true
-        scenesContainer:addEventListener("touch", onScenesScroll)
-    end
-    if onScenesWheel then
-        Runtime:addEventListener("mouse", onScenesWheel)
-    end
-
-    updateLayout()
-
-    resizeListener = function()
-        if not menuGroup then
-            return
-        end
-        updateLayout()
-    end
-    Runtime:addEventListener("resize", resizeListener)
-end
-
-onScenesScroll = function(event)
-    if not scenesContainer or not isScenesOpen then
-        return false
-    end
-    if event.phase == "began" then
-        isScrolling = true
-        scrollStartY = event.y
-        scrollStartOffset = scenesScrollY
-        display.getCurrentStage():setFocus(event.target)
-        return true
-    elseif event.phase == "moved" and isScrolling then
-        local dy = event.y - scrollStartY
-        scenesScrollY = math.max(0, math.min(scenesMaxScroll, scrollStartOffset - dy))
-        if scenesGroup then
-            scenesGroup.y = -scenesScrollY
-        end
-        return true
-    elseif event.phase == "ended" or event.phase == "cancelled" then
-        isScrolling = false
-        display.getCurrentStage():setFocus(nil)
-        return true
-    end
-    return false
-end
-
-onScenesWheel = function(event)
-    if not scenesContainer or not isScenesOpen then
-        return false
-    end
-    local scrollY = event.scrollY or 0
-    if scrollY ~= 0 then
-        scenesScrollY = math.max(0, math.min(scenesMaxScroll, scenesScrollY + scrollY * 4))
-        if scenesGroup then
-            scenesGroup.y = -scenesScrollY
+            titleBg.isFocus = false
+            menuPosX = menuGroup.x
+            menuPosY = menuGroup.y
         end
         return true
     end
-    return false
+    titleBg:addEventListener("touch", onDrag)
+
+    transition.to(menuGroup, { time = 200, alpha = 1, xScale = 1, yScale = 1, transition = easing.outBack })
+    menuGroup:toFront()
 end
 
-function M.open()
-    if isOpen then
-        return
-    end
-    isOpen = true
-    buildMenu()
-    if menuGroup then
-        menuGroup.isVisible = true
-        menuGroup:toFront()
-    end
-end
-
-function M.close()
-    isOpen = false
-    isScenesOpen = false
-    if menuGroup then
-        menuGroup:removeSelf()
-        menuGroup = nil
-    end
-    scenesContainer = nil
-    scenesGroup = nil
-    if resizeListener then
-        Runtime:removeEventListener("resize", resizeListener)
-        resizeListener = nil
-    end
-    if onScenesWheel then
-        Runtime:removeEventListener("mouse", onScenesWheel)
-    end
-end
-
-function M.toggle()
-    if isOpen then
-        M.close()
+local function toggleMenu()
+    menuOpen = not menuOpen
+    playClick()
+    if menuOpen then
+        buildMenu()
     else
-        M.open()
+        if menuGroup then
+            transition.to(menuGroup, { time = 150, alpha = 0, xScale = 0.9, yScale = 0.9, transition = easing.inQuad, onComplete = clearMenu })
+        end
     end
 end
 
 local function onKey(event)
-    if event.phase ~= "up" then
+    if event.phase ~= "down" then
         return false
     end
-  if event.keyName == "/" then
-        M.toggle()
+    if event.isRepeat then
+        return false
+    end
+    local key = event.keyName
+    if key == "/" or key == "slash" or key == "kpDivide" or key == "numpadDivide" or key == "keypadDivide" then
+        toggleMenu()
         return true
     end
     return false
 end
 
 function M.init()
+    refreshSceneList()
+    refreshOverlayList()
     Runtime:addEventListener("key", onKey)
+    Runtime:addEventListener("mouse", function(event)
+        if event.type == "move" then
+            lastMouseX, lastMouseY = event.x, event.y
+            if menuOpen and hoverRows then
+                for i = 1, #hoverRows do
+                    local rect = hoverRows[i]
+                    if rect and rect.contentBounds then
+                        local b = rect.contentBounds
+                        rect.alpha = (lastMouseX >= b.xMin and lastMouseX <= b.xMax and lastMouseY >= b.yMin and lastMouseY <= b.yMax) and 0.2 or 0
+                    end
+                end
+            end
+            return false
+        end
+
+        if not menuOpen or not sceneScrollView or not event.scrollY then
+            return false
+        end
+
+        local svB = sceneScrollView.contentBounds
+        if not (event.x >= svB.xMin and event.x <= svB.xMax and event.y >= svB.yMin and event.y <= svB.yMax) then
+            return false
+        end
+
+        local scrollSensitivity = 25
+        sceneScrollY = sceneScrollY - (event.scrollY * scrollSensitivity)
+
+        if sceneScrollY < -sceneScrollMax then
+            sceneScrollY = -sceneScrollMax
+        elseif sceneScrollY > 0 then
+            sceneScrollY = 0
+        end
+
+        sceneScrollView:scrollToPosition({
+            y = sceneScrollY,
+            time = 80,
+            transition = easing.outQuad
+        })
+
+        timer.performWithDelay(1, function()
+            if not hoverRows then return end
+            for i = 1, #hoverRows do
+                local rect = hoverRows[i]
+                if rect and rect.contentBounds then
+                    local b = rect.contentBounds
+                    rect.alpha = (lastMouseX >= b.xMin and lastMouseX <= b.xMax and lastMouseY >= b.yMin and lastMouseY <= b.yMax) and 0.2 or 0
+                end
+            end
+        end)
+
+        return true
+    end)
 end
 
 M.init()
-composer.devMenu = M
 
 return M

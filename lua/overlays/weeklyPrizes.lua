@@ -14,9 +14,15 @@ function scene:create(event)
   backgroundImage.x = display.contentWidth * 0.5
   backgroundImage.y = display.contentHeight * 0.5
   local backgroundWindow = display.newImageRect("images/gui/ranking/prizesPopup.png", 351, 262)
-  backgroundWindow.anchorY = 0
-  backgroundWindow.x = display.contentWidth * 0.5
-  backgroundWindow.y = 0
+  if not backgroundWindow then
+    backgroundWindow = display.newRect(display.contentWidth * 0.5, 0, 351, 262)
+    backgroundWindow.anchorY = 0
+    backgroundWindow:setFillColor(0, 0, 0, 0.6)
+  else
+    backgroundWindow.anchorY = 0
+    backgroundWindow.x = display.contentWidth * 0.5
+    backgroundWindow.y = 0
+  end
   local prizes = event.params.prize
   local windowInfo = composer.newText({
     string = composer.localized.get("Weekly"),
@@ -40,7 +46,7 @@ function scene:create(event)
       1
     }
   })
-  
+
   local function scalePrizeImage(image, iconWidth, iconHeight)
     local xScale = iconWidth / image.width
     local yScale = iconHeight / image.height
@@ -48,7 +54,7 @@ function scene:create(event)
     image.width = scaleToUse * image.width
     image.height = scaleToUse * image.height
   end
-  
+
   local function createPrizeDisplay(id, amount, index)
     local prizeGroup = display.newGroup()
     local prizeIconPath = composer.storeConfig.getItemCategory(id)
@@ -111,11 +117,11 @@ function scene:create(event)
     end
     dropdownGroup:insert(prizeGroup)
   end
-  
+
   local function btnExitRelease()
     composer.hideOverlay()
   end
-  
+
   local btnExit = composer.newButton({
     image = "images/gui/common/buttonClosePopup.png",
     onRelease = btnExitRelease,
@@ -124,7 +130,7 @@ function scene:create(event)
     x = backgroundWindow.x + 156,
     y = backgroundWindow.y + 50
   })
-  
+
   local function addPrizes()
     if prizes then
       for i = 1, #prizes do
@@ -132,7 +138,7 @@ function scene:create(event)
       end
     end
   end
-  
+
   local function updateDisplayGroups()
     sceneGroup:insert(backgroundImage)
     dropdownGroup:insert(backgroundWindow)
@@ -142,31 +148,31 @@ function scene:create(event)
     sceneGroup:insert(dropdownGroup)
     addPrizes()
   end
-  
+
   local function escapeTouchEvent(event)
     if event.phase == "ended" then
       composer.hideOverlay()
     end
     return true
   end
-  
+
   local function backgroundImageTouchEvent(event)
     if event.phase == "ended" then
     end
     return true
   end
-  
+
   local function addListeners()
     backgroundImage:addEventListener("touch", escapeTouchEvent)
     backgroundWindow:addEventListener("touch", backgroundImageTouchEvent)
   end
-  
+
   function clean()
     display.remove(btnExit)
     backgroundImage:removeEventListener("touch", escapeTouchEvent)
     backgroundWindow:removeEventListener("touch", backgroundImageTouchEvent)
   end
-  
+
   updateDisplayGroups()
   addListeners()
   composer.bouncer.down(dropdownGroup)
@@ -178,11 +184,11 @@ function scene:show(event)
     return
   end
   local androidLogic = require("lua.modules.androidBackButton")
-  
+
   function cleanEnter()
     androidLogic.isOverlay(false)
   end
-  
+
   androidLogic.isOverlay(true)
 end
 

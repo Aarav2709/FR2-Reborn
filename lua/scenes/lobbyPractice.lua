@@ -17,7 +17,7 @@ function scene:create(event)
     local lookingAtZone = 1
     local numberOfMaps = composer.mapHandler.getNumberOfMaps()
     local maksZones = math.ceil(numberOfMaps / iconsPerPage)
-    backgroundImage = display.newImageRect("images/gui/common/bgMain.png", 480, 320)
+    backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 1920, 1080)
     buttonStickBottom = display.newImageRect("images/gui/practice/bottom.png", 42, 45)
     window = display.newImageRect("images/gui/practice/window.png", 440, 240)
     buttonStickTop = display.newImageRect("images/gui/practice/top.png", 22, 14)

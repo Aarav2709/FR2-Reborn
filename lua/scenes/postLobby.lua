@@ -89,24 +89,75 @@ function scene:create(event)
   photoIcon.x = 875
   photoIcon.y = 169
   screenGroup:insert(photoIcon)
-  local function savePostLobbyScreenshot()
-    local capture = display.captureScreen(true)
-    if capture then
-      local filename = "postLobby_" .. os.time() .. ".png"
-      local platform = system.getInfo("platform")
-      local saveToGallery = platform == "android" or platform == "ios"
-      local saveDir = system.DocumentsDirectory
-      if not saveToGallery and system.DownloadsDirectory then
-        saveDir = system.DownloadsDirectory
-      end
-      display.save(capture, { filename = filename, baseDir = saveDir, isFullResolution = true })
-      if saveToGallery and media and media.save then
-        media.save(filename, saveDir)
-      end
-      capture:removeSelf()
-    end
-  end
-  photoIcon:addEventListener("tap", savePostLobbyScreenshot)
+  -- Screenshot Functionality - Work In Progress - Coming Soon
+  -- local function copyFile(sourcePath, destPath)
+  --   local inFile = io.open(sourcePath, "rb")
+  --   if not inFile then
+  --     return false
+  --   end
+  --   local data = inFile:read("*a")
+  --   inFile:close()
+  --   local outFile = io.open(destPath, "wb")
+  --   if not outFile then
+  --     return false
+  --   end
+  --   outFile:write(data)
+  --   outFile:close()
+  --   return true
+  -- end
+
+  -- local function savePostLobbyScreenshot()
+  --   local capture = display.captureScreen(true)
+  --   if not capture then
+  --     return
+  --   end
+  --   local filename = "postLobby_" .. os.time() .. ".png"
+  --   local platform = system.getInfo("platform")
+  --   local saveToGallery = platform == "android" or platform == "ios"
+  --   local saveDir = system.DocumentsDirectory
+  --   if not saveToGallery and system.DownloadsDirectory then
+  --     saveDir = system.DownloadsDirectory
+  --   end
+  --   display.save(capture, { filename = filename, baseDir = saveDir, isFullResolution = true })
+  --   if saveToGallery and media and media.save then
+  --     media.save(filename, saveDir)
+  --   end
+
+  --   local flash = display.newRect(screenGroup, 0, 0, display.contentWidth, display.contentHeight)
+  --   flash.anchorX = 0
+  --   flash.anchorY = 0
+  --   flash:setFillColor(1, 1, 1)
+  --   flash.alpha = 0.8
+  --   transition.to(flash, { time = 120, alpha = 0, onComplete = function()
+  --     display.remove(flash)
+  --   end })
+
+  --   screenGroup:insert(capture)
+  --   capture.anchorX = 0.5
+  --   capture.anchorY = 0.5
+  --   capture.x = display.contentWidth * 0.5
+  --   capture.y = display.contentHeight * 0.5
+  --   capture.xScale = 0.35
+  --   capture.yScale = 0.35
+  --   transition.to(capture, {
+  --     time = 600,
+  --     x = 80,
+  --     y = display.contentHeight - 80,
+  --     xScale = 0.22,
+  --     yScale = 0.22,
+  --     transition = easing.outQuad
+  --   })
+  --   transition.to(capture, {
+  --     time = 400,
+  --     delay = 3000,
+  --     x = -200,
+  --     transition = easing.inQuad,
+  --     onComplete = function()
+  --       display.remove(capture)
+  --     end
+  --   })
+  -- end
+  -- photoIcon:addEventListener("tap", savePostLobbyScreenshot)
   local chatButtonOverlay = display.newImageRect("images/gui/postgame/buttonToggle.png", 65, 65)
   chatButtonOverlay.x = 160
   chatButtonOverlay.y = 384
@@ -525,9 +576,6 @@ function scene:create(event)
       local ratingX = 463
       local ratingY = 39
       local ratingIconX = ratingX + 36
-      print("postLobby rating positions: ratingX=" .. ratingX .. " ratingY=" .. ratingY ..
-        " newStatsGroup=(" .. newStatsGroup.x .. "," .. newStatsGroup.y .. ")" ..
-        " newTotalStatsGroup=(" .. newTotalStatsGroup.x .. "," .. newTotalStatsGroup.y .. ")")
       rankingEarned = composer.newText({
         string = "",
         size = 20,
@@ -620,9 +668,6 @@ function scene:create(event)
       local moneyX = 319
       local moneyY = 39
       local moneyIconX = moneyX + 36
-      print("postLobby money positions: moneyX=" .. moneyX .. " moneyY=" .. moneyY ..
-        " newStatsGroup=(" .. newStatsGroup.x .. "," .. newStatsGroup.y .. ")" ..
-        " newTotalStatsGroup=(" .. newTotalStatsGroup.x .. "," .. newTotalStatsGroup.y .. ")")
       local moneyText = composer.newText({
         string = "",
         size = 20,

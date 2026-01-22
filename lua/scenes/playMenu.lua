@@ -57,7 +57,7 @@ function scene:create(event)
     composer.gotoScene("lua.scenes.mainMenu")
   end
 
-  backgroundImage = display.newImageRect("images/gui/common/bgMain.png", 480, 320)
+  backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 1920, 1080)
   bearHead = display.newImageRect("images/gui/common/bgMainBear.png", 62, 60)
   tipBackground = display.newImageRect("images/gui/play/windowTips.png", 305, 60)
   btnSingleplayerStick = display.newImageRect("images/gui/play/buttonStickPractice.png", 39, 153)

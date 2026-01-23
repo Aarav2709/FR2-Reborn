@@ -22,8 +22,6 @@ local overlaysExpanded = false
 local sceneItems = {}
 local overlayItems = {}
 local lastSceneName = nil
-local placeholdersEnabled = false
-local buttonsEnabled = false
 local sceneScrollView = nil
 local sceneScrollMax = 0
 local sceneScrollY = 0
@@ -35,11 +33,116 @@ local seedOverlayData = false
 local hoverRows = {}
 local lastMouseX = nil
 local lastMouseY = nil
+local toggleMenu
 
 local clickSound = audio.loadSound("sound/sfx_button_press.wav")
+local coinRewardModule = require("lua.modules.coinReward")
+local promptGroup = nil
+local promptField = nil
 
 local function playClick()
     if clickSound then audio.play(clickSound) end
+end
+
+local function playCurrencyEffect(kind, amount)
+    local scene = composer.getScene(composer.getSceneName("current"))
+    local parent = scene and scene.view or display.getCurrentStage()
+    local targetX = display.contentWidth - 40
+    local targetY = 40
+    if kind == "coins" then
+        composer.audio.play("coins")
+        local effect = coinRewardModule.createCoinReward(0, math.min(amount, 30), 1, true)
+        if effect then
+            local baseTargetX = 202
+            local baseTargetY = display.contentHeight - 30
+            effect.x = targetX - baseTargetX
+            effect.y = targetY - baseTargetY
+            parent:insert(effect)
+            effect.animateCoins()
+            timer.performWithDelay(2000, function()
+                if effect.clean then effect.clean() end
+                display.remove(effect)
+            end)
+        end
+    elseif kind == "gems" then
+        local group = display.newGroup()
+        local icon = display.newImageRect(group, "images/gui/common/gem_small.png", 18, 18)
+        icon.anchorX = 0
+        icon.anchorY = 0.5
+        local text = display.newText({
+            parent = group,
+            text = "+" .. tostring(amount),
+            x = 22,
+            y = 0,
+            size = 14,
+            color = { 1, 1, 1 }
+        })
+        text.anchorX = 0
+        text.anchorY = 0.5
+        group.x = targetX
+        group.y = targetY
+        parent:insert(group)
+        transition.to(group, { time = 150, xScale = 1.1, yScale = 1.1 })
+        transition.to(group, { time = 350, delay = 200, alpha = 0, y = targetY + 10, onComplete = function()
+            display.remove(group)
+        end })
+    end
+end
+
+local function clearPrompt()
+    if promptField then
+        promptField:removeSelf()
+        promptField = nil
+    end
+    if promptGroup then
+        display.remove(promptGroup)
+        promptGroup = nil
+    end
+end
+
+local function showAmountPrompt(title, defaultValue, onApply)
+    if promptGroup then
+        clearPrompt()
+    end
+    promptGroup = display.newGroup()
+    local overlay = display.newRect(promptGroup, display.contentCenterX, display.contentCenterY, display.actualContentWidth, display.actualContentHeight)
+    overlay:setFillColor(0, 0, 0, 0.6)
+    overlay.isHitTestable = true
+    overlay:addEventListener("tap", function() clearPrompt() return true end)
+
+    local box = display.newRoundedRect(promptGroup, display.contentCenterX, display.contentCenterY, 220, 120, 6)
+    box:setFillColor(0.12, 0.12, 0.12, 0.95)
+    local label = display.newText({
+        parent = promptGroup,
+        text = title,
+        x = display.contentCenterX,
+        y = display.contentCenterY - 40,
+        font = native.systemFontBold,
+        fontSize = 12
+    })
+    label:setFillColor(1, 1, 1)
+
+    promptField = native.newTextField(display.contentCenterX, display.contentCenterY - 10, 160, 26)
+    promptField.text = tostring(defaultValue or "")
+    promptField.inputType = "number"
+
+    local okBtn = display.newRoundedRect(promptGroup, display.contentCenterX - 45, display.contentCenterY + 30, 70, 26, 4)
+    okBtn:setFillColor(0.2, 0.53, 0.86, 1)
+    local okText = display.newText({ parent = promptGroup, text = "OK", x = okBtn.x, y = okBtn.y, font = native.systemFontBold, fontSize = 12 })
+    local cancelBtn = display.newRoundedRect(promptGroup, display.contentCenterX + 45, display.contentCenterY + 30, 70, 26, 4)
+    cancelBtn:setFillColor(0.3, 0.3, 0.3, 1)
+    local cancelText = display.newText({ parent = promptGroup, text = "Cancel", x = cancelBtn.x, y = cancelBtn.y, font = native.systemFontBold, fontSize = 12 })
+
+    okBtn:addEventListener("tap", function()
+        local value = tonumber(promptField and promptField.text) or defaultValue or 0
+        clearPrompt()
+        onApply(value)
+        return true
+    end)
+    cancelBtn:addEventListener("tap", function()
+        clearPrompt()
+        return true
+    end)
 end
 
 local function refreshSceneList()
@@ -93,8 +196,8 @@ local function addSeparator(group, currentY)
     return currentY + 5
 end
 
-local function addRow(group, currentY, textStr, isHeader, hasArrow, onTap)
-    local color = isHeader and colHeader or colText
+local function addRow(group, currentY, textStr, isHeader, hasArrow, onTap, colorOverride)
+    local color = colorOverride or (isHeader and colHeader or colText)
     local rowGroup = display.newGroup()
     group:insert(rowGroup)
 
@@ -131,6 +234,27 @@ local function addRow(group, currentY, textStr, isHeader, hasArrow, onTap)
     end
 
     return currentY + rowHeight
+end
+
+local function isPointInMenu(x, y)
+    if not menuGroup or not menuGroup.contentBounds then
+        return false
+    end
+    local b = menuGroup.contentBounds
+    return x >= b.xMin and x <= b.xMax and y >= b.yMin and y <= b.yMax
+end
+
+local function onGlobalTouch(event)
+    if not menuOpen or not menuGroup then
+        return false
+    end
+    if event.phase == "began" then
+        if not isPointInMenu(event.x, event.y) then
+            toggleMenu()
+            return true
+        end
+    end
+    return false
 end
 
 local function buildSceneList(parent, startY)
@@ -323,28 +447,80 @@ local function buildMenu()
     end)
     currentY = addSeparator(menuGroup, currentY)
 
-    currentY = addRow(menuGroup, currentY, "PostLobby UI", true, false, function()
-        placeholdersEnabled = not placeholdersEnabled
-        local scene = composer.getScene(composer.getSceneName("current"))
-        if scene and scene.setPostLobbyPlaceholdersVisible then scene.setPostLobbyPlaceholdersVisible(placeholdersEnabled) end
+    currentY = addRow(menuGroup, currentY, "Add Coins", true, false, function()
+        showAmountPrompt("Add Coins", 10000, function(amount)
+            composer.database.setMoney(composer.database.getMoney() + amount)
+            playCurrencyEffect("coins", amount)
+            local marketScene = composer.getScene("lua.scenes.marketplace")
+            if marketScene and marketScene.refreshMarketUI then marketScene.refreshMarketUI() end
+        end)
     end)
     currentY = addSeparator(menuGroup, currentY)
 
-    currentY = addRow(menuGroup, currentY, "PostLobby Buttons", true, false, function()
-        buttonsEnabled = not buttonsEnabled
-        local scene = composer.getScene(composer.getSceneName("current"))
-        if scene and scene.setPostLobbyButtonsVisible then scene.setPostLobbyButtonsVisible(buttonsEnabled) end
+    currentY = addRow(menuGroup, currentY, "Add Gems", true, false, function()
+        showAmountPrompt("Add Gems", 100, function(amount)
+            composer.database.setGems(composer.database.getGems() + amount)
+            playCurrencyEffect("gems", amount)
+            local marketScene = composer.getScene("lua.scenes.marketplace")
+            if marketScene and marketScene.refreshMarketUI then marketScene.refreshMarketUI() end
+        end)
     end)
     currentY = addSeparator(menuGroup, currentY)
 
-    currentY = addRow(menuGroup, currentY, "Seed Overlay Data", true, false, function()
-        seedOverlayData = not seedOverlayData
+    currentY = addRow(menuGroup, currentY, "Max Coins/Gems", true, false, function()
+        composer.database.setMoney(9999999)
+        composer.database.setGems(999999)
+        playCurrencyEffect("coins", 30)
+        playCurrencyEffect("gems", 30)
+        local marketScene = composer.getScene("lua.scenes.marketplace")
+        if marketScene and marketScene.refreshMarketUI then marketScene.refreshMarketUI() end
     end)
     currentY = addSeparator(menuGroup, currentY)
 
-    currentY = addRow(menuGroup, currentY, "Back", true, false, function()
-        if lastSceneName then composer.gotoScene(lastSceneName) end
+    currentY = addRow(menuGroup, currentY, "Reset Data", true, false, function()
+        composer.database.reset()
+        composer.database.createDefaultOfflinePlayer()
+        local marketScene = composer.getScene("lua.scenes.marketplace")
+        if marketScene and marketScene.refreshMarketUI then marketScene.refreshMarketUI() end
+    end, { 0.6, 0.1, 0.1, 1 })
+    currentY = addSeparator(menuGroup, currentY)
+
+    currentY = addRow(menuGroup, currentY, "Unlock All Items", true, false, function()
+        local items = composer.database.getItems() or {}
+        local store = composer.storeConfig
+        if store and store.readFromFile then
+            store.readFromFile()
+        end
+        local function addList(list)
+            if not list then return end
+            for i = 1, #list do
+                local key = list[i].key
+                if key and tonumber(key) and tonumber(key) ~= 0 then
+                    items[tostring(key)] = {}
+                end
+            end
+        end
+        addList(store and store.getAllCharactersSortedOnPrice and store.getAllCharactersSortedOnPrice() or nil)
+        addList(store and store.getAllHatsSortedOnPrice and store.getAllHatsSortedOnPrice() or nil)
+        addList(store and store.getAllFacewearSortedOnPrice and store.getAllFacewearSortedOnPrice() or nil)
+        addList(store and store.getAllNecksSortedOnPrice and store.getAllNecksSortedOnPrice() or nil)
+        addList(store and store.getAllTrailsSortedOnPrice and store.getAllTrailsSortedOnPrice() or nil)
+        addList(store and store.getAllFeetSortedOnPrice and store.getAllFeetSortedOnPrice() or nil)
+        local avatars = store and store.getAllCharactersSortedOnPrice and store.getAllCharactersSortedOnPrice() or nil
+        if avatars and store and store.getAllSkinsSortedOnPrice then
+            for i = 1, #avatars do
+                local avatarKey = avatars[i].key
+                if avatarKey and tonumber(avatarKey) and tonumber(avatarKey) ~= 0 then
+                    addList(store.getAllSkinsSortedOnPrice(avatarKey))
+                end
+            end
+        end
+        composer.database.setItems(items)
+        local marketScene = composer.getScene("lua.scenes.marketplace")
+        if marketScene and marketScene.refreshMarketUI then marketScene.refreshMarketUI() end
     end)
+    currentY = addSeparator(menuGroup, currentY)
+
 
     bgRect.height = currentY + 4
 
@@ -387,12 +563,14 @@ local function buildMenu()
     menuGroup:toFront()
 end
 
-local function toggleMenu()
+toggleMenu = function()
     menuOpen = not menuOpen
     playClick()
     if menuOpen then
         buildMenu()
+        Runtime:addEventListener("touch", onGlobalTouch)
     else
+        Runtime:removeEventListener("touch", onGlobalTouch)
         if menuGroup then
             transition.to(menuGroup, { time = 150, alpha = 0, xScale = 0.9, yScale = 0.9, transition = easing.inQuad, onComplete = clearMenu })
         end

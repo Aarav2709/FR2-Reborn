@@ -10,6 +10,7 @@ function scene:create(event)
   local moneyValue = composer.database.getMoney()
   local coinPrice = 0
   local gemPrice = item.gemPrice
+  local moneyLabel, moneyLabelRed, gemLabel, gemLabelRed
   local inApp = require("lua.iap.inAppPurchase")
   local cashPrice = "error"
   local lockTimer
@@ -24,13 +25,56 @@ function scene:create(event)
   alphaBackground.y = 0
   alphaBackground.isVisible = false
   local dropdownGroup = display.newGroup()
-  local backgroundImage = display.newImageRect("images/gui/common/black.png", 480, 320)
+  local backgroundImage = display.newImageRect("images/gui/common/black.png", 1980, 1080)
   backgroundImage.x = display.contentWidth * 0.5
   backgroundImage.y = display.contentHeight * 0.5
-  local backgroundWindow = display.newImageRect("images/gui/market/popup/window.png", 276, 253)
+  local backgroundWindow = display.newImageRect("images/gui/market/popup/window.png", 362, 319)
   backgroundWindow.anchorY = 0
-  backgroundWindow.x = display.contentWidth * 0.5
-  backgroundWindow.y = 0
+  backgroundWindow.x = 456
+  backgroundWindow.y = -43
+  local overlayCurrentCoins = display.newImageRect("images/gui/market/currentCoins.png", 86, 82)
+  overlayCurrentCoins.anchorX = 0
+  overlayCurrentCoins.anchorY = 0
+  overlayCurrentCoins.x = 726
+  overlayCurrentCoins.y = 2
+  local function createCurrencyLabels()
+    local moneyValue = composer.database.getMoney()
+    moneyLabel = composer.newText({
+      string = moneyValue,
+      size = 14,
+      x = 754,
+      y = 71,
+      ax = 0,
+      color = { 1, 1, 1 }
+    })
+    moneyLabelRed = composer.newText({
+      string = moneyValue,
+      size = 14,
+      x = 754,
+      y = 71,
+      ax = 0,
+      color = { 1, 0.2, 0.2 }
+    })
+    moneyLabelRed.alpha = 0
+    gemLabel = composer.newText({
+      string = composer.database.getGems(),
+      size = 14,
+      x = 754,
+      y = 43,
+      ax = 0,
+      color = { 1, 1, 1 }
+    })
+    gemLabelRed = composer.newText({
+      string = composer.database.getGems(),
+      size = 14,
+      x = 754,
+      y = 43,
+      ax = 0,
+      color = { 1, 0.2, 0.2 }
+    })
+    gemLabelRed.alpha = 0
+  end
+  createCurrencyLabels()
 
   local function createSaleIcon()
     local path, amount
@@ -83,8 +127,8 @@ function scene:create(event)
   end
   local windowInfo = composer.newText({
     string = composer.localized.get("Purchase"),
-    x = backgroundWindow.x,
-    y = backgroundWindow.y + 65,
+    x = 457,
+    y = 38,
     size = 20,
     color = {
       1,
@@ -95,7 +139,7 @@ function scene:create(event)
   local itemInfo = composer.newText({
     string = item.title,
     x = backgroundWindow.x,
-    y = backgroundWindow.y + 78,
+    y = backgroundWindow.y + 98,
     size = 16,
     color = {
       1,
@@ -126,8 +170,8 @@ function scene:create(event)
   })
   local orText = composer.newText({
     string = composer.localized.get("or"),
-    x = windowInfo.x,
-    y = windowInfo.y + 170,
+    x = 457,
+    y = 248,
     ax = 0.5,
     color = {
       1,
@@ -144,70 +188,47 @@ function scene:create(event)
   })
   local plate = display.newImageRect("images/gui/lobby/" .. item.plate .. ".png", 54, 19)
   plate.x = backgroundWindow.x
-  plate.y = backgroundWindow.y + 170
-  local icon = display.newImageRect(item.imagePath, 65, 72)
-  icon.x = backgroundWindow.x
-  icon.y = backgroundWindow.y + 130
-  local backgroundCoins = display.newImageRect("images/gui/market/currentCoins.png", 70, 53)
-  backgroundCoins.anchorX = 0
-  backgroundCoins.anchorY = 0
-  backgroundCoins.x = 400
-  backgroundCoins.y = 0
-  local moneyValue = composer.database.getMoney()
-  local gemValue = composer.database.getGems()
-  local moneyLabel = composer.newText({
-    string = moneyValue,
-    size = 14,
-    x = 424,
-    y = 40,
-    ax = 0,
-    color = {
-      1,
-      1,
-      1
-    }
-  })
-  local moneyLabelRed = composer.newText({
-    string = moneyValue,
-    size = 14,
-    x = 424,
-    y = 40,
-    ax = 0,
-    color = {
-      1,
-      0,
-      0
-    }
-  })
-  moneyLabelRed.alpha = 0
-  local gemIcon = display.newImageRect("images/gui/common/gem_small.png", 14, 14)
-  gemIcon.x = 410
-  gemIcon.y = 20
-  local gemLabel = composer.newText({
-    string = gemValue,
-    size = 14,
-    x = 424,
-    y = 20,
-    ax = 0,
-    color = {
-      1,
-      1,
-      1
-    }
-  })
-  local gemLabelRed = composer.newText({
-    string = gemValue,
-    size = 14,
-    x = 424,
-    y = 20,
-    ax = 0,
-    color = {
-      1,
-      0,
-      0
-    }
-  })
-  gemLabelRed.alpha = 0
+  plate.y = backgroundWindow.y + 225
+  local function resolveAvatarIds(itemData)
+    if not itemData then
+      return nil, nil
+    end
+    local skinId = itemData.skinId
+    local characterId = itemData.characterId
+    if not characterId and itemData.key then
+      local keyNum = tonumber(itemData.key)
+      if keyNum and keyNum > 100 then
+        characterId = keyNum - 100
+      end
+    end
+    if not skinId and itemData.key then
+      local keyNum = tonumber(itemData.key)
+      if keyNum then
+        local storeItem = composer.storeConfig.getItem(keyNum)
+        if storeItem then
+          skinId = storeItem.skinId
+        end
+      end
+    end
+    return characterId, skinId or 0
+  end
+  local icon
+  local characterId, skinId = resolveAvatarIds(item)
+  if characterId then
+    local monsterLoader = require("spine-corona.monsterLoader")
+    local monsterData = { characterId, skinId or 0, 0, 0, 0, 0, 0 }
+    local avatarMonster = monsterLoader.new(monsterData, false)
+    avatarMonster.stopAllAnimation()
+    icon = avatarMonster.getGroup()
+    icon.xScale = 0.4
+    icon.yScale = 0.4
+  else
+    icon = display.newImageRect(item.imagePath, 65, 72)
+  end
+  if icon then
+    icon.x = backgroundWindow.x
+    icon.y = backgroundWindow.y + 217
+  end
 
   local function stopIAPCashTimer()
     if iapPriceTimeout then
@@ -312,13 +333,21 @@ function scene:create(event)
     if currency == "coins" then
       composer.database.decreaseMoney(price)
       moneyValue = composer.database.getMoney()
-      moneyLabel.text = moneyValue
-      moneyLabelRed.text = moneyValue
+      if moneyLabel then
+        moneyLabel.text = moneyValue
+      end
+      if moneyLabelRed then
+        moneyLabelRed.text = moneyValue
+      end
     elseif currency == "gems" then
       composer.database.decreaseGems(price)
       gemValue = composer.database.getGems()
-      gemLabel.text = gemValue
-      gemLabelRed.text = gemValue
+      if gemLabel then
+        gemLabel.text = gemValue
+      end
+      if gemLabelRed then
+        gemLabelRed.text = gemValue
+      end
     end
     composer.database.addItem(item.key)
     overlayEndedData = { localPurchase = true, i = item.key }
@@ -330,30 +359,34 @@ function scene:create(event)
     local newSize = 1.2
     local timeToUse = 100
     local delayToUse = 200
-    transition.to(moneyLabel, {
-      time = timeToUse,
-      xScale = newSize,
-      yScale = newSize
-    })
-    transition.to(moneyLabel, {
-      time = timeToUse,
-      delay = delayToUse,
-      xScale = 1,
-      yScale = 1
-    })
-    transition.to(moneyLabelRed, {
-      time = timeToUse,
-      xScale = newSize,
-      yScale = newSize,
-      alpha = 1
-    })
-    transition.to(moneyLabelRed, {
-      time = timeToUse,
-      delay = delayToUse,
-      xScale = 1,
-      yScale = 1,
-      alpha = 0
-    })
+    if moneyLabel then
+      transition.to(moneyLabel, {
+        time = timeToUse,
+        xScale = newSize,
+        yScale = newSize
+      })
+      transition.to(moneyLabel, {
+        time = timeToUse,
+        delay = delayToUse,
+        xScale = 1,
+        yScale = 1
+      })
+    end
+    if moneyLabelRed then
+      transition.to(moneyLabelRed, {
+        time = timeToUse,
+        xScale = newSize,
+        yScale = newSize,
+        alpha = 1
+      })
+      transition.to(moneyLabelRed, {
+        time = timeToUse,
+        delay = delayToUse,
+        xScale = 1,
+        yScale = 1,
+        alpha = 0
+      })
+    end
   end
 
   local function giveGemFeedback()
@@ -392,9 +425,17 @@ function scene:create(event)
       return
     end
     moneyValue = composer.database.getMoney()
-    moneyLabel.text = moneyValue
-    moneyLabelRed.text = moneyValue
+    if moneyLabel then
+      moneyLabel.text = moneyValue
+    end
+    if moneyLabelRed then
+      moneyLabelRed.text = moneyValue
+    end
     if moneyValue < coinPrice then
+      local marketScene = composer.getScene("lua.scenes.marketplace")
+      if marketScene and marketScene.flashMarketCoins then
+        marketScene.flashMarketCoins()
+      end
       composer.analytics.newEvent("design", {
         event_id = "market:coinPurchase:notEnough:" .. item.key,
         value = moneyValue,
@@ -432,8 +473,8 @@ function scene:create(event)
     },
     width = 77,
     height = 50,
-    x = backgroundWindow.x - 60,
-    y = backgroundWindow.y + 250
+    x = backgroundWindow.x - 387,
+    y = backgroundWindow.y + 78
   })
 
   local function btnWithGemsRelease()
@@ -444,10 +485,19 @@ function scene:create(event)
     if not gemPrice then
       return
     end
+    local gemValue = composer.database.getGems()
     gemValue = composer.database.getGems()
-    gemLabel.text = gemValue
-    gemLabelRed.text = gemValue
+    if gemLabel then
+      gemLabel.text = gemValue
+    end
+    if gemLabelRed then
+      gemLabelRed.text = gemValue
+    end
     if gemValue < gemPrice then
+      local marketScene = composer.getScene("lua.scenes.marketplace")
+      if marketScene and marketScene.flashMarketGems then
+        marketScene.flashMarketGems()
+      end
       composer.analytics.newEvent("design", {
         event_id = "market:gemPurchase:notEnough:" .. item.key,
         value = gemValue,
@@ -471,8 +521,8 @@ function scene:create(event)
     },
     width = 77,
     height = 50,
-    x = backgroundWindow.x,
-    y = backgroundWindow.y + 250
+    x = backgroundWindow.x - 387,
+    y = backgroundWindow.y + 78
   })
 
   local function btnWithCashRelease()
@@ -513,8 +563,8 @@ function scene:create(event)
     },
     width = 77,
     height = 50,
-    x = backgroundWindow.x + 60,
-    y = backgroundWindow.y + 250
+    x = backgroundWindow.x + 70,
+    y = backgroundWindow.y + 255
   })
 
   local function btnExitRelease()
@@ -524,10 +574,10 @@ function scene:create(event)
   local btnExit = composer.newButton({
     image = "images/gui/common/buttonClosePopup.png",
     onRelease = btnExitRelease,
-    width = 43,
-    height = 38,
-    x = backgroundWindow.x + 100,
-    y = backgroundWindow.y + 80
+    width = 55,
+    height = 44,
+    x = 607,
+    y = 63
   })
 
   local function addjustButtons()
@@ -535,6 +585,13 @@ function scene:create(event)
     btnWithCoins.isVisible = item.price ~= nil
     btnWithGems.isVisible = gemPrice ~= nil
     btnWithCash.isVisible = item.tier ~= nil
+    local anyVisible = btnWithCoins.isVisible or btnWithGems.isVisible or btnWithCash.isVisible
+    if not anyVisible then
+      btnWithCoins.isVisible = true
+      if btnWithCoins.changeText then
+        btnWithCoins.changeText("0")
+      end
+    end
     if btnWithCoins.isVisible then
       buttons[#buttons + 1] = btnWithCoins
     end
@@ -544,7 +601,7 @@ function scene:create(event)
     if btnWithCash.isVisible then
       buttons[#buttons + 1] = btnWithCash
     end
-    orText.isVisible = #buttons == 2
+    orText.isVisible = false
     if #buttons == 1 then
       buttons[1].x = backgroundWindow.x
       saleGroup.x = 0
@@ -558,6 +615,18 @@ function scene:create(event)
       buttons[3].x = backgroundWindow.x + 90
       saleGroup.x = 0
     end
+    if btnWithCoins then
+      btnWithCoins.x = backgroundWindow.x - 70
+      btnWithCoins.y = backgroundWindow.y + 255
+    end
+    if btnWithGems then
+      btnWithGems.x = backgroundWindow.x - 70
+      btnWithGems.y = backgroundWindow.y + 255
+    end
+    if btnWithCash then
+      btnWithCash.x = backgroundWindow.x + 70
+      btnWithCash.y = backgroundWindow.y + 255
+    end
   end
 
   local function checkForDescriptionText()
@@ -568,26 +637,25 @@ function scene:create(event)
 
   local function updateDisplayGroups()
     sceneGroup:insert(backgroundImage)
-    sceneGroup:insert(backgroundCoins)
-    sceneGroup:insert(moneyLabel)
-    sceneGroup:insert(moneyLabelRed)
-    sceneGroup:insert(gemIcon)
-    sceneGroup:insert(gemLabel)
-    sceneGroup:insert(gemLabelRed)
     dropdownGroup:insert(backgroundWindow)
-    dropdownGroup:insert(btnWithCoins)
-    dropdownGroup:insert(btnWithGems)
-    dropdownGroup:insert(btnWithCash)
-    dropdownGroup:insert(btnExit)
-    dropdownGroup:insert(itemInfo)
-    dropdownGroup:insert(plate)
-    dropdownGroup:insert(icon)
-    dropdownGroup:insert(errorInfo)
-    dropdownGroup:insert(windowInfo)
-    dropdownGroup:insert(orText)
-    dropdownGroup:insert(descriptionText)
-    dropdownGroup:insert(saleGroup)
+    if btnWithCoins then dropdownGroup:insert(btnWithCoins) end
+    if btnWithGems then dropdownGroup:insert(btnWithGems) end
+    if btnWithCash then dropdownGroup:insert(btnWithCash) end
+    if btnExit then dropdownGroup:insert(btnExit) end
+    if itemInfo then dropdownGroup:insert(itemInfo) end
+    if plate then dropdownGroup:insert(plate) end
+    if icon then dropdownGroup:insert(icon) end
+    if errorInfo then dropdownGroup:insert(errorInfo) end
+    if windowInfo then dropdownGroup:insert(windowInfo) end
+    if orText then dropdownGroup:insert(orText) end
+    if descriptionText then dropdownGroup:insert(descriptionText) end
+    if saleGroup then dropdownGroup:insert(saleGroup) end
     sceneGroup:insert(dropdownGroup)
+    sceneGroup:insert(overlayCurrentCoins)
+    if moneyLabel then sceneGroup:insert(moneyLabel) end
+    if moneyLabelRed then sceneGroup:insert(moneyLabelRed) end
+    if gemLabel then sceneGroup:insert(gemLabel) end
+    if gemLabelRed then sceneGroup:insert(gemLabelRed) end
     sceneGroup:insert(alphaBackground)
     sceneGroup:insert(overlayInfo)
   end
@@ -623,6 +691,8 @@ function scene:create(event)
     display.remove(btnWithCash)
     display.remove(btnExit)
     display.remove(gemIcon)
+    display.remove(moneyLabel)
+    display.remove(moneyLabelRed)
     display.remove(gemLabel)
     display.remove(gemLabelRed)
     stopTimers()

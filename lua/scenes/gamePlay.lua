@@ -49,8 +49,8 @@ function scene:create(event)
   UIgroup:insert(homeButton)
   positionNumber = composer.newText({
     string = "22",
-    x = 240,
-    y = 20,
+    x = 443,
+    y = 19,
     size = 40,
     color = {
       1,
@@ -632,6 +632,9 @@ function scene:show(event)
   end
 
   local function updatePlayers()
+    if not playerSelf or not mapInterface then
+      return
+    end
     if gameRunning and not startedClean then
       playerPosition = 1
       for i = 1, #playerList do
@@ -966,6 +969,9 @@ function scene:show(event)
   end
 
   function send(powerUp, jump)
+    if not playerSelf then
+      return
+    end
     if networkGame and not startedClean and not stopSend then
       checkForDisconnect()
       if gameRunning then

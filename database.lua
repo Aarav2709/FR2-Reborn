@@ -1140,8 +1140,8 @@ function M.createDefaultOfflinePlayer()
     print("OFFLINE MODE: Creating default player...")
     M.setPlayerInformation("Player#1234", 1234, "OFFLINE_PLAYER_" .. os.time(), "offline_token_123")
     M.setAvatarData({ 1, 0, 0, 0, 0, 0, 0 }, false) -- Default avatar c1s0
-    M.setMoney(1000000)                             -- Starting money
-    M.setGems(1000)
+    M.setMoney(1000)                             -- Starting money
+    M.setGems(0)
     M.setXp(0)
     M.setSound(1)    -- Sound enabled
     M.setViolence(1) -- Violence enabled

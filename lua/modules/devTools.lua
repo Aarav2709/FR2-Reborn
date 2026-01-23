@@ -71,6 +71,7 @@ local function getObjectInfo(obj)
   local info = {}
 
   pcall(function() info.name = obj.name end)
+  pcall(function() info.devName = obj.devName or obj._devName end)
   pcall(function() info.id = obj.id end)
   pcall(function() info.text = obj.text end)
   pcall(function() info.filename = obj.filename end)
@@ -92,7 +93,9 @@ local function getObjectName(obj)
   local uniqueId = getUniqueId(obj)
   local baseName = ""
 
-  if info.name and info.name ~= "" then
+  if info.devName and info.devName ~= "" then
+    baseName = info.devName
+  elseif info.name and info.name ~= "" then
     baseName = info.name
   elseif info.filename and info.filename ~= "" then
     baseName = string.match(info.filename, "([^/\\]+)$") or info.filename
@@ -320,7 +323,7 @@ local function updateHandles()
   end
 
   if M.touchOverlay then pcall(function() M.touchOverlay:toFront() end) end
-  if M.infoBackground then pcall(function() M.infoBackground:toFront() end) end
+  if M.infoBackground then pcall(function() M.infoBackground:toBack() end) end
   if M.infoText then pcall(function() M.infoText:toFront() end) end
 end
 
@@ -445,24 +448,53 @@ local function updateUI()
     local name = getObjectName(obj)
     local zIndex = getObjectZIndex(obj)
     local cycle = #M.objectsAtPoint > 1 and string.format(" (%d/%d)", M.currentObjectIndex, #M.objectsAtPoint) or ""
-    local x1080 = math.floor(info.x or 0)
-    local y1080 = math.floor(info.y or 0)
+    local localX = math.floor(info.x or 0)
+    local localY = math.floor(info.y or 0)
     local w = math.floor(info.width or 0)
     local h = math.floor(info.height or 0)
+    local globalX, globalY
+    local parentScaleX, parentScaleY
+    pcall(function() globalX, globalY = obj:localToContent(0, 0) end)
+    pcall(function()
+      if obj.parent then
+        parentScaleX = obj.parent.xScale
+        parentScaleY = obj.parent.yScale
+      end
+    end)
     local isHidden = (info.isVisible == false) or (info.alpha and info.alpha <= 0)
     local hiddenTag = isHidden and " [HIDDEN]" or ""
     addLine(string.format("Target: %s%s%s", name, cycle, hiddenTag), colText, 12, 8)
     addLine(string.format("Layer: %d", zIndex), colText, 12, 8)
     lineY = lineY + 6
     addLine("TRANSFORM", colHeader, 12, 0)
-    addLine(string.format("Pos: %d, %d", x1080, y1080), colText, 12, 8)
-    addLine(string.format("Size: %d x %d", w, h), colText, 12, 8)
+    addLine(string.format("Pos L: %d, %d", localX, localY), colText, 12, 8)
+    if globalX and globalY then
+      addLine(string.format("Pos G: %d, %d", math.floor(globalX), math.floor(globalY)), colText, 12, 8)
+    else
+      addLine("Pos G: --", colText, 12, 8)
+    end
+    addLine(string.format("Size L: %d x %d", w, h), colText, 12, 8)
+    if info.contentBounds then
+      local cb = info.contentBounds
+      local gw = math.floor(cb.xMax - cb.xMin)
+      local gh = math.floor(cb.yMax - cb.yMin)
+      addLine(string.format("Size G: %d x %d", gw, gh), colText, 12, 8)
+    else
+      addLine("Size G: --", colText, 12, 8)
+    end
+    if parentScaleX and parentScaleY then
+      addLine(string.format("Parent Scale: %.2f, %.2f", parentScaleX, parentScaleY), colText, 12, 8)
+    end
   else
     addLine("Target: None", colText, 12, 8)
     lineY = lineY + 6
     addLine("TRANSFORM", colHeader, 12, 0)
     addLine("Pos: --", colText, 12, 8)
     addLine("Size: --", colText, 12, 8)
+  end
+
+  if M.infoBackground then
+    M.infoBackground.height = lineY + padding
   end
 
   M.hudGroup:toFront()
@@ -513,7 +545,7 @@ local function updateHighlight()
   updateHandles()
 
   if M.touchOverlay then pcall(function() M.touchOverlay:toFront() end) end
-  if M.infoBackground then pcall(function() M.infoBackground:toFront() end) end
+  if M.infoBackground then pcall(function() M.infoBackground:toBack() end) end
   if M.infoText then pcall(function() M.infoText:toFront() end) end
 end
 
@@ -557,8 +589,11 @@ local function undo()
     M.selectedObject = last.obj
     updateHighlight()
     updateUI()
-    print(string.format("DEV: Undo - restored to (%d, %d) size %dx%d",
-      last.x, last.y, last.width or 0, last.height or 0))
+      local ux = tonumber(last.x) or 0
+      local uy = tonumber(last.y) or 0
+      local uw = tonumber(last.width) or 0
+      local uh = tonumber(last.height) or 0
+      print(string.format("DEV: Undo - restored to (%d, %d) size %dx%d", ux, uy, uw, uh))
   end
 end
 
@@ -865,8 +900,8 @@ local function onKey(event)
   end
 
   if M.selectedObject then
-    local step = 4
-    if event.isShiftDown then step = 40 end
+    local step = 1
+    if event.isShiftDown then step = 10 end
 
     local changed = false
 

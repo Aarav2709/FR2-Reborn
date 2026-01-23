@@ -9,7 +9,7 @@ function Animation.new(name, timelines, duration)
     timelines = timelines,
     duration = duration
   }
-  
+
   function self:apply(skeleton, lastTime, time, loop, events)
     if not skeleton then
       error("skeleton cannot be nil.", 2)
@@ -22,7 +22,7 @@ function Animation.new(name, timelines, duration)
       timeline:apply(skeleton, lastTime, time, events, 1)
     end
   end
-  
+
   function self:mix(skeleton, lastTime, time, loop, events, alpha)
     if not skeleton then
       error("skeleton cannot be nil.", 2)
@@ -35,7 +35,7 @@ function Animation.new(name, timelines, duration)
       timeline:apply(skeleton, lastTime, time, events, alpha)
     end
   end
-  
+
   return self
 end
 
@@ -77,15 +77,15 @@ function Animation.CurveTimeline.new()
   local self = {
     curves = {}
   }
-  
+
   function self:setLinear(frameIndex)
     self.curves[frameIndex * 6] = LINEAR
   end
-  
+
   function self:setStepped(frameIndex)
     self.curves[frameIndex * 6] = STEPPED
   end
-  
+
   function self:setCurve(frameIndex, cx1, cy1, cx2, cy2)
     local subdiv_step = 1 / BEZIER_SEGMENTS
     local subdiv_step2 = subdiv_step * subdiv_step
@@ -107,7 +107,7 @@ function Animation.CurveTimeline.new()
     curves[i + 4] = tmp2x * pre5
     curves[i + 5] = tmp2y * pre5
   end
-  
+
   function self:getCurvePercent(frameIndex, percent)
     local curveIndex = frameIndex * 6
     local curves = self.curves
@@ -145,7 +145,7 @@ function Animation.CurveTimeline.new()
     end
     return y + (1 - y) * (percent - x) / (1 - x)
   end
-  
+
   return self
 end
 
@@ -157,21 +157,21 @@ function Animation.RotateTimeline.new()
   local self = Animation.CurveTimeline.new()
   self.frames = {}
   self.boneIndex = -1
-  
+
   function self:getDuration()
     return self.frames[#self.frames - 1]
   end
-  
+
   function self:getFrameCount()
     return (#self.frames + 1) / 2
   end
-  
+
   function self:setFrame(frameIndex, time, value)
     frameIndex = frameIndex * 2
     self.frames[frameIndex] = time
     self.frames[frameIndex + 1] = value
   end
-  
+
   function self:apply(skeleton, lastTime, time, firedEvents, alpha)
     local frames = self.frames
     if time < frames[0] then
@@ -215,7 +215,7 @@ function Animation.RotateTimeline.new()
     end
     bone.rotation = bone.rotation + amount * alpha
   end
-  
+
   return self
 end
 
@@ -228,22 +228,22 @@ function Animation.TranslateTimeline.new()
   local self = Animation.CurveTimeline.new()
   self.frames = {}
   self.boneIndex = -1
-  
+
   function self:getDuration()
     return self.frames[#self.frames - 2]
   end
-  
+
   function self:getFrameCount()
     return (#self.frames + 1) / 3
   end
-  
+
   function self:setFrame(frameIndex, time, x, y)
     frameIndex = frameIndex * 3
     self.frames[frameIndex] = time
     self.frames[frameIndex + 1] = x
     self.frames[frameIndex + 2] = y
   end
-  
+
   function self:apply(skeleton, lastTime, time, firedEvents, alpha)
     local frames = self.frames
     if time < frames[0] then
@@ -269,7 +269,7 @@ function Animation.TranslateTimeline.new()
     bone.x = bone.x + (bone.data.x + lastFrameX + (frames[frameIndex + FRAME_X] - lastFrameX) * percent - bone.x) * alpha
     bone.y = bone.y + (bone.data.y + lastFrameY + (frames[frameIndex + FRAME_Y] - lastFrameY) * percent - bone.y) * alpha
   end
-  
+
   return self
 end
 
@@ -280,7 +280,7 @@ function Animation.ScaleTimeline.new()
   local FRAME_X = 1
   local FRAME_Y = 2
   local self = Animation.TranslateTimeline.new()
-  
+
   function self:apply(skeleton, lastTime, time, firedEvents, alpha)
     local frames = self.frames
     if time < frames[0] then
@@ -306,7 +306,7 @@ function Animation.ScaleTimeline.new()
     bone.scaleX = bone.scaleX + (bone.data.scaleX - 1 + lastFrameX + (frames[frameIndex + FRAME_X] - lastFrameX) * percent - bone.scaleX) * alpha
     bone.scaleY = bone.scaleY + (bone.data.scaleY - 1 + lastFrameY + (frames[frameIndex + FRAME_Y] - lastFrameY) * percent - bone.scaleY) * alpha
   end
-  
+
   return self
 end
 
@@ -321,15 +321,15 @@ function Animation.ColorTimeline.new()
   local self = Animation.CurveTimeline.new()
   self.frames = {}
   self.slotIndex = -1
-  
+
   function self:getDuration()
     return self.frames[#self.frames - 4]
   end
-  
+
   function self:getFrameCount()
     return (#self.frames + 1) / 5
   end
-  
+
   function self:setFrame(frameIndex, time, r, g, b, a)
     frameIndex = frameIndex * 5
     self.frames[frameIndex] = time
@@ -338,7 +338,7 @@ function Animation.ColorTimeline.new()
     self.frames[frameIndex + 3] = b
     self.frames[frameIndex + 4] = a
   end
-  
+
   function self:apply(skeleton, lastTime, time, firedEvents, alpha)
     local frames = self.frames
     if time < frames[0] then
@@ -376,7 +376,7 @@ function Animation.ColorTimeline.new()
       slot:setColor(r, g, b, a)
     end
   end
-  
+
   return self
 end
 
@@ -388,20 +388,20 @@ function Animation.AttachmentTimeline.new()
     attachmentNames = {},
     slotName = nil
   }
-  
+
   function self:getDuration()
     return self.frames[#self.frames]
   end
-  
+
   function self:getFrameCount()
     return #self.frames + 1
   end
-  
+
   function self:setFrame(frameIndex, time, attachmentName)
     self.frames[frameIndex] = time
     self.attachmentNames[frameIndex] = attachmentName
   end
-  
+
   function self:apply(skeleton, lastTime, time, firedEvents, alpha)
     local frames = self.frames
     if time < frames[0] then
@@ -425,7 +425,7 @@ function Animation.AttachmentTimeline.new()
       slot:setAttachment(nil)
     end
   end
-  
+
   return self
 end
 
@@ -436,20 +436,20 @@ function Animation.EventTimeline.new()
     frames = {},
     events = {}
   }
-  
+
   function self:getDuration()
     return self.frames[#self.frames]
   end
-  
+
   function self:getFrameCount()
     return #self.frames + 1
   end
-  
+
   function self:setFrame(frameIndex, time, event)
     self.frames[frameIndex] = time
     self.events[frameIndex] = event
   end
-  
+
   function self:apply(skeleton, lastTime, time, firedEvents, alpha)
     if not firedEvents then
       return
@@ -484,7 +484,7 @@ function Animation.EventTimeline.new()
       frameIndex = frameIndex + 1
     end
   end
-  
+
   return self
 end
 
@@ -495,20 +495,20 @@ function Animation.DrawOrderTimeline.new()
     frames = {},
     drawOrders = {}
   }
-  
+
   function self:getDuration()
     return self.frames[#self.frames]
   end
-  
+
   function self:getFrameCount()
     return #self.frames + 1
   end
-  
+
   function self:setFrame(frameIndex, time, drawOrder)
     self.frames[frameIndex] = time
     self.drawOrders[frameIndex] = drawOrder
   end
-  
+
   function self:apply(skeleton, lastTime, time, firedEvents, alpha)
     local frames = self.frames
     if time < frames[0] then
@@ -533,7 +533,7 @@ function Animation.DrawOrderTimeline.new()
       end
     end
   end
-  
+
   return self
 end
 

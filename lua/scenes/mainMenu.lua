@@ -28,7 +28,7 @@ function scene:create(event)
   end
 
   local function btnClanRelease(event)
-    composer.gotoScene("lua.scenes.clan")
+    composer.gotoScene("lua.overlays.clan")
   end
 
   local function btnRankingRelease(event)

@@ -73,7 +73,7 @@ local function new(monsterData, networkFormat)
 
         if not imagePath then
           print("ERROR: Frame not found! Character: " .. (path or "N/A") .. ", Looking for: " .. restOfPath)
-          return nil
+          return display.newRect(0, 0, 1, 1)
         end
 
         print("SUCCESS: Loading frame: " .. restOfPath .. " = frameIndex " .. imagePath)

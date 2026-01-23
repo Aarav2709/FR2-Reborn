@@ -23,13 +23,13 @@ if composer.config.gameAnalytics then
   M.plugin.submitComposerEvents = true
 else
   M.plugin = {}
-  
+
   function M.plugin.init(_, _)
   end
-  
+
   function M.plugin.logEvent(_, _)
   end
-  
+
   function M.plugin.newEvent(_, _)
   end
 end
@@ -40,7 +40,7 @@ function unhandledErrorListener(event)
   local textMessage = event.errorMessage .. event.stackTrace
   if scene then
     textMessage = textMessage .. [[
- 
+
  in ]] .. scene .. " v: " .. composer.config.fullVersion
   end
   print("unhandledError: ", textMessage)

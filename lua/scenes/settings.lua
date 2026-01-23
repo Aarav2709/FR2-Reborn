@@ -77,8 +77,17 @@ function scene:create(event)
     local function updateUsername()
         local playerInfo = composer.database.getPlayerInformation()
         if playerInfo.usernameCode then
-            username.text = playerInfo.username
-            usernameTag.text = "#" .. playerInfo.usernameCode
+            local name = playerInfo.username or ""
+            local code = tostring(playerInfo.usernameCode)
+            local suffix = "#" .. code
+            if #name >= #suffix and name:sub(-#suffix) == suffix then
+                name = name:sub(1, #name - #suffix)
+                if name:sub(-1) == " " then
+                    name = name:sub(1, -2)
+                end
+            end
+            username.text = name
+            usernameTag.text = suffix
         else
             username.text = ""
             usernameTag.text = ""

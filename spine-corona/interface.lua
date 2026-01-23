@@ -32,7 +32,7 @@ function M.newMonster()
   if fullMonsterList == nil then
     M.loadBasicSpine()
   end
-  
+
   local function addMixToRunAnimations(mixType, otherAnimation, mix)
     if mixType == 1 then
       animationData:setMix("run", otherAnimation, mix)
@@ -44,7 +44,7 @@ function M.newMonster()
       animationData:setMix(otherAnimation, "run3", mix)
     end
   end
-  
+
   local function setMixToAnimations()
     -- FIXED: Optimized animation mixing for smoother transitions
     -- Run animations
@@ -56,7 +56,7 @@ function M.newMonster()
     addMixToRunAnimations(1, "happy", 0.15)
     addMixToRunAnimations(1, "sad", 0.15)
     addMixToRunAnimations(1, "jump_fall", 0.05)
-    
+
     -- Run board animations
     animationData:setMix("run_board", "jump_start", 0.05)
     animationData:setMix("run_board", "slide", 0.1)
@@ -66,14 +66,14 @@ function M.newMonster()
     animationData:setMix("run_board", "happy", 0.15)
     animationData:setMix("run_board", "sad", 0.15)
     animationData:setMix("run_board", "jump_fall", 0.05)
-    
+
     -- Jump transitions - smoother
     animationData:setMix("jump_start", "jump_fall", 0.1)
     addMixToRunAnimations(2, "jump_start", 0.1)
     animationData:setMix("jump_start", "run_board", 0.1)
     addMixToRunAnimations(2, "jump_fall", 0.05)
     animationData:setMix("jump_fall", "run_board", 0.05)
-    
+
     -- Idle transitions
     animationData:setMix("slide", "idle", 0.15)
     animationData:setMix("slide", "idle_var1", 0.15)
@@ -83,21 +83,21 @@ function M.newMonster()
     animationData:setMix("idle", "run_board", 0.15)
     animationData:setMix("idle", "jump_start", 0.1)
     animationData:setMix("idle", "sad", 0.15)
-    
+
     animationData:setMix("idle_var1", "happy", 0.15)
     addMixToRunAnimations(2, "idle_var1", 0.15)
     animationData:setMix("idle_var1", "run_board", 0.15)
     animationData:setMix("idle_var1", "jump_start", 0.1)
     animationData:setMix("idle_var1", "sad", 0.15)
     animationData:setMix("idle_var1", "idle", 0.1)
-    
+
     animationData:setMix("idle_var2", "happy", 0.15)
     addMixToRunAnimations(2, "idle_var2", 0.15)
     animationData:setMix("idle_var2", "run_board", 0.15)
     animationData:setMix("idle_var2", "jump_start", 0.1)
     animationData:setMix("idle_var2", "sad", 0.15)
     animationData:setMix("idle_var2", "idle", 0.1)
-    
+
     -- Emotion transitions
     animationData:setMix("sad", "happy", 0.15)
     animationData:setMix("sad", "idle_var1", 0.15)
@@ -105,7 +105,7 @@ function M.newMonster()
     animationData:setMix("sad", "idle", 0.15)
     addMixToRunAnimations(2, "sad", 0.15)
     animationData:setMix("sad", "run_board", 0.15)
-    
+
     animationData:setMix("happy", "sad", 0.15)
     animationData:setMix("happy", "idle", 0.15)
     animationData:setMix("happy", "idle_var1", 0.15)
@@ -113,7 +113,7 @@ function M.newMonster()
     addMixToRunAnimations(2, "happy", 0.15)
     animationData:setMix("happy", "run_board", 0.15)
   end
-  
+
   local function setup()
     skeletonData = fullMonsterList.skeletonData
     animationData = fullMonsterList.animationStateData
@@ -123,19 +123,19 @@ function M.newMonster()
     skeleton:setToSetupPose()
     skeleton.debug = false
   end
-  
+
   local function getSkeleton()
     return skeleton
   end
-  
+
   local function getSkeletonData()
     return skeletonData
   end
-  
+
   local function getAnimationState()
     return animator
   end
-  
+
   setup()
   spineLoader.getSkeletonData = getSkeletonData
   spineLoader.getSkeleton = getSkeleton

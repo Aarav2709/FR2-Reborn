@@ -73,7 +73,7 @@ function scene:create(event)
       1
     }
   })
-  
+
   local function createSliders(id)
     local imagePath = "images/gui/settings/toggleOn.png"
     local text = composer.localized.get("On")
@@ -109,7 +109,7 @@ function scene:create(event)
     group:insert(sliders[id])
     group:insert(slidersText[id])
   end
-  
+
   local function changeState(id)
     local stringStatus = "off"
     if slidersState[id] == 1 then
@@ -126,7 +126,7 @@ function scene:create(event)
     createSliders(id)
     composer.database.setPushEnableStatus(slidersState[1], slidersState[2], slidersState[3])
   end
-  
+
   slidersFunctions[1] = function(event)
     if event.phase == "ended" then
       changeState(1)
@@ -145,22 +145,22 @@ function scene:create(event)
     end
     return true
   end
-  
+
   local function closeButtonEvent()
     composer.hideOverlay()
   end
-  
+
   local function closeOnTouchEvent(event)
     if event.phase == "ended" then
       composer.hideOverlay()
     end
     return true
   end
-  
+
   local function doNothingOnTouchEvent(event)
     return true
   end
-  
+
   local closeButton = composer.newButton({
     x = 400,
     y = 60,
@@ -169,14 +169,14 @@ function scene:create(event)
     image = "images/gui/common/buttonClosePopup.png",
     onRelease = closeButtonEvent
   })
-  
+
   local function stopTimer()
     if timeoutTimer then
       timer.cancel(timeoutTimer)
       timeoutTimer = nil
     end
   end
-  
+
   local function updateDisplayGroup()
     group:insert(alphaBackground)
     dropdownGroup:insert(background)
@@ -191,15 +191,15 @@ function scene:create(event)
     dropdownGroup:insert(closeButton)
     group:insert(dropdownGroup)
   end
-  
+
   local function httpsCallback(data)
   end
-  
+
   local function addListeners()
     alphaBackground:addEventListener("touch", closeOnTouchEvent)
     background:addEventListener("touch", doNothingOnTouchEvent)
   end
-  
+
   function clean()
     composer.comm.updatePushNotificationSettings(slidersState[1], slidersState[2], slidersState[3])
     display.remove(closeButton)
@@ -211,7 +211,7 @@ function scene:create(event)
     background:removeEventListener("touch", doNothingOnTouchEvent)
     stopTimer()
   end
-  
+
   for i = 1, 3 do
     createSliders(i)
   end
@@ -228,11 +228,11 @@ function scene:show(event)
   end
   local group = self.view
   local androidLogic = require("lua.modules.androidBackButton")
-  
+
   function cleanEnter()
     androidLogic.isOverlay(false)
   end
-  
+
   androidLogic.isOverlay(true)
 end
 

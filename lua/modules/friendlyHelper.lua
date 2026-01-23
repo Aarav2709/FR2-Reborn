@@ -138,7 +138,7 @@ local function createMessage(message, group, monsterData, animateHelper)
   helperText.x = 111.25
   helperText.y = -39.5
   bubbleGroup:insert(helperText)
-  
+
   local function showText()
     helperText.isVisible = true
     transition.to(helperText, {
@@ -150,7 +150,7 @@ local function createMessage(message, group, monsterData, animateHelper)
       tag = "helperTransition"
     })
   end
-  
+
   local function animateSpeechBubble()
     if not monsterGroup or not helperTextBuble then
       return
@@ -187,7 +187,7 @@ local function createMessage(message, group, monsterData, animateHelper)
       delay = 500
     })
   end
-  
+
   local function animateHelperOnScreen()
     transition.to(monsterGroup, {
       time = 300,
@@ -197,16 +197,16 @@ local function createMessage(message, group, monsterData, animateHelper)
       tag = "helperTransition"
     })
   end
-  
+
   group:insert(alphaBackground)
   group:insert(monsterGroup)
   group:insert(bubbleGroup)
   canClose = false
-  
+
   local function allowClose()
     canClose = true
   end
-  
+
   timer.performWithDelay(1000, allowClose, 1)
   addListeners()
   composer.customOverlayActive = true

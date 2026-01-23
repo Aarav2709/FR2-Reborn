@@ -5,7 +5,7 @@ local function new(id, playerToKill, playerId, playerList)
   local ninja = {1}
   ninja.x = 1
   ninja.y = 1
-  
+
   local function chopHeadOff()
     if composer.data.gameInfo.gameType == 0 then
       if playerList[id].playerId == playerId then
@@ -35,7 +35,7 @@ local function new(id, playerToKill, playerId, playerList)
       end
     end
   end
-  
+
   chopHeadOff()
   return ninja
 end

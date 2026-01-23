@@ -96,7 +96,7 @@ function scene:create(event)
     x = display.contentWidth * 0.5,
     y = 150
   })
-  
+
   local function updateMoneyText(newMoney)
     moneyText.text = newMoney
     moneyText.anchorX = 0
@@ -104,7 +104,7 @@ function scene:create(event)
     moneyText.x = 430
     moneyText.y = 40
   end
-  
+
   local function refreshMoney()
     local newMoney = composer.database.getMoney()
     updateMoneyText(newMoney)
@@ -123,9 +123,9 @@ function scene:create(event)
       })
     end
   end
-  
+
   local showDailyCount = 0
-  
+
   local function showDaily()
     dailyActive.isVisible = true
     achievementsActive.isVisible = false
@@ -139,7 +139,7 @@ function scene:create(event)
     infoText.text = composer.localized.get("DailyChallenges")
     showDailyCount = showDailyCount + 1
   end
-  
+
   local function showAchievements()
     achievementsActive.isVisible = true
     dailyActive.isVisible = false
@@ -150,7 +150,7 @@ function scene:create(event)
     })
     infoText.text = composer.localized.get("Achievements")
   end
-  
+
   local function showEarnCoins()
     earnCoinActive.isVisible = true
     achievementsActive.isVisible = false
@@ -161,7 +161,7 @@ function scene:create(event)
     })
     infoText.text = composer.localized.get("EarnCoins")
   end
-  
+
   local function sortTable(newTable)
     table.sort(newTable, function(a, b)
       local aStatus = 0
@@ -187,7 +187,7 @@ function scene:create(event)
       return aStatus > bStatus
     end)
   end
-  
+
   local function cleanTable()
     if activeTableInt == 1 then
       challangesTable.cleanTable()
@@ -197,7 +197,7 @@ function scene:create(event)
       earnCoinTable.cleanTable()
     end
   end
-  
+
   local function setActiveTable(newTable, overrideSortTable)
     if statedClean then
       return
@@ -234,7 +234,7 @@ function scene:create(event)
     end
     group:insert(closeOverlayButton)
   end
-  
+
   function checkIfAdsShoudBeRemoved(needToRefresh)
     if statedClean then
       return
@@ -249,11 +249,11 @@ function scene:create(event)
       end
     end
   end
-  
+
   local function showDailyButtonEvent()
     setActiveTable(1)
   end
-  
+
   local showDailyButton = composer.newButton({
     x = dailyActive.x + 31,
     y = dailyActive.y + 31,
@@ -263,11 +263,11 @@ function scene:create(event)
     onRelease = showDailyButtonEvent,
     noFill = true
   })
-  
+
   local function showAchievementsButtonEvent()
     setActiveTable(2)
   end
-  
+
   local showAchievementsButton = composer.newButton({
     x = achievementsActive.x + 31,
     y = achievementsActive.y + 31,
@@ -277,11 +277,11 @@ function scene:create(event)
     onRelease = showAchievementsButtonEvent,
     noFill = true
   })
-  
+
   local function showEarnCoinsButtonEvent()
     setActiveTable(3)
   end
-  
+
   local showEarnCoinsButton = composer.newButton({
     x = earnCoinActive.x + 31,
     y = earnCoinActive.y + 31,
@@ -291,22 +291,22 @@ function scene:create(event)
     onRelease = showEarnCoinsButtonEvent,
     noFill = true
   })
-  
+
   local function closeOverlayButtonEvent()
     composer.hideOverlay()
   end
-  
+
   local function closeOnTouchEvent(event)
     if event.phase == "ended" then
       composer.hideOverlay()
     end
     return true
   end
-  
+
   local function doNothingOnTouchEvent(event)
     return true
   end
-  
+
   closeOverlayButton = composer.newButton({
     x = 370,
     y = 34,
@@ -315,7 +315,7 @@ function scene:create(event)
     image = "images/gui/common/buttonClosePopup.png",
     onRelease = closeOverlayButtonEvent
   })
-  
+
   local function refreshTable()
     if activeTableInt == 1 then
       challangesTable.refreshTable()
@@ -326,7 +326,7 @@ function scene:create(event)
     end
     group:insert(closeOverlayButton)
   end
-  
+
   local function addBoostItems()
     local boostItems = {}
     local boughtItems = composer.database.getItems()
@@ -348,7 +348,7 @@ function scene:create(event)
       end
     end
   end
-  
+
   local function tableCallback(clamied, progression, challengeId, stage, challenge, isSpinReward, link)
     if progression == 1 and clamied == 0 then
       if challenge.spinReward then
@@ -398,11 +398,11 @@ function scene:create(event)
       end
     end
   end
-  
+
   challangesTable = tableHelper.new(124, 36, 250, 284, 70, nil, "challenge", tableCallback, 10)
   achievementsTable = tableHelper.new(124, 36, 250, 284, 70, nil, "challenge", tableCallback, 10)
   earnCoinTable = tableHelper.new(124, 36, 250, 284, 70, nil, "challenge", tableCallback, 10)
-  
+
   local function getTimeLeftInText(timeLeft)
     if timeLeft then
       local minutes = math.floor(timeLeft / 60)
@@ -416,7 +416,7 @@ function scene:create(event)
     end
     return "12h 14m"
   end
-  
+
   local function createDailyChallengeTable(dailyChallenges, timeLeft)
     composer.data.dailyToClaim = 0
     dailyTable = {}
@@ -437,7 +437,7 @@ function scene:create(event)
       end
     end
   end
-  
+
   local function tcpCallback(data)
     if statedClean then
       return
@@ -544,7 +544,7 @@ function scene:create(event)
       refreshMoney()
     end
   end
-  
+
   local function updateDisplayGroup()
     group:insert(alphaBackground)
     group:insert(tableBackground)
@@ -562,12 +562,12 @@ function scene:create(event)
     group:insert(backgroundCoins)
     group:insert(moneyText)
   end
-  
+
   local function addListeners()
     alphaBackground:addEventListener("touch", closeOnTouchEvent)
     tableBackground:addEventListener("touch", doNothingOnTouchEvent)
   end
-  
+
   function clean()
     statedClean = true
     cleanTable(activeTableInt)
@@ -578,7 +578,7 @@ function scene:create(event)
     tableBackground:removeEventListener("touch", doNothingOnTouchEvent)
     composer.overlayWithNetwork = false
   end
-  
+
   allAchivements = composer.awards.getAchievements()
   allEarnCoins = composer.awards.getEarnCoins()
   updateDisplayGroup()
@@ -603,11 +603,11 @@ function scene:show(event)
     return
   end
   local androidLogic = require("lua.modules.androidBackButton")
-  
+
   function cleanEnter()
     androidLogic.isOverlay(false)
   end
-  
+
   androidLogic.isOverlay(true)
 end
 

@@ -24,35 +24,35 @@ function Skeleton.new(skeletonData)
     flipY = false,
     time = 0
   }
-  
+
   function self:updateWorldTransform()
     for i, bone in ipairs(self.bones) do
       bone:updateWorldTransform(self.flipX, self.flipY)
     end
   end
-  
+
   function self:setToSetupPose()
     self:setBonesToSetupPose()
     self:setSlotsToSetupPose()
   end
-  
+
   function self:setBonesToSetupPose()
     for i, bone in ipairs(self.bones) do
       bone:setToSetupPose()
     end
   end
-  
+
   function self:setSlotsToSetupPose()
     for i, slot in ipairs(self.slots) do
       self.drawOrder[i] = slot
       slot:setToSetupPose()
     end
   end
-  
+
   function self:getRootBone()
     return self.bones[1]
   end
-  
+
   function self:findBone(boneName)
     if not boneName then
       error("boneName cannot be nil.", 2)
@@ -64,14 +64,14 @@ function Skeleton.new(skeletonData)
     end
     return nil
   end
-  
+
   function self:findSlot(slotName)
     if not slotName then
       error("slotName cannot be nil.", 2)
     end
     return self.slotsByName[slotName]
   end
-  
+
   function self:setSkin(skinName)
     local newSkin
     if skinName then
@@ -106,7 +106,7 @@ function Skeleton.new(skeletonData)
     end
     self.skin = newSkin
   end
-  
+
   function self:getAttachment(slotName, attachmentName)
     if not slotName then
       error("slotName cannot be nil.", 2)
@@ -129,7 +129,7 @@ function Skeleton.new(skeletonData)
     end
     return nil
   end
-  
+
   function self:setAttachment(slotName, attachmentName)
     if not slotName then
       error("slotName cannot be nil.", 2)
@@ -146,18 +146,18 @@ function Skeleton.new(skeletonData)
     end
     error("Slot not found = " .. slotName, 2)
   end
-  
+
   function self:update(delta)
     self.time = self.time + delta
   end
-  
+
   function self:setColor(r, g, b, a)
     self.r = r
     self.g = g
     self.b = b
     self.a = a
   end
-  
+
   for i, boneData in ipairs(skeletonData.bones) do
     local parent
     if boneData.parent then

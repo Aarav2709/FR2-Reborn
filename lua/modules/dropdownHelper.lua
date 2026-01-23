@@ -41,7 +41,7 @@ function M.showGameInvite(data)
     ax = 0
   })
   group:insert(textLabel)
-  
+
   local function cleanGameInvite(obj)
     if not groupRemoved then
       groupRemoved = true
@@ -50,13 +50,13 @@ function M.showGameInvite(data)
       obj = nil
     end
   end
-  
+
   local function joinGameDelayed()
     composer.gotoScene("lua.scenes.lobbyCustomPlay")
     composer.database.removeGameInvite(data.p)
     cleanGameInvite(group)
   end
-  
+
   local function joinGame()
     if joinGameTime + 2000 > system.getTimer() then
       return
@@ -77,7 +77,7 @@ function M.showGameInvite(data)
     end
     return true
   end
-  
+
   group.x = 85
   group.y = -33
   group.tap = joinGame
@@ -119,7 +119,7 @@ function M.showOnlineFriend(number)
     ax = 0
   })
   group:insert(textLabel)
-  
+
   local function cleanOnlineFriends(obj)
     if not groupRemoved then
       groupRemoved = true
@@ -128,7 +128,7 @@ function M.showOnlineFriend(number)
       obj = nil
     end
   end
-  
+
   local function seeOnlineFriends()
     local currentScene = composer.getSceneName("current")
     cleanOnlineFriends(group)
@@ -141,7 +141,7 @@ function M.showOnlineFriend(number)
     end
     return true
   end
-  
+
   group.x = 85
   group.y = -33
   group.tap = seeOnlineFriends
@@ -189,7 +189,7 @@ function M.showFriendRequest(data, isGift)
     ax = 0
   })
   group:insert(textLabel)
-  
+
   local function cleanFriendRequest(obj)
     if not groupRemoved then
       groupRemoved = true
@@ -198,13 +198,13 @@ function M.showFriendRequest(data, isGift)
       obj = nil
     end
   end
-  
+
   local function tapRequest(event)
     composer.showOverlay("lua.overlays.messages", {isModal = true})
     cleanFriendRequest(group)
     return true
   end
-  
+
   group.x = 85
   group.y = -33
   group.tap = tapRequest
@@ -257,7 +257,7 @@ function M.showAchivement(data)
     ax = 0.5
   })
   group:insert(textLabel)
-  
+
   local function cleanAchivementsDropdwon(obj)
     if not groupRemoved then
       groupRemoved = true
@@ -267,13 +267,13 @@ function M.showAchivement(data)
       obj = nil
     end
   end
-  
+
   local function tapRequest(event)
     composer.showOverlay("lua.overlays.achievementsScene", {isModal = true})
     cleanAchivementsDropdwon(group)
     return true
   end
-  
+
   group.x = 85
   group.y = -33
   group.tap = tapRequest

@@ -7,7 +7,7 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
   local functionList = {}
   local tableCellTouch = false
   local tableView, cellTimer
-  
+
   local function tableViewListener(event)
     local phase = event.phase
     local row = event.target
@@ -85,7 +85,7 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
       tableCellTouch = false
     end
   end
-  
+
   local function onRowRenderSettingsGameInvites(event)
     local phase = event.phase
     local row = event.row
@@ -145,26 +145,26 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
     row:insert(icon)
     icon.x = background.x + 5
     icon.y = 8
-    
+
     local function deleteRequest()
       return 1, params.p
     end
-    
+
     local function acceptRequest()
       return 2, params.p, params.s, params.a
     end
-    
+
     local function openGift()
       return 3, nil, nil, nil, params
     end
-    
+
     row.deleteRequest = deleteRequest
     row.acceptRequest = acceptRequest
     if params.mysteryBox then
       row.openGift = openGift
     end
   end
-  
+
   local function onRowRenderSettingsFriendsInvite(event)
     local phase = event.phase
     local row = event.row
@@ -241,7 +241,7 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
         delete.isVisible = false
       end
     end
-    
+
     local function deleteFriend()
       if showDelete then
         return 1, params.p, params.rowIndex
@@ -249,23 +249,23 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
         return 0
       end
     end
-    
+
     local function declineFriend()
       return 2, params.p, params.rowIndex
     end
-    
+
     local function acceptFriend()
       return 3, params.p
     end
-    
+
     local function sendMysterybox()
       return 4, params.p
     end
-    
+
     local function isRequest()
       return params.request
     end
-    
+
     local function toggleName()
       if facebookName then
         if facebookName.isVisible then
@@ -277,7 +277,7 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
         end
       end
     end
-    
+
     row.deleteFriend = deleteFriend
     row.declineFriend = declineFriend
     row.acceptFriend = acceptFriend
@@ -285,7 +285,7 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
     row.toggleName = toggleName
     row.sendMysterybox = sendMysterybox
   end
-  
+
   local function onRowRenderSettingsFacebook(event)
     local phase = event.phase
     local row = event.row
@@ -311,7 +311,7 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
     fbIcon.x = background.x + 5
     fbIcon.y = 8
   end
-  
+
   local function onRowRenderAddFriend(event)
     local phase = event.phase
     local row = event.row
@@ -349,23 +349,23 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
     imageSent.x = background.x + 212
     imageSent.y = row.contentHeight * 0.35
     imageSent.isVisible = false
-    
+
     local function changeImage()
       imageSent.isVisible = true
     end
-    
+
     row.changeImage = changeImage
     if params.p then
       local function getPlayerInfo()
         changeImage()
-        
+
         return params.p
       end
-      
+
       row.getPlayerInfo = getPlayerInfo
     end
   end
-  
+
   local function onRowRenderFriends(event)
     local phase = event.phase
     local row = event.row
@@ -449,7 +449,7 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
     buttonImageSendt.x = buttonImage.x
     buttonImageSendt.y = buttonImage.y
     buttonImageSendt.isVisible = false
-    
+
     local function toggleName()
       if facebookName and username then
         if facebookName.isVisible then
@@ -461,16 +461,16 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
         end
       end
     end
-    
+
     local function getId()
       buttonImageSendt.isVisible = true
       return params.p
     end
-    
+
     row.getId = getId
     row.toggleName = toggleName
   end
-  
+
   local function onRowRenderMap(event)
     local phase = event.phase
     local row = event.row
@@ -508,7 +508,7 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
       imageBackground.x = image.x
       imageBackground.y = image.y
     end
-    
+
     local function setThisMapActive()
       composer.mapHandler.setActiveMap(id)
       composer.analytics.newEvent("design", {
@@ -517,15 +517,15 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
         area = composer.config.fullVersion
       })
     end
-    
+
     local function getId()
       return params.id
     end
-    
+
     row.getId = getId
     row.setThisMapActive = setThisMapActive
   end
-  
+
   local function onRowRendarRanking(event)
     local phase = event.phase
     local row = event.row
@@ -567,7 +567,7 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
       if params.isSelected then
         name:setFillColor(0.2, 0.432, 0.12)
       end
-      
+
       local function setSelected(selected)
         if selected then
           name:setFillColor(0.2, 0.432, 0.12)
@@ -575,21 +575,21 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
           name:setFillColor(0, 0, 0)
         end
       end
-      
+
       local function getPlayerData()
         return params
       end
-      
+
       local function getIndex()
         return params.rowIndex
       end
-      
+
       row.getPlayerData = getPlayerData
       row.setSelected = setSelected
       row.getIndex = getIndex
     end
   end
-  
+
   local function onRowRendarChallenge(event)
     local phase = event.phase
     local row = event.row
@@ -813,7 +813,7 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
         itemIconBackground.y = 32
       end
     end
-    
+
     local function createStars(number)
       local path = "images/gui/challenges/star1.png"
       if number < numberInList and clamed == 0 then
@@ -836,13 +836,13 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
         image.y = 47
       end
     end
-    
+
     if composer.playerInfo.awardsTable == 2 and maxStage == 3 then
       for i = 1, maxStage do
         createStars(i)
       end
     end
-    
+
     local function getChallengeData()
       if challenge then
         return clamed, progression, challengeId, numberInList, challenge
@@ -851,10 +851,10 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
         return clamed, progression, challengeId, numberInList, false, false
       end
     end
-    
+
     row.getChallengeData = getChallengeData
   end
-  
+
   local function onRowRenderMarket(event)
     local phase = event.phase
     local row = event.row
@@ -896,12 +896,12 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
         row:insert(saleImage)
       end
     end
-    
+
     local function setActiveState(newState)
       buttonActive.isVisible = newState
       params.active = newState
     end
-    
+
     local function clickButton()
       if params.onClick then
         params.onClick()
@@ -910,11 +910,11 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
         composer.onboarding.removeCategoryArrow()
       end
     end
-    
+
     row.clickButton = clickButton
     row.setActiveState = setActiveState
   end
-  
+
   local function onRowRenderSettings(event)
     local phase = event.phase
     local row = event.row
@@ -963,16 +963,16 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
       description.y = 29
       description:setFillColor(0, 0, 0)
     end
-    
+
     local function clickButton()
       if params.onClick then
         params.onClick()
       end
     end
-    
+
     row.clickButton = clickButton
   end
-  
+
   local function onRowRenderChat(event)
     local phase = event.phase
     local row = event.row
@@ -1015,7 +1015,7 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
       end
     end
   end
-  
+
   local function onRowRenderCredits(event)
     local phase = event.phase
     local row = event.row
@@ -1030,14 +1030,14 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
     credits.x = 100
     credits.y = 24
   end
-  
+
   local function onRowRender(event)
     local phase = event.phase
     local row = event.row
     local rowTitle = composer.createEmbossedText("Create a uniqe one", composer.getFontSize("small"), 35, row.contentHeight * 0.5)
     row:insert(rowTitle)
   end
-  
+
   local function initTable()
     local onRowRender = onRowRender
     if scene == "settings" then
@@ -1082,7 +1082,7 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
       topPadding = thisTopPadding
     })
   end
-  
+
   local function insertTableData(newTableData)
     if cellTimer then
       timer.cancel(cellTimer)
@@ -1097,7 +1097,7 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
     else
       cellsToCreateInstant = #newTableData
     end
-    
+
     local function createCell()
       index = index + 1
       local rowColor = {
@@ -1125,7 +1125,7 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
         params = newTableData[index]
       })
     end
-    
+
     for i = 1, cellsToCreateInstant do
       createCell()
     end
@@ -1133,7 +1133,7 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
       cellTimer = timer.performWithDelay(40, createCell, cellsToCreateDelayed)
     end
   end
-  
+
   local function createTable(newTableData, displayGroup)
     if displayGroup and displayGroup.insert then
       initTable()
@@ -1141,7 +1141,7 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
       insertTableData(newTableData)
     end
   end
-  
+
   local function cleanTable()
     if cellTimer then
       timer.cancel(cellTimer)
@@ -1153,15 +1153,15 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
       tableView = nil
     end
   end
-  
+
   local function deleteRow(index)
     tableView:deleteRow(index)
   end
-  
+
   local function getTable()
     return tableView
   end
-  
+
   local function refreshTable(newTableData, displayGroup, startPos)
     if newTableData and displayGroup and tableView then
       local index = tableView:getContentPosition()
@@ -1175,7 +1175,7 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
       tableView:reloadData()
     end
   end
-  
+
   functionList.createTable = createTable
   functionList.cleanTable = cleanTable
   functionList.getTable = getTable

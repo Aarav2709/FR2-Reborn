@@ -8,7 +8,7 @@ local function new(id, playerList)
   local player = playerList[id]
   local startedClean = false
   local cleanTimer
-  
+
   local function removeObject(event, fromPlayer)
     if startedClean or player == nil then
       return
@@ -23,7 +23,7 @@ local function new(id, playerList)
     end
     player.booleanStates.speedActive = false
   end
-  
+
   local function init()
     if player then
       player.speedPowerUp()
@@ -31,7 +31,7 @@ local function new(id, playerList)
       player.powerUpLinks.speed = speed
     end
   end
-  
+
   init()
   cleanTimer = timer.performWithDelay(speedDuration, removeObject, 1)
   speed.removeObject = removeObject

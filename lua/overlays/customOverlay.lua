@@ -182,11 +182,11 @@ local function createCustomOverlay(infoTextId, doNotOverrideMessage, extra)
       1
     }
   })
-  
+
   local function contiuneButtonEvent()
     cleanOldOverlay()
   end
-  
+
   contiuneButton = composer.newButton({
     x = 452,
     y = 225,
@@ -196,18 +196,18 @@ local function createCustomOverlay(infoTextId, doNotOverrideMessage, extra)
     image = "images/gui/common/buttonTextB.png",
     onRelease = contiuneButtonEvent
   })
-  
+
   local function updateDisplayGroup()
     overlayGroup:insert(alphaBackground)
     overlayGroup:insert(background)
     overlayGroup:insert(info)
     overlayGroup:insert(contiuneButton)
   end
-  
+
   local function canExit()
     canExitOverlay = true
   end
-  
+
   alphaBackground:addEventListener("touch", closeOnTouchEvent)
   background:addEventListener("touch", doNothingOnTouchEvent)
   updateDisplayGroup()

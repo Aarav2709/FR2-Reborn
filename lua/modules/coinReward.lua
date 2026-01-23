@@ -14,7 +14,7 @@ local white = {
 local function createCoinReward(totalGold, gold, position, isCoins)
   local function getCoinStartPosition()
     local x, y
-    
+
     if position == 1 then
       x = 130
       y = 128
@@ -33,12 +33,12 @@ local function createCoinReward(totalGold, gold, position, isCoins)
     end
     return x, y + 0
   end
-  
+
   local coinRewardGroup = display.newGroup()
   local tickTimer, tickEffectTimer
   local startedClean = false
   local transitionReferences = {}
-  
+
   local function getSignText(number)
     local signString
     if 0 <= number then
@@ -48,10 +48,10 @@ local function createCoinReward(totalGold, gold, position, isCoins)
     end
     return signString
   end
-  
+
   totalGold = totalGold or 0
   gold = gold or 0
-  
+
   local function spawnSparkle(x, y, startScale)
     if startedClean then
       return
@@ -65,14 +65,14 @@ local function createCoinReward(totalGold, gold, position, isCoins)
     sparkle.rotation = math.random(360)
     coinRewardGroup:insert(sparkle)
     sparkle:toBack()
-    
+
     local function removeSparkle()
       if sparkle and sparkle.removeSelf then
         sparkle:removeSelf()
         sparkle = nil
       end
     end
-    
+
     transitionReferences[#transitionReferences + 1] = transition.to(sparkle, {
       time = 600,
       transition = easing.easeInOutElastic,
@@ -84,7 +84,7 @@ local function createCoinReward(totalGold, gold, position, isCoins)
       onCancel = removeSparkle
     })
   end
-  
+
   local function coinTickEffect()
     if startedClean then
       return
@@ -105,7 +105,7 @@ local function createCoinReward(totalGold, gold, position, isCoins)
         color = colorToChoose
       })
     end
-    
+
     local function removeCoin()
       if image and image.removeSelf then
         spawnSparkle(image.x - 7, image.y + 7, 0.7)
@@ -113,7 +113,7 @@ local function createCoinReward(totalGold, gold, position, isCoins)
         image = nil
       end
     end
-    
+
     local targetX = 202
     local targetY = display.contentHeight - 30
     if not isCoins then
@@ -158,7 +158,7 @@ local function createCoinReward(totalGold, gold, position, isCoins)
       transition = easingFuncX
     })
   end
-  
+
   local function animateCoins(onComplete)
     if gold == 0 then
       if onComplete then
@@ -173,9 +173,9 @@ local function createCoinReward(totalGold, gold, position, isCoins)
     end
     tickEffectTimer = timer.performWithDelay(timePerTick, coinTickEffect, numberOfTicksGold)
   end
-  
+
   coinRewardGroup.animateCoins = animateCoins
-  
+
   local function clean()
     startedClean = true
     if tickTimer then
@@ -193,7 +193,7 @@ local function createCoinReward(totalGold, gold, position, isCoins)
     end
     transitionReferences = nil
   end
-  
+
   coinRewardGroup.clean = clean
   return coinRewardGroup
 end

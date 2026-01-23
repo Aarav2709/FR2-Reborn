@@ -5,14 +5,14 @@ local function addBehavior(block)
   local playing = true
   local animateTimer
   local animationInterval = block.image.idleAnimationInterval
-  
+
   local function stop()
     if block and block.image then
       block.image:pause()
       playing = false
     end
   end
-  
+
   local function play()
     if block and block.image then
       block.image:setSequence("idleAnimation")
@@ -20,7 +20,7 @@ local function addBehavior(block)
       playing = true
     end
   end
-  
+
   local function shouldPlay()
     if composer.isOnScreen(block.image.x, block.image.y) then
       if not playing or animationInterval then
@@ -30,14 +30,14 @@ local function addBehavior(block)
       stop()
     end
   end
-  
+
   local function clean()
     if animateTimer then
       timer.cancel(animateTimer)
       animateTimer = nil
     end
   end
-  
+
   local checkForAnimation = 1000
   if animationInterval then
     checkForAnimation = animationInterval

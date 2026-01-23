@@ -478,12 +478,12 @@ local function tcpReceiveFunction(data)
     end
     if data.b then
       composer.database.addItem(data.b)
-      
+
       local function reopenAchievments()
         local options = {isModal = true}
         composer.showOverlay("lua.overlays.achievementsScene", options)
       end
-      
+
       local options = {
         isModal = true,
         params = {

@@ -46,7 +46,7 @@ function spine.Skeleton.new(skeletonData, group)
   local self = spine.Skeleton.new_super(skeletonData)
   self.group = group or display.newGroup()
   self.images = {}
-  
+
   function self:createImage(attachment)
     -- Load image with proper texture settings for crisp graphics
     local image = display.newImage(attachment.name .. ".png")
@@ -56,13 +56,13 @@ function spine.Skeleton.new(skeletonData, group)
     end
     return image
   end
-  
+
   function self:modifyImage(attachment)
     return false
   end
-  
+
   local updateWorldTransform_super = self.updateWorldTransform
-  
+
   function self:updateWorldTransform()
     composer.debugger.profile("spineUpdate")
     updateWorldTransform_super(self)
@@ -206,7 +206,7 @@ function spine.Skeleton.new(skeletonData, group)
     end
     composer.debugger.profile("spineUpdate")
   end
-  
+
   return self
 end
 

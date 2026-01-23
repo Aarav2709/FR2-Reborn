@@ -91,7 +91,7 @@ function scene:create(event)
     x = backgroundWindow.x,
     y = backgroundWindow.y + 32
   })
-  
+
   local function refreshMoney()
     local newMoney = composer.database.getMoney()
     if newMoney > moneyValue then
@@ -110,7 +110,7 @@ function scene:create(event)
       })
     end
   end
-  
+
   local function showPrice()
     local options = {
       isModal = true,
@@ -119,7 +119,7 @@ function scene:create(event)
     spinActive = false
     composer.showOverlay("lua.overlays.spinPrize", options)
   end
-  
+
   local function storePrice(id, value)
     for i, reward in ipairs(rewards) do
       if tonumber(reward.id) == id then
@@ -136,18 +136,18 @@ function scene:create(event)
       end
     end
   end
-  
+
   local function applyRotationToWheel()
     if spinSpeed ~= 0 and not stoppingAtPrize then
       spinSpeed = spinSpeed * spinSlowFactor
       spinningGroup.rotation = spinningGroup.rotation + spinSpeed
     end
   end
-  
+
   local function fixOverflow(angle)
     return angle % 360
   end
-  
+
   local function getRandomStopAngle(rewardId)
     for i, reward in ipairs(rewards) do
       if reward.id == rewardId then
@@ -164,7 +164,7 @@ function scene:create(event)
       end
     end
   end
-  
+
   local function playSpinSound()
     if spinActive then
       composer.audio.playWheelSpin()
@@ -177,30 +177,30 @@ function scene:create(event)
     end
     soundTimer = timer.performWithDelay(50, playSpinSound, 1)
   end
-  
+
   local function stopSpinSound()
     if soundTimer then
       timer.cancel(soundTimer)
       soundTimer = nil
     end
   end
-  
+
   local function slowDownSpin()
     spinSlowFactor = 0.7
   end
-  
+
   local function serverTimeoutEvent()
     local spinTime = spinSpeed * 45
     if 3000 < spinTime then
       spinTime = 3000
     end
-    
+
     local function onTransitionEnded()
       spinSpeed = 0
       spinActive = false
       stopSpinSound()
     end
-    
+
     local spins = spinSpeed * 50
     spins = math.floor(spins / 360)
     local degreesToSpin = 360 * spins
@@ -221,24 +221,24 @@ function scene:create(event)
       onComplete = onTransitionEnded
     })
   end
-  
+
   local function serverTimeout()
     serverTimeoutEvent()
     composer.createCustomOverlay(43)
   end
-  
+
   local function stopServerTimeout()
     if serverTimeoutTimer then
       timer.cancel(serverTimeoutTimer)
       serverTimeoutTimer = nil
     end
   end
-  
+
   local function stopAtCorrectPrize()
     stopServerTimeout()
     stoppingAtPrize = true
     transition.cancel(spinningGroup)
-    
+
     local function doneSpinning()
       spinSpeed = 0
       stopSpinSound()
@@ -246,7 +246,7 @@ function scene:create(event)
       composer.audio.play("wheel_win")
       refreshMoney()
     end
-    
+
     local spinTime = spinSpeed * 45
     if 3000 < spinTime then
       spinTime = 3000
@@ -271,7 +271,7 @@ function scene:create(event)
       transition = easing.outExpo
     })
   end
-  
+
   local function drawLineAtAngle(degrees)
     local endX = math.cos(degrees) * lineLength
     local endY = math.sin(degrees) * lineLength
@@ -280,7 +280,7 @@ function scene:create(event)
     line.strokeWidth = 1
     spinningGroup:insert(line)
   end
-  
+
   local function drawRewardAtAngle(reward, degrees)
     local basePath = "images/gui/wheel/"
     if reward.type == "coins" then
@@ -314,7 +314,7 @@ function scene:create(event)
     reward.degrees = iconGroup.rotation
     spinningGroup:insert(iconGroup)
   end
-  
+
   local function addPrizesToWheel()
     local sumOfWeights = 0
     for i, reward in ipairs(rewards) do
@@ -330,32 +330,32 @@ function scene:create(event)
       reward.angleAfter = (sumOfDegrees - rotationOffset) * (180 / math.pi)
     end
   end
-  
+
   local function getVectorFromCenterOfSpinWheel(centerX, centerY, touchStartX, touchStartY)
     return {
       x = touchStartX - centerX,
       y = touchStartY - centerY
     }
   end
-  
+
   local function dotProduct2D(vectorOne, vectorTwo)
     return vectorOne.x * vectorTwo.x + vectorOne.y * vectorTwo.y
   end
-  
+
   local function crossProduct2D(vectorOne, vectorTwo)
     return vectorOne.x * vectorTwo.y - vectorOne.y * vectorTwo.x
   end
-  
+
   local function normalizeVector2D(vector)
     local length = math.sqrt(vector.x * vector.x + vector.y * vector.y)
     vector.x = vector.x / length
     vector.y = vector.y / length
   end
-  
+
   local function radToDegree(rad)
     return rad * 180 / 3.14
   end
-  
+
   local function getSpinSpeedFromTouch(centerWheelX, centerWheelY, touchStartX, touchStartY, touchEndX, touchEndY)
     if touchStartX == touchEndX and touchStartY == touchEndY then
       return 0
@@ -370,7 +370,7 @@ function scene:create(event)
     local crossProduct = crossProduct2D(vectorFromCenter, touchVector)
     return crossProduct
   end
-  
+
   local function sendMessagesToServer()
     if activeTable and challengeId then
       if activeTable == 1 then
@@ -386,7 +386,7 @@ function scene:create(event)
     end
     serverTimeoutTimer = timer.performWithDelay(10000, serverTimeout, 1)
   end
-  
+
   local function initiateValidSpin()
     if not spinActive and 30 < spinSpeed then
       spinSlowFactor = 1
@@ -401,7 +401,7 @@ function scene:create(event)
       slowDownSpin()
     end
   end
-  
+
   local function haveSpins()
     if activeTable and challengeId then
       return true
@@ -410,12 +410,12 @@ function scene:create(event)
     end
     return false
   end
-  
+
   local centerX = 240
   local centerY = 180
   local dx = 0
   local dy = 0
-  
+
   local function spinWheel(self, event)
     local phase = event.phase
     if not haveSpins() or spinActive then
@@ -466,12 +466,12 @@ function scene:create(event)
       initiateValidSpin()
     end
   end
-  
+
   local function httpsCallback(data)
     if data.m == httpsFormat.buyCrystalIOS() or data.m == httpsFormat.buyCrystalGoogle() or data.m == httpsFormat.buyCrystalAmazon() then
     end
   end
-  
+
   local function commCallback(data)
     if startedClean then
     elseif data.m == tcpFormat.useSpin() then
@@ -487,12 +487,12 @@ function scene:create(event)
       shouldSendClaim = false
     end
   end
-  
+
   local function btnWithCashRelease()
     if not composer.data.iapCallActive then
     end
   end
-  
+
   local btnWithCash = composer.newButton({
     image = "images/gui/market/popup/buttonCash.png",
     onRelease = btnWithCashRelease,
@@ -507,11 +507,11 @@ function scene:create(event)
     y = backgroundWindow.y + 190
   })
   btnWithCash.isVisible = false
-  
+
   local function btnExitRelease()
     composer.hideOverlay()
   end
-  
+
   local btnExit = composer.newButton({
     image = "images/gui/common/buttonClosePopup.png",
     onRelease = btnExitRelease,
@@ -520,7 +520,7 @@ function scene:create(event)
     x = backgroundWindow.x + 136,
     y = backgroundWindow.y + 56
   })
-  
+
   local function flipImages()
     if wheel2.isVisible then
       wheel2.isVisible = false
@@ -533,7 +533,7 @@ function scene:create(event)
     end
     imageFlipperRef = timer.performWithDelay(time, flipImages, 1)
   end
-  
+
   local function flipImages2()
     if headerBackground2.isVisible then
       headerBackground2.isVisible = false
@@ -546,7 +546,7 @@ function scene:create(event)
     end
     imageFlipper2Ref = timer.performWithDelay(time, flipImages2, 1)
   end
-  
+
   local function updateDisplayGroups()
     dropdownGroup:insert(backgroundWindow)
     spinningGroup:insert(wheel1)
@@ -565,7 +565,7 @@ function scene:create(event)
     dropdownGroup:insert(moneyLabel)
     sceneGroup:insert(dropdownGroup)
   end
-  
+
   function clean()
     startedClean = true
     if spinRef then
@@ -598,7 +598,7 @@ function scene:create(event)
       showPriceRef = nil
     end
   end
-  
+
   updateDisplayGroups()
   composer.commHttps.setCallback(httpsCallback)
   composer.comm.setCallback(commCallback)
@@ -618,11 +618,11 @@ function scene:show(event)
     return
   end
   local androidLogic = require("lua.modules.androidBackButton")
-  
+
   function cleanEnter()
     androidLogic.isOverlay(false)
   end
-  
+
   androidLogic.isOverlay(true)
 end
 

@@ -10,7 +10,7 @@ function BoundingBoxAttachment.new(name)
     type = AttachmentType.boundingbox,
     vertices = {}
   }
-  
+
   function self:computeWorldVertices(x, y, bone, worldVertices)
     x = x + bone.worldX
     y = y + bone.worldY
@@ -27,7 +27,7 @@ function BoundingBoxAttachment.new(name)
       worldVertices[i + 1] = px * m10 + py * m11 + y
     end
   end
-  
+
   return self
 end
 

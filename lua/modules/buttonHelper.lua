@@ -13,7 +13,7 @@ local function newButton(params)
   local noFill = params.noFill
   local button, text, textColor
   local clickStartedInButton = false
-  
+
   local function handleButtonEvent(event)
     if "began" == event.phase then
       clickStartedInButton = true
@@ -50,7 +50,7 @@ local function newButton(params)
       clickStartedInButton = false
     end
   end
-  
+
   local function changeButtonImage(displayObject, imagePath)
     if button then
       button:removeSelf()
@@ -69,7 +69,7 @@ local function newButton(params)
     displayObject:insert(button)
     return button
   end
-  
+
   button = widget.newButton({
     left = x,
     top = y,
@@ -79,21 +79,21 @@ local function newButton(params)
     defaultFile = imagePath,
     onEvent = handleButtonEvent
   })
-  
+
   local function getX()
     return params.x
   end
-  
+
   local function getY()
     return params.y
   end
-  
+
   local function changeText(newText)
     if newText and text then
       text.text = newText
     end
   end
-  
+
   buttonGroup:insert(button)
   buttonGroup.changeButtonImage = changeButtonImage
   buttonGroup.getX = getX

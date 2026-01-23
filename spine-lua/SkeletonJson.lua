@@ -12,13 +12,13 @@ local SkeletonJson = {}
 function SkeletonJson.new(attachmentLoader)
   attachmentLoader = attachmentLoader or AttachmentLoader.new()
   local self = {attachmentLoader = attachmentLoader, scale = 1}
-  
+
   function self:readSkeletonDataFile(fileName, base)
     return self:readSkeletonData(spine.utils.readFile(fileName, base))
   end
-  
+
   local readAttachment, readAnimation, readCurve, getArray
-  
+
   function self:readSkeletonData(jsonText)
     local skeletonData = SkeletonData.new(self.attachmentLoader)
     local root = spine.utils.readJSON(jsonText)
@@ -116,7 +116,7 @@ function SkeletonJson.new(attachmentLoader)
     end
     return skeletonData
   end
-  
+
   function readAttachment(name, map)
     name = map.name or name
     local type = AttachmentType[map.type or "region"]
@@ -229,7 +229,7 @@ function SkeletonJson.new(attachmentLoader)
     end
     error("Unknown attachment type: " .. type .. " (" .. name .. ")")
   end
-  
+
   function readAnimation(name, map, skeletonData)
     local timelines = {}
     local duration = 0
@@ -453,7 +453,7 @@ function SkeletonJson.new(attachmentLoader)
     end
     table.insert(skeletonData.animations, Animation.new(name, timelines, duration))
   end
-  
+
   function readCurve(timeline, frameIndex, valueMap)
     local curve = valueMap.curve
     if not curve then
@@ -465,7 +465,7 @@ function SkeletonJson.new(attachmentLoader)
       timeline:setCurve(frameIndex, curve[1], curve[2], curve[3], curve[4])
     end
   end
-  
+
   function getArray(map, name, scale)
     local list = map[name]
     local values = {}
@@ -480,7 +480,7 @@ function SkeletonJson.new(attachmentLoader)
     end
     return values
   end
-  
+
   return self
 end
 

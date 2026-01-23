@@ -29,11 +29,11 @@ local function new(id, player, x, y, displayGroup, playerList)
     7
   }
   local cantHitOwner = true
-  
+
   local function canHitOwnerAgain()
     cantHitOwner = false
   end
-  
+
   local function rotateBlades()
     if blade and not cleaning then
       local vx, vy = blade:getLinearVelocity()
@@ -41,7 +41,7 @@ local function new(id, player, x, y, displayGroup, playerList)
       bladeBloodImage:rotate(vx * 0.05)
     end
   end
-  
+
   local function update()
     if blade and not cleaning then
       local vx, vy = blade:getLinearVelocity()
@@ -53,7 +53,7 @@ local function new(id, player, x, y, displayGroup, playerList)
       blade:setLinearVelocity(vx, vy)
     end
   end
-  
+
   local function removeObject()
     cleaning = true
     if blade then
@@ -63,14 +63,14 @@ local function new(id, player, x, y, displayGroup, playerList)
       blade = nil
     end
   end
-  
+
   local function changeImage()
     bladeBloodImage.alpha = 1
     bladeImage.alpha = 0
   end
-  
+
   blade.changeImage = changeImage
-  
+
   local function cannonFunction(cannonObject)
     if blade and not cleaning then
       blade.x = cannonObject.x
@@ -78,9 +78,9 @@ local function new(id, player, x, y, displayGroup, playerList)
       blade:setLinearVelocity(2000, -1700)
     end
   end
-  
+
   blade.cannonFunction = cannonFunction
-  
+
   local function onCollision(self, collisionEvent)
     if collisionEvent.phase == "began" then
       if collisionEvent.other.bounce then
@@ -118,7 +118,7 @@ local function new(id, player, x, y, displayGroup, playerList)
       end
     end
   end
-  
+
   local function createBlade()
     bladeImage = display.newImage(composer.powerUpImageSheet, bladeImagePath)
     bladeImage.xScale = 0.5
@@ -152,7 +152,7 @@ local function new(id, player, x, y, displayGroup, playerList)
     displayGroup:insert(blade)
     Runtime:addEventListener("enterFrame", rotateBlades)
   end
-  
+
   local function shootBlade()
     playerList[id].removeBladeAnimation()
     blade:setLinearVelocity(speed * 1, 5, 0)
@@ -166,7 +166,7 @@ local function new(id, player, x, y, displayGroup, playerList)
       blade.y = y
     end
   end
-  
+
   createBlade()
   shootBlade()
   timer.performWithDelay(500, canHitOwnerAgain, 1)

@@ -76,7 +76,7 @@ local function getMapInfoFromFile(path)
   local file = io.open(absolutePath, "r")
   local line
   local jsonString = ""
-  
+
   local function fastRead()
     local whileBreaker = 2000
     while 0 < whileBreaker do
@@ -103,7 +103,7 @@ local function getMapInfoFromFile(path)
     end
     return true
   end
-  
+
   local noSyntaxError, noFileError = pcall(fastRead)
   if noSyntaxError and noFileError and jsonString then
     io.close(file)
@@ -120,7 +120,7 @@ end
 local function writeJsonToFile(path, object, callback)
   local function writeJson()
     composer.debugger.debugPrint("filesystem", "writeJsonToFile: " .. path, object)
-    
+
     local absolutePath = system.pathForFile(path, system.CachesDirectory)
     local file = io.open(absolutePath, "w")
     file:write(object)
@@ -130,7 +130,7 @@ local function writeJsonToFile(path, object, callback)
       callback()
     end
   end
-  
+
   if not fileUtils.doesFileExist(path, system.CachesDirectory) then
     local lfs = require("lfs")
     local docs_path = system.pathForFile("", system.CachesDirectory)

@@ -8,32 +8,32 @@ local function new(id, player, x, y, displayGroup, playerList)
   local hitOnce = true
   local hitOneBot = true
   local cantHitOwner = true
-  
+
   local function canHitOwnerAgain()
     cantHitOwner = false
   end
-  
+
   local function update()
   end
-  
+
   local function playSprite()
     trapSprite:setSequence("play")
     trapSprite:play()
     trapClosed = true
   end
-  
+
   local function playSpriteReset()
     trapSprite:setSequence("reset")
     trapSprite:play()
     trapClosed = false
   end
-  
+
   local function nextEffect(event)
     if event.phase == "ended" and trapClosed then
       playSpriteReset()
     end
   end
-  
+
   local function removeObject()
     if trapSprite then
       trapSprite:removeEventListener("sprite", nextEffect)
@@ -42,7 +42,7 @@ local function new(id, player, x, y, displayGroup, playerList)
       trapSprite = nil
     end
   end
-  
+
   local function onCollision(self, collisionEvent)
     if collisionEvent.phase == "began" then
       local playAnimation = true
@@ -62,7 +62,7 @@ local function new(id, player, x, y, displayGroup, playerList)
       end
     end
   end
-  
+
   local function createTrap()
     playerList[id].removeBounceTrapAnimation()
     trapSprite = display.newSprite(composer.powerUpImageSheet, composer.data.animations.bounceTrapSet)
@@ -113,7 +113,7 @@ local function new(id, player, x, y, displayGroup, playerList)
     end
     displayGroup:insert(trapSprite)
   end
-  
+
   createTrap()
   timer.performWithDelay(500, canHitOwnerAgain, 1)
   if not composer.onboarding.isActive == true then

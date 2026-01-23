@@ -29,7 +29,7 @@ local function init(chestActive, group, gamesPlayed)
     }
     animations.adCoinsDrop = dropSequenceData
   end
-  
+
   local function createChest(number)
     local path = "images/gui/postgame/adCoins/chestOpen" .. number .. ".png"
     chest = display.newImageRect(path, 102, 78)
@@ -41,7 +41,7 @@ local function init(chestActive, group, gamesPlayed)
         local function touchListener(self, event)
           if event.phase == "began" then
             composer.audio.play("button_press")
-            
+
             local remMatches = 4 - number
             local text = "You will get double coins the next " .. remMatches .. " matches"
             if remMatches == 1 then
@@ -50,13 +50,13 @@ local function init(chestActive, group, gamesPlayed)
             composer.createCustomOverlay(98, nil, text)
           end
         end
-        
+
         chest.touch = touchListener
         chest:addEventListener("touch", chest)
       end
     end
   end
-  
+
   local function disableChest()
     if chest then
       if idleTimer then
@@ -71,7 +71,7 @@ local function init(chestActive, group, gamesPlayed)
       composer.adBoostDrop = false
     end
   end
-  
+
   local function dropChest()
     if videoModule.isVideoReady() and composer.adsTable.postGameVideo then
       chest = display.newSprite(composer.adBoostImageSheet, composer.data.animations.adCoinsDrop)
@@ -81,21 +81,21 @@ local function init(chestActive, group, gamesPlayed)
       chest.yScale = 0.5
       chest.alpha = 0
       group:insert(chest)
-      
+
       local function playIdle()
         if chest and chest.setSequence then
           chest:setSequence("idle")
           chest:play()
         end
       end
-      
+
       local function drop()
         chest.alpha = 1
         chest:setSequence("drop")
         chest:play()
         idleTimer = timer.performWithDelay(2800, playIdle, 0)
       end
-      
+
       local function touchListener(self, event)
         if event.phase == "began" then
           composer.audio.play("button_press")
@@ -103,14 +103,14 @@ local function init(chestActive, group, gamesPlayed)
           composer.showOverlay("lua.overlays.boostVideo", options)
         end
       end
-      
+
       chest.touch = touchListener
       chest:addEventListener("touch", chest)
       Runtime:addEventListener("seenVideoAdEvent", disableChest)
       dropTimer = timer.performWithDelay(1500, drop)
     end
   end
-  
+
   local function getNumberOfGamesRequired(boostRemaining)
     if boostRemaining == 3 then
       return 5 + math.random(-3, 3)
@@ -122,7 +122,7 @@ local function init(chestActive, group, gamesPlayed)
       return 99999
     end
   end
-  
+
   local function clean()
     if idleTimer then
       timer.cancel(idleTimer)
@@ -138,7 +138,7 @@ local function init(chestActive, group, gamesPlayed)
     end
     Runtime:removeEventListener("seenVideoAdEvent", disableChest)
   end
-  
+
   C.clean = clean
   local randomNum = math.random(1, 3)
   if not composer.adsTable.postGameVideo or not composer.adBoostPrevGame then

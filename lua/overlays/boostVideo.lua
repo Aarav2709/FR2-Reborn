@@ -27,13 +27,13 @@ function scene:create(event)
     width = 200,
     align = "center"
   })
-  
+
   local function btnWatchVideoRelease()
     composer.adsTable.boostVideoActive = true
     videoModule.showAd()
     composer.hideOverlay()
   end
-  
+
   local btnWatchVideo = composer.newButton({
     image = "images/gui/common/buttonTextA.png",
     onRelease = btnWatchVideoRelease,
@@ -46,11 +46,11 @@ function scene:create(event)
     x = backgroundWindow.x,
     y = backgroundWindow.y + 220
   })
-  
+
   local function btnExitRelease()
     composer.hideOverlay()
   end
-  
+
   local btnExit = composer.newButton({
     image = "images/gui/common/buttonClosePopup.png",
     onRelease = btnExitRelease,
@@ -59,32 +59,32 @@ function scene:create(event)
     x = backgroundWindow.x + 120,
     y = backgroundWindow.y + 70
   })
-  
+
   local function escapeTouchEvent(event)
     if event.phase == "ended" then
       composer.hideOverlay()
     end
     return true
   end
-  
+
   local function backgroundImageTouchEvent(event)
     if event.phase == "ended" then
     end
     return true
   end
-  
+
   local function addListeners()
     backgroundImage:addEventListener("touch", escapeTouchEvent)
     backgroundWindow:addEventListener("touch", backgroundImageTouchEvent)
   end
-  
+
   local function updateDisplayGroups()
     sceneGroup:insert(backgroundWindow)
     sceneGroup:insert(btnWatchVideo)
     sceneGroup:insert(btnExit)
     sceneGroup:insert(itemInfo)
   end
-  
+
   function clean()
     if listenerRef then
       timer.cancel(listenerRef)
@@ -95,7 +95,7 @@ function scene:create(event)
     backgroundImage:removeEventListener("touch", escapeTouchEvent)
     backgroundWindow:removeEventListener("touch", backgroundImageTouchEvent)
   end
-  
+
   updateDisplayGroups()
   listenerRef = timer.performWithDelay(700, addListeners)
 end
@@ -106,11 +106,11 @@ function scene:show(event)
     return
   end
   local androidLogic = require("lua.modules.androidBackButton")
-  
+
   function cleanEnter()
     androidLogic.isOverlay(false)
   end
-  
+
   androidLogic.isOverlay(true)
 end
 

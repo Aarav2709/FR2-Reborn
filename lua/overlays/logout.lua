@@ -31,11 +31,11 @@ function scene:create(event)
   info.anchorY = 0.5
   info.x = 240
   info.y = 25
-  
+
   local function closeButtonEvent()
     composer.hideOverlay()
   end
-  
+
   local closeButton = composer.newButton({
     x = 400,
     y = 26,
@@ -44,23 +44,23 @@ function scene:create(event)
     image = "images/gui/common/buttonClosePopup.png",
     onRelease = closeButtonEvent
   })
-  
+
   local function logoutEvent()
     local function changeScene()
       composer.gotoScene("lua.scenes.startScreen")
-      
+
       composer.removeScene("lua.scenes.mainMenu")
       composer.removeScene("lua.scenes.settings")
       composer.removeScene("lua.scenes.playMenu")
     end
-    
+
     composer.hideOverlay()
     composer.comm.stopTCPSocial()
     composer.facebook.stopDelayedTimer()
     composer.database.reset()
     timer.performWithDelay(200, changeScene, 1)
   end
-  
+
   local logoutButton = composer.newButton({
     x = 240,
     y = 86,
@@ -74,18 +74,18 @@ function scene:create(event)
     },
     onRelease = logoutEvent
   })
-  
+
   local function closeOnTouchEvent(event)
     if event.phase == "ended" then
       composer.hideOverlay()
     end
     return true
   end
-  
+
   local function doNothingOnTouchEvent(event)
     return true
   end
-  
+
   local function updateDisplayGroup()
     group:insert(alphaBackground)
     dropdownGroup:insert(tableBackground)
@@ -94,7 +94,7 @@ function scene:create(event)
     dropdownGroup:insert(logoutButton)
     group:insert(dropdownGroup)
   end
-  
+
   local function addListeners()
     if not startedClean then
       alphaBackground:addEventListener("touch", closeOnTouchEvent)
@@ -102,7 +102,7 @@ function scene:create(event)
       tableBackground:addEventListener("tap", doNothingOnTouchEvent)
     end
   end
-  
+
   function clean()
     if startedClean then
       return
@@ -116,7 +116,7 @@ function scene:create(event)
     tableBackground:removeEventListener("touch", doNothingOnTouchEvent)
     tableBackground:removeEventListener("tap", doNothingOnTouchEvent)
   end
-  
+
   updateDisplayGroup()
   addListenersTimer = timer.performWithDelay(200, addListeners)
   composer.bouncer.down(dropdownGroup)
@@ -129,11 +129,11 @@ function scene:show(event)
     return
   end
   local androidLogic = require("lua.modules.androidBackButton")
-  
+
   function cleanEnter()
     androidLogic.isOverlay(false)
   end
-  
+
   androidLogic.isOverlay(true)
 end
 

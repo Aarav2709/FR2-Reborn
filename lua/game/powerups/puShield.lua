@@ -7,7 +7,7 @@ local function new(id, playerList)
   local shieldDuration = 4000
   local player = playerList[id]
   local startedClean = false
-  
+
   local function init()
     if player then
       player.shieldPowerUp()
@@ -15,7 +15,7 @@ local function new(id, playerList)
       player.powerUpLinks.shield = shield
     end
   end
-  
+
   init()
   return shield
 end

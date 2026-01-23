@@ -99,7 +99,7 @@ function scene:create(event)
       1
     }
   })
-  
+
   local function refreshMoney()
     local newMoney = composer.database.getMoney()
     if newMoney > moneyValue then
@@ -118,7 +118,7 @@ function scene:create(event)
       })
     end
   end
-  
+
   local function btnExitRelease()
     composer.hideOverlay()
     if composer.data.playerInfo.spins and composer.data.playerInfo.spins > 0 then
@@ -129,7 +129,7 @@ function scene:create(event)
       composer.showOverlay("lua.overlays.spinningWheel", options)
     end
   end
-  
+
   local btnExit = composer.newButton({
     image = "images/gui/common/buttonTextA.png",
     onRelease = btnExitRelease,
@@ -141,7 +141,7 @@ function scene:create(event)
     x = backgroundWindow.x,
     y = backgroundWindow.y + 190
   })
-  
+
   local function updateDisplayGroups()
     sceneGroup:insert(backgroundImage)
     sceneGroup:insert(backgroundCoins)
@@ -157,31 +157,31 @@ function scene:create(event)
     dropdownGroup:insert(windowInfo)
     sceneGroup:insert(dropdownGroup)
   end
-  
+
   local function escapeTouchEvent(event)
     if event.phase == "ended" then
       composer.hideOverlay()
     end
     return true
   end
-  
+
   local function backgroundImageTouchEvent(event)
     if event.phase == "ended" then
     end
     return true
   end
-  
+
   local function addListeners()
     backgroundImage:addEventListener("touch", escapeTouchEvent)
     backgroundWindow:addEventListener("touch", backgroundImageTouchEvent)
   end
-  
+
   function clean()
     display.remove(btnExit)
     backgroundImage:removeEventListener("touch", escapeTouchEvent)
     backgroundWindow:removeEventListener("touch", backgroundImageTouchEvent)
   end
-  
+
   updateDisplayGroups()
   addListeners()
   composer.bouncer.down(dropdownGroup)
@@ -193,11 +193,11 @@ function scene:show(event)
     return
   end
   local androidLogic = require("lua.modules.androidBackButton")
-  
+
   function cleanEnter()
     androidLogic.isOverlay(false)
   end
-  
+
   androidLogic.isOverlay(true)
 end
 

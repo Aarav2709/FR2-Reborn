@@ -8,7 +8,7 @@ function Skin.new(name)
     name = name,
     attachments = {}
   }
-  
+
   function self:addAttachment(slotIndex, name, attachment)
     if not name then
       error("name cannot be nil.", 2)
@@ -19,7 +19,7 @@ function Skin.new(name)
       attachment
     }
   end
-  
+
   function self:getAttachment(slotIndex, name)
     if not name then
       error("name cannot be nil.", 2)
@@ -30,7 +30,7 @@ function Skin.new(name)
     end
     return values[3]
   end
-  
+
   function self:findNamesForSlot(slotIndex)
     local names = {}
     for k, v in self.attachments, nil, nil do
@@ -39,7 +39,7 @@ function Skin.new(name)
       end
     end
   end
-  
+
   function self:findAttachmentsForSlot(slotIndex)
     local attachments = {}
     for k, v in self.attachments, nil, nil do
@@ -48,7 +48,7 @@ function Skin.new(name)
       end
     end
   end
-  
+
   return self
 end
 

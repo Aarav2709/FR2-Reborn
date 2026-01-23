@@ -57,7 +57,7 @@ function scene:create(event)
   local countDownImage
   local countdownTick = 4
   local countDownStartTimer, countDownTimer
-  
+
   local function createCountdownImage()
     if countDownImage then
       countDownImage:removeSelf()
@@ -71,7 +71,7 @@ function scene:create(event)
       dropdownGroup:insert(countDownImage)
     end
   end
-  
+
   local function fadecountdownImage()
     transition.to(countDownImage, {
       time = 400,
@@ -85,11 +85,11 @@ function scene:create(event)
       alpha = 0
     })
   end
-  
+
   local function countdown()
     local function doTick()
       countdownTick = countdownTick - 1
-      
+
       if countdownTick < 1 then
         plate.isVisible = true
         icon.isVisible = true
@@ -100,14 +100,14 @@ function scene:create(event)
         countDownTimer = timer.performWithDelay(1000, doTick, 1)
       end
     end
-    
+
     doTick()
   end
-  
+
   local function btnExitRelease()
     composer.hideOverlay()
   end
-  
+
   local btnExit = composer.newButton({
     image = "images/gui/common/buttonClosePopup.png",
     onRelease = btnExitRelease,
@@ -116,7 +116,7 @@ function scene:create(event)
     x = backgroundWindow.x + 105,
     y = backgroundWindow.y + 65
   })
-  
+
   local function updateDisplayGroups()
     sceneGroup:insert(backgroundImage)
     dropdownGroup:insert(backgroundWindow)
@@ -127,25 +127,25 @@ function scene:create(event)
     dropdownGroup:insert(windowInfo)
     sceneGroup:insert(dropdownGroup)
   end
-  
+
   local function escapeTouchEvent(event)
     if event.phase == "ended" then
       composer.hideOverlay()
     end
     return true
   end
-  
+
   local function backgroundImageTouchEvent(event)
     if event.phase == "ended" then
     end
     return true
   end
-  
+
   local function addListeners()
     backgroundImage:addEventListener("touch", escapeTouchEvent)
     backgroundWindow:addEventListener("touch", backgroundImageTouchEvent)
   end
-  
+
   function clean()
     display.remove(btnWithCoins)
     display.remove(btnWithCash)
@@ -161,7 +161,7 @@ function scene:create(event)
     backgroundImage:removeEventListener("touch", escapeTouchEvent)
     backgroundWindow:removeEventListener("touch", backgroundImageTouchEvent)
   end
-  
+
   updateDisplayGroups()
   addListeners()
   countDownStartTimer = timer.performWithDelay(500, countdown, 1)
@@ -174,11 +174,11 @@ function scene:show(event)
     return
   end
   local androidLogic = require("lua.modules.androidBackButton")
-  
+
   function cleanEnter()
     androidLogic.isOverlay(false)
   end
-  
+
   androidLogic.isOverlay(true)
 end
 

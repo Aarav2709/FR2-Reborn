@@ -36,12 +36,12 @@ function scene:create(event)
       1
     }
   })
-  
+
   local function btnQuickPlayRelease()
     setGameModeFunction(1)
     composer.hideOverlay()
   end
-  
+
   local btnQuickPlay = composer.newButton({
     image = "images/gui/customplay/buttonQuickplay.png",
     onRelease = btnQuickPlayRelease,
@@ -56,7 +56,7 @@ function scene:create(event)
     x = backgroundWindow.x - 50,
     y = backgroundWindow.y + 120
   })
-  
+
   local function btnCustomPlayRelease()
     local options = {
       isModal = true,
@@ -64,7 +64,7 @@ function scene:create(event)
     }
     composer.showOverlay("lua.overlays.customPlayMapSelect", options)
   end
-  
+
   local btnCustomPlay = composer.newButton({
     image = "images/gui/customplay/buttonCustom.png",
     onRelease = btnCustomPlayRelease,
@@ -79,11 +79,11 @@ function scene:create(event)
     x = backgroundWindow.x + 50,
     y = backgroundWindow.y + 120
   })
-  
+
   local function btnExitRelease()
     composer.hideOverlay()
   end
-  
+
   local btnExit = composer.newButton({
     image = "images/gui/common/buttonClosePopup.png",
     onRelease = btnExitRelease,
@@ -92,25 +92,25 @@ function scene:create(event)
     x = backgroundWindow.x + 100,
     y = backgroundWindow.y + 80
   })
-  
+
   local function escapeTouchEvent(event)
     if event.phase == "ended" then
       composer.hideOverlay()
     end
     return true
   end
-  
+
   local function backgroundImageTouchEvent(event)
     if event.phase == "ended" then
     end
     return true
   end
-  
+
   local function addListeners()
     backgroundImage:addEventListener("touch", escapeTouchEvent)
     backgroundWindow:addEventListener("touch", backgroundImageTouchEvent)
   end
-  
+
   local function updateDisplayGroups()
     dropdownGroup:insert(backgroundWindow)
     dropdownGroup:insert(btnQuickPlay)
@@ -120,7 +120,7 @@ function scene:create(event)
     dropdownGroup:insert(windowInfo)
     sceneGroup:insert(dropdownGroup)
   end
-  
+
   function clean()
     display.remove(btnQuickPlay)
     display.remove(btnCustomPlay)
@@ -128,7 +128,7 @@ function scene:create(event)
     backgroundImage:removeEventListener("touch", escapeTouchEvent)
     backgroundWindow:removeEventListener("touch", backgroundImageTouchEvent)
   end
-  
+
   updateDisplayGroups()
   composer.bouncer.down(dropdownGroup)
   addListeners()
@@ -140,11 +140,11 @@ function scene:show(event)
     return
   end
   local androidLogic = require("lua.modules.androidBackButton")
-  
+
   function cleanEnter()
     androidLogic.isOverlay(false)
   end
-  
+
   androidLogic.isOverlay(true)
 end
 

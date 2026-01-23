@@ -119,7 +119,7 @@ function scene:create(event)
   nameTextField.userInput = composer.validateInput.limitTextField(15)
   nameTextField:addEventListener("userInput", nameTextField.userInput)
   nameTextField.text = composer.database.getPlayerInformation().username
-  
+
   local function giveCoinFeedback()
     local newSize = 1.2
     local timeToUse = 100
@@ -149,7 +149,7 @@ function scene:create(event)
       alpha = 0
     })
   end
-  
+
   local function canPlayerAffordItem()
     local money = composer.database.getMoney()
     if price and money >= price then
@@ -163,12 +163,12 @@ function scene:create(event)
       return false
     end
   end
-  
+
   local function closeButtonEvent()
     composer.hideOverlay()
     native.setKeyboardFocus(nil)
   end
-  
+
   local function escapeTouchEvent(event)
     if event.phase == "ended" then
       composer.hideOverlay()
@@ -176,14 +176,14 @@ function scene:create(event)
     end
     return true
   end
-  
+
   local function backgroundImageTouchEvent(event)
     if event.phase == "ended" then
       native.setKeyboardFocus(nil)
     end
     return true
   end
-  
+
   local closeButton = composer.newButton({
     x = 415,
     y = 26,
@@ -192,7 +192,7 @@ function scene:create(event)
     image = "images/gui/common/buttonClosePopup.png",
     onRelease = closeButtonEvent
   })
-  
+
   local function continueButtonEvent()
     if canPlayerAffordItem() then
       local newName, nameError = composer.validateInput.validateUsername(nameTextField.text)
@@ -212,7 +212,7 @@ function scene:create(event)
       end
     end
   end
-  
+
   contiuneButton = composer.newButton({
     x = 350,
     y = 80,
@@ -226,7 +226,7 @@ function scene:create(event)
     image = "images/gui/settings/buttonRenameCoins.png",
     onRelease = continueButtonEvent
   })
-  
+
   local function updateDisplayGroup()
     group:insert(alphaBackground)
     dropdownGroup:insert(background)
@@ -243,12 +243,12 @@ function scene:create(event)
     dropdownGroup:insert(contiuneButton)
     group:insert(dropdownGroup)
   end
-  
+
   local function addListeners()
     alphaBackground:addEventListener("touch", escapeTouchEvent)
     background:addEventListener("touch", backgroundImageTouchEvent)
   end
-  
+
   function clean()
     display.remove(closeButton)
     display.remove(contiuneButton)
@@ -257,7 +257,7 @@ function scene:create(event)
     alphaBackground:removeEventListener("touch", escapeTouchEvent)
     background:removeEventListener("touch", backgroundImageTouchEvent)
   end
-  
+
   updateDisplayGroup()
   addListeners()
   if not isAndroid then
@@ -273,11 +273,11 @@ function scene:show(event)
   end
   local group = self.view
   local androidLogic = require("lua.modules.androidBackButton")
-  
+
   function cleanEnter()
     androidLogic.isOverlay(false)
   end
-  
+
   androidLogic.isOverlay(true)
 end
 

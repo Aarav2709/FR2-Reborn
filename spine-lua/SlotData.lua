@@ -17,14 +17,14 @@ function SlotData.new(name, boneData)
     attachmentName = nil,
     additiveBlending = false
   }
-  
+
   function self:setColor(r, g, b, a)
     self.r = r
     self.g = g
     self.b = b
     self.a = a
   end
-  
+
   return self
 end
 

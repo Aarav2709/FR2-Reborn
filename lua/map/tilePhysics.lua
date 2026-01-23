@@ -3177,15 +3177,15 @@ function M.physicsData(scale)
       end
     end
   end
-  
+
   function physics:get(name)
     return unpack(self.data[name])
   end
-  
+
   function physics:getFixtureId(name, index)
     return self.data[name][index].pe_fixture_id
   end
-  
+
   return physics
 end
 

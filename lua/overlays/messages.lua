@@ -91,13 +91,13 @@ function scene:create(event)
   })
   facebookGroup:insert(facebookText1)
   facebookGroup:insert(facebookText2)
-  
+
   local function facebookConnectButtonEvent()
     if not composer.database.getFacebookId() then
       composer.facebook.login()
     end
   end
-  
+
   local facebookConnectButton = composer.newButton({
     image = "images/gui/common/buttonFacebook.png",
     width = 126,
@@ -123,14 +123,14 @@ function scene:create(event)
     y = 200
   })
   facebookInfo.isVisible = false
-  
+
   local function sortFunction(a, b)
     if a.n and b.n then
       return string.lower(a.n) < string.lower(b.n)
     end
     return false
   end
-  
+
   local function getFriendsData()
     local friendRequests = composer.database.getFriendRequests()
     local friends = composer.database.getFriends()
@@ -157,7 +157,7 @@ function scene:create(event)
     end
     return data
   end
-  
+
   local function getInboxData()
     local data = {}
     local gameInvite = composer.database.getGameInvites()
@@ -173,7 +173,7 @@ function scene:create(event)
     end
     return data
   end
-  
+
   local function getFacebookFriendsData()
     local installedFriends = composer.database.getFacebookFriends()
     local data = {}
@@ -183,7 +183,7 @@ function scene:create(event)
     end
     return data
   end
-  
+
   local function cleanTables()
     if activeTableInt == 1 then
       gameInviteTable.cleanTable()
@@ -199,12 +199,12 @@ function scene:create(event)
     facebookGroup.isVisible = false
     facebookInfo.isVisible = false
   end
-  
+
   local function hideDeleteButtons()
     toggleDeleteButtonActive.isVisible = false
     toggleDeleteButton.isVisible = false
   end
-  
+
   local function setActiveTable(newTable)
     searchForFriendButton.alpha = 0
     cleanTables()
@@ -247,7 +247,7 @@ function scene:create(event)
     end
     updateTableDisplayGroup()
   end
-  
+
   function refreshTable()
     if startedClean then
     elseif activeTableInt == 1 then
@@ -259,11 +259,11 @@ function scene:create(event)
     end
     updateTableDisplayGroup()
   end
-  
+
   local function gameInviteButtonEvent()
     setActiveTable(1)
   end
-  
+
   local gameInviteButton = composer.newButton({
     x = gameInviteInactive.x + 31,
     y = gameInviteInactive.y + 31,
@@ -273,7 +273,7 @@ function scene:create(event)
     onRelease = gameInviteButtonEvent,
     noFill = true
   })
-  
+
   local function searchForFriendButtonEvent()
     if activeTableInt == 2 then
       local options = {
@@ -289,7 +289,7 @@ function scene:create(event)
       })
     end
   end
-  
+
   local function toggleDeleteButtonEvent()
     if toggleDeleteButtonActive.isVisible then
       toggleDeleteButtonActive.isVisible = false
@@ -298,7 +298,7 @@ function scene:create(event)
     end
     refreshTable()
   end
-  
+
   toggleDeleteButton = composer.newButton({
     x = toggleDeleteButtonActive.x,
     y = toggleDeleteButtonActive.y,
@@ -319,11 +319,11 @@ function scene:create(event)
     image = "images/gui/friends/add.png",
     onRelease = searchForFriendButtonEvent
   })
-  
+
   local function friendInviteButtonEvent()
     setActiveTable(2)
   end
-  
+
   local friendInviteButton = composer.newButton({
     x = friendInviteInactive.x + 31,
     y = friendInviteInactive.y + 31,
@@ -333,11 +333,11 @@ function scene:create(event)
     onRelease = friendInviteButtonEvent,
     noFill = true
   })
-  
+
   local function facebookButtonEvent()
     setActiveTable(3)
   end
-  
+
   local facebookButton = composer.newButton({
     x = facebookInactive.x + 31,
     y = facebookInactive.y + 31,
@@ -347,7 +347,7 @@ function scene:create(event)
     onRelease = facebookButtonEvent,
     noFill = true
   })
-  
+
   local function httpsCallback(data)
     if data.m == httpsFormat.registerFacebook() then
       facebookConnectButton.isVisible = false
@@ -356,7 +356,7 @@ function scene:create(event)
     end
     refreshTable()
   end
-  
+
   function updateTableDisplayGroup()
     group:insert(tableBackground)
     group:insert(gameInviteButton)
@@ -386,12 +386,12 @@ function scene:create(event)
     group:insert(toggleDeleteButton)
     group:insert(toggleDeleteButtonActive)
   end
-  
+
   local function updateDisplayGroup()
     group:insert(alphaBackground)
     updateTableDisplayGroup()
   end
-  
+
   local function moveToMysteryItemScene()
     local options = {
       isModal = true,
@@ -403,22 +403,22 @@ function scene:create(event)
     options.params.item.imagePath = "images/gui/market/items/" .. category .. "/" .. isMysteryBox .. ".png"
     composer.showOverlay("lua.overlays.marketFree", options)
   end
-  
+
   local function closeOverlayButtonEvent()
     composer.hideOverlay()
   end
-  
+
   local function closeOnTouchEvent(event)
     if event.phase == "ended" then
       composer.hideOverlay()
     end
     return true
   end
-  
+
   local function doNothingOnTouchEvent(event)
     return true
   end
-  
+
   closeOverlayButton = composer.newButton({
     x = 370,
     y = 22,
@@ -427,7 +427,7 @@ function scene:create(event)
     image = "images/gui/common/buttonClosePopup.png",
     onRelease = closeOverlayButtonEvent
   })
-  
+
   function clean()
     startedClean = true
     cleanTables()
@@ -440,7 +440,7 @@ function scene:create(event)
     tableBackground:removeEventListener("touch", doNothingOnTouchEvent)
     composer.overlayWithNetwork = false
   end
-  
+
   local function tableCallbackGameInbox(clickType, playerId, sessionId, serverAddress, item)
     print("")
     print("tableCallbackGameInbox")
@@ -473,7 +473,7 @@ function scene:create(event)
       refreshTable()
     end
   end
-  
+
   local function tableCallbackFriends(clickType, playerId, rowIdex)
     if startedClean then
     elseif clickType == 1 then
@@ -499,10 +499,10 @@ function scene:create(event)
       closeOverlayButtonEvent()
     end
   end
-  
+
   local function tableCallbackFacebook()
   end
-  
+
   gameInviteTable = tableHelper.new(105, 36, 270, 284, 55, nil, "friendsSettings1", tableCallbackGameInbox, 18)
   friendsTable = tableHelper.new(105, 36, 270, 284, 55, nil, "friendsSettings2", tableCallbackFriends, 18)
   facebookTable = tableHelper.new(105, 36, 270, 284, 55, nil, "friendsSettings3", tableCallbackFacebook, 18)
@@ -513,7 +513,7 @@ function scene:create(event)
   else
     setActiveTable(2)
   end
-  
+
   local function runMysteryBoxCode()
     if isMysteryBox then
       hideDeleteButtons()
@@ -526,12 +526,12 @@ function scene:create(event)
       tableTitleText.text = composer.localized.get("chooseafriend")
     end
   end
-  
+
   local function addListeners()
     alphaBackground:addEventListener("touch", closeOnTouchEvent)
     tableBackground:addEventListener("touch", doNothingOnTouchEvent)
   end
-  
+
   addListeners()
   runMysteryBoxCode()
   updateDisplayGroup()
@@ -547,20 +547,20 @@ function scene:show(event)
   local androidLogic = require("lua.modules.androidBackButton")
   local tcpFormat = require("lua.network.tcpMessageFormat")
   local startedClean = false
-  
+
   function cleanEnter()
     startedClean = true
     androidLogic.isOverlay(false)
   end
-  
+
   androidLogic.isOverlay(true)
-  
+
   local function refresh()
     if refreshTable then
       refreshTable()
     end
   end
-  
+
   function tcpCallback(data)
     if startedClean then
       return
@@ -587,7 +587,7 @@ function scene:show(event)
       refresh()
     end
   end
-  
+
   composer.comm.setCallback(tcpCallback)
 end
 

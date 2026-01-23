@@ -5,7 +5,7 @@ local function new(id, playerId, playerList)
   local temp = {1}
   temp.x = 1
   temp.y = 1
-  
+
   local function createMagnetEffect()
     for i = 1, #playerList do
       if playerList[i].id ~= id then
@@ -17,7 +17,7 @@ local function new(id, playerId, playerList)
       end
     end
   end
-  
+
   createMagnetEffect()
   return temp
 end

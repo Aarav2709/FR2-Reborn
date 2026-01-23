@@ -15,7 +15,7 @@ local function new()
   local effectSheetData = require("lua.game.effects.assetFiles.cannonEffect")
   local effectSheet = graphics.newImageSheet("images/map/effects/cannonEffect.png", effectSheetData:getSheet())
   local cannonEffect = display.newSprite(effectSheet, effectSequenceData)
-  
+
   local function clean()
     if startedClean then
       return
@@ -30,20 +30,20 @@ local function new()
       timerRef = nil
     end
   end
-  
+
   local function hideEffect()
     if cannonEffect and not startedClean then
       cannonEffect.isVisible = false
     end
   end
-  
+
   local function playEffect()
     cannonEffect.isVisible = true
     cannonEffect:setSequence("animate")
     cannonEffect:play()
     timerRef = timer.performWithDelay(200, hideEffect, 1)
   end
-  
+
   effectGroup.playEffect = playEffect
   effectGroup.clean = clean
   effectGroup:insert(cannonEffect)

@@ -22,27 +22,27 @@ function Slot.new(slotData, skeleton, bone)
     attachmentTime = 0,
     attachmentVertices = nil
   }
-  
+
   function self:setColor(r, g, b, a)
     self.r = r
     self.g = g
     self.b = b
     self.a = a
   end
-  
+
   function self:setAttachment(attachment)
     self.attachment = attachment
     self.attachmentTime = self.skeleton.time
   end
-  
+
   function self:setAttachmentTime(time)
     self.attachmentTime = self.skeleton.time - time
   end
-  
+
   function self:getAttachmentTime()
     return self.skeleton.time - self.attachmentTime
   end
-  
+
   function self:setToSetupPose()
     local data = self.data
     self:setColor(data.r, data.g, data.b, data.a)
@@ -52,7 +52,7 @@ function Slot.new(slotData, skeleton, bone)
     end
     self:setAttachment(attachment)
   end
-  
+
   self:setToSetupPose()
   return self
 end

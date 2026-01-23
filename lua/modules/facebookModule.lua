@@ -23,7 +23,7 @@ local function sortFacebookFriends(friendList)
   local function sortFunction(a, b)
     return a.name < b.name
   end
-  
+
   table.sort(friendList, sortFunction)
   return friendList
 end
@@ -130,10 +130,10 @@ local function onListMeComplete(event)
         elseif delayedAttemps < 5 then
           local function closure()
             local sameEvent = event
-            
+
             onListMeComplete(sameEvent)
           end
-          
+
           print("WARNING: delayed facebook friend check")
           delayedTimer = timer.performWithDelay(2000, closure, 1)
           delayedAttemps = delayedAttemps + 1

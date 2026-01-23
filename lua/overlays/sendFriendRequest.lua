@@ -58,15 +58,15 @@ function scene:create(event)
   local inputBackground = display.newImageRect("images/gui/friends/searchCover.png", 300, 55)
   inputBackground.x = usernameTextField.x
   inputBackground.y = usernameTextField.y + 6
-  
+
   local function closeOverlayButtonEvent()
     composer.hideOverlay()
   end
-  
+
   local function backButtonEvent()
     composer.showOverlay("lua.overlays.messages", {isModal = true})
   end
-  
+
   local function escapeTouchEvent(event)
     if event.phase == "ended" then
       if false then
@@ -77,14 +77,14 @@ function scene:create(event)
     end
     return true
   end
-  
+
   local function backgroundImageTouchEvent(event)
     if event.phase == "ended" then
       native.setKeyboardFocus(nil)
     end
     return true
   end
-  
+
   if event.params and event.params.friendScene then
     backButton = composer.newButton({
       x = 116,
@@ -103,7 +103,7 @@ function scene:create(event)
     image = "images/gui/common/buttonClosePopup.png",
     onRelease = closeOverlayButtonEvent
   })
-  
+
   local function searchForFriendButtonEvent()
     native.setKeyboardFocus(nil)
     local usernameTable, usernameError = composer.validateInput.validateUsernameSearch(usernameTextField.text)
@@ -131,7 +131,7 @@ function scene:create(event)
       possibleFriendsTable.cleanTable()
     end
   end
-  
+
   local searchForFriendButton = composer.newButton({
     x = 360,
     y = 78,
@@ -140,7 +140,7 @@ function scene:create(event)
     image = "images/gui/friends/search.png",
     onRelease = searchForFriendButtonEvent
   })
-  
+
   local function updateDisplayGroup()
     group:insert(alphaBackground)
     group:insert(tableBackground)
@@ -155,12 +155,12 @@ function scene:create(event)
     end
     group:insert(searchForFriendButton)
   end
-  
+
   local function addListeners()
     alphaBackground:addEventListener("touch", escapeTouchEvent)
     tableBackground:addEventListener("touch", backgroundImageTouchEvent)
   end
-  
+
   function limitField(getObj)
     return function(event)
       if string.len(usernameTextField.text) > 15 then
@@ -172,7 +172,7 @@ function scene:create(event)
       end
     end
   end
-  
+
   function hildeInputFields(hide)
     if hide then
       usernameTextField.isVisible = false
@@ -182,7 +182,7 @@ function scene:create(event)
       searchForFriendButton.isVisible = true
     end
   end
-  
+
   function clean()
     display.remove(searchForFriendButton)
     display.remove(closeOverlayButton)
@@ -192,7 +192,7 @@ function scene:create(event)
     alphaBackground:removeEventListener("touch", escapeTouchEvent)
     tableBackground:removeEventListener("touch", backgroundImageTouchEvent)
   end
-  
+
   updateDisplayGroup()
   addListeners()
 end
@@ -210,13 +210,13 @@ function scene:show(event)
   possibleFriendsGroup.x = 105
   possibleFriendsGroup.y = 112
   possibleFriendsGroup.isVisible = false
-  
+
   local function tableCallback(playerId)
     composer.comm.addFriend(playerId, true)
   end
-  
+
   possibleFriendsTable = tableHelper.new(0, 0, 270, 208, 55, nil, "findFriends", tableCallback, 10)
-  
+
   local function tcpCallback(data)
     if data.r then
       if data.r == 35 then
@@ -239,12 +239,12 @@ function scene:show(event)
       end
     end
   end
-  
+
   local function updateDisplayGroup()
     group:insert(possibleFriendsGroup)
     group:insert(informationTextLabel)
   end
-  
+
   function cleanEnter()
     if possibleFriendsTable then
       possibleFriendsTable.cleanTable()
@@ -252,7 +252,7 @@ function scene:show(event)
     end
     androidLogic.isOverlay(false)
   end
-  
+
   androidLogic.isOverlay(true)
   updateDisplayGroup()
   composer.comm.setCallback(tcpCallback)

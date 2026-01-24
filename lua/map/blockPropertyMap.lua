@@ -48,7 +48,7 @@ function M.init(theme)
     normal090 = 3
   }
   local specialThemeDefinitions = require("lua.map.assets." .. theme .. ".specialPropertyData").init(theme)
-  
+
   local function addDefinitions(definitions)
     local startLength = #blockmap.blocks
     local framesToAdd = definitions.frames
@@ -61,17 +61,17 @@ function M.init(theme)
     end
     composer.debugger.debugTable("main", "blockmap after adding special", blockmap)
   end
-  
+
   addDefinitions(specialThemeDefinitions)
-  
+
   function blockmap.getFrameIndex(blockId)
     return blockmap.frames[blockId]
   end
-  
+
   function blockmap.getBlock(blockId)
     return blockmap.blocks[blockmap.getFrameIndex(blockId)]
   end
-  
+
   function blockmap.canTileHaveDecal(blockId)
     if blockId == "001" then
       return false
@@ -145,7 +145,7 @@ function M.init(theme)
       return true
     end
   end
-  
+
   return blockmap
 end
 

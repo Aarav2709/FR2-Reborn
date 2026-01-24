@@ -76,7 +76,7 @@ local function sortOnPrice(newList)
       return false
     end
   end
-  
+
   table.sort(newList, sortFunction)
   return newList
 end
@@ -211,14 +211,14 @@ end
 function M.getPreloadProductsForIAP()
   reloadConfigIfNil()
   local list = {}
-  
+
   local function isIAPItem(value)
     if shouldAddItem(value) and value.price == nil and value.tier then
       return true
     end
     return false
   end
-  
+
   for key, value in pairs(configInput.characters) do
     if isIAPItem(value) then
       list[#list + 1] = value

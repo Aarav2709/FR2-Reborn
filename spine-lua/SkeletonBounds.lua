@@ -11,7 +11,7 @@ function SkeletonBounds.new()
     maxX = 0,
     maxY = 0
   }
-  
+
   function aabbCompute()
     local polygons = self.polygons
     local minX, minY, maxX, maxY = 9999999, 9999999, -9999999, -9999999
@@ -31,7 +31,7 @@ function SkeletonBounds.new()
     self.maxX = maxX
     self.maxY = maxY
   end
-  
+
   function self:update(skeleton, updateAabb)
     local x = skeleton.x
     local y = skeleton.y
@@ -52,11 +52,11 @@ function SkeletonBounds.new()
       aabbCompute()
     end
   end
-  
+
   function self:aabbContainsPoint(x, y)
     return x >= self.minX and x <= self.maxX and y >= self.minY and y <= self.maxY
   end
-  
+
   function self:aabbIntersectsSegment(x1, y1, x2, y2)
     local minX, minY, maxX, maxY = self.minX, self.minY, self.maxX, self.maxY
     if x1 <= minX and x2 <= minX or y1 <= minY and y2 <= minY or x1 >= maxX and x2 >= maxX or y1 >= maxY and y2 >= maxY then
@@ -81,11 +81,11 @@ function SkeletonBounds.new()
     end
     return false
   end
-  
+
   function self:aabbIntersectsSkeleton(bounds)
     return self.minX < bounds.maxX and self.maxX > bounds.minX and self.minY < bounds.maxY and self.maxY > bounds.minY
   end
-  
+
   function self:containsPoint(x, y)
     for i, polygon in ipairs(self.polygons) do
       if self:polygonContainsPoint(polygon, x, y) then
@@ -94,7 +94,7 @@ function SkeletonBounds.new()
     end
     return nil
   end
-  
+
   function self:intersectsSegment(x1, y1, x2, y2)
     for i, polygon in ipairs(self.polygons) do
       if self:polygonIntersectsSegment(polygon, x1, y1, x2, y2) then
@@ -103,7 +103,7 @@ function SkeletonBounds.new()
     end
     return nil
   end
-  
+
   function self:polygonContainsPoint(polygon, x, y)
     local nn = #polygon
     local prevIndex = nn - 1
@@ -121,7 +121,7 @@ function SkeletonBounds.new()
     end
     return inside
   end
-  
+
   function self:polygonIntersectsSegment(polygon, x1, y1, x2, y2)
     local nn = #polygon
     local width12, height12 = x1 - x2, y1 - y2
@@ -144,7 +144,7 @@ function SkeletonBounds.new()
     end
     return false
   end
-  
+
   function self:getPolygon(attachment)
     local index = spine.utils.indexOf(self.boundingBoxes, attachment)
     if index == -1 then
@@ -153,15 +153,15 @@ function SkeletonBounds.new()
       return self.polygons[index]
     end
   end
-  
+
   function self:getWidth()
     return self.maxX - self.minX
   end
-  
+
   function self:getHeight()
     return self.maxY - self.minY
   end
-  
+
   return self
 end
 

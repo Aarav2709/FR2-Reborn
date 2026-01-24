@@ -33,18 +33,32 @@ function scene:create(event)
     "So unlucky!"
   }
   local imagePath = "images/gui/postgame/postBG_forest.png"
+  local themeToImage = {
+    forest = "images/gui/postgame/postBG_forest.png",
+    space = "images/gui/postgame/postBG_space.png",
+    town = "images/gui/postgame/postBG_town.png",
+    tropical = "images/gui/postgame/postBG_tropical.png",
+    winter = "images/gui/postgame/postBG_winter.png"
+  }
   local otherPlayersId = {}
   local coinEffect, chestCoinEffect, updateStats
-  if composer.data.gameInfo.map < 1000 then
-    local mapData = composer.data.getMapInfo(composer.data.gameInfo.map)
+  composer.data.gameInfo = composer.data.gameInfo or {}
+  composer.data.gameInfo.players = composer.data.gameInfo.players or {}
+  composer.data.gameInfo.stats = composer.data.gameInfo.stats
+  if composer.data.gameInfo.map == nil then
+    composer.data.gameInfo.map = 1
+  end
+  local mapId = tonumber(composer.data.gameInfo.map)
+  if mapId and mapId < 1000 then
+    local mapData = composer.data.getMapInfo(mapId)
     if mapData then
       local mapTheme = mapData.theme
-      if mapTheme then
-        imagePath = "images/gui/postgame/postBG_" .. mapTheme .. ".png"
+      if mapTheme and themeToImage[mapTheme] then
+        imagePath = themeToImage[mapTheme]
       end
     end
   end
-  backgroundImage = display.newImageRect(imagePath, 480, 320)
+  backgroundImage = display.newImageRect(imagePath, 1920, 1080)
   screenGroup:insert(backgroundImage)
   layoutPostLobby = function()
     local contentLeft = display.screenOriginX
@@ -66,39 +80,140 @@ function scene:create(event)
       backgroundImage.yScale = scale
     end
   end
-  local backgroundTimeImage = display.newImageRect("images/gui/postgame/windowTimes.png", 182, 131)
-  backgroundTimeImage.x = display.contentWidth * 0.8
-  backgroundTimeImage.y = display.contentHeight * 0.2
-  local chatButtonOverlay = display.newImageRect("images/gui/postgame/buttonToggle.png", 55, 52)
-  chatButtonOverlay.x = 30
-  chatButtonOverlay.y = 294
+  local backgroundTimeImage = display.newImageRect("images/gui/postgame/windowTimes.png", 300, 170)
+  backgroundTimeImage.x = 748
+  backgroundTimeImage.y = 80
+  local photoIcon = display.newImageRect("images/gui/postgame/photo.png", 40, 40)
+  photoIcon.xScale = 1
+  photoIcon.yScale = 1
+  photoIcon.x = 875
+  photoIcon.y = 169
+  screenGroup:insert(photoIcon)
+  -- Screenshot Functionality - Work In Progress - Coming Soon
+  -- local function copyFile(sourcePath, destPath)
+  --   local inFile = io.open(sourcePath, "rb")
+  --   if not inFile then
+  --     return false
+  --   end
+  --   local data = inFile:read("*a")
+  --   inFile:close()
+  --   local outFile = io.open(destPath, "wb")
+  --   if not outFile then
+  --     return false
+  --   end
+  --   outFile:write(data)
+  --   outFile:close()
+  --   return true
+  -- end
+
+  -- local function savePostLobbyScreenshot()
+  --   local capture = display.captureScreen(true)
+  --   if not capture then
+  --     return
+  --   end
+  --   local filename = "postLobby_" .. os.time() .. ".png"
+  --   local platform = system.getInfo("platform")
+  --   local saveToGallery = platform == "android" or platform == "ios"
+  --   local saveDir = system.DocumentsDirectory
+  --   if not saveToGallery and system.DownloadsDirectory then
+  --     saveDir = system.DownloadsDirectory
+  --   end
+  --   display.save(capture, { filename = filename, baseDir = saveDir, isFullResolution = true })
+  --   if saveToGallery and media and media.save then
+  --     media.save(filename, saveDir)
+  --   end
+
+  --   local flash = display.newRect(screenGroup, 0, 0, display.contentWidth, display.contentHeight)
+  --   flash.anchorX = 0
+  --   flash.anchorY = 0
+  --   flash:setFillColor(1, 1, 1)
+  --   flash.alpha = 0.8
+  --   transition.to(flash, { time = 120, alpha = 0, onComplete = function()
+  --     display.remove(flash)
+  --   end })
+
+  --   screenGroup:insert(capture)
+  --   capture.anchorX = 0.5
+  --   capture.anchorY = 0.5
+  --   capture.x = display.contentWidth * 0.5
+  --   capture.y = display.contentHeight * 0.5
+  --   capture.xScale = 0.35
+  --   capture.yScale = 0.35
+  --   transition.to(capture, {
+  --     time = 600,
+  --     x = 80,
+  --     y = display.contentHeight - 80,
+  --     xScale = 0.22,
+  --     yScale = 0.22,
+  --     transition = easing.outQuad
+  --   })
+  --   transition.to(capture, {
+  --     time = 400,
+  --     delay = 3000,
+  --     x = -200,
+  --     transition = easing.inQuad,
+  --     onComplete = function()
+  --       display.remove(capture)
+  --     end
+  --   })
+  -- end
+  -- photoIcon:addEventListener("tap", savePostLobbyScreenshot)
+  local chatButtonOverlay = display.newImageRect("images/gui/postgame/buttonToggle.png", 65, 65)
+  chatButtonOverlay.x = 160
+  chatButtonOverlay.y = 384
   chatButtonOverlay.isVisible = false
-  local friendButtonOverlay = display.newImageRect("images/gui/postgame/buttonToggle.png", 55, 52)
-  friendButtonOverlay.x = 90
-  friendButtonOverlay.y = 294
+  local friendButtonOverlay = display.newImageRect("images/gui/postgame/buttonToggle.png", 65, 65)
+  friendButtonOverlay.x = 250
+  friendButtonOverlay.y = 384
   friendButtonOverlay.isVisible = false
+  local marketButtonOverlay = display.newImageRect("images/gui/postgame/buttonToggle.png", 65, 65)
+  marketButtonOverlay.x = 680
+  marketButtonOverlay.y = 384
+  marketButtonOverlay.isVisible = false
   local chatButtonDropdown = display.newImageRect("images/gui/postgame/bubbleList.png", 175, 179)
-  chatButtonDropdown.x = display.contentWidth * 0.19
-  chatButtonDropdown.y = display.contentHeight * 0.56
+  chatButtonDropdown.x = display.contentWidth * 0.26
+  chatButtonDropdown.y = display.contentHeight * 0.65
   chatButtonDropdown.isVisible = false
   local name = ""
   if composer.onboarding.isActive == true then
     name = composer.onboarding.getMapName()
   else
-    name = composer.data.getMapName(composer.data.gameInfo.map)
+    if mapId then
+      name = composer.data.getMapName(mapId)
+    end
     composer.gamesPlayed = composer.gamesPlayed + 1
   end
   local mapName = composer.newText({
     string = name,
-    size = 22,
-    x = backgroundTimeImage.x,
-    y = backgroundTimeImage.y - 44,
+    size = 30,
+    z = 7,
+    x = 755,
+    y = 21,
     color = {
       1,
       1,
       1
     }
   })
+
+  local placeholdersEnabled = true
+  local placeholderGroup = display.newGroup()
+  local placeholderMapX = 755
+  local placeholderMapY = 21
+  local mapPlaceholder = composer.newText({
+    string = "STUMPY SLOPES",
+    size = 30,
+    x = placeholderMapX,
+    y = placeholderMapY,
+    color = { 1, 1, 1 }
+  })
+  placeholderGroup:insert(mapPlaceholder)
+  placeholderGroup.isVisible = placeholdersEnabled
+  local function setPlaceholdersVisible(isVisible)
+    placeholdersEnabled = not not isVisible
+    placeholderGroup.isVisible = placeholdersEnabled
+  end
+
 
   function addChatBubble(playerId, chatId)
     local playerIndex = 1
@@ -213,8 +328,8 @@ function scene:create(event)
         width = 156,
         height = 30,
         onRelease = sendChatMessage,
-        x = 90,
-        y = 84 + i * 30
+        x = 236,
+        y = 171 + i * 30
       })
       chatButtons[i].isVisible = false
       screenGroup:insert(chatButtons[i])
@@ -255,7 +370,7 @@ function scene:create(event)
       composer.onboarding.stepDone()
       return
     elseif composer.data.gameInfo.gameType == 0 then
-      composer.gotoScene("lua.scenes.lobbyPractise")
+      composer.gotoScene("lua.scenes.lobbyPractice")
     elseif composer.data.gameInfo.gameType == 1 then
       composer.gotoScene("lua.scenes.lobbyQuickPlay")
     elseif composer.data.gameInfo.gameType == 3 or composer.data.gameInfo.gameType == 4 then
@@ -307,46 +422,47 @@ function scene:create(event)
 
   local returnToMenuButton = composer.newButton({
     image = "images/gui/common/buttonClosePopup.png",
-    width = 43,
-    height = 38,
+    width = 35,
+    height = 35,
     onRelease = returnToMenuButtonRelease,
-    x = 22,
-    y = 22
+    x = 30,
+    y = 20
   })
   local rematchButton = composer.newButton({
     image = "images/gui/postgame/buttonReplay.png",
-    width = 90,
-    height = 52,
+    width = 115,
+    height = 61,
     onRelease = rematchButtonRelease,
-    x = display.contentWidth - 50,
-    y = 294
+    x = display.contentWidth - 128,
+    y = 384
   })
   addFriendsButton = composer.newButton({
     image = "images/gui/postgame/buttonFriends.png",
-    width = 55,
-    height = 52,
+    width = 65,
+    height = 65,
     onRelease = addFriendsButtonRelease,
     x = friendButtonOverlay.x,
     y = friendButtonOverlay.y
   })
-  addFriendsButton.isVisible = false
+  addFriendsButton.isVisible = true
   local chatButton = composer.newButton({
     image = "images/gui/postgame/buttonChat.png",
-    width = 55,
-    height = 52,
+    width = 65,
+    height = 65,
     onRelease = chatButtonRelease,
     x = chatButtonOverlay.x,
     y = chatButtonOverlay.y
   })
-  chatButton.isVisible = false
+  chatButton.isVisible = true
   local marketButton = composer.newButton({
     image = "images/gui/postgame/buttonMarket.png",
-    width = 55,
-    height = 52,
+    width = 65,
+    height = 65,
     onRelease = marketButtonRelease,
-    x = 350,
-    y = 294
+    x = marketButtonOverlay.x,
+    y = marketButtonOverlay.y
   })
+  marketButton.isVisible = true
   local exitOnboarding
   if composer.onboarding.isActive == true then
     exitOnboarding = composer.newButton({
@@ -358,12 +474,22 @@ function scene:create(event)
       y = 25.5
     })
   end
+  local postLobbyButtonsVisible = true
+  local function setPostLobbyButtonsVisible(isVisible)
+    postLobbyButtonsVisible = not not isVisible
+    addFriendsButton.isVisible = postLobbyButtonsVisible
+    chatButton.isVisible = postLobbyButtonsVisible
+    marketButton.isVisible = postLobbyButtonsVisible
+  end
   for i = 1, 4 do
     avatarDisplayGroupList[i] = display.newGroup()
     screenGroup:insert(avatarDisplayGroupList[i])
   end
 
   local function updateAvatar(indexInList, username, pos)
+    if not composer.data.gameInfo.players or not composer.data.gameInfo.players[indexInList] then
+      return
+    end
     local networkFormat = true
     if composer.data.gameInfo.gameType == 0 then
       networkFormat = false
@@ -376,17 +502,17 @@ function scene:create(event)
     screenGroup:insert(monsterGroup)
     local x, y
     if pos == 1 then
-      x = 130
-      y = 128
+      x = 254
+      y = 176
     elseif pos == 2 then
-      x = 46
-      y = 165
+      x = 94
+      y = 236
     elseif pos == 3 then
-      x = 220
-      y = 172
+      x = 412
+      y = 250
     elseif pos == 4 then
-      x = 310
-      y = 212
+      x = 576
+      y = 310
     end
     monsterGroup.y = y + 40
     monsterGroup.x = x
@@ -447,7 +573,9 @@ function scene:create(event)
 
   local function updateRank(rating, deltaRating, extraDelay)
     if deltaRating then
-      local ratingX = 176
+      local ratingX = 463
+      local ratingY = 39
+      local ratingIconX = ratingX + 36
       rankingEarned = composer.newText({
         string = "",
         size = 20,
@@ -458,16 +586,18 @@ function scene:create(event)
         }
       })
       rankingEarned.anchorX = 1
-      rankingEarned.anchorY = 0
+      rankingEarned.anchorY = 1
       rankingEarned.x = ratingX
-      rankingEarned.y = 10
+      rankingEarned.y = ratingY
       newStatsGroup:insert(rankingEarned)
-      local ratingIcon = display.newImageRect("images/gui/postgame/iconRating.png", 22, 14)
-      ratingIcon.anchorX = 1
-      ratingIcon.anchorY = 0
-      ratingIcon.x = ratingX + 26
-      ratingIcon.y = 15
-      newTotalStatsGroup:insert(ratingIcon)
+      local ratingIcon = display.newImageRect("images/gui/postgame/iconRating.png", 28, 28)
+      if ratingIcon then
+        ratingIcon.anchorX = 1
+        ratingIcon.anchorY = 1
+        ratingIcon.x = ratingIconX
+        ratingIcon.y = ratingY
+        newTotalStatsGroup:insert(ratingIcon)
+      end
       local prevRating = rating - deltaRating
       local totalRating = composer.newText({
         string = prevRating,
@@ -479,9 +609,9 @@ function scene:create(event)
         }
       })
       totalRating.anchorX = 1
-      totalRating.anchorY = 0
+      totalRating.anchorY = 1
       totalRating.x = ratingX
-      totalRating.y = 10
+      totalRating.y = ratingY
       newTotalStatsGroup:insert(totalRating)
       local counterRating = 0
 
@@ -535,6 +665,9 @@ function scene:create(event)
       composer.database.setMoney(money)
     end
     if deltaMoney then
+      local moneyX = 319
+      local moneyY = 39
+      local moneyIconX = moneyX + 36
       local moneyText = composer.newText({
         string = "",
         size = 20,
@@ -545,16 +678,16 @@ function scene:create(event)
         }
       })
       moneyText.anchorX = 1
-      moneyText.anchorY = 0
-      moneyText.x = 90
-      moneyText.y = 10
+      moneyText.anchorY = 1
+      moneyText.x = moneyX
+      moneyText.y = moneyY
       newStatsGroup:insert(moneyText)
       local prevMoney = money - deltaMoney
-      local moneyIcon = display.newImageRect("images/gui/postgame/iconCoin.png", 14, 14)
+      local moneyIcon = display.newImageRect("images/gui/postgame/iconCoin.png", 28, 28)
       moneyIcon.anchorX = 1
-      moneyIcon.anchorY = 0
-      moneyIcon.x = moneyText.x + 15
-      moneyIcon.y = 18
+      moneyIcon.anchorY = 1
+      moneyIcon.x = moneyIconX
+      moneyIcon.y = moneyY
       newTotalStatsGroup:insert(moneyIcon)
       local totalMoneyText = composer.newText({
         string = prevMoney,
@@ -566,9 +699,9 @@ function scene:create(event)
         }
       })
       totalMoneyText.anchorX = 1
-      totalMoneyText.anchorY = 0
-      totalMoneyText.x = 90
-      totalMoneyText.y = 10
+      totalMoneyText.anchorY = 1
+      totalMoneyText.x = moneyX
+      totalMoneyText.y = moneyY
       newTotalStatsGroup:insert(totalMoneyText)
       local coinEffectDelta = deltaMoney
       if composer.data.gameInfo.stats.fa then
@@ -620,76 +753,23 @@ function scene:create(event)
     end
   end
 
-  local function updateXpAndGems(totalXp, earnedXp, totalGems, earnedGems)
-    if earnedXp == nil and earnedGems == nil then
-      return
-    end
-    local deltaText = "XP +" .. (earnedXp or 0) .. "  |  Gems +" .. (earnedGems or 0)
-    local totalText = "XP " .. (totalXp or 0) .. "  |  Gems " .. (totalGems or 0)
-    local xpGemDelta = composer.newText({
-      string = deltaText,
-      size = 14,
-      color = {
-        1,
-        1,
-        1
-      }
-    })
-    xpGemDelta.anchorX = 1
-    xpGemDelta.anchorY = 0
-    xpGemDelta.x = 90
-    xpGemDelta.y = 28
-    newStatsGroup:insert(xpGemDelta)
-    local xpGemTotal = composer.newText({
-      string = totalText,
-      size = 14,
-      color = {
-        1,
-        1,
-        1
-      }
-    })
-    xpGemTotal.anchorX = 1
-    xpGemTotal.anchorY = 0
-    xpGemTotal.x = 90
-    xpGemTotal.y = 28
-    newTotalStatsGroup:insert(xpGemTotal)
-  end
-
-  local function updatePlacementText(placement)
-    if not placement then
-      return
-    end
-    local placementText = composer.newText({
-      string = "Place: " .. placement,
-      size = 12,
-      color = {
-        1,
-        1,
-        1
-      }
-    })
-    placementText.anchorX = 1
-    placementText.anchorY = 0
-    placementText.x = 90
-    placementText.y = 0
-    newStatsGroup:insert(placementText)
-  end
-
   function updateStats(indexInList)
     local list = composer.data.gameInfo.stats
     if list then
-      if list.a and list.r and list.g then
-        updateRank(list.a, list.r, list.g * 50)
+      print("postLobby stats: a=" .. tostring(list.a) .. " r=" .. tostring(list.r) ..
+        " g=" .. tostring(list.g) .. " h=" .. tostring(list.h))
+      if list.a ~= nil then
+        local deltaRating = list.r or 0
+        local extraDelay = (list.g or 0) * 50
+        updateRank(list.a, deltaRating, extraDelay)
       end
-      if list.h and list.g then
+      if list.h ~= nil and list.g ~= nil then
         updateMoney(list.h, list.g, indexInList)
       end
       if list.xp or list.gems then
-        updateXpAndGems(list.xpTotal, list.xp, list.gemsTotal, list.gems)
-      end
-      if list.place then
-        updatePlacementText(list.place)
+        if updateXpAndGems then
+          updateXpAndGems(list.xpTotal, list.xp, list.gemsTotal, list.gems)
+        end
       end
     end
   end
@@ -714,9 +794,29 @@ function scene:create(event)
 
   local rankingTextLabels = {}
   local timeTextLabels = {}
+  local rankingGroupScale = 1
 
   local function setUpRankingTable(rankingTableFromComposer)
     local rankingTable = rankingTableFromComposer
+    if not rankingTable or #rankingTable == 0 then
+      rankingTable = {
+        { username = "Player 1", goalTime = 10000, index = 1 },
+        { username = "Player 2", goalTime = 12000, index = 2 },
+        { username = "Player 3", goalTime = 14000, index = 3 },
+        { username = "Player 4", goalTime = 16000, index = 4 }
+      }
+    end
+    if not composer.data.gameInfo.players or #composer.data.gameInfo.players == 0 then
+      composer.data.gameInfo.players = {}
+      local defaultAvatar = composer.database.getAvatarData()
+      for i = 1, 4 do
+        composer.data.gameInfo.players[i] = {
+          username = "Player " .. i,
+          avatar = defaultAvatar,
+          playerId = i
+        }
+      end
+    end
     if rankingTable and #rankingTable < 5 then
       local fastestTime
       table.sort(rankingTable, function(a, b)
@@ -760,7 +860,7 @@ function scene:create(event)
         end
         rankingTextLabels[i] = composer.newText({
           string = rankingText,
-          size = 20,
+          size = 23,
           color = {
             1,
             1,
@@ -769,12 +869,12 @@ function scene:create(event)
           ax = 0,
           ay = 0
         })
-        rankingTextLabels[i].x = display.contentWidth * 0.4
-        rankingTextLabels[i].y = display.contentHeight * 0.2 * (i * 0.3)
+        rankingTextLabels[i].x = 0
+        rankingTextLabels[i].y = (i - 1) * 24
         rankingTextGroup:insert(rankingTextLabels[i])
         timeTextLabels[i] = composer.newText({
           string = timeText,
-          size = 20,
+          size = 23,
           color = {
             1,
             1,
@@ -783,7 +883,7 @@ function scene:create(event)
           ax = 1,
           ay = 0
         })
-        timeTextLabels[i].x = display.contentWidth * 0.75
+        timeTextLabels[i].x = 267
         timeTextLabels[i].y = rankingTextLabels[i].y
         rankingTextGroup:insert(timeTextLabels[i])
         updateAvatar(index, username, i)
@@ -792,8 +892,10 @@ function scene:create(event)
       rankingTextGroup.anchorX = 0
       rankingTextGroup.anchorY = 0
       rankingTextGroup.anchorChildren = true
-      rankingTextGroup.x = display.contentWidth * 0.63
-      rankingTextGroup.y = 36
+      rankingTextGroup.x = 612
+      rankingTextGroup.y = 46
+      rankingTextGroup.xScale = rankingGroupScale
+      rankingTextGroup.yScale = rankingGroupScale
       screenGroup:insert(rankingTextGroup)
       effectGroup:toFront()
     else
@@ -807,18 +909,22 @@ function scene:create(event)
     end
   end
 
+  local backgroundStatsImage = display.newImageRect("images/gui/postgame/windowCurrency.png", 318, 70)
+  backgroundStatsImage.x = display.contentWidth * 0.509
+  backgroundStatsImage.y = 384
+  screenGroup:insert(backgroundStatsImage)
+
   local function createOnlinePostLobby()
     chatButton.isVisible = true
     chatButton.isVisible = true
-    local backgroundStatsImage = display.newImageRect("images/gui/postgame/windowCurrency.png", 184, 55)
-    backgroundStatsImage.x = display.contentWidth * 0.455
-    backgroundStatsImage.y = 293
-    screenGroup:insert(backgroundStatsImage)
   end
 
   local function updateDisplayGroups()
+    screenGroup:insert(photoIcon)
     screenGroup:insert(backgroundTimeImage)
+    screenGroup:insert(placeholderGroup)
     screenGroup:insert(mapName)
+    screenGroup:insert(backgroundStatsImage)
     screenGroup:insert(returnToMenuButton)
     screenGroup:insert(rematchButton)
     screenGroup:insert(addFriendsButton)
@@ -827,9 +933,16 @@ function scene:create(event)
     screenGroup:insert(chatButtonOverlay)
     screenGroup:insert(chatButtonDropdown)
     screenGroup:insert(marketButton)
+    screenGroup:insert(marketButtonOverlay)
     screenGroup:insert(effectGroup)
     if exitOnboarding then
       screenGroup:insert(exitOnboarding)
+    end
+    if placeholdersEnabled and placeholderGroup then
+      placeholderGroup:toFront()
+    end
+    if photoIcon then
+      photoIcon:toFront()
     end
   end
 
@@ -864,6 +977,8 @@ function scene:create(event)
     display.remove(rematchButton)
     display.remove(addFriendsButton)
     display.remove(chatButton)
+    display.remove(photoIcon)
+    display.remove(placeholderGroup)
     if exitOnboarding then
       display.remove(exitOnboarding)
     end
@@ -922,6 +1037,15 @@ function scene:create(event)
   newTotalStatsGroup.x = 95
   newTotalStatsGroup.y = display.contentHeight - 44
   screenGroup:insert(newTotalStatsGroup)
+  if composer.data.gameInfo.stats and next(composer.data.gameInfo.stats) then
+    updateStats(1)
+  else
+    updateRank(1000, 0, 0)
+    updateMoney(1000, 0, 1)
+    if updateXpAndGems then
+      updateXpAndGems(0, 0, 0, 0)
+    end
+  end
   setUpRankingTable(composer.data.gameInfo.quickPlayerRankingTable)
   screenGroup:insert(chatBubbleGroup)
   screenGroup:insert(chatButtonDropdown)
@@ -935,6 +1059,8 @@ function scene:create(event)
     composer.onboarding.addGuiReference("postlobby_market", marketButton)
     composer.onboarding.updateDisplayGroups(nil, screenGroup)
   end
+  scene.setPostLobbyButtonsVisible = setPostLobbyButtonsVisible
+  scene.setPostLobbyPlaceholdersVisible = setPlaceholdersVisible
 end
 
 function scene:show(event)

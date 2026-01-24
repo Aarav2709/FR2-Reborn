@@ -507,11 +507,11 @@ function M.checksumProcedure(serverConfigCheckSum, serverMapCheckSum)
   local function rereadMapDataAfterDownload(event)
     if not composer.updatingMaps then
       Runtime:removeEventListener("downloadMapDone", rereadMapDataAfterDownload)
-      
+
       M.readJsonMapFiles()
     end
   end
-  
+
   local function checkMapCheckSumAndDownload()
     if serverMapCheckSum ~= composer.data.mapChecksum then
       print("WARNING: map checksum wrong, get new")
@@ -519,7 +519,7 @@ function M.checksumProcedure(serverConfigCheckSum, serverMapCheckSum)
       M.updateMapFiles()
     end
   end
-  
+
   local function downloadMaps(event)
     if event.configType == "config" then
       M.readJsonConfigFiles()
@@ -530,7 +530,7 @@ function M.checksumProcedure(serverConfigCheckSum, serverMapCheckSum)
       Runtime:removeEventListener("downloadConfigDone", downloadMaps)
     end
   end
-  
+
   if serverConfigCheckSum ~= composer.data.configChecksum then
     print("WARNING: config checksum wrong, get new")
     Runtime:addEventListener("downloadConfigDone", downloadMaps)

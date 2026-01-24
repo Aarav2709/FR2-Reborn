@@ -60,14 +60,14 @@ function scene:create(event)
       1
     }
   })
-  
+
   local function stopTimer()
     if timeoutTimer then
       timer.cancel(timeoutTimer)
       timeoutTimer = nil
     end
   end
-  
+
   local function escapeTouchEvent(event)
     if event.phase == "ended" then
       if false then
@@ -78,7 +78,7 @@ function scene:create(event)
     end
     return true
   end
-  
+
   local function httpsCallback(data)
     if data.m == httpsFormat.loginWithEmail() then
       canClickButton = true
@@ -92,19 +92,19 @@ function scene:create(event)
       end
     end
   end
-  
+
   local function backgroundImageTouchEvent(event)
     if event.phase == "ended" then
       native.setKeyboardFocus(nil)
     end
     return true
   end
-  
+
   local function serverTimeout()
     canClickButton = true
     errorInfo.text = composer.localized.get("Could not connect to server")
   end
-  
+
   local function btnNextRelease()
     local email, emailError = composer.validateInput.validateEmail(emailTextField.text)
     local password, passwordError = composer.validateInput.validatePassword(passowrdTextField.text)
@@ -132,7 +132,7 @@ function scene:create(event)
       errorInfo.text = composer.localized.get("UsernameAndPassword")
     end
   end
-  
+
   local btnNext = composer.newButton({
     image = "images/gui/login/buttonNext.png",
     onRelease = btnNextRelease,
@@ -141,12 +141,12 @@ function scene:create(event)
     x = backgroundWindow.x + 130,
     y = backgroundWindow.y + 16
   })
-  
+
   local function btnExitRelease()
     native.setKeyboardFocus(nil)
     composer.hideOverlay()
   end
-  
+
   local btnExit = composer.newButton({
     image = "images/gui/common/buttonClosePopup.png",
     onRelease = btnExitRelease,
@@ -155,13 +155,13 @@ function scene:create(event)
     x = backgroundWindow.x + 158,
     y = backgroundWindow.y + -40
   })
-  
+
   local function btnForgotPasswordRelease()
     native.setKeyboardFocus(nil)
     local options = {isModal = true}
     composer.showOverlay("lua.overlays.forgotPassword", options)
   end
-  
+
   local btnForgotPassword = composer.newButton({
     image = "images/gui/login/forgotPassword.png",
     onRelease = btnForgotPasswordRelease,
@@ -186,7 +186,7 @@ function scene:create(event)
   passowrdTextField.isSecure = true
   passowrdTextField.userInput = composer.validateInput.limitTextField(15)
   passowrdTextField:addEventListener("userInput", passowrdTextField.userInput)
-  
+
   local function updateDisplayGroups()
     sceneGroup:insert(backgroundImage)
     dropdownGroup:insert(backgroundWindow)
@@ -201,7 +201,7 @@ function scene:create(event)
     dropdownGroup:insert(errorInfo)
     sceneGroup:insert(dropdownGroup)
   end
-  
+
   local function escapeTouchEvent(event)
     if event.phase == "ended" then
       composer.hideOverlay()
@@ -209,19 +209,19 @@ function scene:create(event)
     end
     return true
   end
-  
+
   local function backgroundImageTouchEvent(event)
     if event.phase == "ended" then
       native.setKeyboardFocus(nil)
     end
     return true
   end
-  
+
   local function addListeners()
     backgroundImage:addEventListener("touch", escapeTouchEvent)
     backgroundWindow:addEventListener("touch", backgroundImageTouchEvent)
   end
-  
+
   function clean()
     display.remove(btnNext)
     display.remove(btnExit)
@@ -231,7 +231,7 @@ function scene:create(event)
     backgroundWindow:removeEventListener("touch", backgroundImageTouchEvent)
     emailTextField:removeEventListener("userInput", emailTextField)
   end
-  
+
   updateDisplayGroups()
   addListeners()
   composer.commHttps.setCallback(httpsCallback)
@@ -243,11 +243,11 @@ function scene:show(event)
     return
   end
   local androidLogic = require("lua.modules.androidBackButton")
-  
+
   function cleanEnter()
     androidLogic.isOverlay(false)
   end
-  
+
   androidLogic.isOverlay(true)
 end
 

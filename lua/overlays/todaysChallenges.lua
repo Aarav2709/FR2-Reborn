@@ -35,7 +35,7 @@ function scene:create(event)
       1
     }
   })
-  
+
   local function sortTable(newTable)
     table.sort(newTable, function(a, b)
       local aStatus = 0
@@ -61,11 +61,11 @@ function scene:create(event)
       return aStatus > bStatus
     end)
   end
-  
+
   local function cleanTable()
     challangesTable.cleanTable()
   end
-  
+
   local function setActiveTable()
     if statedClean then
       return
@@ -78,22 +78,22 @@ function scene:create(event)
     infoText.text = composer.localized.get("TodaysChallenges")
     dropdownGroup:insert(closeOverlayButton)
   end
-  
+
   local function closeOverlayButtonEvent()
     composer.hideOverlay()
   end
-  
+
   local function closeOnTouchEvent(event)
     if event.phase == "ended" then
       composer.hideOverlay()
     end
     return true
   end
-  
+
   local function doNothingOnTouchEvent(event)
     return true
   end
-  
+
   closeOverlayButton = composer.newButton({
     x = 370,
     y = 34,
@@ -102,12 +102,12 @@ function scene:create(event)
     image = "images/gui/common/buttonClosePopup.png",
     onRelease = closeOverlayButtonEvent
   })
-  
+
   local function refreshTable()
     challangesTable.refreshTable()
     group:insert(closeOverlayButton)
   end
-  
+
   local function tableCallback(clamied, progression, challengeId, stage, isSpinReward)
     if progression == 1 and clamied == 0 and isSpinReward then
       local options = {
@@ -117,9 +117,9 @@ function scene:create(event)
       composer.showOverlay("lua.overlays.spinningWheel", options)
     end
   end
-  
+
   challangesTable = tableHelper.new(124, 30, 250, 284, 70, nil, "challenge", tableCallback, 10)
-  
+
   local function getTimeLeftInText(timeLeft)
     if timeLeft then
       local minutes = math.floor(timeLeft / 60)
@@ -133,7 +133,7 @@ function scene:create(event)
     end
     return "12h 14m"
   end
-  
+
   local function createDailyChallengeTable(dailyChallenges, timeLeft)
     composer.data.dailyToClaim = 0
     dailyTable = {}
@@ -154,7 +154,7 @@ function scene:create(event)
       end
     end
   end
-  
+
   local function tcpCallback(data)
     if statedClean then
       return
@@ -179,7 +179,7 @@ function scene:create(event)
       })
     end
   end
-  
+
   local function updateDisplayGroup()
     group:insert(alphaBackground)
     dropdownGroup:insert(tableBackground)
@@ -187,12 +187,12 @@ function scene:create(event)
     dropdownGroup:insert(closeOverlayButton)
     group:insert(dropdownGroup)
   end
-  
+
   local function addListeners()
     alphaBackground:addEventListener("touch", closeOnTouchEvent)
     tableBackground:addEventListener("touch", doNothingOnTouchEvent)
   end
-  
+
   function clean()
     statedClean = true
     cleanTable()
@@ -200,7 +200,7 @@ function scene:create(event)
     tableBackground:removeEventListener("touch", doNothingOnTouchEvent)
     composer.overlayWithNetwork = false
   end
-  
+
   updateDisplayGroup()
   addListeners()
   createDailyChallengeTable(composer.todayChallenges.data, composer.todayChallenges.time)
@@ -215,11 +215,11 @@ function scene:show(event)
     return
   end
   local androidLogic = require("lua.modules.androidBackButton")
-  
+
   function cleanEnter()
     androidLogic.isOverlay(false)
   end
-  
+
   androidLogic.isOverlay(true)
   composer.todayChallenges.shouldShow = false
 end

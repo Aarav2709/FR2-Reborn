@@ -38,38 +38,38 @@ local function addBehavior(block)
   sprite.bodyType = "static"
   sprite.mapElement = true
   sprite.slow = true
-  
+
   local function shouldPlay()
     if composer.isOnScreen(block.x, block.y) then
       return true
     end
     return false
   end
-  
+
   local function stop()
     if sprite then
       sprite:pause()
     end
   end
-  
+
   local function play()
     if sprite and shouldPlay() then
       sprite:setSequence("collisionAnimation")
       sprite:play()
     end
   end
-  
+
   local function onCollision()
     play()
   end
-  
+
   local function clean()
     if sprite and sprite.removeSelf then
       sprite:removeSelf()
       sprite = nil
     end
   end
-  
+
   block.behaviors.thorn = {}
   block.behaviors.thorn.clean = clean
   sprite.onCollision = onCollision

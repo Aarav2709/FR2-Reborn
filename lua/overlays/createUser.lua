@@ -50,14 +50,14 @@ function scene:create(event)
       1
     }
   })
-  
+
   local function stopTimer()
     if createUserTimeout then
       timer.cancel(createUserTimeout)
       createUserTimeout = nil
     end
   end
-  
+
   local function httpsCallback(data)
     if data.m == httpsFormat.register() then
       canClickButton = true
@@ -68,12 +68,12 @@ function scene:create(event)
       end
     end
   end
-  
+
   local function serverTimeout()
     canClickButton = true
     errorInfo.text = composer.localized.get("Could not connect to server")
   end
-  
+
   local function btnNextRelease()
     if not canClickButton then
       return
@@ -100,7 +100,7 @@ function scene:create(event)
       canClickButton = false
     end
   end
-  
+
   local btnNext = composer.newButton({
     image = "images/gui/login/buttonNext.png",
     onRelease = btnNextRelease,
@@ -109,11 +109,11 @@ function scene:create(event)
     x = backgroundWindow.x + 130,
     y = backgroundWindow.y + 16
   })
-  
+
   local function btnExitRelease()
     composer.hideOverlay()
   end
-  
+
   local btnExit = composer.newButton({
     image = "images/gui/common/buttonClosePopup.png",
     onRelease = btnExitRelease,
@@ -129,7 +129,7 @@ function scene:create(event)
   nameTextField.y = usernameInfo.y
   nameTextField.userInput = composer.validateInput.limitTextField(15)
   nameTextField:addEventListener("userInput", nameTextField.userInput)
-  
+
   local function escapeTouchEvent(event)
     if event.phase == "ended" then
       composer.hideOverlay()
@@ -137,19 +137,19 @@ function scene:create(event)
     end
     return true
   end
-  
+
   local function backgroundImageTouchEvent(event)
     if event.phase == "ended" then
       native.setKeyboardFocus(nil)
     end
     return true
   end
-  
+
   local function addListeners()
     backgroundImage:addEventListener("touch", escapeTouchEvent)
     backgroundWindow:addEventListener("touch", backgroundImageTouchEvent)
   end
-  
+
   local function updateDisplayGroups()
     sceneGroup:insert(backgroundImage)
     dropdownGroup:insert(backgroundWindow)
@@ -161,7 +161,7 @@ function scene:create(event)
     dropdownGroup:insert(windowInfo)
     sceneGroup:insert(dropdownGroup)
   end
-  
+
   function clean()
     display.remove(btnNext)
     display.remove(btnExit)
@@ -171,7 +171,7 @@ function scene:create(event)
     backgroundWindow:removeEventListener("touch", backgroundImageTouchEvent)
     nameTextField:removeEventListener("userInput", nameTextField)
   end
-  
+
   updateDisplayGroups()
   addListeners()
   if not isAndroid then
@@ -187,11 +187,11 @@ function scene:show(event)
     return
   end
   local androidLogic = require("lua.modules.androidBackButton")
-  
+
   function cleanEnter()
     androidLogic.isOverlay(false)
   end
-  
+
   androidLogic.isOverlay(true)
 end
 

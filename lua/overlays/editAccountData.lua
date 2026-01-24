@@ -78,12 +78,12 @@ function scene:create(event)
   passwordTextField.isSecure = true
   passwordTextField.userInput = composer.validateInput.limitTextField(15)
   passwordTextField:addEventListener("userInput", passwordTextField.userInput)
-  
+
   local function closeButtonEvent()
     composer.hideOverlay()
     native.setKeyboardFocus(nil)
   end
-  
+
   local function escapeTouchEvent(event)
     if event.phase == "ended" then
       composer.hideOverlay()
@@ -91,14 +91,14 @@ function scene:create(event)
     end
     return true
   end
-  
+
   local function backgroundImageTouchEvent(event)
     if event.phase == "ended" then
       native.setKeyboardFocus(nil)
     end
     return true
   end
-  
+
   local closeButton = composer.newButton({
     x = 400,
     y = 26,
@@ -107,23 +107,23 @@ function scene:create(event)
     image = "images/gui/common/buttonClosePopup.png",
     onRelease = closeButtonEvent
   })
-  
+
   local function showUpdateButton(bool)
     updateButton.isVisible = bool
   end
-  
+
   local function timoutFromServer()
     infoText.text = composer.localized.get("NoResponse")
     showUpdateButton(true)
   end
-  
+
   local function stopTimer()
     if timeoutTimer then
       timer.cancel(timeoutTimer)
       timeoutTimer = nil
     end
   end
-  
+
   local function updateButtonEvent()
     local email = emailTextField.text
     local password = passwordTextField.text
@@ -191,7 +191,7 @@ function scene:create(event)
       infoText.text = composer.localized.get("EnterEmailAndPassword")
     end
   end
-  
+
   updateButton = composer.newButton({
     x = 350,
     y = 80,
@@ -200,7 +200,7 @@ function scene:create(event)
     image = "images/gui/login/buttonNext.png",
     onRelease = updateButtonEvent
   })
-  
+
   local function updateDisplayGroup()
     group:insert(alphaBackground)
     dropdownGroup:insert(background)
@@ -214,7 +214,7 @@ function scene:create(event)
     dropdownGroup:insert(updateButton)
     group:insert(dropdownGroup)
   end
-  
+
   local function httpsCallback(data)
     if data.m == httpsFormat.changeEmail() then
       stopTimer()
@@ -259,21 +259,21 @@ function scene:create(event)
           event_id = "updateAccount:emailAndPassword:success",
           area = composer.config.fullVersion
         })
-        
+
         local function hideAccountOverlay()
           composer.hideOverlay()
         end
-        
+
         timer.performWithDelay(1000, hideAccountOverlay)
       end
     end
   end
-  
+
   local function addListeners()
     alphaBackground:addEventListener("touch", escapeTouchEvent)
     background:addEventListener("touch", backgroundImageTouchEvent)
   end
-  
+
   function clean()
     display.remove(closeButton)
     display.remove(updateButton)
@@ -284,7 +284,7 @@ function scene:create(event)
     background:removeEventListener("touch", backgroundImageTouchEvent)
     stopTimer()
   end
-  
+
   updateDisplayGroup()
   addListeners()
   composer.commHttps.setCallback(httpsCallback)
@@ -301,11 +301,11 @@ function scene:show(event)
   end
   local group = self.view
   local androidLogic = require("lua.modules.androidBackButton")
-  
+
   function cleanEnter()
     androidLogic.isOverlay(false)
   end
-  
+
   androidLogic.isOverlay(true)
 end
 

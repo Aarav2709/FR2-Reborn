@@ -42,7 +42,7 @@ local function toggleNetworkAlert()
     alertSymbol = display.newImageRect("images/gui/common/dropdown/barOffline.png", 76, 31)
     alertSymbol.anchorX = 0.5
     alertSymbol.anchorY = 0
-    alertSymbol.x = 240
+    alertSymbol.x = 60
     alertSymbol.y = 0
     alertSymbol:addEventListener("tap", Network.isOnline)
   end

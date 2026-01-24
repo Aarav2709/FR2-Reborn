@@ -76,18 +76,18 @@ local function createAdvancedText(params)
   if anchorY then
     newText.anchorY = anchorY
   end
-  
+
   local function fadeColor()
     if params.noFade then
     else
       newText:setFillColor(0.5)
     end
   end
-  
+
   local function returnToNormalColor()
     newText:setFillColor(color[1], color[2], color[3], color[4])
   end
-  
+
   newText.fadeColor = fadeColor
   newText.returnToNormalColor = returnToNormalColor
   return newText

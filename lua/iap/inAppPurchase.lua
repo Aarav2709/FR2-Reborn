@@ -78,11 +78,11 @@ local function restoreReceipts()
   if 0 < #transactionDataList then
     local function validateReceiptWithDelay()
       local transactionDataElement = transactionDataList[#transactionDataList]
-      
+
       composer.commHttps.validateReceipt(transactionDataElement.transactionData, transactionDataElement.storeType)
       table.remove(transactionDataList, #transactionDataList)
     end
-    
+
     timer.performWithDelay(500, validateReceiptWithDelay, #transactionDataList)
     return true
   end
@@ -153,7 +153,7 @@ end
 local function initInAppPurchase()
   local function transactionCallback(event)
     local infoString
-    
+
     local failed = true
     composer.debugger.debugTable("iap", "transactionCallback :", event)
     if event.transaction.state == "purchased" then
@@ -220,7 +220,7 @@ local function initInAppPurchase()
     end
     store.finishTransaction(event.transaction)
   end
-  
+
   store = require("store")
   if store.availableStores.apple then
     composer.debugger.debugPrint("iap", "Use Apple store")

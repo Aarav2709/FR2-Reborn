@@ -159,8 +159,8 @@ local function createCustomOverlay(infoTextId, doNotOverrideMessage, extra)
   background = display.newImageRect("images/gui/common/generalPopup.png", 248, 105)
   background.anchorX = 0.5
   background.anchorY = 0
-  background.x = 745
-  background.y = 4
+  background.x = 454
+  background.y = 150
   alphaBackground = display.newRect(0, 0, display.contentWidth, display.contentHeight)
   alphaBackground.anchorX = 0
   alphaBackground.anchorY = 0
@@ -170,8 +170,8 @@ local function createCustomOverlay(infoTextId, doNotOverrideMessage, extra)
   info = composer.newText({
     string = text,
     size = 22,
-    x = 745,
-    y = 46,
+    x = 452,
+    y = 195,
     width = 220,
     height = 60,
     align = "center",
@@ -182,32 +182,32 @@ local function createCustomOverlay(infoTextId, doNotOverrideMessage, extra)
       1
     }
   })
-  
+
   local function contiuneButtonEvent()
     cleanOldOverlay()
   end
-  
+
   contiuneButton = composer.newButton({
-    x = 745,
-    y = 82,
+    x = 452,
+    y = 225,
     width = 126,
     height = 40,
     text = composer.localized.get("OK"),
     image = "images/gui/common/buttonTextB.png",
     onRelease = contiuneButtonEvent
   })
-  
+
   local function updateDisplayGroup()
     overlayGroup:insert(alphaBackground)
     overlayGroup:insert(background)
     overlayGroup:insert(info)
     overlayGroup:insert(contiuneButton)
   end
-  
+
   local function canExit()
     canExitOverlay = true
   end
-  
+
   alphaBackground:addEventListener("touch", closeOnTouchEvent)
   background:addEventListener("touch", doNothingOnTouchEvent)
   updateDisplayGroup()

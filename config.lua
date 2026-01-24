@@ -1,10 +1,15 @@
 application = {
   content = {
-    width = 480,
-    height = 320,
+    width = 1920,
+    height = 1080,
     scale = "adaptive",
     xAlign = "center",
     yAlign = "center",
-    fps = 60
+    imageSuffix = {
+        ["@2x"] = 2,
+        ["@3x"] = 3,
+        ["@4x"] = 4,
+    },
+    fps = 60,
   }
 }

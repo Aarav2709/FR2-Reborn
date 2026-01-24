@@ -9,14 +9,14 @@ function M.createTrail(id, x, y, group, inGame)
   local trail = display.newImageRect(imagePath, 27, 27)
   local distance = -100 + math.random(0, 40)
   local trailTime = 500
-  
+
   local function removeTrail(obj)
     if obj and obj.removeSelf then
       obj:removeSelf()
       obj = nil
     end
   end
-  
+
   local yDiff = math.random(-20, 20)
   trail.x = x
   trail.y = y + yDiff

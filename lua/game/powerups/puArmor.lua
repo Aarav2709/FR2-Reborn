@@ -7,7 +7,7 @@ local function new(id, playerList)
   local player = playerList[id]
   local startedClean = false
   playerList[id].armorPowerUp()
-  
+
   local function removeObject()
     if startedClean or player == nil then
       return
@@ -15,7 +15,7 @@ local function new(id, playerList)
     startedClean = true
     player.booleanStates.armorActive = false
   end
-  
+
   local function init()
     if player then
       player.armorPowerUp()
@@ -23,7 +23,7 @@ local function new(id, playerList)
       player.powerUpLinks.armor = armor
     end
   end
-  
+
   init()
   armor.removeObject = removeObject
   return armor

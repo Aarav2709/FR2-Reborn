@@ -14,7 +14,7 @@ local ySize = 100 * scaleFactor
 local function invertShapes(shapeInvert)
   local function updateShapeList(input)
     local output = {}
-    
+
     for k, v in pairs(input) do
       output[k] = v
     end
@@ -29,7 +29,7 @@ local function invertShapes(shapeInvert)
     end
     return output
   end
-  
+
   local function changeVectorDirection(shapes)
     local tempshape = {}
     local c = 1
@@ -41,7 +41,7 @@ local function invertShapes(shapeInvert)
     end
     return tempshape
   end
-  
+
   local temp = updateShapeList(shapeInvert)
   temp = changeVectorDirection(temp)
   return temp
@@ -256,7 +256,7 @@ local function setTilesets(tilesets)
       end
       return false
     end
-    
+
     if string.sub(tileset.name, 1, 5) == "props" then
       if string.sub(tileset.name, #tileset.name) == "R" then
         propsReverseTileset = tileset
@@ -297,7 +297,7 @@ local function createAllElements(mapJson, cameraGroup, frontCameraGroup)
   startedClean = false
   local widthStarter = 1
   local widthEnd
-  
+
   local function createElementsForLayer(layer, cameraGroup)
     for j = 1, layer.height do
       for i = widthStarter, widthEnd do
@@ -312,7 +312,7 @@ local function createAllElements(mapJson, cameraGroup, frontCameraGroup)
       end
     end
   end
-  
+
   local function createNewColumns(event)
     if startedClean then
       timer.cancel(event.source)
@@ -336,7 +336,7 @@ local function createAllElements(mapJson, cameraGroup, frontCameraGroup)
     end
     widthStarter = widthEnd + 1
   end
-  
+
   createNewColumns()
   timer.performWithDelay(50, createNewColumns, 0)
   return elements

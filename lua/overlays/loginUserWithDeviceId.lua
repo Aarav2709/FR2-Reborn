@@ -60,20 +60,20 @@ function scene:create(event)
       1
     }
   })
-  
+
   local function serverTimeout()
     canClickButton = true
     composer.config.loginMessage = false
     errorInfo.text = composer.localized.get("Could not access Facebook")
   end
-  
+
   local function btnNoRelease()
     if not canClickButton then
       return
     end
     composer.hideOverlay()
   end
-  
+
   local btnNo = composer.newButton({
     image = "images/gui/common/buttonTextB.png",
     text = composer.localized.get("No"),
@@ -83,7 +83,7 @@ function scene:create(event)
     x = backgroundWindow.x + 70,
     y = backgroundWindow.y + 70
   })
-  
+
   local function btnYesRelease()
     if not canClickButton then
       return
@@ -91,7 +91,7 @@ function scene:create(event)
     canClickButton = false
     composer.commHttps.loginWithDeviceId()
   end
-  
+
   local btnYes = composer.newButton({
     image = "images/gui/common/buttonTextA.png",
     text = composer.localized.get("Yes"),
@@ -101,25 +101,25 @@ function scene:create(event)
     x = backgroundWindow.x - 70,
     y = backgroundWindow.y + 70
   })
-  
+
   local function escapeTouchEvent(event)
     if event.phase == "ended" then
       composer.hideOverlay()
     end
     return true
   end
-  
+
   local function backgroundImageTouchEvent(event)
     if event.phase == "ended" then
     end
     return true
   end
-  
+
   local function addListeners()
     backgroundImage:addEventListener("touch", escapeTouchEvent)
     backgroundWindow:addEventListener("touch", backgroundImageTouchEvent)
   end
-  
+
   local function updateDisplayGroups()
     sceneGroup:insert(backgroundImage)
     dropdownGroup:insert(backgroundWindow)
@@ -131,14 +131,14 @@ function scene:create(event)
     dropdownGroup:insert(usernameInfo)
     sceneGroup:insert(dropdownGroup)
   end
-  
+
   function clean()
     display.remove(btnYes)
     display.remove(btnNo)
     backgroundImage:removeEventListener("touch", escapeTouchEvent)
     backgroundWindow:removeEventListener("touch", backgroundImageTouchEvent)
   end
-  
+
   updateDisplayGroups()
   addListeners()
   composer.bouncer.down(dropdownGroup)
@@ -150,11 +150,11 @@ function scene:show(event)
     return
   end
   local androidLogic = require("lua.modules.androidBackButton")
-  
+
   function cleanEnter()
     androidLogic.isOverlay(false)
   end
-  
+
   androidLogic.isOverlay(true)
 end
 

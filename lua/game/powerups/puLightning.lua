@@ -5,7 +5,7 @@ local function new(id, playerId, playerList)
   local cloud = {1}
   cloud.x = 1
   cloud.y = 1
-  
+
   local function createLightning()
     for i = 1, #playerList do
       if playerList[i].id ~= id then
@@ -23,7 +23,7 @@ local function new(id, playerId, playerList)
       end
     end
   end
-  
+
   local function showCloud()
     for i = 1, #playerList do
       if playerList[i].mainPlayer then
@@ -31,7 +31,7 @@ local function new(id, playerId, playerList)
       end
     end
   end
-  
+
   showCloud()
   timer.performWithDelay(500, createLightning, 1)
   return cloud

@@ -10,14 +10,14 @@ function M.readMapDataToMemory(override)
   elseif composer.data.mapInfo and #composer.data.mapInfo > 1 then
     return
   end
-  
+
   local function addRandomMap()
     composer.data.mapInfo[1] = {}
     composer.data.mapInfo[1].id = 0
     composer.data.mapInfo[1].name = composer.localized.get("Random")
     composer.data.mapInfo[1].theme = "forest"
   end
-  
+
   local function setMapInfo(configInput)
     local index = #composer.data.mapInfo + 1
     composer.data.mapInfo[index] = {}
@@ -25,35 +25,35 @@ function M.readMapDataToMemory(override)
     composer.data.mapInfo[index].name = configInput.name
     composer.data.mapInfo[index].theme = configInput.theme
   end
-  
+
   function composer.data.getMapInfo(mapId)
     if composer.data.mapInfo[mapId + 1] then
       return composer.data.mapInfo[mapId + 1]
     end
     return nil
   end
-  
+
   function composer.data.getMapName(mapId)
     if composer.data.mapInfo[mapId + 1] and composer.data.mapInfo[mapId + 1].name then
       return composer.data.mapInfo[mapId + 1].name
     end
     return ""
   end
-  
+
   function composer.data.getMapTheme(mapId)
     if composer.data.mapInfo[mapId + 1] and composer.data.mapInfo[mapId + 1].theme then
       return composer.data.mapInfo[mapId + 1].theme
     end
     return ""
   end
-  
+
   function composer.data.getMapId(mapId)
     if composer.data.mapInfo[mapId + 1] and composer.data.mapInfo[mapId + 1].id then
       return composer.data.mapInfo[mapId + 1].id
     end
     return -1
   end
-  
+
   local fastReadFailed = false
   composer.data.mapInfo = {}
   addRandomMap()

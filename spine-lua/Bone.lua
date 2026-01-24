@@ -22,7 +22,7 @@ function Bone.new(data, parent)
     worldScaleX = 1,
     worldScaleY = 1
   }
-  
+
   function self:updateWorldTransform(flipX, flipY)
     local parent = self.parent
     if parent then
@@ -71,7 +71,7 @@ function Bone.new(data, parent)
       self.m11 = -self.m11
     end
   end
-  
+
   function self:setToSetupPose()
     local data = self.data
     self.x = data.x
@@ -80,7 +80,7 @@ function Bone.new(data, parent)
     self.scaleX = data.scaleX
     self.scaleY = data.scaleY
   end
-  
+
   self:setToSetupPose()
   return self
 end

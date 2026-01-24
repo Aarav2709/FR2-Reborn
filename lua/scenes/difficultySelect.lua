@@ -11,7 +11,7 @@ function scene:create(event)
   local screenGroup = self.view
 
   -- Background
-  backgroundImage = display.newImageRect("images/gui/common/bgMain.png", 480, 320)
+  backgroundImage = display.newImageRect("images/gui/common/bgMain.png", 1920, 1080)
   screenGroup:insert(backgroundImage)
 
   -- Title
@@ -38,19 +38,19 @@ function scene:create(event)
   local function btnEasyRelease(event)
     composer.data.gameInfo.difficulty = 1 -- Easy
     composer.data.gameInfo.botSpeed = 0.7 -- 70% speed
-    composer.gotoScene("lua.scenes.lobbyPractise")
+    composer.gotoScene("lua.scenes.lobbyPractice")
   end
 
   local function btnMediumRelease(event)
     composer.data.gameInfo.difficulty = 2 -- Medium
     composer.data.gameInfo.botSpeed = 1.0 -- 100% speed
-    composer.gotoScene("lua.scenes.lobbyPractise")
+    composer.gotoScene("lua.scenes.lobbyPractice")
   end
 
   local function btnHardRelease(event)
     composer.data.gameInfo.difficulty = 3 -- Hard
     composer.data.gameInfo.botSpeed = 1.3 -- 130% speed
-    composer.gotoScene("lua.scenes.lobbyPractise")
+    composer.gotoScene("lua.scenes.lobbyPractice")
   end
 
   local function btnBackRelease(event)
@@ -199,8 +199,8 @@ function scene:create(event)
       hardDesc.y = contentTop + contentHeight * 0.5 + contentHeight * (70 / 320)
     end
     if btnBack then
-      btnBack.x = contentLeft + contentWidth * (50 / 480)
-      btnBack.y = contentTop + contentHeight * (292 / 320)
+      btnBack.x = 120
+      btnBack.y = 385
     end
   end
 

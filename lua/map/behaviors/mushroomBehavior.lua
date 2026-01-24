@@ -55,38 +55,38 @@ local function addBehavior(block)
   mushroomSprite.bodyType = "static"
   mushroomSprite.mapElement = true
   mushroomSprite.bounce = true
-  
+
   local function shouldPlay()
     if composer.isOnScreen(block.x, block.y) then
       return true
     end
     return false
   end
-  
+
   local function stop()
     if mushroomSprite then
       mushroomSprite:pause()
     end
   end
-  
+
   local function play()
     if mushroomSprite and shouldPlay() then
       mushroomSprite:setSequence("collisionAnimation")
       mushroomSprite:play()
     end
   end
-  
+
   local function onCollision()
     play()
   end
-  
+
   local function clean()
     if mushroomSprite and mushroomSprite.removeSelf then
       mushroomSprite:removeSelf()
       mushroomSprite = nil
     end
   end
-  
+
   block.behaviors.mushroom = {}
   block.behaviors.mushroom.clean = clean
   mushroomSprite.onCollision = onCollision

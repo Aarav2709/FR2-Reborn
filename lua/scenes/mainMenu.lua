@@ -6,8 +6,9 @@ if "simulator" ~= system.getInfo("environment") then
   local success, plugin = pcall(require, "plugin.notifications")
   if success then notificationPlugin = plugin end
 end
-local backgroundImage, bearHead, logo, buttonStick
-local btnPlay, btnSettings, btnRanking, btnFriends, btnCustomize, btnEarnCoins
+local backgroundImage, bearHead, logo, buttonStick, buttonStickClan
+local playerAvatarGroup, playerAvatar
+local btnPlay, btnClan, btnSettings, btnNewsfeedSubtleSettings, btnRanking, btnFriends, btnCustomize, btnEarnCoins
 local tutorialLoadingScreen, loadText
 local layoutMainMenu, layoutSaleGroup, resizeListener
 
@@ -24,6 +25,10 @@ function scene:create(event)
 
   local function btnSettingsRelease(event)
     composer.gotoScene("lua.scenes.settings")
+  end
+
+  local function btnClanRelease(event)
+    composer.gotoScene("lua.overlays.clan")
   end
 
   local function btnRankingRelease(event)
@@ -66,58 +71,87 @@ function scene:create(event)
   end
 
   composer.playerInfo = composer.database.getPlayerInformation()
-  backgroundImage = display.newImageRect("images/gui/common/bgMain.png", 480, 320)
+  backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 1920, 1080)
   bearHead = display.newImageRect("images/gui/common/bgMainBear.png", 62, 60)
-  logo = display.newImageRect("images/gui/common/logo.png", 224, 135)
-  buttonStick = display.newImageRect("images/gui/mainMenu/buttonPlayStick.png", 130, 120)
+  logo = display.newImageRect("images/gui/common/logo.png", 244, 155)
+  buttonStick = display.newImageRect("images/gui/mainMenu/buttonPlayStick.png", 150, 140)
+  buttonStickClan = display.newImageRect("images/gui/mainMenu/buttonPlayStick.png", 90, 90)
   btnPlay = composer.newButton({
     image = "images/gui/mainMenu/buttonPlayX.png",
-    width = 128,
-    height = 75,
+    width = 148,
+    height = 95,
     onRelease = btnPlayRelease,
     x = 0,
     y = 0
   })
+  btnClan = composer.newButton({
+    image = "images/gui/ranking/tab_clansInactive.png",
+    width = 58,
+    height = 58,
+    onRelease = btnClanRelease,
+    x = 0,
+    y = 0
+  })
   btnSettings = composer.newButton({
-    image = "images/gui/mainMenu/buttonSettings.png",
-    width = 52,
-    height = 52,
+    image = "images/gui/mainMenu/settingsSubtle.png",
+    width = 45,
+    height = 45,
     onRelease = btnSettingsRelease,
+    x = 0,
+    y = 0
+  })
+  btnNewsfeedSubtleSettings = composer.newButton({
+    image = "images/gui/mainMenu/newsfeedSubtle.png",
+    width = 45,
+    height = 45,
+    onRelease = btnNewsfeedSubtleSettingsRelease,
     x = 0,
     y = 0
   })
   btnRanking = composer.newButton({
     image = "images/gui/mainMenu/buttonLeaderboards.png",
-    width = 52,
-    height = 52,
+    width = 62,
+    height = 62,
     onRelease = btnRankingRelease,
     x = 0,
     y = 0
   })
   btnFriends = composer.newButton({
     image = "images/gui/mainMenu/buttonFriends.png",
-    width = 52,
-    height = 52,
+    width = 62,
+    height = 62,
     onRelease = btnFriendsRelease,
     x = 0,
     y = 0
   })
   btnCustomize = composer.newButton({
     image = "images/gui/mainMenu/buttonMarket.png",
-    width = 89,
-    height = 52,
+    width = 99,
+    height = 62,
     onRelease = btnCustomizeRelease,
     x = 0,
     y = 0
   })
   btnEarnCoins = composer.newButton({
     image = "images/gui/mainMenu/buttonAchievements.png",
-    width = 52,
-    height = 52,
+    width = 62,
+    height = 62,
     onRelease = btnEarnCoinsRelease,
     x = 0,
     y = 0
   })
+
+  local monsterLoader = require("spine-corona.monsterLoader")
+  playerAvatarGroup = display.newGroup()
+  local avatarData = composer.database.getAvatarData()
+  playerAvatar = monsterLoader.new(avatarData, true)
+  if playerAvatar and playerAvatar.stopAllAnimation then
+    playerAvatar.stopAllAnimation()
+  end
+  local avatarGroup = playerAvatar.getGroup()
+  avatarGroup.xScale = 0.6
+  avatarGroup.yScale = 0.6
+  playerAvatarGroup:insert(avatarGroup)
 
   layoutMainMenu = function()
     local contentLeft = display.screenOriginX
@@ -141,37 +175,53 @@ function scene:create(event)
       logo.x = centerX
       logo.y = contentTop + contentHeight * 0.25
     end
+    if playerAvatarGroup then
+      playerAvatarGroup.x =178
+      playerAvatarGroup.y = 300
+    end
     if buttonStick then
       buttonStick.x = centerX
-      buttonStick.y = contentTop + contentHeight * 0.65
+      buttonStick.y = contentTop + contentHeight * 0.75
+    end
+    if buttonStickClan then
+      buttonStickClan.x = contentLeft + 100
+      buttonStickClan.y = contentTop + contentHeight * 0.98
     end
     if btnPlay then
       btnPlay.x = centerX
-      btnPlay.y = contentTop + contentHeight * 0.6
+      btnPlay.y = contentTop + contentHeight * 0.72
     end
     if bearHead then
       bearHead.x = centerX + contentWidth * 0.05
-      bearHead.y = contentTop + contentHeight * 0.78
+      bearHead.y = contentTop + contentHeight * 0.90
+    end
+    if btnClan then
+      btnClan.x = contentLeft + 100
+      btnClan.y = bottom - 31
     end
     if btnSettings then
-      btnSettings.x = contentLeft + 30
-      btnSettings.y = bottom - 26
+      btnSettings.x = contentLeft + 55
+      btnSettings.y = bottom - 382
+    end
+    if btnNewsfeedSubtleSettings then
+      btnNewsfeedSubtleSettings.x = contentLeft + 105
+      btnNewsfeedSubtleSettings.y = bottom - 382
     end
     if btnRanking then
-      btnRanking.x = contentLeft + 85
-      btnRanking.y = bottom - 26
+      btnRanking.x = contentLeft + 170
+      btnRanking.y = bottom - 28
     end
     if btnFriends then
-      btnFriends.x = contentLeft + 140
-      btnFriends.y = bottom - 26
+      btnFriends.x = contentLeft + 241
+      btnFriends.y = bottom - 28
     end
     if btnCustomize then
-      btnCustomize.x = contentLeft + contentWidth - 50
-      btnCustomize.y = bottom - 26
+      btnCustomize.x = contentLeft + contentWidth - 100
+      btnCustomize.y = bottom - 28
     end
     if btnEarnCoins then
-      btnEarnCoins.x = contentLeft + contentWidth - 124
-      btnEarnCoins.y = bottom - 26
+      btnEarnCoins.x = contentLeft + contentWidth - 190
+      btnEarnCoins.y = bottom - 28
     end
     if tutorialLoadingScreen then
       tutorialLoadingScreen.x = centerX
@@ -307,11 +357,15 @@ function scene:create(event)
 
   local function updateDisplay()
     screenGroup:insert(backgroundImage)
+    screenGroup:insert(playerAvatarGroup)
     screenGroup:insert(logo)
     screenGroup:insert(buttonStick)
+    screenGroup:insert(buttonStickClan)
     screenGroup:insert(btnPlay)
     screenGroup:insert(bearHead)
     screenGroup:insert(btnSettings)
+    screenGroup:insert(btnClan)
+    screenGroup:insert(btnNewsfeedSubtleSettings)
     screenGroup:insert(btnRanking)
     screenGroup:insert(btnFriends)
     screenGroup:insert(btnCustomize)
@@ -329,10 +383,18 @@ function scene:create(event)
     startedClean = true
     display.remove(btnPlay)
     display.remove(btnSettings)
+    display.remove(btnClan)
+    display.remove(btnNewsfeedSubtleSettings)
     display.remove(btnRanking)
     display.remove(btnFriends)
     display.remove(btnCustomize)
     display.remove(btnEarnCoins)
+    if playerAvatar then
+      playerAvatar.clean()
+      playerAvatar = nil
+    end
+    display.remove(playerAvatarGroup)
+    playerAvatarGroup = nil
   end
 
   updateDisplay()

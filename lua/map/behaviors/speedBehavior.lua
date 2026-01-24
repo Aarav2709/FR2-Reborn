@@ -29,21 +29,21 @@ local function addBehavior(block)
   sprite.y = block.y + yOffset
   sprite:scale(block.scale * (block.image.xScale / math.abs(block.image.xScale)), block.scale)
   displayGroup:insert(sprite)
-  
+
   local function shouldPlay()
     if composer.isOnScreen(block.x, block.y) then
       return true
     end
     return false
   end
-  
+
   local function stop()
     if sprite then
       sprite:pause()
       isPlaying = false
     end
   end
-  
+
   local function play()
     if sprite and shouldPlay() then
       if not isPlaying then
@@ -55,7 +55,7 @@ local function addBehavior(block)
       stop()
     end
   end
-  
+
   local function clean()
     if animationTimer then
       timer.cancel(animationTimer)
@@ -66,7 +66,7 @@ local function addBehavior(block)
       sprite = nil
     end
   end
-  
+
   animationTimer = timer.performWithDelay(1000, play, 0)
   play()
   block.behaviors.speedHamster = {}

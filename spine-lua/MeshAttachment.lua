@@ -34,7 +34,7 @@ function MeshAttachment.new(name)
     width = 0,
     height = 0
   }
-  
+
   function self:updateUVs()
     local width, height = self.regionU2 - self.regionU, self.regionV2 - self.regionV
     local n = #self.regionUVs
@@ -53,7 +53,7 @@ function MeshAttachment.new(name)
       end
     end
   end
-  
+
   function self:computeWorldVertices(x, y, slot, worldVertices)
     local bone = slot.bone
     x = x + bone.worldX
@@ -71,7 +71,7 @@ function MeshAttachment.new(name)
       worldVertices[i + 1] = vx * m10 + vy * m11 + y
     end
   end
-  
+
   return self
 end
 

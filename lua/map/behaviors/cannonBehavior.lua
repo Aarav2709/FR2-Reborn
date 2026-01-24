@@ -42,27 +42,27 @@ local function addBehavior(block)
   displayGroup:insert(cannonEffect)
   cannonEffect.x = block.x + 105
   cannonEffect.y = block.y - 60
-  
+
   local function shouldPlay()
     if composer.isOnScreen(block.x, block.y) then
       return true
     end
     return false
   end
-  
+
   local function stop()
     if sprite then
       sprite:pause()
     end
   end
-  
+
   local function play()
     if sprite and shouldPlay() then
       sprite:setSequence("collisionAnimation")
       sprite:play()
     end
   end
-  
+
   local function onCollision(object, startedClean)
     if objectsShot[object.id] then
       local timer = system.getTimer()
@@ -70,7 +70,7 @@ local function addBehavior(block)
         return
       end
     end
-    
+
     local function fire()
       if object and cannonEffect and not startedClean then
         objectsShot[object.id] = system.getTimer()
@@ -81,10 +81,10 @@ local function addBehavior(block)
         object.cannonFunction(block)
       end
     end
-    
+
     cannonTimers[object.id] = timer.performWithDelay(10, fire)
   end
-  
+
   local function clean()
     startedClean = true
     if timeRef then
@@ -109,7 +109,7 @@ local function addBehavior(block)
       sprite = nil
     end
   end
-  
+
   block.behaviors.cannon = {}
   block.behaviors.cannon.clean = clean
   sprite.onCollision = onCollision

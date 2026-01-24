@@ -189,7 +189,7 @@ local function animateSkull(fadeIn, skullImage)
   local function nextStep()
     animateSkull(not fadeIn, skullImage)
   end
-  
+
   if skullImage.trapAttachedTo then
     skullImage.x = skullImage.x
     skullImage.y = skullImage.y
@@ -264,7 +264,7 @@ end
 local function moveCharacterIn(player, startX, startY, endX, endY, time)
   local function doneMovingIn()
     composer.onboarding.doneMovingIn = true
-    
+
     if player.id == 5 then
       player.playAnimation("sad", true, false)
     else
@@ -272,7 +272,7 @@ local function moveCharacterIn(player, startX, startY, endX, endY, time)
       player.resetBones()
     end
   end
-  
+
   player.playAnimation("run", true, true)
   player.x = startX
   player.y = startY
@@ -739,7 +739,7 @@ function composer.onboarding.createOnboardingSteps()
             return 999
           end
         end
-        
+
         local function getDelayForStep(step)
           if step == 10 then
             return 500
@@ -751,7 +751,7 @@ function composer.onboarding.createOnboardingSteps()
             return 0
           end
         end
-        
+
         local function getYTileForStep(step)
           if step == 3 then
             return 5
@@ -765,7 +765,7 @@ function composer.onboarding.createOnboardingSteps()
             return 3
           end
         end
-        
+
         local function getTextForStep(step)
           if step == 4 then
             return "1. GET POWER UP"
@@ -775,7 +775,7 @@ function composer.onboarding.createOnboardingSteps()
             return "JUMP!"
           end
         end
-        
+
         local function getXRequirementForStep(step)
           if step == 3 then
             return (getXTileForStep(step) - 3) * 160 * 0.5
@@ -783,7 +783,7 @@ function composer.onboarding.createOnboardingSteps()
             return (getXTileForStep(step) - 2) * 160 * 0.5
           end
         end
-        
+
         local step = #composer.onboarding.ingameTextArray
         onboardStepChecker(step, livePlayer.x, getXRequirementForStep(step), getTextForStep(step), getDelayForStep(step), getXTileForStep(step), getYTileForStep(step), 30)
         if livePlayer.x > getTileXPos(19) and step == 0 then
@@ -809,7 +809,7 @@ function composer.onboarding.createOnboardingSteps()
           local function onClose()
             blackFadeOut(composer.onboarding.screenDisplayGroup, composer.onboarding.stepDone)
           end
-          
+
           friendlyHelper.createMessage([[
 Wow, you're fast!
 Welcome to Fun Run 2.
@@ -1087,7 +1087,7 @@ Welcome to Fun Run 2, I am your friendly helper. Let's have some fun!]], compose
             return 999
           end
         end
-        
+
         local function getDelayForStep(step)
           if step == 1 or step == 7 then
             return 500
@@ -1099,7 +1099,7 @@ Welcome to Fun Run 2, I am your friendly helper. Let's have some fun!]], compose
             return 0
           end
         end
-        
+
         local function getYTileForStep(step)
           if step == 0 then
             return 15
@@ -1123,11 +1123,11 @@ Welcome to Fun Run 2, I am your friendly helper. Let's have some fun!]], compose
             return 999
           end
         end
-        
+
         local function getTextForStep(step)
           return "JUMP!"
         end
-        
+
         local function getXRequirementForStep(step)
           if step == 6 then
             return (getXTileForStep(step) - 3) * 160 * 0.5
@@ -1135,7 +1135,7 @@ Welcome to Fun Run 2, I am your friendly helper. Let's have some fun!]], compose
             return (getXTileForStep(step) - 2) * 160 * 0.5
           end
         end
-        
+
         local step = #composer.onboarding.ingameTextArray
         onboardStepChecker(step, livePlayer.x, getXRequirementForStep(step), getTextForStep(step), getDelayForStep(step), getXTileForStep(step), getYTileForStep(step), 30)
         if livePlayer.x > getTileXPos(composer.onboarding.stepData["7"].endAtTileX) and not composer.onboarding.stepData["7"].fadeOut then
@@ -1261,15 +1261,15 @@ Welcome to Fun Run 2, I am your friendly helper. Let's have some fun!]], compose
             return 999
           end
         end
-        
+
         local function getDelayForStep(step)
           return 0
         end
-        
+
         local function getYTileForStep(step)
           return 10
         end
-        
+
         local function getTextForStep(step)
           if step == 0 then
             return "SHIELD PROTECTS YOU!"
@@ -1277,11 +1277,11 @@ Welcome to Fun Run 2, I am your friendly helper. Let's have some fun!]], compose
             return "BALLOON TAKES ONE HIT!"
           end
         end
-        
+
         local function getXRequirementForStep(step)
           return (getXTileForStep(step) - 2) * 160 * 0.5
         end
-        
+
         local step = #composer.onboarding.ingameTextArray
         local reachedStep = onboardStepChecker(step, livePlayer.x, getXRequirementForStep(step), getTextForStep(step), getDelayForStep(step), getXTileForStep(step), getYTileForStep(step), 20)
         if (step == 0 or step == 1) and reachedStep then
@@ -1636,11 +1636,11 @@ Welcome to Fun Run 2, I am your friendly helper. Let's have some fun!]], compose
         composer.onboarding.hideReferences("postlobby_addFriends")
         composer.onboarding.hideReferences("postlobby_chat")
         composer.onboarding.hideReferences("postlobby_market")
-        
+
         local function closePrizeOverlay()
           friendlyHelper.createMessage("Cool! Let's put them on.", composer.onboarding.screenDisplayGroup, helperMonsterData, false)
         end
-        
+
         local function showPrize()
           local options = {
             isModal = true,
@@ -1653,7 +1653,7 @@ Welcome to Fun Run 2, I am your friendly helper. Let's have some fun!]], compose
           options.params.item.imagePath = "images/gui/market/items/facewear/402.png"
           composer.showOverlay("lua.overlays.marketFree", options)
         end
-        
+
         friendlyHelper.createMessage("Congratulations! You've just completed your first three races!", composer.onboarding.screenDisplayGroup, helperMonsterData, false)
         friendlyHelper.setOnCloseFunction(showPrize)
       end,
@@ -1938,7 +1938,7 @@ Welcome to Fun Run 2, I am your friendly helper. Let's have some fun!]], compose
           local function onClose()
             blackFadeOut(composer.onboarding.screenDisplayGroup, composer.onboarding.stepDone)
           end
-          
+
           friendlyHelper.createMessage([[
 You got the basics!
 Let's have a REAL race!]], composer.onboarding.screenDisplayGroup, helperMonsterData)
@@ -2052,17 +2052,17 @@ Let's have a REAL race!]], composer.onboarding.screenDisplayGroup, helperMonster
       scene = "lua.scenes.marketplace",
       postLoad = function()
         composer.onboarding.hideReferences("marketplace_back")
-        
+
         local function friendlyHelperCloseFunction2()
           friendlyHelper.createMessage("Click on the 'Glasses' category to see different glasses you can wear", composer.onboarding.screenDisplayGroup, helperMonsterWithGlassesData, false)
         end
-        
+
         local function friendlyHelperCloseFunction()
           friendlyHelper.createMessage("Let's put on the new glasses! Follow the arrows.", composer.onboarding.screenDisplayGroup, helperMonsterData, false)
           friendlyHelper.setOnCloseFunction(composer.onboarding.showMarketArrow)
           return true
         end
-        
+
         friendlyHelper.createMessage("Check out all this stuff!", composer.onboarding.screenDisplayGroup, helperMonsterData, true)
         friendlyHelper.setOnCloseFunction(friendlyHelperCloseFunction)
       end,
@@ -2268,30 +2268,30 @@ end
 
 local function introPart2()
   local livePlayer = composer.onboarding.playerReferences[1]
-  
+
   local function switchBlades()
     composer.onboarding.sawblade.alpha = 0
     composer.onboarding.sawbladeBlood.alpha = 1
   end
-  
+
   local function splatterBot(bot)
     local function moveAway()
       bot.x = bot.x - 500
     end
-    
+
     bot.playHitAnimation(1, 1, 1)
     timer10 = timer.performWithDelay(400, moveAway, 1)
   end
-  
+
   local function happy()
     livePlayer.playAnimation("idle", true, true)
     livePlayer.playAnimation("happy", false, false)
   end
-  
+
   local function land()
     livePlayer.playAnimation("idle", true, true)
   end
-  
+
   timer1 = timer.performWithDelay(200, function()
     livePlayer.playAnimation("jump_start", true, true)
   end, 1)

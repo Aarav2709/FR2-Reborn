@@ -15,7 +15,7 @@ local function new(id, playerList, displayGroup)
   local prevY = 0
   local prevX = 0
   local isStuckNow = false
-  
+
   local function isStuck()
     if isStuckNow then
       stuckCounter = stuckCounter - 1
@@ -42,7 +42,7 @@ local function new(id, playerList, displayGroup)
     end
     return false
   end
-  
+
   local function rocketAcceleration()
     if player and player.getPlayerGoalTime() < 1 and not isStuck() then
       local ySpeed = 10
@@ -94,7 +94,7 @@ local function new(id, playerList, displayGroup)
       player.applyForceOnPlayer(xSpeed, ySpeed)
     end
   end
-  
+
   local function removeObject()
     if startedClean or player == nil then
       return
@@ -116,7 +116,7 @@ local function new(id, playerList, displayGroup)
       beam = nil
     end
   end
-  
+
   local function isPlayerClose(otherPlayer)
     local posDiffX = player.x - otherPlayer.x
     local posDiffY = player.y - otherPlayer.y
@@ -126,7 +126,7 @@ local function new(id, playerList, displayGroup)
     end
     return false
   end
-  
+
   local function checkForOtherPlayerKill()
     if startedClean then
       return
@@ -137,7 +137,7 @@ local function new(id, playerList, displayGroup)
       end
     end
   end
-  
+
   local function killPlayer()
     if startedClean then
       return
@@ -148,7 +148,7 @@ local function new(id, playerList, displayGroup)
     checkForOtherPlayerKill()
     removeObject()
   end
-  
+
   local function init()
     if player then
       player.rocketPowerUp()
@@ -158,7 +158,7 @@ local function new(id, playerList, displayGroup)
       player.powerUpLinks.rocket = rocket
     end
   end
-  
+
   init()
   killTimer = timer.performWithDelay(5000, killPlayer, 1)
   rocket.removeObject = removeObject

@@ -10,7 +10,7 @@ function SkeletonData.new()
     animations = {},
     defaultSkin = nil
   }
-  
+
   function self:findBone(boneName)
     if not boneName then
       error("boneName cannot be nil.", 2)
@@ -22,7 +22,7 @@ function SkeletonData.new()
     end
     return nil
   end
-  
+
   function self:findBoneIndex(boneName)
     if not boneName then
       error("boneName cannot be nil.", 2)
@@ -34,7 +34,7 @@ function SkeletonData.new()
     end
     return -1
   end
-  
+
   function self:findSlot(slotName)
     if not slotName then
       error("slotName cannot be nil.", 2)
@@ -46,14 +46,14 @@ function SkeletonData.new()
     end
     return nil
   end
-  
+
   function self:findSlotIndex(slotName)
     if not slotName then
       error("slotName cannot be nil.", 2)
     end
     return self.slotNameIndices[slotName] or -1
   end
-  
+
   function self:findSkin(skinName)
     if not skinName then
       error("skinName cannot be nil.", 2)
@@ -65,7 +65,7 @@ function SkeletonData.new()
     end
     return nil
   end
-  
+
   function self:findEvent(eventName)
     if not eventName then
       error("eventName cannot be nil.", 2)
@@ -77,7 +77,7 @@ function SkeletonData.new()
     end
     return nil
   end
-  
+
   function self:findAnimation(animationName)
     if not animationName then
       error("animationName cannot be nil.", 2)
@@ -89,7 +89,7 @@ function SkeletonData.new()
     end
     return nil
   end
-  
+
   return self
 end
 

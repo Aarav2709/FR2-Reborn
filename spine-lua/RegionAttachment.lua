@@ -30,7 +30,7 @@ function RegionAttachment.new(name)
     regionOriginalWidth = 0,
     regionOriginalHeight = 0
   }
-  
+
   function self:updateOffset()
     local regionScaleX = self.width / self.regionOriginalWidth * self.scaleX
     local regionScaleY = self.height / self.regionOriginalHeight * self.scaleY
@@ -59,7 +59,7 @@ function RegionAttachment.new(name)
     offset[6] = localX2Cos - localYSin
     offset[7] = localYCos + localX2Sin
   end
-  
+
   function self:computeWorldVertices(x, y, bone, worldVertices)
     x = x + bone.worldX
     y = y + bone.worldY
@@ -74,7 +74,7 @@ function RegionAttachment.new(name)
     vertices[6] = offset[6] * m00 + offset[7] * m01 + x
     vertices[7] = offset[6] * m10 + offset[7] * m11 + y
   end
-  
+
   return self
 end
 

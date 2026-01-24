@@ -303,7 +303,7 @@ local function newList(params)
       print("Missing onScrollEnd function " .. i)
     end
   end
-  
+
   function listView:cleanUp()
     Runtime:removeEventListener("enterFrame", scrollList)
     Runtime:removeEventListener("enterFrame", showHighlight)
@@ -315,7 +315,7 @@ local function newList(params)
       listView[i] = nil
     end
   end
-  
+
   function listView:scrollTo(itemNumber)
     local newX = centerScreenX - self[1].width * (itemNumber - 1)
     local timeVal = 400
@@ -327,11 +327,11 @@ local function newList(params)
       transition = easing.outQuad
     })
   end
-  
+
   function listView:startAt(itemNumber)
     self.x = centerScreenX - self[1].width * (itemNumber - 1)
   end
-  
+
   return listView
 end
 

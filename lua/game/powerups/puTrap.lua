@@ -8,14 +8,14 @@ local function new(id, player, x, y, displayGroup, playerList)
   local canHit = true
   local cantHitOwner = true
   local haveHitSomeone = false
-  
+
   local function canHitOwnerAgain()
     cantHitOwner = false
   end
-  
+
   local function update()
   end
-  
+
   local function playSpriteCloseEffect()
     if haveHitSomeone then
       trapSprite:setSequence("closeBlood")
@@ -26,19 +26,19 @@ local function new(id, player, x, y, displayGroup, playerList)
     trapClosed = true
     haveHitSomeone = true
   end
-  
+
   local function playSpriteOpenEffect()
     trapSprite:setSequence("openBlood")
     trapSprite:play()
     trapClosed = false
   end
-  
+
   local function nextEffect(event)
     if event.phase == "ended" and trapClosed then
       playSpriteOpenEffect()
     end
   end
-  
+
   local function removeObject()
     if trapSprite then
       trapSprite:removeEventListener("sprite", nextEffect)
@@ -47,11 +47,11 @@ local function new(id, player, x, y, displayGroup, playerList)
       trapSprite = nil
     end
   end
-  
+
   local function canHitAgain()
     canHit = true
   end
-  
+
   local function onCollision(self, collisionEvent)
     if collisionEvent.phase == "began" then
       local playAnimation = true
@@ -71,7 +71,7 @@ local function new(id, player, x, y, displayGroup, playerList)
       end
     end
   end
-  
+
   local function createTrap()
     playerList[id].removeTrapAnimation()
     trapSprite = display.newSprite(composer.powerUpImageSheet, composer.data.animations.trapSet)
@@ -122,7 +122,7 @@ local function new(id, player, x, y, displayGroup, playerList)
     end
     displayGroup:insert(trapSprite)
   end
-  
+
   createTrap()
   timer.performWithDelay(500, canHitOwnerAgain, 1)
   if not composer.onboarding.isActive == true then

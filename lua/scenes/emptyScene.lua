@@ -4,7 +4,7 @@ local backgroundImage, searchText, layoutEmptyScene, resizeListener
 
 function scene:create(event)
   local group = self.view
-  backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 480, 320)
+  backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 1920, 1080)
   group:insert(backgroundImage)
   searchText = composer.newText({
     string = composer.localized.get("LoadingGame"),

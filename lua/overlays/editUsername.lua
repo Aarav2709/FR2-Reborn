@@ -13,22 +13,23 @@ function scene:create(event)
   if isAndroid then
     textFieldSize = 35
   end
-  local background = display.newImageRect("images/gui/settings/windowRename.png", 350, 137)
+  local background = display.newImageRect("images/gui/settings/windowRename.png", 405, 137)
   background.anchorX = 0.5
   background.anchorY = 0
-  background.x = 240
-  background.y = 0
+  background.x = 250
+  background.y = -4
   local backgroundCoins = display.newImageRect("images/gui/market/currentCoins.png", 70, 53)
   backgroundCoins.anchorX = 0
   backgroundCoins.anchorY = 0
-  backgroundCoins.x = 400
+  backgroundCoins.x = 450
   backgroundCoins.y = 0
   local moneyValue = composer.database.getMoney()
+  local gemValue = composer.database.getGems()
   local moneyLabel = composer.newText({
     string = moneyValue,
     size = 14,
-    x = 424,
-    y = 40,
+    x = 476,
+    y = 45,
     ax = 0,
     color = {
       1,
@@ -39,8 +40,8 @@ function scene:create(event)
   local moneyLabelRed = composer.newText({
     string = moneyValue,
     size = 14,
-    x = 424,
-    y = 40,
+    x = 476,
+    y = 45,
     ax = 0,
     color = {
       1,
@@ -49,6 +50,31 @@ function scene:create(event)
     }
   })
   moneyLabelRed.alpha = 0
+  local gemLabel = composer.newText({
+    string = gemValue,
+    size = 14,
+    x = 476,
+    y = 27,
+    ax = 0,
+    color = {
+      1,
+      1,
+      1
+    }
+  })
+  local gemLabelRed = composer.newText({
+    string = gemValue,
+    size = 14,
+    x = 476,
+    y = 27,
+    ax = 0,
+    color = {
+      1,
+      0,
+      0
+    }
+  })
+  gemLabelRed.alpha = 0
   local alphaBackground = display.newRect(0, 0, display.contentWidth, display.contentHeight)
   alphaBackground.anchorX = 0
   alphaBackground.anchorY = 0
@@ -66,8 +92,8 @@ function scene:create(event)
   })
   info.anchorX = 0.5
   info.anchorY = 0.5
-  info.x = 240
-  info.y = 25
+  info.x = 251
+  info.y = 20
   local inputFieldDescriptionText = composer.newText({
     string = composer.localized.get("Username"),
     color = {
@@ -93,7 +119,7 @@ function scene:create(event)
   nameTextField.userInput = composer.validateInput.limitTextField(15)
   nameTextField:addEventListener("userInput", nameTextField.userInput)
   nameTextField.text = composer.database.getPlayerInformation().username
-  
+
   local function giveCoinFeedback()
     local newSize = 1.2
     local timeToUse = 100
@@ -123,7 +149,7 @@ function scene:create(event)
       alpha = 0
     })
   end
-  
+
   local function canPlayerAffordItem()
     local money = composer.database.getMoney()
     if price and money >= price then
@@ -137,12 +163,12 @@ function scene:create(event)
       return false
     end
   end
-  
+
   local function closeButtonEvent()
     composer.hideOverlay()
     native.setKeyboardFocus(nil)
   end
-  
+
   local function escapeTouchEvent(event)
     if event.phase == "ended" then
       composer.hideOverlay()
@@ -150,23 +176,23 @@ function scene:create(event)
     end
     return true
   end
-  
+
   local function backgroundImageTouchEvent(event)
     if event.phase == "ended" then
       native.setKeyboardFocus(nil)
     end
     return true
   end
-  
+
   local closeButton = composer.newButton({
-    x = 380,
+    x = 415,
     y = 26,
     width = 43,
     height = 38,
     image = "images/gui/common/buttonClosePopup.png",
     onRelease = closeButtonEvent
   })
-  
+
   local function continueButtonEvent()
     if canPlayerAffordItem() then
       local newName, nameError = composer.validateInput.validateUsername(nameTextField.text)
@@ -186,7 +212,7 @@ function scene:create(event)
       end
     end
   end
-  
+
   contiuneButton = composer.newButton({
     x = 350,
     y = 80,
@@ -200,13 +226,15 @@ function scene:create(event)
     image = "images/gui/settings/buttonRenameCoins.png",
     onRelease = continueButtonEvent
   })
-  
+
   local function updateDisplayGroup()
     group:insert(alphaBackground)
     dropdownGroup:insert(background)
     dropdownGroup:insert(backgroundCoins)
     dropdownGroup:insert(moneyLabel)
     dropdownGroup:insert(moneyLabelRed)
+    dropdownGroup:insert(gemLabel)
+    dropdownGroup:insert(gemLabelRed)
     dropdownGroup:insert(info)
     dropdownGroup:insert(nameTextField)
     dropdownGroup:insert(inputFieldDescriptionText)
@@ -215,12 +243,12 @@ function scene:create(event)
     dropdownGroup:insert(contiuneButton)
     group:insert(dropdownGroup)
   end
-  
+
   local function addListeners()
     alphaBackground:addEventListener("touch", escapeTouchEvent)
     background:addEventListener("touch", backgroundImageTouchEvent)
   end
-  
+
   function clean()
     display.remove(closeButton)
     display.remove(contiuneButton)
@@ -229,7 +257,7 @@ function scene:create(event)
     alphaBackground:removeEventListener("touch", escapeTouchEvent)
     background:removeEventListener("touch", backgroundImageTouchEvent)
   end
-  
+
   updateDisplayGroup()
   addListeners()
   if not isAndroid then
@@ -245,11 +273,11 @@ function scene:show(event)
   end
   local group = self.view
   local androidLogic = require("lua.modules.androidBackButton")
-  
+
   function cleanEnter()
     androidLogic.isOverlay(false)
   end
-  
+
   androidLogic.isOverlay(true)
 end
 

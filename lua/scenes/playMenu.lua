@@ -27,9 +27,8 @@ function scene:create(event)
     end
   end
 
-  local function btnPractisePlayPlayRelease(event)
-    -- Offline mode: go directly to difficulty selection
-    composer.gotoScene("lua.scenes.difficultySelect")
+  local function btnPracticePlayPlayRelease(event)
+    composer.gotoScene("lua.scenes.lobbyPractice")
   end
 
   local function btnQuickPlayRelease(event)
@@ -58,7 +57,7 @@ function scene:create(event)
     composer.gotoScene("lua.scenes.mainMenu")
   end
 
-  backgroundImage = display.newImageRect("images/gui/common/bgMain.png", 480, 320)
+  backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 1920, 1080)
   bearHead = display.newImageRect("images/gui/common/bgMainBear.png", 62, 60)
   tipBackground = display.newImageRect("images/gui/play/windowTips.png", 305, 60)
   btnSingleplayerStick = display.newImageRect("images/gui/play/buttonStickPractice.png", 39, 153)
@@ -85,7 +84,7 @@ function scene:create(event)
     },
     width = practiceButtonScaledWidth,
     height = practiceButtonScaledHeight,
-    onRelease = btnPractisePlayPlayRelease,
+    onRelease = btnPracticePlayPlayRelease,
     x = 0,
     y = 0
   })
@@ -156,8 +155,8 @@ function scene:create(event)
       bearHead.y = contentTop + contentHeight * 0.78
     end
     if tipBackground then
-      tipBackground.x = centerX
-      tipBackground.y = contentTop + contentHeight * (30 / 320)
+      tipBackground.x = 450
+      tipBackground.y = 28
     end
     if btnSingleplayerStick then
       btnSingleplayerStick.x = contentLeft + contentWidth * 0.17
@@ -184,12 +183,14 @@ function scene:create(event)
       btnCustomPlay.y = contentTop + contentHeight * 0.52
     end
     if btnBack then
-      btnBack.x = contentLeft + contentWidth * (50 / 480)
-      btnBack.y = contentTop + contentHeight * (292 / 320)
+      btnBack.x = 120
+      btnBack.y = 385
     end
     if infoText then
-      infoText.x = contentLeft + contentWidth * (242 / 480)
-      infoText.y = contentTop + contentHeight * (36 / 320)
+      if tipBackground then
+        infoText.x = tipBackground.x
+        infoText.y = tipBackground.y + 13
+      end
     end
   end
 
@@ -303,11 +304,11 @@ function scene:show(event)
   end
   infoText = composer.newText({
     string = tipToUse,
-    x = 0,
-    y = 0,
+    x = 453,
+    y = 39,
     size = 12,
     width = 290,
-    height = 50,
+    height = 49,
     color = {
       1,
       1,

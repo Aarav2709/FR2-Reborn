@@ -34,11 +34,13 @@ function scene:create(event)
     return chanceList
   end
 
-  background = display.newImageRect("images/gui/ranking/main.png", 480, 320)
-  background.anchorX = 0
-  background.anchorY = 0
-  background.x = 0
-  background.y = 0
+  background = display.newImageRect("images/gui/ranking/main.png", 1920, 1080)
+  if background then
+    background.anchorX = 0
+    background.anchorY = 0
+    background.x = 0
+    background.y = 0
+  end
   layoutRanking = function()
     local contentLeft = display.screenOriginX
     local contentTop = display.screenOriginY
@@ -59,8 +61,13 @@ function scene:create(event)
   tableBackground.x = display.contentWidth * 0.5
   tableBackground.y = display.contentHeight * 0.5
   local selectedTableImage = display.newImageRect("images/gui/ranking/marker.png", 67, 44)
-  selectedTableImage.x = 302
-  selectedTableImage.y = 26
+  if selectedTableImage then
+    selectedTableImage.x = 302
+    selectedTableImage.y = 26
+  else
+    selectedTableImage = display.newRect(302, 26, 67, 44)
+    selectedTableImage:setFillColor(1, 1, 1, 0.2)
+  end
   local xDistance = 50
   local avatarName = composer.newText({
     string = "",
@@ -402,8 +409,12 @@ function scene:create(event)
     composer.showOverlay("lua.overlays.weeklyPrizes", options)
   end
 
+  local prizeButtonImage = "images/gui/ranking/prizes.png"
+  if not display.newImageRect(prizeButtonImage, 1, 1) then
+    prizeButtonImage = "images/transparent.png"
+  end
   local prizeButton = composer.newButton({
-    image = "images/gui/ranking/prizes.png",
+    image = prizeButtonImage,
     width = 60,
     height = 56,
     onRelease = prizeButtonEvent,
@@ -482,29 +493,31 @@ function scene:create(event)
   end
 
   local function updateDisplayGroup()
-    group:insert(background)
-    textGroup:insert(avatarName)
-    textGroup:insert(games)
-    textGroup:insert(gamesNumber)
-    textGroup:insert(kills)
-    textGroup:insert(killsNumber)
-    textGroup:insert(deaths)
-    textGroup:insert(deathsNumber)
-    textGroup:insert(wins)
-    textGroup:insert(winsNumber)
-    textGroup:insert(suicides)
-    textGroup:insert(suicidesNumber)
-    group:insert(textGroup)
-    group:insert(weeklyButton)
-    group:insert(globalButton)
-    group:insert(friendsButton)
-    group:insert(selectedTableImage)
-    group:insert(selfButton)
-    group:insert(selfRating)
-    group:insert(selfName)
-    group:insert(backButton)
-    group:insert(prizeButton)
-    group:insert(prizeButtonTextTime)
+    if background then group:insert(background) end
+    if textGroup then
+      if avatarName then textGroup:insert(avatarName) end
+      if games then textGroup:insert(games) end
+      if gamesNumber then textGroup:insert(gamesNumber) end
+      if kills then textGroup:insert(kills) end
+      if killsNumber then textGroup:insert(killsNumber) end
+      if deaths then textGroup:insert(deaths) end
+      if deathsNumber then textGroup:insert(deathsNumber) end
+      if wins then textGroup:insert(wins) end
+      if winsNumber then textGroup:insert(winsNumber) end
+      if suicides then textGroup:insert(suicides) end
+      if suicidesNumber then textGroup:insert(suicidesNumber) end
+      group:insert(textGroup)
+    end
+    if weeklyButton then group:insert(weeklyButton) end
+    if globalButton then group:insert(globalButton) end
+    if friendsButton then group:insert(friendsButton) end
+    if selectedTableImage then group:insert(selectedTableImage) end
+    if selfButton then group:insert(selfButton) end
+    if selfRating then group:insert(selfRating) end
+    if selfName then group:insert(selfName) end
+    if backButton then group:insert(backButton) end
+    if prizeButton then group:insert(prizeButton) end
+    if prizeButtonTextTime then group:insert(prizeButtonTextTime) end
     if monsterShowing then
       group:insert(monsterShowing.getGroup())
     end

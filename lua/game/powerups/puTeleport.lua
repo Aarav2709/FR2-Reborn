@@ -6,7 +6,7 @@ local function new(id, playerList)
   teleport.y = 1
   local player = playerList[id]
   local startedClean = false
-  
+
   local function findPos()
     local myPos = 1
     local newX, newY
@@ -24,7 +24,7 @@ local function new(id, playerList)
     end
     return myPos, newX, newY
   end
-  
+
   local function findNewPos()
     local myPos, newX, newY = findPos()
     if myPos == 1 then
@@ -35,7 +35,7 @@ local function new(id, playerList)
     end
     return false
   end
-  
+
   local function init()
     if player then
       local newX, newY = findNewPos()
@@ -44,7 +44,7 @@ local function new(id, playerList)
       end
     end
   end
-  
+
   init()
   return teleport
 end

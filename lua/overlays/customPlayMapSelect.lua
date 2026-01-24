@@ -31,22 +31,22 @@ function scene:create(event)
       1
     }
   })
-  
+
   local function closeOverlayButtonEvent()
     composer.hideOverlay()
   end
-  
+
   local function closeOnTouchEvent(event)
     if event.phase == "ended" then
       composer.hideOverlay()
     end
     return true
   end
-  
+
   local function doNothingOnTouchEvent(event)
     return true
   end
-  
+
   local closeOverlayButton = composer.newButton({
     x = 340,
     y = 35,
@@ -55,17 +55,17 @@ function scene:create(event)
     image = "images/gui/common/buttonClosePopup.png",
     onRelease = closeOverlayButtonEvent
   })
-  
+
   local function tableCallback(mapId)
     composer.hideOverlay()
     if mapId then
       setGameModeFunction(0, mapId)
     end
   end
-  
+
   mapTable = tableHelper.new(150, 36, 180, 284, 100, nil, "map", tableCallback)
   mapTable.createTable(composer.data.mapInfo, group)
-  
+
   local function updateDisplayGroup()
     group:insert(alphaBackground)
     group:insert(tableBackground)
@@ -74,18 +74,18 @@ function scene:create(event)
     group:insert(infoText)
     group:insert(closeOverlayButton)
   end
-  
+
   local function addListeners()
     alphaBackground:addEventListener("touch", closeOnTouchEvent)
     tableBackground:addEventListener("touch", doNothingOnTouchEvent)
   end
-  
+
   function clean()
     alphaBackground:removeEventListener("touch", closeOnTouchEvent)
     tableBackground:removeEventListener("touch", doNothingOnTouchEvent)
     mapTable.cleanTable()
   end
-  
+
   updateDisplayGroup()
   addListeners()
 end
@@ -96,11 +96,11 @@ function scene:show(event)
   if phase == "will" then
   elseif phase == "did" then
     local androidLogic = require("lua.modules.androidBackButton")
-    
+
     function cleanEnter()
       androidLogic.isOverlay(false)
     end
-    
+
     androidLogic.isOverlay(true)
   end
 end

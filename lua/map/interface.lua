@@ -71,6 +71,10 @@ local function addPlayerNameText(frontCameraGroup, id, name)
 end
 
 local function loadMapData(id)
+  if not id then
+    print("WARNING: loadMapData called with nil id, defaulting to map 1")
+    id = 1
+  end
   local parser = require("lua.modules.jsonParser")
   mapJson = parser.getJsonFromFile("config/map/" .. id .. ".json")
   local properties = mapJson.properties

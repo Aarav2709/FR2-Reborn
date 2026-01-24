@@ -73,7 +73,7 @@ local function new(monsterData, networkFormat)
 
         if not imagePath then
           print("ERROR: Frame not found! Character: " .. (path or "N/A") .. ", Looking for: " .. restOfPath)
-          return nil
+          return display.newRect(0, 0, 1, 1)
         end
 
         print("SUCCESS: Loading frame: " .. restOfPath .. " = frameIndex " .. imagePath)
@@ -349,7 +349,7 @@ local function new(monsterData, networkFormat)
         0
       }
     end
-    id = monsterData[1]
+    id = tonumber(monsterData[1]) or monsterData[1]
     skin = tonumber(monsterData[2])
     hat = monsterData[3]
     facewear = monsterData[4]
@@ -357,7 +357,7 @@ local function new(monsterData, networkFormat)
     item = monsterData[6]
     boots = monsterData[7]
     runningType = composer.storeConfig.getRunningType(monsterData[1])
-    if id == nil or skin == nil then
+    if type(id) ~= "number" or skin == nil then
       id = 1
       skin = 0
     else
@@ -380,10 +380,14 @@ local function new(monsterData, networkFormat)
     }
     effectImageSheetInfo = composer.characterPowerUpEffectsImageSheetInfo
     effectImageSheet = composer.characterPowerUpEffectsImageSheet
-    effectsSequence = {
-      start = 1,
-      count = #effectImageSheetInfo:getSheet().frames
-    }
+    if effectImageSheetInfo and effectImageSheet then
+      effectsSequence = {
+        start = 1,
+        count = #effectImageSheetInfo:getSheet().frames
+      }
+    else
+      effectsSequence = nil
+    end
     spineLoader = spineInterface.newMonster()
     skeleton = spineLoader.getSkeleton()
     skeletonData = spineLoader.getSkeletonData()

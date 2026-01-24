@@ -35,26 +35,26 @@ function scene:create(event)
       1
     }
   })
-  
+
   local function serverTimeout()
     canClickButton = true
     composer.config.loginMessage = false
     errorInfo.text = composer.localized.get("Could not access Facebook")
   end
-  
+
   local function facebookCallback(data)
     if data.isError then
       serverTimeout()
     end
   end
-  
+
   local function stopTimer()
     if facebookTimeout then
       timer.cancel(facebookTimeout)
       facebookTimeout = nil
     end
   end
-  
+
   local function httpsCallback(data)
     if data.m == httpsFormat.loginWithFacebook() then
       canClickButton = true
@@ -68,7 +68,7 @@ function scene:create(event)
       end
     end
   end
-  
+
   local function btnEmailRelease()
     if not canClickButton then
       return
@@ -76,7 +76,7 @@ function scene:create(event)
     local options = {isModal = true}
     composer.showOverlay("lua.overlays.loginUserEmail", options)
   end
-  
+
   local btnEmail = composer.newButton({
     image = "images/gui/common/buttonTextB.png",
     text = composer.localized.get("Email"),
@@ -86,7 +86,7 @@ function scene:create(event)
     x = backgroundWindow.x + 70,
     y = backgroundWindow.y + 16
   })
-  
+
   local function btnFacebookRelease()
     if not canClickButton then
       return
@@ -103,7 +103,7 @@ function scene:create(event)
     errorInfo.text = composer.localized.get("Loading")
     canClickButton = false
   end
-  
+
   local btnFacebook = composer.newButton({
     image = "images/gui/common/buttonFacebook.png",
     text = {
@@ -120,11 +120,11 @@ function scene:create(event)
     x = backgroundWindow.x - 70,
     y = backgroundWindow.y + 16
   })
-  
+
   local function btnExitRelease()
     composer.hideOverlay()
   end
-  
+
   local btnExit = composer.newButton({
     image = "images/gui/common/buttonClosePopup.png",
     onRelease = btnExitRelease,
@@ -133,25 +133,25 @@ function scene:create(event)
     x = backgroundWindow.x + 158,
     y = backgroundWindow.y + -40
   })
-  
+
   local function escapeTouchEvent(event)
     if event.phase == "ended" then
       composer.hideOverlay()
     end
     return true
   end
-  
+
   local function backgroundImageTouchEvent(event)
     if event.phase == "ended" then
     end
     return true
   end
-  
+
   local function addListeners()
     backgroundImage:addEventListener("touch", escapeTouchEvent)
     backgroundWindow:addEventListener("touch", backgroundImageTouchEvent)
   end
-  
+
   local function updateDisplayGroups()
     sceneGroup:insert(backgroundImage)
     dropdownGroup:insert(backgroundWindow)
@@ -162,7 +162,7 @@ function scene:create(event)
     dropdownGroup:insert(errorInfo)
     sceneGroup:insert(dropdownGroup)
   end
-  
+
   function clean()
     display.remove(btnExit)
     display.remove(btnFacebook)
@@ -171,7 +171,7 @@ function scene:create(event)
     backgroundWindow:removeEventListener("touch", backgroundImageTouchEvent)
     stopTimer()
   end
-  
+
   updateDisplayGroups()
   addListeners()
   composer.bouncer.down(dropdownGroup)
@@ -184,11 +184,11 @@ function scene:show(event)
     return
   end
   local androidLogic = require("lua.modules.androidBackButton")
-  
+
   function cleanEnter()
     androidLogic.isOverlay(false)
   end
-  
+
   androidLogic.isOverlay(true)
 end
 

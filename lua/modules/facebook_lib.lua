@@ -175,7 +175,7 @@ local function simulatorRequest(path, httpMethod, params)
   end
   local url = "https://graph.facebook.com/" .. path .. queryString
   dbg("Simulator Facebook request: " .. url)
-  
+
   local function onRequestComplete(event)
     local fbEvent = {}
     fbEvent.name = "fbconnect"
@@ -184,7 +184,7 @@ local function simulatorRequest(path, httpMethod, params)
     fbEvent.response = event.response
     fbListener(fbEvent)
   end
-  
+
   network.request(url, httpMethod, onRequestComplete)
 end
 

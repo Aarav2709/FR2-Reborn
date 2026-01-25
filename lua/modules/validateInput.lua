@@ -97,10 +97,20 @@ local function limitTextField(length)
   end
 end
 
+local function stripUsernameCode(fullUsername)
+  if not fullUsername then
+    return ""
+  end
+
+  local nameOnly = fullUsername:gsub("#%d+$", "")
+  return nameOnly
+end
+
 M.validateUsername = validateUsername
 M.validateEmail = validateEmail
 M.validatePassword = validatePassword
 M.validateMonsterName = validateMonsterName
 M.limitTextField = limitTextField
 M.validateUsernameSearch = validateUsernameSearch
+M.stripUsernameCode = stripUsernameCode
 composer.validateInput = M

@@ -838,7 +838,8 @@ function scene:create(event)
         if index == nil then
           index = i
         end
-        local nameToShow = username
+
+        local nameToShow = username and username:gsub("#%d+$", "") or username
         if string.len(nameToShow) > 11 then
           nameToShow = nameToShow:sub(1, 11) .. ".."
         end

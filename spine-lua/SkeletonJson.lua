@@ -127,6 +127,7 @@ function SkeletonJson.new(attachmentLoader)
       if not region then
         return nil
       end
+      region.path = path
       region.x = (map.x or 0) * scale
       region.y = (map.y or 0) * scale
       if map.scaleX ~= nil then

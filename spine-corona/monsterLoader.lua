@@ -54,46 +54,51 @@ local function new(monsterData, networkFormat)
     function skeleton:createImage(attachment)
       composer.debugger.profile("CreateImage")
 
-      -- Step 1: Clean the name to fix matching issues
-      -- attachment.name is usually "eyes_normal"; attachment.path holds full path like "c1s0/misc/eyes_normal"
       local attachmentName = attachment.path or attachment.name
       local prepath, restOfPath = isCustomMonsterImage(attachmentName)
 
-      -- If isCustomMonsterImage fails to parse, clean manually
-      if not restOfPath then
-        restOfPath = attachmentName:gsub(".*/", "")
+      -- Determine if this is a character body part (starts with cXsY/)
+      local isCharacterPart = (restOfPath ~= nil and prepath ~= "powerups")
+
+      -- If isCustomMonsterImage failed but it looks like a character path, try regex
+      if not restOfPath and attachmentName:match("^c%d+s%d+/") then
+        restOfPath = attachmentName:gsub("^c%d+s%d+/", "")
+        isCharacterPart = true
       end
 
       local image
 
-      -- Step 2: Accept both Region and Mesh attachment types
-      -- The original code missed this check, which caused body misalignment
-      if (attachment.type == spine.AttachmentType.region or attachment.type == spine.AttachmentType.mesh) and imageSheetInfo then
+      -- Case 1: Character body part - use character imagesheet
+      if isCharacterPart and imageSheetInfo and restOfPath then
         local imagePath = imageSheetInfo:getFrameIndex(restOfPath)
 
-        if not imagePath then
-          print("ERROR: Frame not found! Character: " .. (path or "N/A") .. ", Looking for: " .. restOfPath)
-          return display.newRect(0, 0, 1, 1)
-        end
+        if imagePath then
+          image = display.newSprite(imageSheet, characterSequence)
+          image:setFrame(imagePath)
+          image.anchorX = 0.5
+          image.anchorY = 0.5
+        else
+          -- Frame not found in character sheet - log details for debugging
+          print("WARNING: Frame '" .. restOfPath .. "' not found in character sheet for " .. (path or "N/A"))
+          print("  -> Attachment: " .. tostring(attachmentName))
+          print("  -> Available frames: " .. tostring(#imageSheetInfo:getSheet().frames))
+                end
 
-        print("SUCCESS: Loading frame: " .. restOfPath .. " = frameIndex " .. imagePath)
-        image = display.newSprite(imageSheet, characterSequence)
-        image:setFrame(imagePath)
-
-        -- Step 3: Alignment (prevents skew)
-        image.anchorX = 0.5
-        image.anchorY = 0.5
-      elseif prepath and prepath == "powerups" and effectImageSheetInfo then
+      elseif prepath == "powerups" and effectImageSheetInfo and restOfPath then
         local imagePath = effectImageSheetInfo:getFrameIndex(restOfPath)
         if imagePath then
           image = display.newSprite(effectImageSheet, effectsSequence)
           image:setFrame(imagePath)
         end
-      else
-        -- If not in the image sheet, load a PNG directly
-        print("INFO: Loading direct PNG: " .. attachmentName)
-        local path = "images/monsters/" .. attachmentName
-        image = display.newImage(path .. ".png")
+      end
+
+      -- Case 3: Not in any imagesheet (accessories, hats, etc.) - load PNG directly
+      if not image then
+        local pngPath = "images/monsters/" .. attachmentName .. ".png"
+        image = display.newImage(pngPath)
+        if not image then
+          print("WARNING: Failed to load PNG: " .. pngPath)
+        end
       end
 
       composer.debugger.profile("CreateImage")
@@ -106,13 +111,19 @@ local function new(monsterData, networkFormat)
         local attachmentName = attachment.path or attachment.name
         local _, restOfPath = isCustomMonsterImage(attachmentName)
 
-        if not restOfPath then restOfPath = attachmentName:gsub(".*/", "") end
+        -- If isCustomMonsterImage failed, try regex for character paths
+        if not restOfPath and attachmentName:match("^c%d+s%d+/") then
+          restOfPath = attachmentName:gsub("^c%d+s%d+/", "")
+        end
 
-        local imagePath = imageSheetInfo:getFrameIndex(restOfPath)
-        if imagePath then
-          image:setFrame(imagePath)
-          composer.debugger.profile("ModifyImage")
-          return true
+        -- Only try frame lookup for character parts
+        if restOfPath and imageSheetInfo then
+          local imagePath = imageSheetInfo:getFrameIndex(restOfPath)
+          if imagePath then
+            image:setFrame(imagePath)
+            composer.debugger.profile("ModifyImage")
+            return true
+          end
         end
       end
       return false
@@ -233,12 +244,14 @@ local function new(monsterData, networkFormat)
     elseif composer.storeConfig.isBoard(boots) then
       skeleton:setAttachment("foot_l", nil)
       skeleton:setAttachment("foot_r", nil)
-      skeleton:setAttachment("board", boots)
+      -- Boards use "shoes/XXX" attachment name format
+      skeleton:setAttachment("board", "shoes/" .. boots)
       setRunAnimation(true)
     else
+      -- Shoe attachments use "shoes/XXXl" and "shoes/XXXr" format
       skeleton:setAttachment("board", nil)
-      skeleton:setAttachment("foot_l", boots)
-      skeleton:setAttachment("foot_r", boots)
+      skeleton:setAttachment("foot_l", "shoes/" .. boots .. "l")
+      skeleton:setAttachment("foot_r", "shoes/" .. boots .. "r")
       setRunAnimation(false)
     end
     local setBasic = true

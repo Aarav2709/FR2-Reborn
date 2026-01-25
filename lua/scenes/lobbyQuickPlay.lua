@@ -352,7 +352,8 @@ function scene:show(event)
             removeOldInfo(id)
             setPlate(id)
         end
-        playerText[id].text = name
+
+        playerText[id].text = name and name:gsub("#%d+$", "") or name
     end
 
     local function updateVotes()

@@ -852,6 +852,9 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   end
 
   local function getUsername()
+    if name then
+      return name:gsub("#%d+$", "")
+    end
     return name
   end
 

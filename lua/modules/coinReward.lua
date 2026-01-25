@@ -13,25 +13,23 @@ local white = {
 
 local function createCoinReward(totalGold, gold, position, isCoins)
   local function getCoinStartPosition()
+
     local x, y
 
     if position == 1 then
-      x = 130
-      y = 128
+      x = 254
+      y = 176
     elseif position == 2 then
-      x = 46
-      y = 165
+      x = 94
+      y = 236
     elseif position == 3 then
-      x = 220
-      y = 172
+      x = 412
+      y = 250
     elseif position == 4 then
-      x = 310
-      y = 212
-    elseif position == 5 then
-      x = 400
-      y = 216
+      x = 576
+      y = 310
     end
-    return x, y + 0
+    return x, y
   end
 
   local coinRewardGroup = display.newGroup()
@@ -114,10 +112,11 @@ local function createCoinReward(totalGold, gold, position, isCoins)
       end
     end
 
-    local targetX = 202
-    local targetY = display.contentHeight - 30
+    local targetX = 355
+    local targetY = 39
     if not isCoins then
-      targetX = 302
+      targetX = 499
+      targetY = 39
     end
     image.anchorX = 1
     image.anchorY = 0

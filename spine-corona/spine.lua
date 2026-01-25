@@ -76,7 +76,7 @@ function spine.Skeleton.new(skeletonData, group)
           display.remove(image)
           images[slot] = nil
         end
-      elseif attachment.type == spine.AttachmentType.region then
+      elseif attachment.type == spine.AttachmentType.region or attachment.type == spine.AttachmentType.mesh then
         if image and image.attachment ~= attachment then
           if self:modifyImage(image, attachment) then
             image.lastR, image.lastA = nil, nil

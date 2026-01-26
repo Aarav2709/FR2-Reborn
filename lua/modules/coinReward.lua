@@ -11,7 +11,7 @@ local white = {
   1
 }
 
-local function createCoinReward(totalGold, gold, position, isCoins)
+local function createCoinReward(totalGold, gold, position, isCoins, targetX, targetY)
   local function getCoinStartPosition()
 
     local x, y
@@ -112,11 +112,10 @@ local function createCoinReward(totalGold, gold, position, isCoins)
       end
     end
 
-    local targetX = 355
-    local targetY = 39
-    if not isCoins then
-      targetX = 499
-      targetY = 39
+    local finalTargetX = targetX or 355
+    local finalTargetY = targetY or 39
+    if not isCoins and not targetX then
+      finalTargetX = 499
     end
     image.anchorX = 1
     image.anchorY = 0
@@ -146,14 +145,14 @@ local function createCoinReward(totalGold, gold, position, isCoins)
     })
     transitionReferences[#transitionReferences + 1] = transition.to(image, {
       time = transitionTime,
-      y = targetY,
+      y = finalTargetY,
       transition = easingFuncY,
       onComplete = removeCoin,
       onCancel = removeCoin
     })
     transitionReferences[#transitionReferences + 1] = transition.to(image, {
       time = transitionTime,
-      x = targetX,
+      x = finalTargetX,
       transition = easingFuncX
     })
   end

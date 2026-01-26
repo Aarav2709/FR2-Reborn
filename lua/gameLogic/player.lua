@@ -31,14 +31,22 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   powerUpImages.markPlayerImage = display.newImageRect("images/game/markIcon.png", 37, 34)
   powerUpImages.markBarImage = display.newImageRect("images/game/markIcon.png", 24, 22)
   local speeds = {}
-  speeds.defaultTopSpeed =450
+  speeds.defaultTopSpeed = 450
   speeds.defaultAcceleration = 40
   speeds.topSpeedX = 400
   speeds.accelerateX = 35
   speeds.tempSpeedX = 400
-  speeds.boostMaks = speeds.topSpeedX * 2.5
-  speeds.boostMaksSlide = speeds.topSpeedX * 2
-  speeds.slowMaks = speeds.topSpeedX * 0.5
+  speeds.boostMultiplier = 1.8          -- Velocity multiplier for boost pads
+  speeds.boostSlideMultiplier = 1.5     -- Velocity multiplier for slide boost pads
+  speeds.boostCapMultiplier = 2.5       -- Max speed cap multiplier for boost
+  speeds.boostSlideCapMultiplier = 2.0  -- Max speed cap multiplier for slide boost
+  speeds.slowMultiplier = 0.5           -- Velocity multiplier for slow pads
+  speeds.linearDamping = 0.015          -- Gradual slowdown rate after boosting (per frame)
+  speeds.boostDampingThreshold = 1.2    -- Start damping when above this multiplier of topSpeed
+  -- Calculated caps
+  speeds.boostMaks = speeds.topSpeedX * speeds.boostCapMultiplier
+  speeds.boostMaksSlide = speeds.topSpeedX * speeds.boostSlideCapMultiplier
+  speeds.slowMaks = speeds.topSpeedX * speeds.slowMultiplier
   local gameTimes = {}
   gameTimes.groundTime = 0
   gameTimes.playerDeadtime = 3000
@@ -189,6 +197,9 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       speeds.topSpeedX = speeds.defaultTopSpeed
       speeds.tempSpeedX = speeds.topSpeedX
       speeds.accelerateX = speeds.defaultAcceleration
+      speeds.boostMaks = speeds.topSpeedX * speeds.boostCapMultiplier
+      speeds.boostMaksSlide = speeds.topSpeedX * speeds.boostSlideCapMultiplier
+      speeds.slowMaks = speeds.topSpeedX * speeds.slowMultiplier
       monster.cleanBuffAnimationImages()
     end
   end
@@ -539,7 +550,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
                 if vx < speeds.defaultTopSpeed then
                   vx = speeds.defaultTopSpeed
                 end
-                vx = vx * 1.8
+                vx = vx * speeds.boostMultiplier
               end
               if vx > speeds.boostMaks then
                 vx = speeds.boostMaks
@@ -555,7 +566,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
               if vx < 0 then
                 vx = vx * 0.7
               else
-                vx = vx * 1.5
+                vx = vx * speeds.boostSlideMultiplier
               end
               if vx > speeds.boostMaksSlide then
                 vx = speeds.boostMaksSlide
@@ -568,7 +579,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
             changeSpeedState = 1
             local vx, vy = player:getLinearVelocity()
             if vx > speeds.slowMaks then
-              vx = vx * 0.5
+              vx = vx * speeds.slowMultiplier
               if vx < speeds.slowMaks then
                 vx = speeds.slowMaks
               end
@@ -700,6 +711,15 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
         else
           vx = vx + acceleration * 0.4
         end
+        local dampingThreshold = speeds.topSpeedX * speeds.boostDampingThreshold
+        if vx > dampingThreshold then
+          local dampingAmount = (vx - dampingThreshold) * speeds.linearDamping * multiplier
+          vx = vx - dampingAmount
+          -- Ensure we don't overshoot below the threshold
+          if vx < dampingThreshold then
+            vx = dampingThreshold
+          end
+        end
         if vx > speeds.topSpeedX and vy <= 20 then
           if vx - speeds.topSpeedX < acceleration * 1.5 then
             vx = speeds.topSpeedX
@@ -751,6 +771,8 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     elseif composer.onboarding.physicsPaused then
       return false
     elseif booleanStates.playerDead then
+      return false
+    elseif gameTimes.goalTime > 0 then
       return false
     elseif booleanStates.rocketActive then
       if booleanStates.rocketActiveHigh then
@@ -933,6 +955,9 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     disablePreviousPowerUp()
     speeds.topSpeedX = speeds.topSpeedX * 1.5
     speeds.accelerateX = speeds.accelerateX * 1.5
+    speeds.boostMaks = speeds.topSpeedX * speeds.boostCapMultiplier
+    speeds.boostMaksSlide = speeds.topSpeedX * speeds.boostSlideCapMultiplier
+    speeds.slowMaks = speeds.topSpeedX * speeds.slowMultiplier
     applyForceOnPlayer(300, 0)
     -- Safe animation playback
     pcall(function()

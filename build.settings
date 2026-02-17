@@ -14,32 +14,8 @@ settings = {
         }
     },
 
-    plugins = {
-        ["plugin.notifications"] = {
-            publisherId = "com.solar2d",
-            supportedPlatforms = { iphone = true, android = true }
-        },
-        ["plugin.chartboost"] = {
-            publisherId = "com.solar2d",
-            supportedPlatforms = { iphone = true, android = true }
-        },
-        ["plugin.adrally"] = {
-            publisherId = "com.solar2d",
-            supportedPlatforms = { iphone = true, android = true }
-        },
-        ["plugin.amazon.iap"] = {
-            publisherId = "com.solar2d",
-            supportedPlatforms = { android = true }
-        },
-        ["plugin.google.iap.v3"] = {
-            publisherId = "com.solar2d",
-            supportedPlatforms = { android = true }
-        },
-        ["plugin.advertisingId"] = {
-            publisherId = "com.solar2d",
-            supportedPlatforms = { android = true }
-        }
-    },
+    -- Offline-only project: no monetization, no ads, no IAP, no analytics
+    plugins = {},
 
     iphone = {
         plist = {
@@ -50,7 +26,7 @@ settings = {
 
     android = {
         usesPermissions = {
-            "android.permission.INTERNET"
+            -- INTERNET permission removed (offline-only)
         }
     }
 }

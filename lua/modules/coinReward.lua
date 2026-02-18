@@ -37,6 +37,10 @@ local function createCoinReward(totalGold, gold, position, isCoins, targetX, tar
   local startedClean = false
   local transitionReferences = {}
 
+  local function isRewardGroupAlive()
+    return coinRewardGroup and coinRewardGroup.insert ~= nil
+  end
+
   local function getSignText(number)
     local signString
     if 0 <= number then
@@ -52,6 +56,10 @@ local function createCoinReward(totalGold, gold, position, isCoins, targetX, tar
 
   local function spawnSparkle(x, y, startScale)
     if startedClean then
+      return
+    end
+    if not isRewardGroupAlive() then
+      startedClean = true
       return
     end
     local sparkle = display.newImageRect("images/gui/common/shine.png", 39.5, 39)
@@ -85,6 +93,10 @@ local function createCoinReward(totalGold, gold, position, isCoins, targetX, tar
 
   local function coinTickEffect()
     if startedClean then
+      return
+    end
+    if not isRewardGroupAlive() then
+      startedClean = true
       return
     end
     local image
@@ -134,6 +146,13 @@ local function createCoinReward(totalGold, gold, position, isCoins, targetX, tar
     local easingFuncX = easing.outInCubic
     if randomXAdd < 0 then
       easingFuncX = easing.inOutCubic
+    end
+    if not isRewardGroupAlive() then
+      startedClean = true
+      if image and image.removeSelf then
+        image:removeSelf()
+      end
+      return
     end
     coinRewardGroup:insert(image)
     spawnSparkle(image.x, image.y, 1)

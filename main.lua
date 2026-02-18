@@ -4,7 +4,6 @@ isAndroid = "Android" == system.getInfo("platformName")
 isSimulator = "simulator" == system.getInfo("environment")
 local font = "Brady Bunch Remastered"
 if isAndroid then
-    font = "BradyBunchRemastered"
     native.setProperty("androidSystemUiVisibility", "immersiveSticky")
 end
 localPlayerCollisionFilter = { categoryBits = 1, maskBits = 10 }

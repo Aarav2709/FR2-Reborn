@@ -1,8 +1,5 @@
 local composer = require("composer")
 local font = "Brady Bunch Remastered"
-if isAndroid then
-  font = "BradyBunchRemastered"
-end
 
 local function createAdvancedText(params)
   local text = params.string

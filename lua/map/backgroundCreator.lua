@@ -122,14 +122,20 @@ end
 
 local function createBackgroundProp(layerId, props, x, y)
   local offsets = landmarkOffsets[props]
-  local image = display.newImageRect("images/map/" .. theme .. "/background/" .. props .. ".png", offsets.width, offsets.height)
+  local imagePath = "images/map/" .. theme .. "/background/" .. props .. ".png"
+  local image
+  if offsets and offsets.width and offsets.height then
+    image = display.newImageRect(imagePath, offsets.width, offsets.height)
+  else
+    image = display.newImage(imagePath)
+  end
   if not image then
     return
   end
   image.anchorX = 0
   image.anchorY = 0
-  image.x = x * 0.5 + offsets.x
-  image.y = y * 0.5 + offsets.y
+  image.x = x * 0.5 + ((offsets and offsets.x) or 0)
+  image.y = y * 0.5 + ((offsets and offsets.y) or 0)
   layers[layerId]:insert(image)
 end
 

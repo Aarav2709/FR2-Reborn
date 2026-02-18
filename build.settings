@@ -1,4 +1,11 @@
 settings = {
+    excludeFiles = {
+        all = {
+            "Decompiled/*",
+            "FR2-ORIGINAL/*"
+        }
+    },
+
     orientation = {
         default = "landscapeRight",
         supported = { "landscapeRight", "landscapeLeft" }

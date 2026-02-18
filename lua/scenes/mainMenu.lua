@@ -49,16 +49,12 @@ function scene:create(event)
   end
 
   local function btnCustomizeRelease(event)
-    if composer.comm.isOnline() then
-      composer.analytics.newEvent("design", {
-        event_id = "marketButton:mainMenu",
-        value = composer.database.getMoney(),
-        area = "mainMenu"
-      })
-      composer.gotoScene("lua.scenes.marketplace")
-    else
-      composer.createCustomOverlay(1)
-    end
+    composer.analytics.newEvent("design", {
+      event_id = "marketButton:mainMenu",
+      value = composer.database.getMoney(),
+      area = "mainMenu"
+    })
+    composer.gotoScene("lua.scenes.marketplace")
   end
 
   local function btnEarnCoinsRelease(event)
@@ -444,16 +440,12 @@ function scene:show(event)
   end
 
   local function goToMarket()
-    if composer.comm.isOnline() then
-      composer.analytics.newEvent("design", {
-        event_id = "marketButton:mainMenu",
-        value = composer.database.getMoney(),
-        area = "mainMenu"
-      })
-      composer.gotoScene("lua.scenes.marketplace")
-    else
-      composer.createCustomOverlay(1)
-    end
+    composer.analytics.newEvent("design", {
+      event_id = "marketButton:mainMenu",
+      value = composer.database.getMoney(),
+      area = "mainMenu"
+    })
+    composer.gotoScene("lua.scenes.marketplace")
   end
 
   local saleBackground, saleItem, infoText, timeLeftText

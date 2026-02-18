@@ -468,19 +468,15 @@ function scene:create(event)
 
     local function marketButtonRelease()
         composer.tcpClient.stopTCPClient()
-        if composer.comm.isOnline() then
-            if composer.data.gameInfo.stats then
-                composer.analytics.newEvent("design", {
-                    event_id = "marketButton:postLobby",
-                    value = composer.data.gameInfo.stats.h,
-                    area = "postLobby"
-                })
-            end
-            composer.gotoScene("lua.scenes.marketplace")
-            composer.removeScene("lua.scenes.postLobby")
-        else
-            composer.createCustomOverlay(1)
+        if composer.data.gameInfo.stats then
+            composer.analytics.newEvent("design", {
+                event_id = "marketButton:postLobby",
+                value = composer.data.gameInfo.stats.h,
+                area = "postLobby"
+            })
         end
+        composer.gotoScene("lua.scenes.marketplace")
+        composer.removeScene("lua.scenes.postLobby")
     end
 
     local returnToMenuButton = composer.newButton({

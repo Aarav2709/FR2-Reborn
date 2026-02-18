@@ -59,31 +59,31 @@ function scene:create(event)
     }
   })
   UIgroup:insert(positionNumber)
-  jumpButton = display.newImageRect("images/transparent.png", 150, 150)
+  jumpButton = display.newImageRect("images/transparent.png", 190, 190)
   jumpButton.x = display.contentWidth - jumpButton.width * 0.5
   jumpButton.y = display.contentHeight - jumpButton.height * 0.5
   jumpButtonGroup:insert(jumpButton)
-  jumpButtonImage = display.newImageRect("images/game/buttonJump.png", 68, 63)
+  jumpButtonImage = display.newImageRect("images/game/buttonJump.png", 82, 76)
   jumpButtonImage.x = display.contentWidth - jumpButtonImage.width * 0.5
   jumpButtonImage.y = display.contentHeight - jumpButtonImage.height * 0.5
   jumpButtonGroup:insert(jumpButtonImage)
-  powerUpButton = display.newImageRect("images/transparent.png", 150, 150)
+  powerUpButton = display.newImageRect("images/transparent.png", 190, 190)
   powerUpButton.x = powerUpButton.width * 0.5
   powerUpButton.y = display.contentHeight - powerUpButton.height * 0.5
   powerUpButtonGroup:insert(powerUpButton)
-  powerupButtonImage = display.newImageRect("images/game/buttonPowerup.png", 68, 63)
+  powerupButtonImage = display.newImageRect("images/game/buttonPowerup.png", 82, 76)
   powerupButtonImage.x = powerupButtonImage.width * 0.5
   powerupButtonImage.y = display.contentHeight - powerupButtonImage.height * 0.5
   powerUpButtonGroup:insert(powerupButtonImage)
   powerUpButtonFX = display.newSprite(composer.powerUpFXImageSheet, composer.data.animations.puButtonEffect)
-  powerUpButtonFX.xScale = 0.5
-  powerUpButtonFX.yScale = 0.5
+  powerUpButtonFX.xScale = 0.6
+  powerUpButtonFX.yScale = 0.6
   powerUpButtonFX.x = powerupButtonImage.x - 5
   powerUpButtonFX.y = powerupButtonImage.y + 3
   powerUpButtonGroup:insert(powerUpButtonFX)
   shineEffect = display.newSprite(composer.powerUpFXImageSheet, composer.data.animations.shineEffect)
-  shineEffect.xScale = 0.5
-  shineEffect.yScale = 0.5
+  shineEffect.xScale = 0.6
+  shineEffect.yScale = 0.6
   shineEffect.x = powerupButtonImage.x - 5
   shineEffect.y = powerupButtonImage.y + 3
   shineEffect.alpha = 0
@@ -197,6 +197,7 @@ function scene:show(event)
   local bottomBarList = {}
   local bottomBarLength = 80
   local bottomBarLength2 = 300
+  local bottomBarOffsetX = 10
   local playerList = {}
   local killTextMessages = {}
   local playerSelf, quitAlert, disconnectAlert, sendTimer, playerTimer, localCountdownTimer, puImageShufflerTimer, playerStartedTimer, antiStuckTimer, antiStuckCounter, botStuckTimer, startTimer, send, powerUpImage
@@ -368,7 +369,7 @@ function scene:show(event)
   end
 
   local function updateBottomBar(index)
-    bottomBarList[index].x = playerList[index].x / (mapInterface.getLength() - 10) * bottomBarLength2 + bottomBarLength
+    bottomBarList[index].x = playerList[index].x / (mapInterface.getLength() - 10) * bottomBarLength2 + bottomBarLength + bottomBarOffsetX
   end
 
   local function updatePositionNumber(position)
@@ -1319,7 +1320,7 @@ function scene:show(event)
     end
     for i = 1, #playerList do
       bottomBarList[i] = playerList[i].getPlayerHead()
-      bottomBarList[i].x = playerList[i].x / (mapInterface.getLength() - 10) * bottomBarLength2 + bottomBarLength
+      bottomBarList[i].x = playerList[i].x / (mapInterface.getLength() - 10) * bottomBarLength2 + bottomBarLength + bottomBarOffsetX
       bottomBarList[i].y = display.contentHeight
       UIgroup:insert(bottomBarList[i])
     end

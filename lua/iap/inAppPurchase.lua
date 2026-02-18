@@ -43,7 +43,7 @@ local function buyThis(itemTier, itemId)
   print("")
   print("buyThis storeType ", storeType)
   print("productId ", productId)
-  if storeType == 0 then
+  if storeType == 0 or not store then
     if inAppCallback then
       inAppCallback(composer.localized.get("Store not available"), true)
     end
@@ -52,6 +52,9 @@ local function buyThis(itemTier, itemId)
       inAppCallback(composer.localized.get("Store not available"), true)
     end
   elseif store.canMakePurchases == false then
+    if inAppCallback then
+      inAppCallback(composer.localized.get("Store not available"), true)
+    end
   elseif productId then
     composer.data.iapCallActive = true
     currentItemId = itemId
@@ -121,8 +124,8 @@ local function loadSpecificProduct(key)
   local productKey = keyPrefix .. key
   if validProductsOnKeys[productKey] then
     return 2
-  elseif isSimulator or store.isActive then
-    if not isSimulator and store.canLoadProducts then
+  elseif isSimulator or (store and store.isActive) then
+    if not isSimulator and store and store.canLoadProducts then
       composer.debugger.debugPrint("iap", "canLoadProducts")
       store.loadProducts({productKey}, loadProductsCallback)
       return 1
@@ -137,8 +140,8 @@ end
 
 local function loadProducts()
   composer.debugger.debugPrint("iap", "loadProducts")
-  if isSimulator or store.isActive then
-    if not isSimulator and store.canLoadProducts then
+  if isSimulator or (store and store.isActive) then
+    if not isSimulator and store and store.canLoadProducts then
       composer.debugger.debugPrint("iap", "canLoadProducts")
       store.loadProducts(preloadProductList, loadProductsCallback)
     else
@@ -218,7 +221,9 @@ local function initInAppPurchase()
     if inAppCallback then
       inAppCallback(infoString, failed)
     end
-    store.finishTransaction(event.transaction)
+    if store and store.finishTransaction then
+      store.finishTransaction(event.transaction)
+    end
   end
 
   store = require("store")

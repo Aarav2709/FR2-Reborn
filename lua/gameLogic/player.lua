@@ -985,11 +985,11 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     playSound("magnet_hit")
     local dirRight
     if playerList[playerId].x < playerList[killer].x then
-      applyForceOnPlayer(100, 0)
+      applyForceOnPlayer(150, 0)
       dirRight = false
     else
       setLinearVelocityOnPlayer(0, 0)
-      applyForceOnPlayer(-400, 0)
+      applyForceOnPlayer(-500, 0)
       dirRight = true
     end
     playerEffects.playMagnetEffect(dirRight)

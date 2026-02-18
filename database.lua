@@ -26,6 +26,8 @@ local path = system.pathForFile("data.sqlite3", system.DocumentsDirectory)
 ---@type sqlite3_db|nil
 local db
 local M = {}
+local STARTING_COINS = 1000000
+local STARTING_GEMS = 1500
 
 local function setupTables()
     db = sqlite3.open(path)
@@ -499,8 +501,8 @@ local function loadEconomyFromDb()
     end
     db:close()
     db = nil
-    composer.databaseData.money = coins or composer.databaseData.money or 0
-    composer.databaseData.gems = gems or composer.databaseData.gems or 0
+    composer.databaseData.money = coins or composer.databaseData.money or STARTING_COINS
+    composer.databaseData.gems = gems or composer.databaseData.gems or STARTING_GEMS
     composer.databaseData.xp = xp or composer.databaseData.xp or 0
     composer.databaseData.rating = rating or composer.databaseData.rating or 0
     composer.databaseData.economyLoaded = true
@@ -1284,8 +1286,8 @@ function M.createDefaultOfflinePlayer()
         print("OFFLINE MODE: Creating default player...")
         M.setPlayerInformation("Player#1234", 1234, "OFFLINE_PLAYER_" .. os.time(), "offline_token_123")
         M.setAvatarData({ 1, 0, 0, 0, 0, 0, 0 }, false) -- Default avatar c1s0
-        M.setMoney(1000)                                -- Starting money
-        M.setGems(0)
+        M.setMoney(STARTING_COINS)                      -- Starting money
+        M.setGems(STARTING_GEMS)
         M.setXp(0)
         M.setRating(0)   -- Starting rating
         M.setSound(1)    -- Sound enabled

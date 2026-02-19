@@ -809,9 +809,9 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     gameTimes.lastJumpTime = system.getTimer()
     changeSpeedState = 1
     local vx, vy = player:getLinearVelocity()
-    local jumpForce = -350 -- Stronger jump (was -200)
+    local jumpForce = -420
     if booleanStates.rocketActive then
-      jumpForce = -300     -- Stronger in rocket mode (was -200)
+      jumpForce = -360
       if vy < -300 then
         jumpForce = -10
       end
@@ -985,7 +985,8 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     playSound("magnet_hit")
     local dirRight
     if playerList[playerId].x < playerList[killer].x then
-      applyForceOnPlayer(150, 0)
+      setLinearVelocityOnPlayer(0, 0)
+      applyForceOnPlayer(500, 0)
       dirRight = false
     else
       setLinearVelocityOnPlayer(0, 0)

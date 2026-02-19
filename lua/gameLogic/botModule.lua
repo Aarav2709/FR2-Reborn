@@ -29,9 +29,9 @@ local function new(player)
 
   local function jump(wall)
     if botPlayer.canJump() then
-      if botPlayer.y > prevY - 20 then
+      if botPlayer.y > prevY - 8 then
         roofDontJump = true
-        timer.performWithDelay(1800, jumpAgain, 1)
+        timer.performWithDelay(500, jumpAgain, 1)
       else
         botPlayer.jump()
         if wall then
@@ -138,7 +138,7 @@ local function new(player)
       noJumpTimer = 0
       gameState = 0
       counter = 0
-      botTimer = timer.performWithDelay(200, updateBot, 0)
+      botTimer = timer.performWithDelay(120, updateBot, 0)
     end
   end
 

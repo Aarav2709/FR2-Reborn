@@ -5,6 +5,7 @@ local function new(id, playerId, playerList)
   local cloud = {1}
   cloud.x = 1
   cloud.y = 1
+  local hitRange = display.contentWidth
 
   local function createLightning()
     for i = 1, #playerList do
@@ -14,10 +15,10 @@ local function new(id, playerId, playerList)
           return
         end
         if playerList[i].mainPlayer and playerList[i].x then
-          if playerList[i].x + 480 > playerList[id].x then
+          if playerList[i].x + hitRange > playerList[id].x then
             playerList[i].onCollisionPowerUp(id, 3)
           end
-        elseif composer.data.gameInfo.gameType == 0 and playerList[i].x + 480 > playerList[id].x and playerList[i].x then
+        elseif composer.data.gameInfo.gameType == 0 and playerList[i].x + hitRange > playerList[id].x and playerList[i].x then
           playerList[i].onCollisionPowerUp(id, 3)
         end
       end

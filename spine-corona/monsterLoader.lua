@@ -135,7 +135,7 @@ local function new(monsterData, networkFormat)
     function skeleton:createImage(attachment)
       composer.debugger.profile("CreateImage")
 
-      local attachmentName = attachment.path or attachment.name
+      local attachmentName = attachment.name or attachment.path
       local prepath, restOfPath = isCustomMonsterImage(attachmentName)
 
       -- Determine if this is a character body part (starts with cXsY/)
@@ -214,7 +214,7 @@ local function new(monsterData, networkFormat)
     function skeleton:modifyImage(image, attachment)
       if image and image.setFrame then
         composer.debugger.profile("ModifyImage")
-        local attachmentName = attachment.path or attachment.name
+        local attachmentName = attachment.name or attachment.path
         local prepath, restOfPath = isCustomMonsterImage(attachmentName)
 
         -- If isCustomMonsterImage failed, try regex for character paths

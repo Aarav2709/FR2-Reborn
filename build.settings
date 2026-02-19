@@ -3,22 +3,24 @@ settings = {
         all = {
             "Decompiled/*",
             "FR2-ORIGINAL/*"
+        },
+        osx = {
+            "*"
+        },
+        win32 = {
+            "*"
+        },
+        linux = {
+            "*"
+        },
+        html5 = {
+            "*"
         }
     },
 
     orientation = {
         default = "landscapeRight",
         supported = { "landscapeRight", "landscapeLeft" }
-    },
-
-    window = {
-        defaultMode = "fullscreen",
-        defaultViewWidth = 1920,
-        defaultViewHeight = 1080,
-        resizable = true,
-        titleText = {
-            default = "Fun Run 2 - Offline"
-        }
     },
 
     -- Offline-only project: no monetization, no ads, no IAP, no analytics

@@ -12,29 +12,36 @@ local function new(monsterData, networkFormat)
   local blinkState = 1
   local paused = false
 
+  local function splitFirstSegment(value)
+    if not value then
+      return nil, nil
+    end
+    local firstStart, firstEnd = string.find(value, "[%w_]+/")
+    if firstStart and firstStart == 1 then
+      local prefix = string.sub(value, firstStart, firstEnd - 1)
+      local rest = string.sub(value, firstEnd + 1)
+      return prefix, rest
+    end
+    return nil, value
+  end
+
   local function isCustomMonsterImage(attachment)
-    -- Parse attachment name, e.g. "c1s0/misc/eyes_normal"
-    local i, j = string.find(attachment, path .. "/")
-
-    if i == 1 then
-      -- Strip the path prefix
-      local restOfPath = string.sub(attachment, j + 1, string.len(attachment))
-
-      -- Check for powerups
-      local powerupCheck = string.find(restOfPath, "powerups/")
-      if powerupCheck == 1 then
-        return "powerups", string.sub(restOfPath, 10) -- Strip "powerups/"
+    local firstSegment, rest = splitFirstSegment(attachment)
+    if firstSegment == path then
+      if rest and string.find(rest, "powerups/") == 1 then
+        return "powerups", string.sub(rest, 10)
       end
-
-      return nil, restOfPath
+      return nil, rest
     end
-
-    -- Direct powerups check
-    local k, l = string.find(attachment, "powerups/")
-    if k == 1 then
-      return "powerups", string.sub(attachment, l + 1)
+    if firstSegment == "powerups" then
+      return "powerups", rest
     end
-
+    if firstSegment == "neck" then
+      return "neck", rest
+    end
+    if string.find(attachment, "powerups/") == 1 then
+      return "powerups", string.sub(attachment, 10)
+    end
     return false
   end
 
@@ -59,6 +66,22 @@ local function new(monsterData, networkFormat)
       segments[#segments + 1] = part
     end
     return segments
+  end
+
+  local function splitPrefixAndFrame(pathValue)
+    if not pathValue then
+      return nil, nil
+    end
+    local i, j = string.find(pathValue, "[%w_]+/[%w_]+/")
+    if not i or not j then
+      i, j = string.find(pathValue, "[%w_]+/")
+    end
+    if not i or not j then
+      return pathValue, nil
+    end
+    local prefix = string.sub(pathValue, i, j - 1)
+    local rest = string.sub(pathValue, j + 1)
+    return prefix, rest
   end
 
   local function getPowerupFrameCandidates(restOfPath)
@@ -143,11 +166,11 @@ local function new(monsterData, networkFormat)
                 end
 
       elseif prepath == "powerups" and restOfPath then
-        local candidates = getPowerupFrameCandidates(restOfPath)
+        local powerupPrefix, frameKey = splitPrefixAndFrame(restOfPath)
         local imagePath
 
-        if effectImageSheetSpeedInfo and effectImageSheetSpeed and effectsSpeedSequence then
-          imagePath = findFrameInSheet(effectImageSheetSpeedInfo, candidates)
+        if powerupPrefix == "speed" and effectImageSheetSpeedInfo and effectImageSheetSpeed and effectsSpeedSequence and frameKey then
+          imagePath = effectImageSheetSpeedInfo:getFrameIndex(frameKey)
           if imagePath then
             image = display.newSprite(effectImageSheetSpeed, effectsSpeedSequence)
             image:setFrame(imagePath)
@@ -155,7 +178,12 @@ local function new(monsterData, networkFormat)
         end
 
         if not image and effectImageSheetInfo and effectImageSheet and effectsSequence then
-          imagePath = findFrameInSheet(effectImageSheetInfo, candidates)
+          if frameKey then
+            imagePath = effectImageSheetInfo:getFrameIndex(frameKey)
+          else
+            local candidates = getPowerupFrameCandidates(restOfPath)
+            imagePath = findFrameInSheet(effectImageSheetInfo, candidates)
+          end
           if imagePath then
             image = display.newSprite(effectImageSheet, effectsSequence)
             image:setFrame(imagePath)
@@ -165,10 +193,17 @@ local function new(monsterData, networkFormat)
 
       -- Case 3: Not in any imagesheet (accessories, hats, etc.) - load PNG directly
       if not image and prepath ~= "powerups" then
-        local pngPath = "images/monsters/" .. attachmentName .. ".png"
-        image = display.newImage(pngPath)
-        if not image then
-          print("WARNING: Failed to load PNG: " .. pngPath)
+        local allowFallback = true
+        local segment, _ = splitFirstSegment(attachmentName)
+        if segment and string.match(segment, "^c%d+s%d+$") then
+          allowFallback = false
+        end
+        if allowFallback then
+          local pngPath = "images/monsters/" .. attachmentName .. ".png"
+          image = display.newImage(pngPath)
+          if not image then
+            print("WARNING: Failed to load PNG: " .. pngPath)
+          end
         end
       end
 
@@ -180,15 +215,34 @@ local function new(monsterData, networkFormat)
       if image and image.setFrame then
         composer.debugger.profile("ModifyImage")
         local attachmentName = attachment.path or attachment.name
-        local _, restOfPath = isCustomMonsterImage(attachmentName)
+        local prepath, restOfPath = isCustomMonsterImage(attachmentName)
 
         -- If isCustomMonsterImage failed, try regex for character paths
         if not restOfPath and attachmentName:match("^c%d+s%d+/") then
           restOfPath = attachmentName:gsub("^c%d+s%d+/", "")
         end
 
-        -- Only try frame lookup for character parts
-        if restOfPath and imageSheetInfo then
+        if prepath == "powerups" and restOfPath then
+          local powerupPrefix, frameKey = splitPrefixAndFrame(restOfPath)
+          local imagePath
+          if powerupPrefix == "speed" and effectImageSheetSpeedInfo and frameKey then
+            imagePath = effectImageSheetSpeedInfo:getFrameIndex(frameKey)
+          elseif effectImageSheetInfo then
+            if frameKey then
+              imagePath = effectImageSheetInfo:getFrameIndex(frameKey)
+            else
+              local candidates = getPowerupFrameCandidates(restOfPath)
+              imagePath = findFrameInSheet(effectImageSheetInfo, candidates)
+            end
+          end
+          if imagePath then
+            image:setFrame(imagePath)
+            composer.debugger.profile("ModifyImage")
+            return true
+          end
+        end
+
+        if restOfPath and prepath ~= "powerups" and imageSheetInfo then
           local imagePath = imageSheetInfo:getFrameIndex(restOfPath)
           if imagePath then
             image:setFrame(imagePath)
@@ -631,11 +685,14 @@ local function new(monsterData, networkFormat)
     monster.cleanUseAnimationImages()
     if newAnimation then
       local resolvedAnimation = resolveAnimationName(newAnimation)
-      if not resolvedAnimation then
+      local animationToPlay = resolvedAnimation or newAnimation
+      local ok = pcall(function()
+        animationHandler:setAnimationByName(2, animationToPlay, false)
+      end)
+      if not ok then
         print("WARNING: Use animation '" .. newAnimation .. "' not found, skipping...")
         return
       end
-      animationHandler:setAnimationByName(2, resolvedAnimation, false)
     end
   end
 
@@ -657,25 +714,28 @@ local function new(monsterData, networkFormat)
     monster.cleanBuffAnimationImages()
     if newAnimation then
       local resolvedAnimation = resolveAnimationName(newAnimation)
-      if not resolvedAnimation then
+      local animationToPlay = resolvedAnimation or newAnimation
+      local ok = pcall(function()
+        animationHandler:setAnimationByName(1, animationToPlay, loop)
+      end)
+      if not ok then
         print("WARNING: Animation '" .. newAnimation .. "' not found, skipping...")
         return
       end
-      animationHandler:setAnimationByName(1, resolvedAnimation, loop)
       if newAnimation == "speed_start" then
-        local speedActiveAnimation = getResolvedFollowupAnimation("speed_active", resolvedAnimation)
+        local speedActiveAnimation = getResolvedFollowupAnimation("speed_active", resolvedAnimation or animationToPlay)
         if speedActiveAnimation then
           animationHandler:addAnimationByName(1, speedActiveAnimation, true)
         end
       elseif newAnimation == "speed_end" then
         animationHandler:addAnimationByName(0, "run", true)
       elseif newAnimation == "sacrifice_start" then
-        local sacrificeActiveAnimation = getResolvedFollowupAnimation("sacrifice_active", resolvedAnimation)
+        local sacrificeActiveAnimation = getResolvedFollowupAnimation("sacrifice_active", resolvedAnimation or animationToPlay)
         if sacrificeActiveAnimation then
           animationHandler:addAnimationByName(1, sacrificeActiveAnimation, true)
         end
       elseif newAnimation == "rocket_start" then
-        local rocketActiveAnimation = getResolvedFollowupAnimation("rocket_active", resolvedAnimation)
+        local rocketActiveAnimation = getResolvedFollowupAnimation("rocket_active", resolvedAnimation or animationToPlay)
         if rocketActiveAnimation then
           animationHandler:addAnimationByName(1, rocketActiveAnimation, true)
         end

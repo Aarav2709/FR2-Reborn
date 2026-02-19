@@ -108,6 +108,7 @@ local function createImage(layerId)
     if theme == "space" then
       yOffset = -10
     end
+    dimY = math.max(dimY, visibleHeight - yOffset)
   elseif layerId == 3 then
     if theme == "space" then
       dimX = math.max(680, visibleWidth)
@@ -117,6 +118,7 @@ local function createImage(layerId)
       dimY = 236
       yOffset = 110
     end
+    dimY = math.max(dimY, visibleHeight - yOffset)
   else
     dimX = math.max(480, visibleWidth)
     dimY = math.max(320, visibleHeight)

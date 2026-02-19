@@ -84,6 +84,8 @@ local function loadMapData(id)
   goalY = properties.goalY
   mapName = properties.name
   theme = properties.theme
+  composer.data = composer.data or {}
+  composer.data.currentLevelTheme = theme
   height = mapJson.height
   width = mapJson.width
 end

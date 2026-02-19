@@ -1,152 +1,286 @@
-local M = {}
-local composer = require("composer")
+--------------------------------------- 
+local L0_1, L1_1, L2_1
+L0_1 = {}
+L1_1 = require
+L2_1 = "composer"
+L1_1 = L1_1(L2_1)
 
-function M.init(theme)
-  local animatedBlockSheetFile = require("lua.map.assets." .. theme .. ".animatedTiles")
-  local blockmap = {}
-  blockmap.blocks = {
-    {
-      animation = {
-        sequenceData = {
-          name = "idleAnimation",
-          frames = {
-            animatedBlockSheetFile:getFrameIndex("powerupBox0"),
-            animatedBlockSheetFile:getFrameIndex("powerupBox1"),
-            animatedBlockSheetFile:getFrameIndex("powerupBox2"),
-            animatedBlockSheetFile:getFrameIndex("powerupBox3"),
-            animatedBlockSheetFile:getFrameIndex("powerupBox4"),
-            animatedBlockSheetFile:getFrameIndex("powerupBox0")
-          },
-          time = 300,
-          loopCount = 1,
-          loopDirection = "forward"
-        }
-      },
-      properties = {powerUp = true, idleAnimationInterval = 1000},
-      behavior = {
-        "lua.map.behaviors.idleAnimation"
-      }
-    },
-    {
-      behavior = {
-        "lua.map.behaviors.mushroomBehavior"
-      }
-    },
-    {
-      properties = {boost = true},
-      behavior = {
-        "lua.map.behaviors.speedBehavior"
-      }
-    }
-  }
-  blockmap.frames = {
-    normal001 = 1,
-    normal068 = 2,
-    normal069 = 2,
-    normal070 = 2,
-    normal089 = 3,
-    normal090 = 3
-  }
-  local specialThemeDefinitions = require("lua.map.assets." .. theme .. ".specialPropertyData").init(theme)
-
-  local function addDefinitions(definitions)
-    local startLength = #blockmap.blocks
-    local framesToAdd = definitions.frames
-    local blocksToAdd = definitions.blocks
-    for key, value in pairs(blocksToAdd) do
-      blockmap.blocks[startLength + key] = value
+function L2_1(A0_2)
+  local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2
+  L1_2 = require
+  L2_2 = "lua.map.assets."
+  L3_2 = A0_2
+  L4_2 = ".animatedTiles"
+  L2_2 = L2_2 .. L3_2 .. L4_2
+  L1_2 = L1_2(L2_2)
+  L2_2 = {}
+  L3_2 = {}
+  L4_2 = {}
+  L5_2 = {}
+  L6_2 = {}
+  L6_2.name = "idleAnimation"
+  L7_2 = {}
+  L9_2 = L1_2
+  L8_2 = L1_2.getFrameIndex
+  L10_2 = "powerupBox0"
+  L8_2 = L8_2(L9_2, L10_2)
+  L10_2 = L1_2
+  L9_2 = L1_2.getFrameIndex
+  L11_2 = "powerupBox1"
+  L9_2 = L9_2(L10_2, L11_2)
+  L11_2 = L1_2
+  L10_2 = L1_2.getFrameIndex
+  L12_2 = "powerupBox2"
+  L10_2 = L10_2(L11_2, L12_2)
+  L12_2 = L1_2
+  L11_2 = L1_2.getFrameIndex
+  L13_2 = "powerupBox3"
+  L11_2 = L11_2(L12_2, L13_2)
+  L13_2 = L1_2
+  L12_2 = L1_2.getFrameIndex
+  L14_2 = "powerupBox4"
+  L12_2 = L12_2(L13_2, L14_2)
+  L14_2 = L1_2
+  L13_2 = L1_2.getFrameIndex
+  L15_2 = "powerupBox0"
+  L13_2, L14_2, L15_2 = L13_2(L14_2, L15_2)
+  L7_2[1] = L8_2
+  L7_2[2] = L9_2
+  L7_2[3] = L10_2
+  L7_2[4] = L11_2
+  L7_2[5] = L12_2
+  L7_2[6] = L13_2
+  L7_2[7] = L14_2
+  L7_2[8] = L15_2
+  L6_2.frames = L7_2
+  L6_2.time = 300
+  L6_2.loopCount = 1
+  L6_2.loopDirection = "forward"
+  L5_2.sequenceData = L6_2
+  L4_2.animation = L5_2
+  L5_2 = {}
+  L5_2.powerUp = true
+  L5_2.idleAnimationInterval = 1000
+  L4_2.properties = L5_2
+  L5_2 = {}
+  L6_2 = "lua.map.behaviors.idleAnimation"
+  L5_2[1] = L6_2
+  L4_2.behavior = L5_2
+  L5_2 = {}
+  L6_2 = {}
+  L7_2 = "lua.map.behaviors.bounceTileBehavior"
+  L6_2[1] = L7_2
+  L5_2.behavior = L6_2
+  L6_2 = {}
+  L7_2 = {}
+  L7_2.boost = true
+  L6_2.properties = L7_2
+  L7_2 = {}
+  L8_2 = "lua.map.behaviors.speedBehavior"
+  L7_2[1] = L8_2
+  L6_2.behavior = L7_2
+  L3_2[1] = L4_2
+  L3_2[2] = L5_2
+  L3_2[3] = L6_2
+  L2_2.blocks = L3_2
+  L3_2 = {}
+  L3_2.normal001 = 1
+  L3_2.normal068 = 2
+  L3_2.normal069 = 2
+  L3_2.normal070 = 2
+  L3_2.normal089 = 3
+  L3_2.normal090 = 3
+  L2_2.frames = L3_2
+  L3_2 = require
+  L4_2 = "lua.map.assets."
+  L5_2 = A0_2
+  L6_2 = ".specialPropertyData"
+  L4_2 = L4_2 .. L5_2 .. L6_2
+  L3_2 = L3_2(L4_2)
+  L3_2 = L3_2.init
+  L4_2 = A0_2
+  L3_2 = L3_2(L4_2)
+  
+  function L4_2(A0_3)
+    local L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3, L10_3
+    L1_3 = L2_2
+    L1_3 = L1_3.blocks
+    L1_3 = #L1_3
+    L2_3 = A0_3.frames
+    L3_3 = A0_3.blocks
+    L4_3 = pairs
+    L5_3 = L3_3
+    L4_3, L5_3, L6_3 = L4_3(L5_3)
+    for L7_3, L8_3 in L4_3, L5_3, L6_3 do
+      L9_3 = L2_2
+      L9_3 = L9_3.blocks
+      L10_3 = L1_3 + L7_3
+      L9_3[L10_3] = L8_3
     end
-    for key, value in pairs(framesToAdd) do
-      blockmap.frames[key] = value + startLength
+    L4_3 = pairs
+    L5_3 = L2_3
+    L4_3, L5_3, L6_3 = L4_3(L5_3)
+    for L7_3, L8_3 in L4_3, L5_3, L6_3 do
+      L9_3 = L2_2
+      L9_3 = L9_3.frames
+      L10_3 = L8_3 + L1_3
+      L9_3[L7_3] = L10_3
     end
-    composer.debugger.debugTable("main", "blockmap after adding special", blockmap)
+    L4_3 = L1_1
+    L4_3 = L4_3.debugger
+    L4_3 = L4_3.debugTable
+    L5_3 = "main"
+    L6_3 = "blockmap after adding special"
+    L7_3 = L2_2
+    L4_3(L5_3, L6_3, L7_3)
   end
-
-  addDefinitions(specialThemeDefinitions)
-
-  function blockmap.getFrameIndex(blockId)
-    return blockmap.frames[blockId]
+  
+  L5_2 = L4_2
+  L6_2 = L3_2
+  L5_2(L6_2)
+  
+  function L5_2(A0_3)
+    local L1_3
+    L1_3 = L2_2
+    L1_3 = L1_3.frames
+    L1_3 = L1_3[A0_3]
+    return L1_3
   end
-
-  function blockmap.getBlock(blockId)
-    return blockmap.blocks[blockmap.getFrameIndex(blockId)]
+  
+  L2_2.getFrameIndex = L5_2
+  
+  function L5_2(A0_3)
+    local L1_3, L2_3, L3_3
+    L1_3 = L2_2
+    L1_3 = L1_3.blocks
+    L2_3 = L2_2
+    L2_3 = L2_3.getFrameIndex
+    L3_3 = A0_3
+    L2_3 = L2_3(L3_3)
+    L1_3 = L1_3[L2_3]
+    return L1_3
   end
-
-  function blockmap.canTileHaveDecal(blockId)
-    if blockId == "001" then
-      return false
-    elseif blockId == "009" then
-      return false
-    elseif blockId == "011" then
-      return false
-    elseif blockId == "013" then
-      return false
-    elseif blockId == "061" then
-      return false
-    elseif blockId == "062" then
-      return false
-    elseif blockId == "063" then
-      return false
-    elseif blockId == "064" then
-      return false
-    elseif blockId == "065" then
-      return false
-    elseif blockId == "066" then
-      return false
-    elseif blockId == "067" then
-      return false
-    elseif blockId == "068" then
-      return false
-    elseif blockId == "069" then
-      return false
-    elseif blockId == "070" then
-      return false
-    elseif blockId == "088" then
-      return false
-    elseif blockId == "089" then
-      return false
-    elseif blockId == "090" then
-      return false
-    elseif blockId == "096" then
-      return false
-    elseif blockId == "097" then
-      return false
-    elseif blockId == "098" then
-      return false
-    elseif blockId == "099" then
-      return false
-    elseif blockId == "100" then
-      return false
-    elseif blockId == "101" then
-      return false
-    elseif blockId == "102" then
-      return false
-    elseif blockId == "103" then
-      return false
-    elseif blockId == "104" then
-      return false
-    elseif blockId == "105" then
-      return false
-    elseif blockId == "106" then
-      return false
-    elseif blockId == "107" then
-      return false
-    elseif blockId == "108" then
-      return false
-    elseif blockId == "109" then
-      return false
-    elseif blockId == "110" then
-      return false
-    elseif blockId == "111" then
-      return false
-    elseif blockId == "112" then
-      return false
+  
+  L2_2.getBlock = L5_2
+  
+  function L5_2(A0_3)
+    local L1_3
+    if A0_3 == "001" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "009" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "011" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "013" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "061" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "062" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "063" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "064" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "065" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "066" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "067" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "068" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "069" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "070" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "088" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "089" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "090" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "096" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "097" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "098" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "099" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "100" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "101" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "102" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "103" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "104" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "105" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "106" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "107" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "108" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "109" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "110" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "111" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "112" then
+      L1_3 = false
+      return L1_3
+    elseif A0_3 == "113" then
+      L1_3 = false
+      return L1_3
     else
-      return true
+      L1_3 = true
+      return L1_3
     end
   end
-
-  return blockmap
+  
+  L2_2.canTileHaveDecal = L5_2
+  return L2_2
 end
 
-return M
+L0_1.init = L2_1
+return L0_1
+ 
+---------------------------------------

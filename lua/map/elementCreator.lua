@@ -2,12 +2,14 @@ local M = {}
 local physicsData, themeTileset, themeReverseTileset, propsTileset, propsReverseTileset, specialTileset, themeImageSheet, propsImageSheet, animatedBlockSheet, imageSheetFile, propsSheetFile, animatedBlockSheetFile
 local scaleFactor = 0.5
 local physics = require("physics")
+local composer = require("composer")
 local normalPropertyMap
 local propPropertyMap = {
   getBlock = function()
   end
 }
 local startedClean, elements, mapWidth
+local currentTheme
 local xSize = 160 * scaleFactor
 local ySize = 100 * scaleFactor
 
@@ -98,8 +100,15 @@ end
 local function addBehaviorToBlock(block, behaviorData)
   block.behaviors = {}
   for key, value in pairs(behaviorData) do
-    local behaviorFile = require(value)
-    behaviorFile.addBehavior(block)
+    local ok, behaviorFile = pcall(require, value)
+    if ok and behaviorFile and behaviorFile.addBehavior then
+      local addOk, addErr = pcall(behaviorFile.addBehavior, block)
+      if not addOk then
+        print("WARNING: failed to apply behavior", value, addErr)
+      end
+    else
+      print("WARNING: failed to load behavior", value)
+    end
   end
 end
 
@@ -121,7 +130,37 @@ local function createAnimatedBlock(tileId, tilesetTag, blockAnimationData)
   else
     blockImageSheet = animatedBlockSheet
   end
-  local block = display.newSprite(blockImageSheet, blockAnimationData.sequenceData)
+  local sequenceData = blockAnimationData and blockAnimationData.sequenceData
+  if not sequenceData then
+    return nil
+  end
+  local normalizedSequenceData = sequenceData
+  if sequenceData.frames then
+    local validFrames = {}
+    for i = 1, #sequenceData.frames do
+      local frame = sequenceData.frames[i]
+      if type(frame) == "number" and frame > 0 then
+        validFrames[#validFrames + 1] = frame
+      end
+    end
+    if #validFrames == 0 then
+      return nil
+    end
+    normalizedSequenceData = {
+      name = sequenceData.name,
+      frames = validFrames,
+      time = sequenceData.time,
+      loopCount = sequenceData.loopCount,
+      loopDirection = sequenceData.loopDirection
+    }
+  elseif sequenceData.start and sequenceData.count then
+    if type(sequenceData.start) ~= "number" or sequenceData.start <= 0 or type(sequenceData.count) ~= "number" or sequenceData.count <= 0 then
+      return nil
+    end
+  else
+    return nil
+  end
+  local block = display.newSprite(blockImageSheet, normalizedSequenceData)
   return block
 end
 
@@ -147,6 +186,9 @@ local function createTile(block, tilesetIndex, tilesetTag, isReverse)
   if blockPropertyData and blockPropertyData.animation then
     block.animation = blockPropertyData.animation
     block.image = createAnimatedBlock(tilesetIndex, tilesetTag, blockPropertyData.animation)
+    if not block.image then
+      block.image = createStaticTile(tilesetIndex, tilesetTag)
+    end
   elseif blockPropertyData and blockPropertyData.noBaseImage then
   else
     block.image = createStaticTile(tilesetIndex, tilesetTag)
@@ -179,6 +221,7 @@ local function createElement(tileId, xPos, yPos, cameraGroup)
   block.x = xSize * (xPos - 1)
   block.y = ySize * (yPos - 1)
   block.scale = scaleFactor
+  block.theme = currentTheme
   block.displayGroup = cameraGroup
   local blockId, isReverse
   if propsTileset and propsTileset:isInTileset(tileId) or propsReverseTileset and propsReverseTileset:isInTileset(tileId) then
@@ -279,6 +322,10 @@ end
 
 local function loadImageData(mapJson)
   local theme = mapJson.properties.theme
+  currentTheme = theme
+  if composer and composer.data then
+    composer.data.currentLevelTheme = theme
+  end
   physicsData = require("lua.map.tilePhysics").physicsData(scaleFactor)
   normalPropertyMap = require("lua.map.blockPropertyMap").init(theme)
   imageSheetFile = require("lua.map.assets." .. theme .. ".tiles")

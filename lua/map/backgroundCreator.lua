@@ -48,6 +48,30 @@ local landmarkOffsets = {
     y = 0,
     width = 767,
     height = 641
+  },
+  ["5.5_cannons"] = {
+    x = 0,
+    y = 0,
+    width = 767,
+    height = 641
+  },
+  ["4.2_structure"] = {
+    x = 0,
+    y = 0,
+    width = 767,
+    height = 641
+  },
+  ["5.2_crystals"] = {
+    x = 0,
+    y = 0,
+    width = 767,
+    height = 641
+  },
+  ["5.4_spaceship"] = {
+    x = 0,
+    y = 0,
+    width = 767,
+    height = 641
   }
 }
 
@@ -64,6 +88,12 @@ local function createImage(layerId)
   if not backdrop then
     backdrop = "blue"
   end
+  if backdrop == "tall" and layerId == 2 and theme == "town" then
+    backdrop = "blue"
+  end
+  if backdrop == "dusk" and theme == "town" then
+    backdrop = "blue"
+  end
   local dimX = 480
   local dimY = 320
   local yOffset = 0
@@ -71,10 +101,18 @@ local function createImage(layerId)
   if layerId == 2 then
     dimX = 680
     dimY = 327
+    if theme == "space" then
+      yOffset = -10
+    end
   elseif layerId == 3 then
-    dimX = 680
-    dimY = 236
-    yOffset = 110
+    if theme == "space" then
+      dimX = 680
+      dimY = 327
+    else
+      dimX = 680
+      dimY = 236
+      yOffset = 110
+    end
   else
     dimX = math.max(480, math.ceil(display.actualContentWidth or display.contentWidth or 480))
   end
@@ -89,7 +127,7 @@ local function createImage(layerId)
   image.y = 0 + yOffset
   layers[layerId]:insert(image)
   if 1 < layerId then
-    for copyIndex = 1, 3 do
+    for copyIndex = 1, 2 do
       local copy = display.newImageRect("images/map/" .. theme .. "/background/" .. layerId .. "_" .. backdrop .. ".png", dimX, dimY)
       if not copy then
         local fallbackBackdrop = "blue"
@@ -97,7 +135,7 @@ local function createImage(layerId)
       end
       copy.anchorX = 0
       copy.anchorY = 0
-      copy.x = image.x + copyIndex * image.width * image.xScale
+      copy.x = image.x + copyIndex * image.width * image.xScale - (copyIndex + 1)
       copy.y = 0 + yOffset
       layers[layerId]:insert(copy)
     end
@@ -107,6 +145,10 @@ end
 local function createCustomImage(layerId, imageId, x, y)
   local xDim = 767
   local yDim = 641
+  if theme == "space" then
+    xDim = 613.6
+    yDim = 512.8
+  end
   local image = display.newImageRect("images/map/" .. theme .. "/background/" .. layerId .. "." .. imageId .. ".png", xDim, yDim)
   image.anchorX = 0
   image.anchorY = 0
@@ -127,6 +169,10 @@ local function createBackgroundProp(layerId, props, x, y)
   if not image then
     return
   end
+  if theme == "space" then
+    image.width = image.width * 0.8
+    image.height = image.height * 0.8
+  end
   image.anchorX = 0
   image.anchorY = 0
   image.x = x * 0.5 + ((offsets and offsets.x) or 0)
@@ -135,15 +181,15 @@ local function createBackgroundProp(layerId, props, x, y)
 end
 
 local function createBackgroundBeams(image, x, y)
-  local image = display.newImageRect("images/map/sunbeams" .. image .. ".png", 647, 600)
-  if not image then
+  local beams = display.newImageRect("images/map/sunbeams" .. image .. ".png", 647, 600)
+  if not beams then
     return
   end
-  image.anchorX = 0
-  image.anchorY = 0
-  image.x = x * 0.5
-  image.y = y * 0.5
-  layers[6]:insert(image)
+  beams.anchorX = 0
+  beams.anchorY = 0
+  beams.x = x * 0.5
+  beams.y = y * 0.5
+  layers[6]:insert(beams)
 end
 
 local function createLoopingBackground()

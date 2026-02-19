@@ -108,21 +108,43 @@ local function getDisplayGroup()
   return backgroundGroup
 end
 
+local function updateBackgroundLayerVisibility()
+  for i = 4, 6 do
+    local layer = backgroundLayers[i]
+    if layer then
+      local groupX = layer.x
+      for childIndex = 1, layer.numChildren do
+        local child = layer[childIndex]
+        local childX = child.x
+        local rightEdge = groupX + childX + child.width
+        child.isVisible = rightEdge > 0
+      end
+    end
+  end
+end
+
 local function updateBackgrounds(x, y)
+  local parallaxScale = 1
+  if theme == "space" then
+    parallaxScale = 0.3
+  end
   composer.debugger.profile("UpdateBackgrounds")
   local mapHeightInPixels = convertY(height)
   local partOfMapHeight = y / mapHeightInPixels
   local yPos = (1 + partOfMapHeight) * 20
-  backgroundLayers[2].y = yPos * 1
-  backgroundLayers[3].y = yPos * 2
+  backgroundLayers[2].y = yPos * 1 * parallaxScale
+  backgroundLayers[3].y = yPos * 2 * parallaxScale
   backgroundLayers[4].y = y * 0.6
   backgroundLayers[5].y = y * 0.8
   backgroundLayers[6].y = y * 0.7
-  backgroundLayers[2].x = backgroundLayers[2].moved * backgroundLayers[2].width / 3 + x * 0.01
-  backgroundLayers[3].x = backgroundLayers[3].moved * backgroundLayers[3].width / 3 + x * 0.06
+  backgroundLayers[2].x = backgroundLayers[2].moved * backgroundLayers[2].width / 3 + x * 0.01 * parallaxScale
+  backgroundLayers[3].x = backgroundLayers[3].moved * backgroundLayers[3].width / 3 + x * 0.06 * parallaxScale
   backgroundLayers[4].x = x * 0.6
   backgroundLayers[5].x = x * 0.8
   backgroundLayers[6].x = x * 0.7
+  if composer.database and composer.database.getGraphics and composer.database.getGraphics() == 1 then
+    updateBackgroundLayerVisibility()
+  end
   for i = 2, 3 do
     if backgroundLayers[i].x < -(2 * (backgroundLayers[i].width / 3)) then
       backgroundLayers[i].x = backgroundLayers[i].x + backgroundLayers[i].width / 3

@@ -1520,7 +1520,7 @@ localization.translation = {
     de = "Getrennt"
   },
   QuitGame = {
-    en = "Do you want to quit current game?",
+    en = "Quit this game?",
     ja =
     "\231\143\190\229\156\168\227\129\174\227\130\178\227\131\188\227\131\160\227\130\146\231\181\130\228\186\134\227\129\151\227\129\190\227\129\153\227\129\139?",
     zh =
@@ -1548,9 +1548,7 @@ localization.translation = {
     de = "M\195\182chtest du das aktuelle Spiel beenden?"
   },
   QuitGameWithWarning = {
-    en = [[
-Do you want to quit current game?
-Warning: You will lose rating!]],
+    en = "Quit this game? You will lose rating.",
     ja =
     "\231\143\190\229\156\168\227\129\174\227\130\178\227\131\188\227\131\160\227\130\146\231\181\130\228\186\134\227\129\151\227\129\190\227\129\153\227\129\139?\n\232\173\166\229\145\138: \227\131\169\227\131\179\227\130\175\227\129\175\229\164\177\227\130\143\227\130\140\227\129\190\227\129\153!",
     zh =

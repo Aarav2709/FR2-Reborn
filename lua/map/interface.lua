@@ -40,8 +40,8 @@ local function addmapNameText(frontCameraGroup, x, y)
       1
     }
   })
-  mapNameText.x = x + 90
-  mapNameText.y = y + 90
+  mapNameText.x = x + 120
+  mapNameText.y = y + 85
   frontCameraGroup:insert(mapNameText)
 end
 

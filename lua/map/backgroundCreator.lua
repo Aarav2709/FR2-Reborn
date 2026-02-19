@@ -67,6 +67,7 @@ local function createImage(layerId)
   local dimX = 480
   local dimY = 320
   local yOffset = 0
+  local xOffset = 0
   if layerId == 2 then
     dimX = 680
     dimY = 327
@@ -74,6 +75,8 @@ local function createImage(layerId)
     dimX = 680
     dimY = 236
     yOffset = 110
+  else
+    dimX = math.max(480, math.ceil(display.actualContentWidth or display.contentWidth or 480))
   end
   image = display.newImageRect("images/map/" .. theme .. "/background/" .. layerId .. "_" .. backdrop .. ".png", dimX, dimY)
   if not image then
@@ -82,30 +85,22 @@ local function createImage(layerId)
   end
   image.anchorX = 0
   image.anchorY = 0
-  image.x = 0
+  image.x = xOffset
   image.y = 0 + yOffset
   layers[layerId]:insert(image)
   if 1 < layerId then
-    local image2 = display.newImageRect("images/map/" .. theme .. "/background/" .. layerId .. "_" .. backdrop .. ".png", dimX, dimY)
-    if not image2 then
-      local backdrop = "blue"
-      image2 = display.newImageRect("images/map/" .. theme .. "/background/" .. layerId .. "_" .. backdrop .. ".png", dimX, dimY)
+    for copyIndex = 1, 3 do
+      local copy = display.newImageRect("images/map/" .. theme .. "/background/" .. layerId .. "_" .. backdrop .. ".png", dimX, dimY)
+      if not copy then
+        local fallbackBackdrop = "blue"
+        copy = display.newImageRect("images/map/" .. theme .. "/background/" .. layerId .. "_" .. fallbackBackdrop .. ".png", dimX, dimY)
+      end
+      copy.anchorX = 0
+      copy.anchorY = 0
+      copy.x = image.x + copyIndex * image.width * image.xScale
+      copy.y = 0 + yOffset
+      layers[layerId]:insert(copy)
     end
-    image2.anchorX = 0
-    image2.anchorY = 0
-    image2.x = image.x + image.width * image.xScale - 2
-    image2.y = 0 + yOffset
-    layers[layerId]:insert(image2)
-    local image3 = display.newImageRect("images/map/" .. theme .. "/background/" .. layerId .. "_" .. backdrop .. ".png", dimX, dimY)
-    if not image3 then
-      local backdrop = "blue"
-      image3 = display.newImageRect("images/map/" .. theme .. "/background/" .. layerId .. "_" .. backdrop .. ".png", dimX, dimY)
-    end
-    image3.anchorX = 0
-    image3.anchorY = 0
-    image3.x = image.x + 2 * image.width * image.xScale - 3
-    image3.y = 0 + yOffset
-    layers[layerId]:insert(image3)
   end
 end
 

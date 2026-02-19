@@ -3179,10 +3179,17 @@ function M.physicsData(scale)
   end
 
   function physics:get(name)
-    return unpack(self.data[name])
+    local bodyData = self.data[name]
+    if not bodyData then
+      return nil
+    end
+    return unpack(bodyData)
   end
 
   function physics:getFixtureId(name, index)
+    if not self.data[name] or not self.data[name][index] then
+      return nil
+    end
     return self.data[name][index].pe_fixture_id
   end
 

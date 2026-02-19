@@ -258,14 +258,14 @@ local function new(monsterData, networkFormat)
   local function setIdAndSkinDefault()
     id = 1
     skin = 0
-    memoryIndex = tonumber(id .. skin)
     path = "c" .. id .. "s" .. skin
+    memoryIndex = path
     loadMonsterToMemory()
   end
 
   function loadMonsterToMemory()
-    memoryIndex = tonumber(id .. skin)
     path = "c" .. id .. "s" .. skin
+    memoryIndex = path
 
     print("=== LOADING CHARACTER: " .. path .. " (id=" .. id .. ", skin=" .. skin .. ") ===")
 

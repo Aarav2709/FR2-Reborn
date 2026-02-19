@@ -1,260 +1,218 @@
-local SheetInfo = {}
-SheetInfo.sheet = {
-  frames = {
-    {
-      x = 184,
-      y = 238,
-      width = 38,
-      height = 16,
-      sourceX = 0,
-      sourceY = 0,
-      sourceWidth = 38,
-      sourceHeight = 15
-    },
-    {
-      x = 144,
-      y = 238,
-      width = 38,
-      height = 16,
-      sourceX = 0,
-      sourceY = 0,
-      sourceWidth = 38,
-      sourceHeight = 15
-    },
-    {
-      x = 258,
-      y = 218,
-      width = 14,
-      height = 32,
-      sourceX = 2,
-      sourceY = 0,
-      sourceWidth = 20,
-      sourceHeight = 31
-    },
-    {
-      x = 288,
-      y = 218,
-      width = 12,
-      height = 26,
-      sourceX = 4,
-      sourceY = 0,
-      sourceWidth = 22,
-      sourceHeight = 27
-    },
-    {
-      x = 242,
-      y = 218,
-      width = 14,
-      height = 32,
-      sourceX = 2,
-      sourceY = 0,
-      sourceWidth = 20,
-      sourceHeight = 31
-    },
-    {
-      x = 274,
-      y = 218,
-      width = 12,
-      height = 26,
-      sourceX = 4,
-      sourceY = 0,
-      sourceWidth = 22,
-      sourceHeight = 27
-    },
-    {
-      x = 468,
-      y = 2,
-      width = 32,
-      height = 42,
-      sourceX = 4,
-      sourceY = 0,
-      sourceWidth = 40,
-      sourceHeight = 41
-    },
-    {
-      x = 242,
-      y = 130,
-      width = 72,
-      height = 86
-    },
-    {
-      x = 318,
-      y = 46,
-      width = 72,
-      height = 72
-    },
-    {
-      x = 412,
-      y = 140,
-      width = 56,
-      height = 60,
-      sourceX = 0,
-      sourceY = 0,
-      sourceWidth = 58,
-      sourceHeight = 60
-    },
-    {
-      x = 94,
-      y = 2,
-      width = 88,
-      height = 132,
-      sourceX = 4,
-      sourceY = 0,
-      sourceWidth = 95,
-      sourceHeight = 131
-    },
-    {
-      x = 2,
-      y = 2,
-      width = 90,
-      height = 132,
-      sourceX = 0,
-      sourceY = 0,
-      sourceWidth = 95,
-      sourceHeight = 131
-    },
-    {
-      x = 2,
-      y = 136,
-      width = 72,
-      height = 114
-    },
-    {
-      x = 76,
-      y = 136,
-      width = 66,
-      height = 114,
-      sourceX = 2,
-      sourceY = 0,
-      sourceWidth = 72,
-      sourceHeight = 114
-    },
-    {
-      x = 184,
-      y = 2,
-      width = 132,
-      height = 126,
-      sourceX = 0,
-      sourceY = 0,
-      sourceWidth = 140,
-      sourceHeight = 125
-    },
-    {
-      x = 144,
-      y = 136,
-      width = 96,
-      height = 100,
-      sourceX = 12,
-      sourceY = 0,
-      sourceWidth = 115,
-      sourceHeight = 100
-    },
-    {
-      x = 392,
-      y = 46,
-      width = 114,
-      height = 52,
-      sourceX = 0,
-      sourceY = 0,
-      sourceWidth = 117,
-      sourceHeight = 51
-    },
-    {
-      x = 394,
-      y = 210,
-      width = 72,
-      height = 42,
-      sourceX = 0,
-      sourceY = 0,
-      sourceWidth = 71,
-      sourceHeight = 43
-    },
-    {
-      x = 412,
-      y = 100,
-      width = 62,
-      height = 38,
-      sourceX = 6,
-      sourceY = 0,
-      sourceWidth = 73,
-      sourceHeight = 38
-    },
-    {
-      x = 316,
-      y = 210,
-      width = 76,
-      height = 44,
-      sourceX = 0,
-      sourceY = 0,
-      sourceWidth = 77,
-      sourceHeight = 43
-    },
-    {
-      x = 316,
-      y = 130,
-      width = 94,
-      height = 78,
-      sourceX = 0,
-      sourceY = 4,
-      sourceWidth = 93,
-      sourceHeight = 85
-    },
-    {
-      x = 318,
-      y = 2,
-      width = 56,
-      height = 42,
-      sourceX = 0,
-      sourceY = 0,
-      sourceWidth = 56,
-      sourceHeight = 44
-    },
-    {
-      x = 412,
-      y = 2,
-      width = 54,
-      height = 42,
-      sourceX = 0,
-      sourceY = 0,
-      sourceWidth = 54,
-      sourceHeight = 41
-    }
-  },
-  sheetContentWidth = 512,
-  sheetContentHeight = 256
-}
-SheetInfo.frameIndex = {
-  ["0l"] = 1,
-  ["0r"] = 2,
-  arm_l_lower = 3,
-  arm_l_upper = 4,
-  arm_r_lower = 5,
-  arm_r_upper = 6,
-  ["deaths/body"] = 7,
-  ["deaths/headSingle"] = 8,
-  ["deaths/headSingleShot"] = 9,
-  ["deaths/headSkull"] = 10,
-  ["deaths/lightning1"] = 11,
-  ["deaths/lightning2"] = 12,
-  ["deaths/sawbladeLeft"] = 13,
-  ["deaths/sawbladeRight"] = 14,
-  hair = 15,
-  head = 16,
-  head_lower = 17,
-  ["misc/eyes_closed"] = 18,
-  ["misc/eyes_dead"] = 19,
-  ["misc/eyes_normal"] = 20,
-  tail = 21,
-  torso_lower = 22,
-  torso_upper = 23
-}
+local L0_1, L1_1, L2_1, L3_1, L4_1, L5_1, L6_1, L7_1, L8_1, L9_1, L10_1, L11_1, L12_1, L13_1, L14_1, L15_1, L16_1, L17_1, L18_1, L19_1, L20_1
+L0_1 = {}
+L1_1 = {}
+L2_1 = {}
+L3_1 = {}
+L3_1.x = 98
+L3_1.y = 130
+L3_1.width = 38
+L3_1.height = 16
+L3_1.sourceX = 0
+L3_1.sourceY = 0
+L3_1.sourceWidth = 38
+L3_1.sourceHeight = 15
+L4_1 = {}
+L4_1.x = 98
+L4_1.y = 148
+L4_1.width = 38
+L4_1.height = 16
+L4_1.sourceX = 0
+L4_1.sourceY = 0
+L4_1.sourceWidth = 38
+L4_1.sourceHeight = 15
+L5_1 = {}
+L5_1.x = 232
+L5_1.y = 158
+L5_1.width = 18
+L5_1.height = 32
+L5_1.sourceX = 0
+L5_1.sourceY = 0
+L5_1.sourceWidth = 20
+L5_1.sourceHeight = 31
+L6_1 = {}
+L6_1.x = 238
+L6_1.y = 56
+L6_1.width = 16
+L6_1.height = 28
+L6_1.sourceX = 2
+L6_1.sourceY = 0
+L6_1.sourceWidth = 22
+L6_1.sourceHeight = 27
+L7_1 = {}
+L7_1.x = 232
+L7_1.y = 192
+L7_1.width = 18
+L7_1.height = 32
+L7_1.sourceX = 0
+L7_1.sourceY = 0
+L7_1.sourceWidth = 20
+L7_1.sourceHeight = 31
+L8_1 = {}
+L8_1.x = 238
+L8_1.y = 86
+L8_1.width = 16
+L8_1.height = 28
+L8_1.sourceX = 2
+L8_1.sourceY = 0
+L8_1.sourceWidth = 22
+L8_1.sourceHeight = 27
+L9_1 = {}
+L9_1.x = 2
+L9_1.y = 348
+L9_1.width = 58
+L9_1.height = 60
+L10_1 = {}
+L10_1.x = 2
+L10_1.y = 214
+L10_1.width = 90
+L10_1.height = 132
+L10_1.sourceX = 2
+L10_1.sourceY = 0
+L10_1.sourceWidth = 95
+L10_1.sourceHeight = 131
+L11_1 = {}
+L11_1.x = 138
+L11_1.y = 158
+L11_1.width = 92
+L11_1.height = 132
+L11_1.sourceX = 0
+L11_1.sourceY = 0
+L11_1.sourceWidth = 95
+L11_1.sourceHeight = 131
+L12_1 = {}
+L12_1.x = 2
+L12_1.y = 2
+L12_1.width = 134
+L12_1.height = 126
+L12_1.sourceX = 0
+L12_1.sourceY = 0
+L12_1.sourceWidth = 140
+L12_1.sourceHeight = 125
+L13_1 = {}
+L13_1.x = 138
+L13_1.y = 56
+L13_1.width = 98
+L13_1.height = 100
+L13_1.sourceX = 10
+L13_1.sourceY = 0
+L13_1.sourceWidth = 115
+L13_1.sourceHeight = 100
+L14_1 = {}
+L14_1.x = 138
+L14_1.y = 2
+L14_1.width = 116
+L14_1.height = 52
+L14_1.sourceX = 0
+L14_1.sourceY = 0
+L14_1.sourceWidth = 117
+L14_1.sourceHeight = 51
+L15_1 = {}
+L15_1.x = 174
+L15_1.y = 292
+L15_1.width = 72
+L15_1.height = 44
+L15_1.sourceX = 0
+L15_1.sourceY = 0
+L15_1.sourceWidth = 71
+L15_1.sourceHeight = 43
+L16_1 = {}
+L16_1.x = 94
+L16_1.y = 338
+L16_1.width = 64
+L16_1.height = 38
+L16_1.sourceX = 4
+L16_1.sourceY = 0
+L16_1.sourceWidth = 73
+L16_1.sourceHeight = 38
+L17_1 = {}
+L17_1.x = 94
+L17_1.y = 292
+L17_1.width = 78
+L17_1.height = 44
+L17_1.sourceX = 0
+L17_1.sourceY = 0
+L17_1.sourceWidth = 77
+L17_1.sourceHeight = 43
+L18_1 = {}
+L18_1.x = 2
+L18_1.y = 130
+L18_1.width = 94
+L18_1.height = 82
+L18_1.sourceX = 0
+L18_1.sourceY = 2
+L18_1.sourceWidth = 93
+L18_1.sourceHeight = 85
+L19_1 = {}
+L19_1.x = 160
+L19_1.y = 338
+L19_1.width = 56
+L19_1.height = 44
+L20_1 = {}
+L20_1.x = 62
+L20_1.y = 378
+L20_1.width = 54
+L20_1.height = 42
+L20_1.sourceX = 0
+L20_1.sourceY = 0
+L20_1.sourceWidth = 54
+L20_1.sourceHeight = 41
+L2_1[1] = L3_1
+L2_1[2] = L4_1
+L2_1[3] = L5_1
+L2_1[4] = L6_1
+L2_1[5] = L7_1
+L2_1[6] = L8_1
+L2_1[7] = L9_1
+L2_1[8] = L10_1
+L2_1[9] = L11_1
+L2_1[10] = L12_1
+L2_1[11] = L13_1
+L2_1[12] = L14_1
+L2_1[13] = L15_1
+L2_1[14] = L16_1
+L2_1[15] = L17_1
+L2_1[16] = L18_1
+L2_1[17] = L19_1
+L2_1[18] = L20_1
+L1_1.frames = L2_1
+L1_1.sheetContentWidth = 256
+L1_1.sheetContentHeight = 512
+L0_1.sheet = L1_1
+L1_1 = {}
+L1_1["0l"] = 1
+L1_1["0r"] = 2
+L1_1.arm_l_lower = 3
+L1_1.arm_l_upper = 4
+L1_1.arm_r_lower = 5
+L1_1.arm_r_upper = 6
+L1_1["deaths/headSkull"] = 7
+L1_1["deaths/lightning1"] = 8
+L1_1["deaths/lightning2"] = 9
+L1_1.hair = 10
+L1_1.head = 11
+L1_1.head_lower = 12
+L1_1["misc/eyes_closed"] = 13
+L1_1["misc/eyes_dead"] = 14
+L1_1["misc/eyes_normal"] = 15
+L1_1.tail = 16
+L1_1.torso_lower = 17
+L1_1.torso_upper = 18
+L0_1.frameIndex = L1_1
 
-function SheetInfo:getSheet()
-  return self.sheet
+function L1_1(A0_2)
+  local L1_2
+  L1_2 = A0_2.sheet
+  return L1_2
 end
 
-function SheetInfo:getFrameIndex(name)
-  return self.frameIndex[name]
+L0_1.getSheet = L1_1
+
+function L1_1(A0_2, A1_2)
+  local L2_2
+  L2_2 = A0_2.frameIndex
+  L2_2 = L2_2[A1_2]
+  return L2_2
 end
 
-return SheetInfo
+L0_1.getFrameIndex = L1_1
+return L0_1

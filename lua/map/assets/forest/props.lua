@@ -1,876 +1,929 @@
-local SheetInfo = {}
-SheetInfo.sheet = {
-  frames = {
-    {
-      x = 854,
-      y = 4,
-      width = 160,
-      height = 30,
-      sourceX = 0,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 684,
-      y = 4,
-      width = 160,
-      height = 38,
-      sourceX = 0,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 854,
-      y = 44,
-      width = 160,
-      height = 16,
-      sourceX = 0,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 468,
-      y = 356,
-      width = 136,
-      height = 100,
-      sourceX = 24,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 806,
-      y = 384,
-      width = 88,
-      height = 100,
-      sourceX = 72,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 756,
-      y = 398,
-      width = 30,
-      height = 100,
-      sourceX = 130,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 966,
-      y = 180,
-      width = 52,
-      height = 40,
-      sourceX = 108,
-      sourceY = 60,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 614,
-      y = 410,
-      width = 52,
-      height = 40,
-      sourceX = 0,
-      sourceY = 60,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 806,
-      y = 270,
-      width = 16,
-      height = 100,
-      sourceX = 0,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 660,
-      y = 154,
-      width = 10,
-      height = 100,
-      sourceX = 0,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 832,
-      y = 176,
-      width = 8,
-      height = 100,
-      sourceX = 152,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 482,
-      y = 292,
-      width = 140,
-      height = 30,
-      sourceX = 12,
-      sourceY = 70,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 482,
-      y = 332,
-      width = 140,
-      height = 14,
-      sourceX = 12,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 850,
-      y = 220,
-      width = 102,
-      height = 26,
-      sourceX = 34,
-      sourceY = 74,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 850,
-      y = 256,
-      width = 102,
-      height = 14,
-      sourceX = 34,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 850,
-      y = 180,
-      width = 106,
-      height = 30,
-      sourceX = 24,
-      sourceY = 70,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 850,
-      y = 280,
-      width = 102,
-      height = 14,
-      sourceX = 24,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 4,
-      y = 530,
-      width = 110,
-      height = 96,
-      sourceX = 26,
-      sourceY = 4,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 4,
-      y = 472,
-      width = 114,
-      height = 22,
-      sourceX = 18,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 170,
-      y = 114,
-      width = 154,
-      height = 74,
-      sourceX = 4,
-      sourceY = 26,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 162,
-      y = 258,
-      width = 148,
-      height = 16,
-      sourceX = 4,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 832,
-      y = 304,
-      width = 94,
-      height = 70,
-      sourceX = 28,
-      sourceY = 30,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 4,
-      y = 504,
-      width = 114,
-      height = 16,
-      sourceX = 12,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 158,
-      y = 374,
-      width = 132,
-      height = 40,
-      sourceX = 20,
-      sourceY = 60,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 296,
-      y = 460,
-      width = 124,
-      height = 10,
-      sourceX = 22,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 614,
-      y = 362,
-      width = 132,
-      height = 38,
-      sourceX = 22,
-      sourceY = 62,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 158,
-      y = 448,
-      width = 128,
-      height = 10,
-      sourceX = 22,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 158,
-      y = 468,
-      width = 122,
-      height = 36,
-      sourceX = 24,
-      sourceY = 64,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 128,
-      y = 514,
-      width = 114,
-      height = 10,
-      sourceX = 26,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 290,
-      y = 480,
-      width = 122,
-      height = 36,
-      sourceX = 16,
-      sourceY = 64,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 300,
-      y = 398,
-      width = 132,
-      height = 12,
-      sourceX = 10,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 318,
-      y = 366,
-      width = 136,
-      height = 22,
-      sourceX = 16,
-      sourceY = 78,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 4,
-      y = 346,
-      width = 146,
-      height = 12,
-      sourceX = 10,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 162,
-      y = 334,
-      width = 146,
-      height = 30,
-      sourceX = 8,
-      sourceY = 70,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 632,
-      y = 340,
-      width = 138,
-      height = 12,
-      sourceX = 12,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 168,
-      y = 198,
-      width = 150,
-      height = 26,
-      sourceX = 8,
-      sourceY = 74,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 318,
-      y = 346,
-      width = 140,
-      height = 10,
-      sourceX = 10,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 4,
-      y = 114,
-      width = 156,
-      height = 26,
-      sourceX = 4,
-      sourceY = 74,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 334,
-      y = 138,
-      width = 154,
-      height = 12,
-      sourceX = 0,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 656,
-      y = 270,
-      width = 140,
-      height = 34,
-      sourceX = 2,
-      sourceY = 66,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 632,
-      y = 314,
-      width = 140,
-      height = 16,
-      sourceX = 2,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 684,
-      y = 78,
-      width = 158,
-      height = 36,
-      sourceX = 2,
-      sourceY = 64,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 334,
-      y = 160,
-      width = 152,
-      height = 16,
-      sourceX = 2,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 514,
-      y = 112,
-      width = 158,
-      height = 32,
-      sourceX = 2,
-      sourceY = 68,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 498,
-      y = 154,
-      width = 152,
-      height = 20,
-      sourceX = 0,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 300,
-      y = 420,
-      width = 130,
-      height = 30,
-      sourceX = 26,
-      sourceY = 70,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 158,
-      y = 424,
-      width = 128,
-      height = 14,
-      sourceX = 24,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 4,
-      y = 184,
-      width = 154,
-      height = 16,
-      sourceX = 4,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 4,
-      y = 236,
-      width = 148,
-      height = 100,
-      sourceX = 8,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 4,
-      y = 4,
-      width = 160,
-      height = 100
-    },
-    {
-      x = 870,
-      y = 514,
-      width = 56,
-      height = 100,
-      sourceX = 104,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 430,
-      y = 460,
-      width = 22,
-      height = 52,
-      sourceX = 138,
-      sourceY = 48,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 174,
-      y = 4,
-      width = 160,
-      height = 100
-    },
-    {
-      x = 614,
-      y = 460,
-      width = 42,
-      height = 38,
-      sourceX = 0,
-      sourceY = 62,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 676,
-      y = 410,
-      width = 48,
-      height = 78,
-      sourceX = 0,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 682,
-      y = 124,
-      width = 158,
-      height = 16,
-      sourceX = 0,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 854,
-      y = 70,
-      width = 158,
-      height = 100,
-      sourceX = 2,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 344,
-      y = 4,
-      width = 160,
-      height = 100
-    },
-    {
-      x = 680,
-      y = 176,
-      width = 142,
-      height = 54,
-      sourceX = 16,
-      sourceY = 46,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 780,
-      y = 340,
-      width = 16,
-      height = 48,
-      sourceX = 144,
-      sourceY = 48,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 982,
-      y = 424,
-      width = 30,
-      height = 100,
-      sourceX = 0,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 334,
-      y = 114,
-      width = 154,
-      height = 14,
-      sourceX = 0,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 496,
-      y = 184,
-      width = 150,
-      height = 98,
-      sourceX = 4,
-      sourceY = 2,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 936,
-      y = 322,
-      width = 68,
-      height = 92,
-      sourceX = 0,
-      sourceY = 8,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 904,
-      y = 424,
-      width = 68,
-      height = 80,
-      sourceX = 6,
-      sourceY = 20,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 334,
-      y = 186,
-      width = 150,
-      height = 40,
-      sourceX = 6,
-      sourceY = 60,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 164,
-      y = 234,
-      width = 150,
-      height = 14,
-      sourceX = 4,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 162,
-      y = 284,
-      width = 146,
-      height = 40,
-      sourceX = 6,
-      sourceY = 60,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 682,
-      y = 150,
-      width = 158,
-      height = 16,
-      sourceX = 0,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 680,
-      y = 240,
-      width = 142,
-      height = 20,
-      sourceX = 12,
-      sourceY = 80,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 4,
-      y = 210,
-      width = 150,
-      height = 16,
-      sourceX = 6,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 4,
-      y = 150,
-      width = 154,
-      height = 24,
-      sourceX = 4,
-      sourceY = 76,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 684,
-      y = 52,
-      width = 160,
-      height = 16,
-      sourceX = 0,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 514,
-      y = 4,
-      width = 160,
-      height = 98,
-      sourceX = 0,
-      sourceY = 2,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 4,
-      y = 368,
-      width = 144,
-      height = 94,
-      sourceX = 12,
-      sourceY = 4,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 324,
-      y = 236,
-      width = 148,
-      height = 100,
-      sourceX = 6,
-      sourceY = 0,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 936,
-      y = 534,
-      width = 56,
-      height = 86,
-      sourceX = 96,
-      sourceY = 4,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 796,
-      y = 494,
-      width = 64,
-      height = 78,
-      sourceX = 6,
-      sourceY = 8,
-      sourceWidth = 160,
-      sourceHeight = 100
-    },
-    {
-      x = 962,
-      y = 230,
-      width = 58,
-      height = 82,
-      sourceX = 92,
-      sourceY = 12,
-      sourceWidth = 160,
-      sourceHeight = 100
-    }
-  },
-  sheetContentWidth = 1024,
-  sheetContentHeight = 1024
-}
-SheetInfo.frameIndex = {
-  ["001"] = 1,
-  ["002"] = 2,
-  ["003"] = 3,
-  ["004"] = 4,
-  ["005"] = 5,
-  ["006"] = 6,
-  ["007"] = 7,
-  ["008"] = 8,
-  ["009"] = 9,
-  ["010"] = 10,
-  ["011"] = 11,
-  ["012"] = 12,
-  ["013"] = 13,
-  ["014"] = 14,
-  ["015"] = 15,
-  ["016"] = 16,
-  ["017"] = 17,
-  ["018"] = 18,
-  ["019"] = 19,
-  ["020"] = 20,
-  ["021"] = 21,
-  ["022"] = 22,
-  ["023"] = 23,
-  ["024"] = 24,
-  ["025"] = 25,
-  ["026"] = 26,
-  ["027"] = 27,
-  ["028"] = 28,
-  ["029"] = 29,
-  ["030"] = 30,
-  ["031"] = 31,
-  ["032"] = 32,
-  ["033"] = 33,
-  ["034"] = 34,
-  ["035"] = 35,
-  ["036"] = 36,
-  ["037"] = 37,
-  ["038"] = 38,
-  ["039"] = 39,
-  ["040"] = 40,
-  ["041"] = 41,
-  ["042"] = 42,
-  ["043"] = 43,
-  ["044"] = 44,
-  ["045"] = 45,
-  ["046"] = 46,
-  ["047"] = 47,
-  ["048"] = 48,
-  ["049"] = 49,
-  ["050"] = 50,
-  ["051"] = 51,
-  ["052"] = 52,
-  ["053"] = 53,
-  ["054"] = 54,
-  ["055"] = 55,
-  ["056"] = 56,
-  ["057"] = 57,
-  ["058"] = 58,
-  ["059"] = 59,
-  ["060"] = 60,
-  ["061"] = 61,
-  ["062"] = 62,
-  ["063"] = 63,
-  ["064"] = 64,
-  ["065"] = 65,
-  ["066"] = 66,
-  ["067"] = 67,
-  ["068"] = 68,
-  ["069"] = 69,
-  ["070"] = 70,
-  ["071"] = 71,
-  ["072"] = 72,
-  ["073"] = 73,
-  ["074"] = 74,
-  ["075"] = 75,
-  ["076"] = 76,
-  ["077"] = 77,
-  ["078"] = 78,
-  ["079"] = 79
-}
+--------------------------------------- 
+local L0_1, L1_1, L2_1, L3_1, L4_1, L5_1, L6_1, L7_1, L8_1, L9_1, L10_1, L11_1, L12_1, L13_1, L14_1, L15_1, L16_1, L17_1, L18_1, L19_1, L20_1, L21_1, L22_1, L23_1, L24_1, L25_1, L26_1, L27_1, L28_1, L29_1, L30_1, L31_1, L32_1, L33_1, L34_1, L35_1, L36_1, L37_1, L38_1, L39_1, L40_1, L41_1, L42_1, L43_1, L44_1, L45_1, L46_1, L47_1, L48_1, L49_1, L50_1, L51_1, L52_1
+L0_1 = {}
+L1_1 = {}
+L2_1 = {}
+L3_1 = {}
+L3_1.x = 684
+L3_1.y = 54
+L3_1.width = 160
+L3_1.height = 30
+L3_1.sourceX = 0
+L3_1.sourceY = 0
+L3_1.sourceWidth = 160
+L3_1.sourceHeight = 100
+L4_1 = {}
+L4_1.x = 684
+L4_1.y = 4
+L4_1.width = 160
+L4_1.height = 40
+L4_1.sourceX = 0
+L4_1.sourceY = 0
+L4_1.sourceWidth = 160
+L4_1.sourceHeight = 100
+L5_1 = {}
+L5_1.x = 684
+L5_1.y = 94
+L5_1.width = 160
+L5_1.height = 16
+L5_1.sourceX = 0
+L5_1.sourceY = 0
+L5_1.sourceWidth = 160
+L5_1.sourceHeight = 100
+L6_1 = {}
+L6_1.x = 158
+L6_1.y = 402
+L6_1.width = 138
+L6_1.height = 100
+L6_1.sourceX = 22
+L6_1.sourceY = 0
+L6_1.sourceWidth = 160
+L6_1.sourceHeight = 100
+L7_1 = {}
+L7_1.x = 490
+L7_1.y = 432
+L7_1.width = 90
+L7_1.height = 100
+L7_1.sourceX = 70
+L7_1.sourceY = 0
+L7_1.sourceWidth = 160
+L7_1.sourceHeight = 100
+L8_1 = {}
+L8_1.x = 982
+L8_1.y = 282
+L8_1.width = 32
+L8_1.height = 100
+L8_1.sourceX = 128
+L8_1.sourceY = 0
+L8_1.sourceWidth = 160
+L8_1.sourceHeight = 100
+L9_1 = {}
+L9_1.x = 4
+L9_1.y = 550
+L9_1.width = 54
+L9_1.height = 40
+L9_1.sourceX = 106
+L9_1.sourceY = 60
+L9_1.sourceWidth = 160
+L9_1.sourceHeight = 100
+L10_1 = {}
+L10_1.x = 68
+L10_1.y = 550
+L10_1.width = 52
+L10_1.height = 42
+L10_1.sourceX = 0
+L10_1.sourceY = 58
+L10_1.sourceWidth = 160
+L10_1.sourceHeight = 100
+L11_1 = {}
+L11_1.x = 826
+L11_1.y = 256
+L11_1.width = 18
+L11_1.height = 100
+L11_1.sourceX = 0
+L11_1.sourceY = 0
+L11_1.sourceWidth = 160
+L11_1.sourceHeight = 100
+L12_1 = {}
+L12_1.x = 832
+L12_1.y = 146
+L12_1.width = 12
+L12_1.height = 100
+L12_1.sourceX = 0
+L12_1.sourceY = 0
+L12_1.sourceWidth = 160
+L12_1.sourceHeight = 100
+L13_1 = {}
+L13_1.x = 472
+L13_1.y = 300
+L13_1.width = 10
+L13_1.height = 100
+L13_1.sourceX = 150
+L13_1.sourceY = 0
+L13_1.sourceWidth = 160
+L13_1.sourceHeight = 100
+L14_1 = {}
+L14_1.x = 318
+L14_1.y = 370
+L14_1.width = 140
+L14_1.height = 30
+L14_1.sourceX = 12
+L14_1.sourceY = 70
+L14_1.sourceWidth = 160
+L14_1.sourceHeight = 100
+L15_1 = {}
+L15_1.x = 318
+L15_1.y = 322
+L15_1.width = 142
+L15_1.height = 16
+L15_1.sourceX = 10
+L15_1.sourceY = 0
+L15_1.sourceWidth = 160
+L15_1.sourceHeight = 100
+L16_1 = {}
+L16_1.x = 306
+L16_1.y = 410
+L16_1.width = 104
+L16_1.height = 26
+L16_1.sourceX = 32
+L16_1.sourceY = 74
+L16_1.sourceWidth = 160
+L16_1.sourceHeight = 100
+L17_1 = {}
+L17_1.x = 844
+L17_1.y = 508
+L17_1.width = 106
+L17_1.height = 16
+L17_1.sourceX = 32
+L17_1.sourceY = 0
+L17_1.sourceWidth = 160
+L17_1.sourceHeight = 100
+L18_1 = {}
+L18_1.x = 844
+L18_1.y = 468
+L18_1.width = 106
+L18_1.height = 30
+L18_1.sourceX = 24
+L18_1.sourceY = 70
+L18_1.sourceWidth = 160
+L18_1.sourceHeight = 100
+L19_1 = {}
+L19_1.x = 624
+L19_1.y = 420
+L19_1.width = 106
+L19_1.height = 14
+L19_1.sourceX = 22
+L19_1.sourceY = 0
+L19_1.sourceWidth = 160
+L19_1.sourceHeight = 100
+L20_1 = {}
+L20_1.x = 854
+L20_1.y = 362
+L20_1.width = 110
+L20_1.height = 96
+L20_1.sourceX = 26
+L20_1.sourceY = 4
+L20_1.sourceWidth = 160
+L20_1.sourceHeight = 100
+L21_1 = {}
+L21_1.x = 854
+L21_1.y = 330
+L21_1.width = 114
+L21_1.height = 22
+L21_1.sourceX = 18
+L21_1.sourceY = 0
+L21_1.sourceWidth = 160
+L21_1.sourceHeight = 100
+L22_1 = {}
+L22_1.x = 4
+L22_1.y = 114
+L22_1.width = 156
+L22_1.height = 76
+L22_1.sourceX = 2
+L22_1.sourceY = 24
+L22_1.sourceWidth = 160
+L22_1.sourceHeight = 100
+L23_1 = {}
+L23_1.x = 664
+L23_1.y = 264
+L23_1.width = 148
+L23_1.height = 16
+L23_1.sourceX = 4
+L23_1.sourceY = 0
+L23_1.sourceWidth = 160
+L23_1.sourceHeight = 100
+L24_1 = {}
+L24_1.x = 306
+L24_1.y = 446
+L24_1.width = 98
+L24_1.height = 72
+L24_1.sourceX = 26
+L24_1.sourceY = 28
+L24_1.sourceWidth = 160
+L24_1.sourceHeight = 100
+L25_1 = {}
+L25_1.x = 854
+L25_1.y = 282
+L25_1.width = 118
+L25_1.height = 16
+L25_1.sourceX = 10
+L25_1.sourceY = 0
+L25_1.sourceWidth = 160
+L25_1.sourceHeight = 100
+L26_1 = {}
+L26_1.x = 4
+L26_1.y = 450
+L26_1.width = 136
+L26_1.height = 42
+L26_1.sourceX = 18
+L26_1.sourceY = 58
+L26_1.sourceWidth = 160
+L26_1.sourceHeight = 100
+L27_1 = {}
+L27_1.x = 492
+L27_1.y = 362
+L27_1.width = 128
+L27_1.height = 12
+L27_1.sourceX = 20
+L27_1.sourceY = 0
+L27_1.sourceWidth = 160
+L27_1.sourceHeight = 100
+L28_1 = {}
+L28_1.x = 4
+L28_1.y = 502
+L28_1.width = 134
+L28_1.height = 38
+L28_1.sourceX = 20
+L28_1.sourceY = 62
+L28_1.sourceWidth = 160
+L28_1.sourceHeight = 100
+L29_1 = {}
+L29_1.x = 634
+L29_1.y = 354
+L29_1.width = 132
+L29_1.height = 10
+L29_1.sourceX = 20
+L29_1.sourceY = 0
+L29_1.sourceWidth = 160
+L29_1.sourceHeight = 100
+L30_1 = {}
+L30_1.x = 630
+L30_1.y = 374
+L30_1.width = 124
+L30_1.height = 36
+L30_1.sourceX = 22
+L30_1.sourceY = 64
+L30_1.sourceWidth = 160
+L30_1.sourceHeight = 100
+L31_1 = {}
+L31_1.x = 854
+L31_1.y = 308
+L31_1.width = 118
+L31_1.height = 12
+L31_1.sourceX = 24
+L31_1.sourceY = 0
+L31_1.sourceWidth = 160
+L31_1.sourceHeight = 100
+L32_1 = {}
+L32_1.x = 492
+L32_1.y = 384
+L32_1.width = 122
+L32_1.height = 38
+L32_1.sourceX = 16
+L32_1.sourceY = 62
+L32_1.sourceWidth = 160
+L32_1.sourceHeight = 100
+L33_1 = {}
+L33_1.x = 492
+L33_1.y = 340
+L33_1.width = 132
+L33_1.height = 12
+L33_1.sourceX = 10
+L33_1.sourceY = 0
+L33_1.sourceWidth = 160
+L33_1.sourceHeight = 100
+L34_1 = {}
+L34_1.x = 4
+L34_1.y = 416
+L34_1.width = 138
+L34_1.height = 24
+L34_1.sourceX = 14
+L34_1.sourceY = 76
+L34_1.sourceWidth = 160
+L34_1.sourceHeight = 100
+L35_1 = {}
+L35_1.x = 330
+L35_1.y = 278
+L35_1.width = 146
+L35_1.height = 12
+L35_1.sourceX = 10
+L35_1.sourceY = 0
+L35_1.sourceWidth = 160
+L35_1.sourceHeight = 100
+L36_1 = {}
+L36_1.x = 4
+L36_1.y = 250
+L36_1.width = 150
+L36_1.height = 30
+L36_1.sourceX = 6
+L36_1.sourceY = 70
+L36_1.sourceWidth = 160
+L36_1.sourceHeight = 100
+L37_1 = {}
+L37_1.x = 318
+L37_1.y = 348
+L37_1.width = 142
+L37_1.height = 12
+L37_1.sourceX = 10
+L37_1.sourceY = 0
+L37_1.sourceWidth = 160
+L37_1.sourceHeight = 100
+L38_1 = {}
+L38_1.x = 664
+L38_1.y = 170
+L38_1.width = 152
+L38_1.height = 28
+L38_1.sourceX = 6
+L38_1.sourceY = 72
+L38_1.sourceWidth = 160
+L38_1.sourceHeight = 100
+L39_1 = {}
+L39_1.x = 318
+L39_1.y = 300
+L39_1.width = 144
+L39_1.height = 12
+L39_1.sourceX = 8
+L39_1.sourceY = 0
+L39_1.sourceWidth = 160
+L39_1.sourceHeight = 100
+L40_1 = {}
+L40_1.x = 170
+L40_1.y = 114
+L40_1.width = 156
+L40_1.height = 28
+L40_1.sourceX = 4
+L40_1.sourceY = 72
+L40_1.sourceWidth = 160
+L40_1.sourceHeight = 100
+L41_1 = {}
+L41_1.x = 668
+L41_1.y = 146
+L41_1.width = 154
+L41_1.height = 14
+L41_1.sourceX = 0
+L41_1.sourceY = 0
+L41_1.sourceWidth = 160
+L41_1.sourceHeight = 100
+L42_1 = {}
+L42_1.x = 4
+L42_1.y = 314
+L42_1.width = 144
+L42_1.height = 34
+L42_1.sourceX = 0
+L42_1.sourceY = 66
+L42_1.sourceWidth = 160
+L42_1.sourceHeight = 100
+L43_1 = {}
+L43_1.x = 4
+L43_1.y = 388
+L43_1.width = 144
+L43_1.height = 18
+L43_1.sourceX = 0
+L43_1.sourceY = 0
+L43_1.sourceWidth = 160
+L43_1.sourceHeight = 100
+L44_1 = {}
+L44_1.x = 854
+L44_1.y = 4
+L44_1.width = 160
+L44_1.height = 36
+L44_1.sourceX = 0
+L44_1.sourceY = 64
+L44_1.sourceWidth = 160
+L44_1.sourceHeight = 100
+L45_1 = {}
+L45_1.x = 502
+L45_1.y = 138
+L45_1.width = 156
+L45_1.height = 16
+L45_1.sourceX = 0
+L45_1.sourceY = 0
+L45_1.sourceWidth = 160
+L45_1.sourceHeight = 100
+L46_1 = {}
+L46_1.x = 854
+L46_1.y = 50
+L46_1.width = 160
+L46_1.height = 34
+L46_1.sourceX = 0
+L46_1.sourceY = 66
+L46_1.sourceWidth = 160
+L46_1.sourceHeight = 100
+L47_1 = {}
+L47_1.x = 664
+L47_1.y = 208
+L47_1.width = 152
+L47_1.height = 20
+L47_1.sourceX = 0
+L47_1.sourceY = 0
+L47_1.sourceWidth = 160
+L47_1.sourceHeight = 100
+L48_1 = {}
+L48_1.x = 650
+L48_1.y = 290
+L48_1.width = 134
+L48_1.height = 30
+L48_1.sourceX = 24
+L48_1.sourceY = 70
+L48_1.sourceWidth = 160
+L48_1.sourceHeight = 100
+L49_1 = {}
+L49_1.x = 650
+L49_1.y = 330
+L49_1.width = 132
+L49_1.height = 14
+L49_1.sourceX = 22
+L49_1.sourceY = 0
+L49_1.sourceWidth = 160
+L49_1.sourceHeight = 100
+L50_1 = {}
+L50_1.x = 336
+L50_1.y = 114
+L50_1.width = 156
+L50_1.height = 18
+L50_1.sourceX = 2
+L50_1.sourceY = 0
+L50_1.sourceWidth = 160
+L50_1.sourceHeight = 100
+L51_1 = {}
+L51_1.x = 502
+L51_1.y = 164
+L51_1.width = 152
+L51_1.height = 100
+L51_1.sourceX = 6
+L51_1.sourceY = 0
+L51_1.sourceWidth = 160
+L51_1.sourceHeight = 100
+L52_1 = {}
+L52_1.x = 4
+L52_1.y = 4
+L52_1.width = 160
+L52_1.height = 100
+L2_1[1] = L3_1
+L2_1[2] = L4_1
+L2_1[3] = L5_1
+L2_1[4] = L6_1
+L2_1[5] = L7_1
+L2_1[6] = L8_1
+L2_1[7] = L9_1
+L2_1[8] = L10_1
+L2_1[9] = L11_1
+L2_1[10] = L12_1
+L2_1[11] = L13_1
+L2_1[12] = L14_1
+L2_1[13] = L15_1
+L2_1[14] = L16_1
+L2_1[15] = L17_1
+L2_1[16] = L18_1
+L2_1[17] = L19_1
+L2_1[18] = L20_1
+L2_1[19] = L21_1
+L2_1[20] = L22_1
+L2_1[21] = L23_1
+L2_1[22] = L24_1
+L2_1[23] = L25_1
+L2_1[24] = L26_1
+L2_1[25] = L27_1
+L2_1[26] = L28_1
+L2_1[27] = L29_1
+L2_1[28] = L30_1
+L2_1[29] = L31_1
+L2_1[30] = L32_1
+L2_1[31] = L33_1
+L2_1[32] = L34_1
+L2_1[33] = L35_1
+L2_1[34] = L36_1
+L2_1[35] = L37_1
+L2_1[36] = L38_1
+L2_1[37] = L39_1
+L2_1[38] = L40_1
+L2_1[39] = L41_1
+L2_1[40] = L42_1
+L2_1[41] = L43_1
+L2_1[42] = L44_1
+L2_1[43] = L45_1
+L2_1[44] = L46_1
+L2_1[45] = L47_1
+L2_1[46] = L48_1
+L2_1[47] = L49_1
+L2_1[48] = L50_1
+L2_1[49] = L51_1
+L2_1[50] = L52_1
+L3_1 = {}
+L3_1.x = 228
+L3_1.y = 512
+L3_1.width = 58
+L3_1.height = 100
+L3_1.sourceX = 102
+L3_1.sourceY = 0
+L3_1.sourceWidth = 160
+L3_1.sourceHeight = 100
+L4_1 = {}
+L4_1.x = 794
+L4_1.y = 290
+L4_1.width = 22
+L4_1.height = 52
+L4_1.sourceX = 138
+L4_1.sourceY = 48
+L4_1.sourceWidth = 160
+L4_1.sourceHeight = 100
+L5_1 = {}
+L5_1.x = 174
+L5_1.y = 4
+L5_1.width = 160
+L5_1.height = 100
+L6_1 = {}
+L6_1.x = 974
+L6_1.y = 392
+L6_1.width = 44
+L6_1.height = 40
+L6_1.sourceX = 0
+L6_1.sourceY = 60
+L6_1.sourceWidth = 160
+L6_1.sourceHeight = 100
+L7_1 = {}
+L7_1.x = 4
+L7_1.y = 600
+L7_1.width = 50
+L7_1.height = 80
+L7_1.sourceX = 0
+L7_1.sourceY = 0
+L7_1.sourceWidth = 160
+L7_1.sourceHeight = 100
+L8_1 = {}
+L8_1.x = 514
+L8_1.y = 112
+L8_1.width = 160
+L8_1.height = 16
+L8_1.sourceX = 0
+L8_1.sourceY = 0
+L8_1.sourceWidth = 160
+L8_1.sourceHeight = 100
+L9_1 = {}
+L9_1.x = 854
+L9_1.y = 120
+L9_1.width = 158
+L9_1.height = 100
+L9_1.sourceX = 2
+L9_1.sourceY = 0
+L9_1.sourceWidth = 160
+L9_1.sourceHeight = 100
+L10_1 = {}
+L10_1.x = 344
+L10_1.y = 4
+L10_1.width = 160
+L10_1.height = 100
+L11_1 = {}
+L11_1.x = 494
+L11_1.y = 274
+L11_1.width = 146
+L11_1.height = 56
+L11_1.sourceX = 14
+L11_1.sourceY = 44
+L11_1.sourceWidth = 160
+L11_1.sourceHeight = 100
+L12_1 = {}
+L12_1.x = 792
+L12_1.y = 352
+L12_1.width = 18
+L12_1.height = 52
+L12_1.sourceX = 142
+L12_1.sourceY = 46
+L12_1.sourceWidth = 160
+L12_1.sourceHeight = 100
+L13_1 = {}
+L13_1.x = 974
+L13_1.y = 442
+L13_1.width = 30
+L13_1.height = 100
+L13_1.sourceX = 0
+L13_1.sourceY = 0
+L13_1.sourceWidth = 160
+L13_1.sourceHeight = 100
+L14_1 = {}
+L14_1.x = 336
+L14_1.y = 142
+L14_1.width = 156
+L14_1.height = 16
+L14_1.sourceX = 0
+L14_1.sourceY = 0
+L14_1.sourceWidth = 160
+L14_1.sourceHeight = 100
+L15_1 = {}
+L15_1.x = 170
+L15_1.y = 186
+L15_1.width = 150
+L15_1.height = 98
+L15_1.sourceX = 4
+L15_1.sourceY = 2
+L15_1.sourceWidth = 160
+L15_1.sourceHeight = 100
+L16_1 = {}
+L16_1.x = 764
+L16_1.y = 414
+L16_1.width = 70
+L16_1.height = 94
+L16_1.sourceX = 0
+L16_1.sourceY = 6
+L16_1.sourceWidth = 160
+L16_1.sourceHeight = 100
+L17_1 = {}
+L17_1.x = 148
+L17_1.y = 512
+L17_1.width = 70
+L17_1.height = 82
+L17_1.sourceX = 4
+L17_1.sourceY = 18
+L17_1.sourceWidth = 160
+L17_1.sourceHeight = 100
+L18_1 = {}
+L18_1.x = 4
+L18_1.y = 200
+L18_1.width = 150
+L18_1.height = 40
+L18_1.sourceX = 6
+L18_1.sourceY = 60
+L18_1.sourceWidth = 160
+L18_1.sourceHeight = 100
+L19_1 = {}
+L19_1.x = 4
+L19_1.y = 290
+L19_1.width = 150
+L19_1.height = 14
+L19_1.sourceX = 4
+L19_1.sourceY = 0
+L19_1.sourceWidth = 160
+L19_1.sourceHeight = 100
+L20_1 = {}
+L20_1.x = 854
+L20_1.y = 230
+L20_1.width = 148
+L20_1.height = 42
+L20_1.sourceX = 4
+L20_1.sourceY = 58
+L20_1.sourceWidth = 160
+L20_1.sourceHeight = 100
+L21_1 = {}
+L21_1.x = 854
+L21_1.y = 94
+L21_1.width = 160
+L21_1.height = 16
+L21_1.sourceX = 0
+L21_1.sourceY = 0
+L21_1.sourceWidth = 160
+L21_1.sourceHeight = 100
+L22_1 = {}
+L22_1.x = 4
+L22_1.y = 358
+L22_1.width = 144
+L22_1.height = 20
+L22_1.sourceX = 10
+L22_1.sourceY = 80
+L22_1.sourceWidth = 160
+L22_1.sourceHeight = 100
+L23_1 = {}
+L23_1.x = 664
+L23_1.y = 238
+L23_1.width = 152
+L23_1.height = 16
+L23_1.sourceX = 4
+L23_1.sourceY = 0
+L23_1.sourceWidth = 160
+L23_1.sourceHeight = 100
+L24_1 = {}
+L24_1.x = 170
+L24_1.y = 152
+L24_1.width = 154
+L24_1.height = 24
+L24_1.sourceX = 4
+L24_1.sourceY = 76
+L24_1.sourceWidth = 160
+L24_1.sourceHeight = 100
+L25_1 = {}
+L25_1.x = 684
+L25_1.y = 120
+L25_1.width = 160
+L25_1.height = 16
+L25_1.sourceX = 0
+L25_1.sourceY = 0
+L25_1.sourceWidth = 160
+L25_1.sourceHeight = 100
+L26_1 = {}
+L26_1.x = 514
+L26_1.y = 4
+L26_1.width = 160
+L26_1.height = 98
+L26_1.sourceX = 0
+L26_1.sourceY = 2
+L26_1.sourceWidth = 160
+L26_1.sourceHeight = 100
+L27_1 = {}
+L27_1.x = 164
+L27_1.y = 294
+L27_1.width = 144
+L27_1.height = 98
+L27_1.sourceX = 12
+L27_1.sourceY = 2
+L27_1.sourceWidth = 160
+L27_1.sourceHeight = 100
+L28_1 = {}
+L28_1.x = 334
+L28_1.y = 168
+L28_1.width = 150
+L28_1.height = 100
+L28_1.sourceX = 4
+L28_1.sourceY = 0
+L28_1.sourceWidth = 160
+L28_1.sourceHeight = 100
+L29_1 = {}
+L29_1.x = 420
+L29_1.y = 410
+L29_1.width = 60
+L29_1.height = 86
+L29_1.sourceX = 94
+L29_1.sourceY = 4
+L29_1.sourceWidth = 160
+L29_1.sourceHeight = 100
+L30_1 = {}
+L30_1.x = 414
+L30_1.y = 506
+L30_1.width = 64
+L30_1.height = 82
+L30_1.sourceX = 6
+L30_1.sourceY = 6
+L30_1.sourceWidth = 160
+L30_1.sourceHeight = 100
+L31_1 = {}
+L31_1.x = 296
+L31_1.y = 528
+L31_1.width = 58
+L31_1.height = 86
+L31_1.sourceX = 92
+L31_1.sourceY = 10
+L31_1.sourceWidth = 160
+L31_1.sourceHeight = 100
+L2_1[51] = L3_1
+L2_1[52] = L4_1
+L2_1[53] = L5_1
+L2_1[54] = L6_1
+L2_1[55] = L7_1
+L2_1[56] = L8_1
+L2_1[57] = L9_1
+L2_1[58] = L10_1
+L2_1[59] = L11_1
+L2_1[60] = L12_1
+L2_1[61] = L13_1
+L2_1[62] = L14_1
+L2_1[63] = L15_1
+L2_1[64] = L16_1
+L2_1[65] = L17_1
+L2_1[66] = L18_1
+L2_1[67] = L19_1
+L2_1[68] = L20_1
+L2_1[69] = L21_1
+L2_1[70] = L22_1
+L2_1[71] = L23_1
+L2_1[72] = L24_1
+L2_1[73] = L25_1
+L2_1[74] = L26_1
+L2_1[75] = L27_1
+L2_1[76] = L28_1
+L2_1[77] = L29_1
+L2_1[78] = L30_1
+L2_1[79] = L31_1
+L1_1.frames = L2_1
+L1_1.sheetContentWidth = 1024
+L1_1.sheetContentHeight = 1024
+L0_1.sheet = L1_1
+L1_1 = {}
+L1_1["001"] = 1
+L1_1["002"] = 2
+L1_1["003"] = 3
+L1_1["004"] = 4
+L1_1["005"] = 5
+L1_1["006"] = 6
+L1_1["007"] = 7
+L1_1["008"] = 8
+L1_1["009"] = 9
+L1_1["010"] = 10
+L1_1["011"] = 11
+L1_1["012"] = 12
+L1_1["013"] = 13
+L1_1["014"] = 14
+L1_1["015"] = 15
+L1_1["016"] = 16
+L1_1["017"] = 17
+L1_1["018"] = 18
+L1_1["019"] = 19
+L1_1["020"] = 20
+L1_1["021"] = 21
+L1_1["022"] = 22
+L1_1["023"] = 23
+L1_1["024"] = 24
+L1_1["025"] = 25
+L1_1["026"] = 26
+L1_1["027"] = 27
+L1_1["028"] = 28
+L1_1["029"] = 29
+L1_1["030"] = 30
+L1_1["031"] = 31
+L1_1["032"] = 32
+L1_1["033"] = 33
+L1_1["034"] = 34
+L1_1["035"] = 35
+L1_1["036"] = 36
+L1_1["037"] = 37
+L1_1["038"] = 38
+L1_1["039"] = 39
+L1_1["040"] = 40
+L1_1["041"] = 41
+L1_1["042"] = 42
+L1_1["043"] = 43
+L1_1["044"] = 44
+L1_1["045"] = 45
+L1_1["046"] = 46
+L1_1["047"] = 47
+L1_1["048"] = 48
+L1_1["049"] = 49
+L1_1["050"] = 50
+L1_1["051"] = 51
+L1_1["052"] = 52
+L1_1["053"] = 53
+L1_1["054"] = 54
+L1_1["055"] = 55
+L1_1["056"] = 56
+L1_1["057"] = 57
+L1_1["058"] = 58
+L1_1["059"] = 59
+L2_1 = 60
+L1_1["060"] = L2_1
+L2_1 = "061"
+L3_1 = 61
+L1_1[L2_1] = L3_1
+L2_1 = "062"
+L3_1 = 62
+L1_1[L2_1] = L3_1
+L2_1 = "063"
+L3_1 = 63
+L1_1[L2_1] = L3_1
+L2_1 = "064"
+L3_1 = 64
+L1_1[L2_1] = L3_1
+L2_1 = "065"
+L3_1 = 65
+L1_1[L2_1] = L3_1
+L2_1 = "066"
+L3_1 = 66
+L1_1[L2_1] = L3_1
+L2_1 = "067"
+L3_1 = 67
+L1_1[L2_1] = L3_1
+L2_1 = "068"
+L3_1 = 68
+L1_1[L2_1] = L3_1
+L2_1 = "069"
+L3_1 = 69
+L1_1[L2_1] = L3_1
+L2_1 = "070"
+L3_1 = 70
+L1_1[L2_1] = L3_1
+L2_1 = "071"
+L3_1 = 71
+L1_1[L2_1] = L3_1
+L2_1 = "072"
+L3_1 = 72
+L1_1[L2_1] = L3_1
+L2_1 = "073"
+L3_1 = 73
+L1_1[L2_1] = L3_1
+L2_1 = "074"
+L3_1 = 74
+L1_1[L2_1] = L3_1
+L2_1 = "075"
+L3_1 = 75
+L1_1[L2_1] = L3_1
+L2_1 = "076"
+L3_1 = 76
+L1_1[L2_1] = L3_1
+L2_1 = "077"
+L3_1 = 77
+L1_1[L2_1] = L3_1
+L2_1 = "078"
+L3_1 = 78
+L1_1[L2_1] = L3_1
+L2_1 = "079"
+L3_1 = 79
+L1_1[L2_1] = L3_1
+L0_1.frameIndex = L1_1
+L1_1 = "getSheet"
 
-function SheetInfo:getSheet()
-  return self.sheet
+function L2_1(A0_2)
+  local L1_2
+  L1_2 = A0_2.sheet
+  return L1_2
 end
 
-function SheetInfo:getFrameIndex(name)
-  return self.frameIndex[name]
+L0_1[L1_1] = L2_1
+L1_1 = "getFrameIndex"
+
+function L2_1(A0_2, A1_2)
+  local L2_2
+  L2_2 = A0_2.frameIndex
+  L2_2 = L2_2[A1_2]
+  return L2_2
 end
 
-return SheetInfo
+L0_1[L1_1] = L2_1
+return L0_1
+ 
+---------------------------------------

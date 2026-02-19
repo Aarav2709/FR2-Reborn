@@ -654,7 +654,7 @@ function scene:create(event)
             rankingEarned.x = ratingX
             rankingEarned.y = ratingY
             newStatsGroup:insert(rankingEarned)
-            local ratingIcon = display.newImageRect("images/gui/postgame/iconRating.png", 28, 28)
+            local ratingIcon = display.newImageRect("images/gui/postgame/iconCoin.png", 28, 28)
             if ratingIcon then
                 ratingIcon.anchorX = 1
                 ratingIcon.anchorY = 1
@@ -841,7 +841,7 @@ function scene:create(event)
             xpText.y = xpY
             newStatsGroup:insert(xpText)
 
-            local xpIcon = display.newImageRect("images/gui/postgame/iconRating.png", 28, 28)
+            local xpIcon = display.newImageRect("images/gui/postgame/iconCoin.png", 28, 28)
             if xpIcon then
                 xpIcon.anchorX = 1
                 xpIcon.anchorY = 1

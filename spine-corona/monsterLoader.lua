@@ -474,6 +474,65 @@ local function new(monsterData, networkFormat)
     return false
   end
 
+  local function getAnimationList()
+    if animationHandler and animationHandler.skeletonData then
+      return animationHandler.skeletonData:getAnimations()
+    end
+    return nil
+  end
+
+  local function animationExists(animationName)
+    local animations = getAnimationList()
+    if not animations or not animationName then
+      return false
+    end
+    for i = 1, #animations do
+      if animations[i].name == animationName then
+        return true
+      end
+    end
+    return false
+  end
+
+  local function resolveAnimationName(requestedAnimation)
+    if not requestedAnimation then
+      return nil
+    end
+    if animationExists(requestedAnimation) then
+      return requestedAnimation
+    end
+    local animations = getAnimationList()
+    if not animations then
+      return nil
+    end
+    local prefix = requestedAnimation .. "_"
+    local fallbackAnimation
+    for i = 1, #animations do
+      local candidateName = animations[i].name
+      if string.sub(candidateName, 1, #prefix) == prefix then
+        if not fallbackAnimation or candidateName < fallbackAnimation then
+          fallbackAnimation = candidateName
+        end
+      end
+    end
+    return fallbackAnimation
+  end
+
+  local function getResolvedFollowupAnimation(baseAnimation, resolvedAnimation)
+    if not baseAnimation or not resolvedAnimation then
+      return resolveAnimationName(baseAnimation)
+    end
+    local suffixPrefix = baseAnimation .. "_"
+    if string.sub(resolvedAnimation, 1, #suffixPrefix) == suffixPrefix then
+      local suffix = string.sub(resolvedAnimation, #suffixPrefix + 1)
+      local suffixedTarget = baseAnimation .. "_" .. suffix
+      if animationExists(suffixedTarget) then
+        return suffixedTarget
+      end
+    end
+    return resolveAnimationName(baseAnimation)
+  end
+
   function monster.stopAllAnimation()
     Runtime:removeEventListener("enterFrame", update)
   end
@@ -490,24 +549,12 @@ local function new(monsterData, networkFormat)
   function monster.playUseAnimation(newAnimation)
     monster.cleanUseAnimationImages()
     if newAnimation then
-      -- Animation check for playUseAnimation
-      local hasAnimation = false
-      if animationHandler and animationHandler.skeletonData then
-        local animations = animationHandler.skeletonData:getAnimations()
-        for i = 1, #animations do
-          if animations[i].name == newAnimation then
-            hasAnimation = true
-            break
-          end
-        end
-      end
-
-      if not hasAnimation then
+      local resolvedAnimation = resolveAnimationName(newAnimation)
+      if not resolvedAnimation then
         print("WARNING: Use animation '" .. newAnimation .. "' not found, skipping...")
         return
       end
-
-      animationHandler:setAnimationByName(2, newAnimation, false)
+      animationHandler:setAnimationByName(2, resolvedAnimation, false)
     end
   end
 
@@ -528,32 +575,29 @@ local function new(monsterData, networkFormat)
   function monster.playBuffAnimation(newAnimation, loop)
     monster.cleanBuffAnimationImages()
     if newAnimation then
-      -- Animation check: skip if missing
-      local hasAnimation = false
-      if animationHandler and animationHandler.skeletonData then
-        local animations = animationHandler.skeletonData:getAnimations()
-        for i = 1, #animations do
-          if animations[i].name == newAnimation then
-            hasAnimation = true
-            break
-          end
-        end
-      end
-
-      if not hasAnimation then
+      local resolvedAnimation = resolveAnimationName(newAnimation)
+      if not resolvedAnimation then
         print("WARNING: Animation '" .. newAnimation .. "' not found, skipping...")
         return
       end
-
-      animationHandler:setAnimationByName(1, newAnimation, loop)
+      animationHandler:setAnimationByName(1, resolvedAnimation, loop)
       if newAnimation == "speed_start" then
-        animationHandler:addAnimationByName(1, "speed_active", true)
+        local speedActiveAnimation = getResolvedFollowupAnimation("speed_active", resolvedAnimation)
+        if speedActiveAnimation then
+          animationHandler:addAnimationByName(1, speedActiveAnimation, true)
+        end
       elseif newAnimation == "speed_end" then
         animationHandler:addAnimationByName(0, "run", true)
       elseif newAnimation == "sacrifice_start" then
-        animationHandler:addAnimationByName(1, "sacrifice_active", true)
+        local sacrificeActiveAnimation = getResolvedFollowupAnimation("sacrifice_active", resolvedAnimation)
+        if sacrificeActiveAnimation then
+          animationHandler:addAnimationByName(1, sacrificeActiveAnimation, true)
+        end
       elseif newAnimation == "rocket_start" then
-        animationHandler:addAnimationByName(1, "rocket_active", true)
+        local rocketActiveAnimation = getResolvedFollowupAnimation("rocket_active", resolvedAnimation)
+        if rocketActiveAnimation then
+          animationHandler:addAnimationByName(1, rocketActiveAnimation, true)
+        end
       end
     end
   end

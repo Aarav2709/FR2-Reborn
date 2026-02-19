@@ -98,7 +98,9 @@ local function createImage(layerId)
   local dimY = 320
   local yOffset = 0
   local screenOriginX = display.screenOriginX or 0
+  local screenOriginY = display.screenOriginY or 0
   local visibleWidth = math.ceil((display.actualContentWidth or display.contentWidth or 480) + math.abs(screenOriginX) * 2)
+  local visibleHeight = math.ceil((display.actualContentHeight or display.contentHeight or 320) + math.abs(screenOriginY) * 2)
   local xOffset = math.floor(screenOriginX)
   if layerId == 2 then
     dimX = math.max(680, visibleWidth)
@@ -117,6 +119,7 @@ local function createImage(layerId)
     end
   else
     dimX = math.max(480, visibleWidth)
+    dimY = math.max(320, visibleHeight)
   end
   image = display.newImageRect("images/map/" .. theme .. "/background/" .. layerId .. "_" .. backdrop .. ".png", dimX, dimY)
   if not image then
@@ -126,7 +129,7 @@ local function createImage(layerId)
   image.anchorX = 0
   image.anchorY = 0
   image.x = xOffset
-  image.y = 0 + yOffset
+  image.y = math.floor(screenOriginY) + yOffset
   layers[layerId]:insert(image)
   if 1 < layerId then
     for copyIndex = 1, 2 do
@@ -138,7 +141,7 @@ local function createImage(layerId)
       copy.anchorX = 0
       copy.anchorY = 0
       copy.x = image.x + copyIndex * image.width * image.xScale - (copyIndex + 1)
-      copy.y = 0 + yOffset
+      copy.y = math.floor(screenOriginY) + yOffset
       layers[layerId]:insert(copy)
     end
   end

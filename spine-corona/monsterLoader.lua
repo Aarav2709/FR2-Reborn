@@ -164,7 +164,7 @@ local function new(monsterData, networkFormat)
       end
 
       -- Case 3: Not in any imagesheet (accessories, hats, etc.) - load PNG directly
-      if not image then
+      if not image and prepath ~= "powerups" then
         local pngPath = "images/monsters/" .. attachmentName .. ".png"
         image = display.newImage(pngPath)
         if not image then
@@ -567,8 +567,8 @@ local function new(monsterData, networkFormat)
     if not animations or not animationName then
       return false
     end
-    for i = 1, #animations do
-      if animations[i].name == animationName then
+    for _, animation in pairs(animations) do
+      if animation and animation.name == animationName then
         return true
       end
     end
@@ -588,9 +588,9 @@ local function new(monsterData, networkFormat)
     end
     local prefix = requestedAnimation .. "_"
     local fallbackAnimation
-    for i = 1, #animations do
-      local candidateName = animations[i].name
-      if string.sub(candidateName, 1, #prefix) == prefix then
+    for _, animation in pairs(animations) do
+      local candidateName = animation and animation.name
+      if candidateName and string.sub(candidateName, 1, #prefix) == prefix then
         if not fallbackAnimation or candidateName < fallbackAnimation then
           fallbackAnimation = candidateName
         end

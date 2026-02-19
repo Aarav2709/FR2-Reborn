@@ -329,7 +329,7 @@ Click OK and we'll restore your purchase]]
         L2_3 = L2_3.buyCrystalAmazon
         L2_3 = L2_3()
         if L1_3 ~= L2_3 then
-          goto lbl_62
+          -- goto_lbl_62 removed
         end
       end
     end
@@ -377,7 +377,7 @@ Click OK and we'll restore your purchase]]
       L3_3.name = "updateMoneyLabel"
       L1_3(L2_3, L3_3)
     end
-    ::lbl_62::
+    -- lbl_62 removed
   end
   
   function L30_2(A0_3)

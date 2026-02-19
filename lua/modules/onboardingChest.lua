@@ -393,7 +393,7 @@ function L3_1(A0_2, A1_2, A2_2, A3_2, A4_2, A5_2, A6_2)
         if L2_4 then
           L2_4 = A6_2
           if not L2_4 then
-            goto lbl_64
+            -- goto_lbl_64 removed
           end
         end
         L2_4 = L2_1
@@ -453,7 +453,7 @@ function L3_1(A0_2, A1_2, A2_2, A3_2, A4_2, A5_2, A6_2)
         L2_4 = true
         L16_2 = L2_4
       end
-      ::lbl_64::
+      -- lbl_64 removed
     end
     
     L18_2 = L5_3

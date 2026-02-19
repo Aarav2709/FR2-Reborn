@@ -53,7 +53,7 @@ function L3_1()
   L14_2 = -4
   L15_2 = 0.25
   L16_2 = 0.25
-  
+
   function L17_2(A0_3)
     local L1_3
     if A0_3 < 0 then
@@ -64,7 +64,7 @@ function L3_1()
       return L1_3
     end
   end
-  
+
   function L18_2(A0_3, A1_3, A2_3)
     local L3_3, L4_3, L5_3
     L3_3 = L0_2
@@ -82,7 +82,7 @@ function L3_1()
     end
     return L5_3
   end
-  
+
   function L19_2()
     local L0_3, L1_3
     L0_3 = L3_2
@@ -90,21 +90,21 @@ function L3_1()
     L0_3 = false
     L6_2 = L0_3
   end
-  
+
   L3_2.hide = L19_2
-  
+
   function L19_2()
     local L0_3, L1_3
     L0_3 = L3_2
     L0_3 = L0_3.hide
     L0_3()
   end
-  
+
   L3_2.despawn = L19_2
-  
+
   function L19_2(A0_3, A1_3, A2_3)
     local L3_3, L4_3, L5_3, L6_3, L7_3
-    
+
     function L3_3()
       local L0_4, L1_4, L2_4, L3_4
       L0_4 = L5_2
@@ -168,7 +168,7 @@ function L3_1()
       L0_4 = L0_4(L1_4, L2_4, L3_4)
       L5_2 = L0_4
     end
-    
+
     L4_3 = timer
     L4_3 = L4_3.performWithDelay
     L5_3 = 10
@@ -177,9 +177,9 @@ function L3_1()
     L4_3 = L4_3(L5_3, L6_3, L7_3)
     L5_2 = L4_3
   end
-  
+
   L3_2.show = L19_2
-  
+
   function L19_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3
     L0_3 = L3_2
@@ -196,13 +196,13 @@ function L3_1()
     L4_3 = L3_2
     L4_3.rotation = L3_3
   end
-  
+
   function L20_2(A0_3, A1_3)
     local L2_3
     L2_3 = A0_3 + A1_3
     return L2_3
   end
-  
+
   function L21_2(A0_3, A1_3, A2_3)
     local L3_3, L4_3, L5_3, L6_3, L7_3, L8_3
     L3_3 = A1_3 - A0_3
@@ -225,7 +225,7 @@ function L3_1()
     end
     return L5_3
   end
-  
+
   function L22_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3
     L0_3 = L0_2
@@ -270,24 +270,23 @@ function L3_1()
     L7_2 = L0_3
     L8_2 = L1_3
   end
-  
+
   function L23_2()
     local L0_3, L1_3
     L0_3 = L6_2
-    if L0_3 then
-      L0_3 = L4_2
-      if not L0_3 then
-        goto lbl_8
-      end
+    if not L0_3 then
+      return
     end
-    do return end
-    ::lbl_8::
+    L0_3 = L4_2
+    if L0_3 then
+      return
+    end
     L0_3 = L19_2
     L0_3()
   end
-  
+
   L3_2.update = L23_2
-  
+
   function L23_2()
     local L0_3, L1_3
     L0_3 = L4_2
@@ -306,7 +305,7 @@ function L3_1()
       L5_2 = L0_3
     end
   end
-  
+
   L3_2.clean = L23_2
   return L3_2
 end

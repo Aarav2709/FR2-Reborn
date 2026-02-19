@@ -68,11 +68,11 @@ function L2_1(A0_2)
           L3_3 = L3_3 * 32
           L3_3 = 128 - L3_3
           if not (L2_3 < L3_3) then
-            goto lbl_38
+            -- goto_lbl_38 removed
           end
         end
         L2_3 = A0_3.x
-        ::lbl_38::
+        -- lbl_38 removed
         A0_3.x = L2_3
         L3_3 = A1_3.x
         A0_3.markX = L3_3
@@ -81,7 +81,7 @@ function L2_1(A0_2)
         if L2_3 ~= "ended" then
           L2_3 = A1_3.phase
           if L2_3 ~= "cancelled" then
-            goto lbl_78
+            -- goto_lbl_78 removed
           end
         end
         A0_3.markX = nil
@@ -117,7 +117,7 @@ function L2_1(A0_2)
         end
       end
     end
-    ::lbl_78::
+    -- lbl_78 removed
     L2_3 = true
     return L2_3
   end
@@ -156,11 +156,11 @@ function L2_1(A0_2)
       L4_3 = L2_3
       L3_3 = L3_3 .. L4_3
       if L3_3 then
-        goto lbl_17
+        -- goto_lbl_17 removed
       end
     end
     L3_3 = ""
-    ::lbl_17::
+    -- lbl_17 removed
     L4_3 = display
     L4_3 = L4_3.newImageRect
     L5_3 = "images/gui/ranking/clans_history"

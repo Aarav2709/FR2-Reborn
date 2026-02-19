@@ -143,13 +143,13 @@ function L4_1(A0_2, A1_2)
               L7_3 = L5_3
               L6_3 = L6_3(L7_3)
               if 3 <= L6_3 then
-                goto lbl_55
+                -- goto_lbl_55 removed
               end
             end
             L6_3 = tonumber
             L7_3 = L4_3
             L6_3 = L6_3(L7_3)
-            ::lbl_55::
+            -- lbl_55 removed
             if 11 <= L6_3 then
               L6_3 = require
               L7_3 = "plugin.reviewPopUp"

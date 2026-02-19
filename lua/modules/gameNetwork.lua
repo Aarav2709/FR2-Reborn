@@ -502,11 +502,11 @@ function L14_1()
         if L1_3 ~= nil then
           L2_3 = L1_3.disableGameNetwork
           if L2_3 == nil then
-            goto lbl_47
+            -- goto_lbl_47 removed
           end
           L2_3 = L1_3.disableGameNetwork
           if L2_3 ~= true then
-            goto lbl_47
+            -- goto_lbl_47 removed
           end
         end
         L2_3 = print
@@ -520,8 +520,8 @@ function L14_1()
           L2_3()
           L2_3 = L0_1
           L2_3.failsGetLocalPlayerCallback = nil
-          goto lbl_52
-          ::lbl_47::
+          -- goto_lbl_52 removed
+          -- lbl_47 removed
           L2_3 = print
           L3_3 = "Back End says: game center allowed!"
           L2_3(L3_3)
@@ -530,7 +530,7 @@ function L14_1()
         end
       end
     end
-    ::lbl_52::
+    -- lbl_52 removed
   end
   
   L2_2 = {}

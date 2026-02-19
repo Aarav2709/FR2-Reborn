@@ -16,7 +16,7 @@ L5_1 = isSimulator
 if not L5_1 then
   L5_1 = isWindows
   if not L5_1 then
-    goto lbl_27
+    -- goto_lbl_27 removed
   end
 end
 L5_1 = setmetatable
@@ -36,7 +36,7 @@ end
 L7_1.__index = L8_1
 L5_1(L6_1, L7_1)
 do return L2_1 end
-::lbl_27::
+-- lbl_27 removed
 L5_1 = require
 L6_1 = "plugin.facebook.v4a"
 L5_1 = L5_1(L6_1)

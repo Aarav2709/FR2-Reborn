@@ -28,11 +28,11 @@ function L2_1()
       L2_3 = L0_2
       L2_3 = L2_3 + 200
       if not (L1_3 < L2_3) then
-        goto lbl_12
+        -- goto_lbl_12 removed
       end
     end
     do return end
-    ::lbl_12::
+    -- lbl_12 removed
     L1_3 = L1_1
     L1_3 = L1_3.comm
     L1_3 = L1_3.isOnline

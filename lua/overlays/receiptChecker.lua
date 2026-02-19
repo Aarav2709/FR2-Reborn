@@ -459,7 +459,7 @@ function L7_1(A0_2, A1_2)
         L2_3 = L2_3.buyCrystalAmazon
         L2_3 = L2_3()
         if L1_3 ~= L2_3 then
-          goto lbl_47
+          -- goto_lbl_47 removed
         end
       end
     end
@@ -492,7 +492,7 @@ function L7_1(A0_2, A1_2)
     end
     L2_3 = L20_2
     L2_3()
-    ::lbl_47::
+    -- lbl_47 removed
   end
   
   L28_2 = L26_2

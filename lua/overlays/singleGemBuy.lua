@@ -299,7 +299,7 @@ function L5_1(A0_2, A1_2)
         L2_3 = L2_3.buyCrystalAmazon
         L2_3 = L2_3()
         if L1_3 ~= L2_3 then
-          goto lbl_64
+          -- goto_lbl_64 removed
         end
       end
     end
@@ -349,7 +349,7 @@ function L5_1(A0_2, A1_2)
       L3_3.name = "updateMoneyLabel"
       L1_3(L2_3, L3_3)
     end
-    ::lbl_64::
+    -- lbl_64 removed
   end
   
   function L31_2(A0_3)

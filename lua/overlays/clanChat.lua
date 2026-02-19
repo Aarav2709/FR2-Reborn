@@ -1125,7 +1125,7 @@ function L13_1(A0_2, A1_2)
             L2_3 = L2_3.eventTypes
             L2_3 = L2_3.kick
             if L1_3 ~= L2_3 then
-              goto lbl_111
+              -- goto_lbl_111 removed
             end
           end
         end
@@ -1133,7 +1133,7 @@ function L13_1(A0_2, A1_2)
         L2_3()
       end
     end
-    ::lbl_111::
+    -- lbl_111 removed
   end
   
   L8_2 = L0_1

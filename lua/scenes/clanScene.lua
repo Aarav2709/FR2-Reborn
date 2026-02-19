@@ -1029,11 +1029,11 @@ function L12_1(A0_2, A1_2)
       L0_3 = L0_3.clans
       L0_3 = L0_3.inClan
       if L0_3 then
-        goto lbl_11
+        -- goto_lbl_11 removed
       end
     end
     do return end
-    ::lbl_11::
+    -- lbl_11 removed
     L0_3 = L36_2
     L0_3 = L0_3.setMessageOfTheDay
     L1_3 = L0_1
@@ -1060,11 +1060,11 @@ function L12_1(A0_2, A1_2)
       L0_3 = L0_3.clans
       L0_3 = L0_3.inClan
       if L0_3 then
-        goto lbl_11
+        -- goto_lbl_11 removed
       end
     end
     do return end
-    ::lbl_11::
+    -- lbl_11 removed
     L0_3 = L0_1
     L0_3 = L0_3.fitTextFontSize
     L1_3 = L0_1
@@ -1111,11 +1111,11 @@ function L12_1(A0_2, A1_2)
       L1_3 = L1_3.emblem
       L1_3 = L1_3.f
       if L1_3 then
-        goto lbl_60
+        -- goto_lbl_60 removed
       end
     end
     L1_3 = -1
-    ::lbl_60::
+    -- lbl_60 removed
     if L1_3 == 1 then
       L2_3 = L26_2
       L2_3.x = 70
@@ -1186,11 +1186,11 @@ function L12_1(A0_2, A1_2)
       L0_3 = L0_3.clans
       L0_3 = L0_3.inClan
       if L0_3 then
-        goto lbl_11
+        -- goto_lbl_11 removed
       end
     end
     do return end
-    ::lbl_11::
+    -- lbl_11 removed
     L0_3 = L11_1
     L0_3 = L0_3.setStats
     L1_3 = L0_1
@@ -1211,11 +1211,11 @@ function L12_1(A0_2, A1_2)
       L0_3 = L0_3.clans
       L0_3 = L0_3.inClan
       if L0_3 then
-        goto lbl_11
+        -- goto_lbl_11 removed
       end
     end
     do return end
-    ::lbl_11::
+    -- lbl_11 removed
     L0_3 = L37_2
     if L0_3 then
       L0_3 = L0_1
@@ -1554,7 +1554,7 @@ function L12_1(A0_2, A1_2)
           L2_3 = L2_3.playerStateUpdate
           L2_3 = L2_3()
           if L1_3 ~= L2_3 then
-            goto lbl_62
+            -- goto_lbl_62 removed
           end
         end
         L1_3 = A0_3.r
@@ -1566,8 +1566,8 @@ function L12_1(A0_2, A1_2)
         L1_3(L2_3)
         L1_3 = L6_1
         L1_3()
-        goto lbl_158
-        ::lbl_62::
+        -- goto_lbl_158 removed
+        -- lbl_62 removed
         L1_3 = A0_3.m
         L2_3 = L5_2
         L2_3 = L2_3.receiveClanMessage
@@ -1663,7 +1663,7 @@ function L12_1(A0_2, A1_2)
         end
       end
     end
-    ::lbl_158::
+    -- lbl_158 removed
   end
   
   L7_2 = L0_1

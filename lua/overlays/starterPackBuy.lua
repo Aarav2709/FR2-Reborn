@@ -355,7 +355,7 @@ function L5_1(A0_2, A1_2)
           L2_3 = L2_3.buyProductAmazon
           L2_3 = L2_3()
           if L1_3 ~= L2_3 then
-            goto lbl_71
+            -- goto_lbl_71 removed
           end
         end
       end
@@ -407,7 +407,7 @@ function L5_1(A0_2, A1_2)
       L3_3.name = "boughtStarterPack"
       L1_3(L2_3, L3_3)
     end
-    ::lbl_71::
+    -- lbl_71 removed
   end
   
   function L34_2(A0_3)

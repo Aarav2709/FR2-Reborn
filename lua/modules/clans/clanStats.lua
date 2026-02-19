@@ -288,12 +288,12 @@ function L2_1()
       L3_3 = A0_3.deaths
       L2_3 = L2_3(L3_3)
       if not (L2_3 < 1) then
-        goto lbl_18
+        -- goto_lbl_18 removed
       end
     end
     L1_3 = "NA"
-    goto lbl_30
-    ::lbl_18::
+    -- goto_lbl_30 removed
+    -- lbl_18 removed
     L2_3 = string
     L2_3 = L2_3.format
     L3_3 = "%.2f"
@@ -306,7 +306,7 @@ function L2_1()
     L4_3 = L4_3 / L5_3
     L2_3 = L2_3(L3_3, L4_3)
     L1_3 = L2_3
-    ::lbl_30::
+    -- lbl_30 removed
     L2_3 = L13_2
     L2_3.text = L1_3
     L2_3 = "NA"

@@ -658,11 +658,11 @@ function L14_1()
   if L1_2 then
     L1_2 = 1
     if L1_2 then
-      goto lbl_17
+      -- goto_lbl_17 removed
     end
   end
   L1_2 = 2
-  ::lbl_17::
+  -- lbl_17 removed
   L0_2.openness = L1_2
   L1_2 = L1_1
   L1_2 = L1_2.data

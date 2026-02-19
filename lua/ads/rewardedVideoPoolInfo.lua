@@ -14,7 +14,7 @@ function L2_1()
   L2_2()
   L0_2.currentChestIndex = 0
   L2_2 = nil
-  
+
   function L3_2(A0_3)
     local L1_3, L2_3, L3_3, L4_3, L5_3
     L1_3 = L0_2
@@ -39,7 +39,7 @@ function L2_1()
       return L3_3(L4_3, L5_3)
     end
   end
-  
+
   function L4_2(A0_3)
     local L1_3, L2_3, L3_3, L4_3, L5_3, L6_3
     L1_3 = L1_1
@@ -63,7 +63,7 @@ function L2_1()
     L3_3(L4_3, L5_3)
     return L2_3
   end
-  
+
   function L5_2(A0_3)
     local L1_3
     L1_3 = L1_1
@@ -72,7 +72,7 @@ function L2_1()
     L1_3 = L1_3[1]
     return L1_3
   end
-  
+
   function L6_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3
     L0_3 = {}
@@ -101,7 +101,7 @@ function L2_1()
     L3_3 = L1_3
     return L2_3, L3_3
   end
-  
+
   function L7_2(A0_3)
     local L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3, L10_3, L11_3, L12_3, L13_3
     L1_3 = {}
@@ -150,7 +150,7 @@ function L2_1()
     L2_3(L3_3, L4_3, L5_3)
     return L1_3
   end
-  
+
   function L8_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3
     L0_3 = 0
@@ -168,7 +168,7 @@ function L2_1()
     end
     return L0_3
   end
-  
+
   function L9_2()
     local L0_3, L1_3, L2_3
     L0_3 = L1_1
@@ -177,7 +177,7 @@ function L2_1()
       L0_3 = L8_2
       L0_3 = L0_3()
       if L0_3 ~= 0 then
-        goto lbl_33
+        return
       end
     end
     L0_3 = L1_1
@@ -204,9 +204,8 @@ function L2_1()
       L1_3 = L1_3(L2_3)
       L0_3.rewardedVideoTypePool = L1_3
     end
-    ::lbl_33::
   end
-  
+
   function L10_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3, L10_3, L11_3, L12_3, L13_3
     L1_3 = L9_2
@@ -279,7 +278,7 @@ function L2_1()
     end
     return L0_3
   end
-  
+
   function L11_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3
     L1_3 = L9_2
@@ -317,7 +316,7 @@ function L2_1()
     end
     return L0_3
   end
-  
+
   function L12_2(A0_3, A1_3)
     local L2_3, L3_3, L4_3, L5_3, L6_3, L7_3
     L2_3 = L1_1
@@ -334,18 +333,16 @@ function L2_1()
     if not (L2_3 < 0) then
       L3_3 = L1_1
       L3_3 = L3_3.gamesSinceAdBoost
-      if not (L2_3 > L3_3) then
-        goto lbl_25
+      if L2_3 > L3_3 then
+        L3_3 = L1_1
+        L4_3 = L1_1
+        L4_3 = L4_3.gamesSinceAdBoost
+        L4_3 = L4_3 + 1
+        L3_3.gamesSinceAdBoost = L4_3
+        L3_3 = nil
+        do return L3_3 end
       end
     end
-    L3_3 = L1_1
-    L4_3 = L1_1
-    L4_3 = L4_3.gamesSinceAdBoost
-    L4_3 = L4_3 + 1
-    L3_3.gamesSinceAdBoost = L4_3
-    L3_3 = nil
-    do return L3_3 end
-    ::lbl_25::
     L3_3 = L1_1
     L3_3 = L3_3.gameConfig
     L3_3 = L3_3.getAdBoostChance
@@ -381,7 +378,7 @@ function L2_1()
     L6_3 = L1_2
     L5_3(L6_3)
   end
-  
+
   function L13_2(A0_3)
     local L1_3, L2_3
     if A0_3 == "gem" then
@@ -395,7 +392,7 @@ function L2_1()
       L1_3(L2_3)
     end
   end
-  
+
   function L14_2()
     local L0_3, L1_3
     L0_3 = L1_2
@@ -409,7 +406,7 @@ function L2_1()
     L0_3 = L1_2
     return L0_3
   end
-  
+
   function L15_2()
     local L0_3, L1_3
     L0_3 = L1_2
@@ -434,7 +431,7 @@ function L2_1()
     L0_3 = L0_3.clearCurrentChestRewardData
     L0_3()
   end
-  
+
   L0_2.rollForChest = L12_2
   L0_2.getChestInfo = L13_2
   L0_2.updateAndClearPoolState = L15_2

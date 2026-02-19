@@ -146,7 +146,7 @@ function L2_1()
         L16_3 = L8_3.key
         L15_3 = L15_3(L16_3)
         if not L15_3 then
-          goto lbl_141
+          -- goto_lbl_141 removed
         end
       end
       L15_3 = display
@@ -169,8 +169,8 @@ function L2_1()
       L16_3 = L16_3.insert
       L18_3 = L15_3
       L16_3(L17_3, L18_3)
-      goto lbl_177
-      ::lbl_141::
+      -- goto_lbl_177 removed
+      -- lbl_141 removed
       L15_3 = display
       L15_3 = L15_3.newImageRect
       L16_3 = "images/gui/common/gem_small.png"
@@ -209,7 +209,7 @@ function L2_1()
       L17_3 = L17_3.insert
       L19_3 = L16_3
       L17_3(L18_3, L19_3)
-      ::lbl_177::
+      -- lbl_177 removed
     end
     L4_3 = L3_3 + 56
     L5_3 = display

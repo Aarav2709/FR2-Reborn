@@ -6,13 +6,30 @@ local cannonEffectCreator = require("lua.game.effects.cannonEffect")
 local function addBehavior(block)
   local displayGroup = block.displayGroup
   local imageSheet = block.animatedBlockSheet
-  local startImage = "cannon"
+  local startImage = "cannon1"
   local yOffset = 0
-  sequenceData = {
+  local count = 1
+  if composer.data and composer.data.currentLevelTheme == "space" then
+    count = 8
+  end
+  local startFrame = nil
+  if block.animatedBlockSheetFile and block.animatedBlockSheetFile.getFrameIndex then
+    startFrame = block.animatedBlockSheetFile:getFrameIndex(startImage)
+    if not startFrame then
+      startFrame = block.animatedBlockSheetFile:getFrameIndex("cannon1")
+      if startFrame then
+        startImage = "cannon1"
+      end
+    end
+  end
+  if not startFrame then
+    return
+  end
+  local sequenceData = {
     name = "collisionAnimation",
-    start = block.animatedBlockSheetFile:getFrameIndex(startImage),
-    count = 1,
-    time = 350,
+    start = startFrame,
+    count = count,
+    time = 200,
     loopCount = 1,
     loopDirection = "bounce"
   }

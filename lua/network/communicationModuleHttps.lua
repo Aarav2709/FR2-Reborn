@@ -210,6 +210,24 @@ end
 
 function C.changeUsername(username)
   local playerInfo = composer.database.getPlayerInformation()
+  if composer.config and composer.config.offlineMode then
+    local usernameCode = playerInfo and playerInfo.usernameCode or 0
+    composer.database.updatePlayerInfo(username, usernameCode)
+    local renamePrice = composer.storeConfig.getUsernameChangePrice() or 0
+    composer.database.setMoney((composer.database.getMoney() or 0) - renamePrice)
+    composer.analytics.newEvent("design", {
+      event_id = "rename:success",
+      area = composer.config.fullVersion
+    })
+    if C.callback then
+      C.callback({
+        m = httpsFormat.changeUsername(),
+        u = username,
+        t = usernameCode
+      })
+    end
+    return
+  end
   local data = {}
   data.m = httpsFormat.changeUsername()
   data.a = playerInfo.token

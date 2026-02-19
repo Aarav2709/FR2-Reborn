@@ -51,6 +51,9 @@ function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDi
   end
 
   local trapStartIndex = deathAnimation.sheetInfo:getFrameIndex("deaths/body")
+  if not trapStartIndex then
+    trapStartIndex = 1
+  end
   local trapDeathSprite = display.newImage(deathAnimation.sheet, trapStartIndex)
   trapDeathSprite.xScale = 0.5
   trapDeathSprite.yScale = 0.5
@@ -88,6 +91,9 @@ function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDi
   end
 
   local lightninStartIndex = deathAnimation.sheetInfo:getFrameIndex("deaths/lightning1")
+  if not lightninStartIndex then
+    lightninStartIndex = 1
+  end
   local lightningSequenceData = {
     name = "normal",
     start = lightninStartIndex,

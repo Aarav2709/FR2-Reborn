@@ -8,9 +8,34 @@ local function new(monsterData, networkFormat)
   local skeletonData, spineLoader, skeleton, animationHandler, monsterGroup, lastUpdateTime, animationSpeedFactor, runAnimation
   local startedClean = false
   local loadMonsterToMemory, runningType, effectImageSheet, effectImageSheetInfo, effectsSequence, effectImageSheetSpeed, effectImageSheetSpeedInfo, effectsSpeedSequence, id, skin, hat, facewear, neck, item, boots, path, memoryIndex, imageSheet, imageSheetInfo, characterSequence
+  local rocketPowerupId, sacrificePowerupId, magnetPowerupId, markPowerupId, speedPowerupId = 1401, 1601, 1701, 1801, 1901
   local blinkIndex = 0
   local blinkState = 1
   local paused = false
+
+  local function setPowerupAnimationIds(powerupSet)
+    rocketPowerupId, sacrificePowerupId, magnetPowerupId, markPowerupId, speedPowerupId = 1401, 1601, 1701, 1801, 1901
+    if type(powerupSet) ~= "table" then
+      return
+    end
+    for i = 1, #powerupSet do
+      local itemId = tonumber(powerupSet[i])
+      if itemId and composer.storeConfig.canDrawItem(itemId) then
+        local category = composer.storeConfig.getItemCategory(itemId)
+        if category == "rocket" then
+          rocketPowerupId = itemId
+        elseif category == "balloon" then
+          sacrificePowerupId = itemId
+        elseif category == "magnet" then
+          magnetPowerupId = itemId
+        elseif category == "gun" then
+          markPowerupId = itemId
+        elseif category == "speed" then
+          speedPowerupId = itemId
+        end
+      end
+    end
+  end
 
   local function splitFirstSegment(value)
     if not value then
@@ -493,6 +518,7 @@ local function new(monsterData, networkFormat)
 
   local function init()
     composer.debugger.debugTable("spine", "monsterData :", monsterData)
+    local rawMonsterData = monsterData
     if networkFormat then
       monsterData = composer.monsterConverter.fromServerFormat(monsterData)
     end
@@ -531,6 +557,20 @@ local function new(monsterData, networkFormat)
         id = id - 100
       end
     end
+
+    local powerupSet = nil
+    if type(monsterData) == "table" and type(monsterData[8]) == "table" then
+      powerupSet = monsterData[8]
+    elseif type(rawMonsterData) == "table" then
+      for _, value in pairs(rawMonsterData) do
+        if type(value) == "table" and #value > 0 then
+          powerupSet = value
+          break
+        end
+      end
+    end
+    setPowerupAnimationIds(powerupSet)
+
     loadMonsterToMemory()
     characterSequence = {
       start = 1,
@@ -688,6 +728,31 @@ local function new(monsterData, networkFormat)
     return resolveAnimationName(baseAnimation)
   end
 
+  local function getPowerupSuffixedAnimation(animationName)
+    if animationName == "mark_active" then
+      return animationName .. "_" .. markPowerupId
+    elseif animationName == "magnet_start" then
+      return animationName .. "_" .. magnetPowerupId
+    elseif animationName == "speed_start" then
+      return animationName .. "_" .. speedPowerupId
+    elseif animationName == "speed_active" then
+      return animationName .. "_" .. speedPowerupId
+    elseif animationName == "sacrifice_start" then
+      return animationName .. "_" .. sacrificePowerupId
+    elseif animationName == "sacrifice_active" then
+      return animationName .. "_" .. sacrificePowerupId
+    elseif animationName == "sacrifice_end" then
+      return animationName .. "_" .. sacrificePowerupId
+    elseif animationName == "rocket_start" then
+      return animationName .. "_" .. rocketPowerupId
+    elseif animationName == "rocket_active" then
+      return animationName .. "_" .. rocketPowerupId
+    elseif animationName == "rocket_end" then
+      return animationName .. "_" .. rocketPowerupId
+    end
+    return animationName
+  end
+
   function monster.stopAllAnimation()
     Runtime:removeEventListener("enterFrame", update)
   end
@@ -704,8 +769,11 @@ local function new(monsterData, networkFormat)
   function monster.playUseAnimation(newAnimation)
     monster.cleanUseAnimationImages()
     if newAnimation then
-      local resolvedAnimation = resolveAnimationName(newAnimation)
-      local animationToPlay = resolvedAnimation or newAnimation
+      local animationToPlay = getPowerupSuffixedAnimation(newAnimation)
+      if not animationExists(animationToPlay) then
+        local resolvedAnimation = resolveAnimationName(newAnimation)
+        animationToPlay = resolvedAnimation or newAnimation
+      end
       local ok = pcall(function()
         animationHandler:setAnimationByName(2, animationToPlay, false)
       end)
@@ -733,8 +801,11 @@ local function new(monsterData, networkFormat)
   function monster.playBuffAnimation(newAnimation, loop)
     monster.cleanBuffAnimationImages()
     if newAnimation then
-      local resolvedAnimation = resolveAnimationName(newAnimation)
-      local animationToPlay = resolvedAnimation or newAnimation
+      local animationToPlay = getPowerupSuffixedAnimation(newAnimation)
+      if not animationExists(animationToPlay) then
+        local resolvedAnimation = resolveAnimationName(newAnimation)
+        animationToPlay = resolvedAnimation or newAnimation
+      end
       local ok = pcall(function()
         animationHandler:setAnimationByName(1, animationToPlay, loop)
       end)
@@ -743,19 +814,28 @@ local function new(monsterData, networkFormat)
         return
       end
       if newAnimation == "speed_start" then
-        local speedActiveAnimation = getResolvedFollowupAnimation("speed_active", resolvedAnimation or animationToPlay)
+        local speedActiveAnimation = getPowerupSuffixedAnimation("speed_active")
+        if not animationExists(speedActiveAnimation) then
+          speedActiveAnimation = getResolvedFollowupAnimation("speed_active", animationToPlay)
+        end
         if speedActiveAnimation then
           animationHandler:addAnimationByName(1, speedActiveAnimation, true)
         end
       elseif newAnimation == "speed_end" then
         animationHandler:addAnimationByName(0, "run", true)
       elseif newAnimation == "sacrifice_start" then
-        local sacrificeActiveAnimation = getResolvedFollowupAnimation("sacrifice_active", resolvedAnimation or animationToPlay)
+        local sacrificeActiveAnimation = getPowerupSuffixedAnimation("sacrifice_active")
+        if not animationExists(sacrificeActiveAnimation) then
+          sacrificeActiveAnimation = getResolvedFollowupAnimation("sacrifice_active", animationToPlay)
+        end
         if sacrificeActiveAnimation then
           animationHandler:addAnimationByName(1, sacrificeActiveAnimation, true)
         end
       elseif newAnimation == "rocket_start" then
-        local rocketActiveAnimation = getResolvedFollowupAnimation("rocket_active", resolvedAnimation or animationToPlay)
+        local rocketActiveAnimation = getPowerupSuffixedAnimation("rocket_active")
+        if not animationExists(rocketActiveAnimation) then
+          rocketActiveAnimation = getResolvedFollowupAnimation("rocket_active", animationToPlay)
+        end
         if rocketActiveAnimation then
           animationHandler:addAnimationByName(1, rocketActiveAnimation, true)
         end

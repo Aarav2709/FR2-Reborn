@@ -27,6 +27,20 @@ local function newCorpsParts(displayGroup, playerToUse)
 
   N.addSpriteSet = addSpriteSet
 
+  local function getDeathFrameIndex(frameName)
+    if not deathAnimations or not deathAnimations.sheetInfo then
+      return nil
+    end
+    return deathAnimations.sheetInfo:getFrameIndex(frameName)
+  end
+
+  local function getLast(list)
+    if not list or #list == 0 then
+      return nil
+    end
+    return list[#list]
+  end
+
   local function startedCleanNow()
     startedClean = true
     for i = 1, #skullList do
@@ -61,10 +75,14 @@ local function newCorpsParts(displayGroup, playerToUse)
 
   local function dropHuntersMarkHead()
     if not startedClean then
-      huntersMarkHead[#huntersMarkHead].x = player.x
-      huntersMarkHead[#huntersMarkHead].y = player.y
-      huntersMarkHead[#huntersMarkHead].alpha = 1
-      huntersMarkHead[#huntersMarkHead]:toFront()
+      local head = getLast(huntersMarkHead)
+      if not head then
+        return
+      end
+      head.x = player.x
+      head.y = player.y
+      head.alpha = 1
+      head:toFront()
     end
   end
 
@@ -72,7 +90,10 @@ local function newCorpsParts(displayGroup, playerToUse)
 
   local function readyHuntersMarkHead()
     if not startedClean then
-      local hunterMarksPath = deathAnimations.sheetInfo:getFrameIndex("deaths/headSingleShot")
+      local hunterMarksPath = getDeathFrameIndex("deaths/headSingleShot")
+      if not hunterMarksPath then
+        return
+      end
       huntersMarkHead[#huntersMarkHead + 1] = display.newImage(deathAnimations.sheet, hunterMarksPath)
       huntersMarkHead[#huntersMarkHead].xScale = 0.5
       huntersMarkHead[#huntersMarkHead].yScale = 0.5
@@ -233,10 +254,14 @@ local function newCorpsParts(displayGroup, playerToUse)
 
       -- Create only if sawblade physics data exists
       if sawbladeLeftBody and sawbladeRightBody then
-        createGibSpriteObject(deathAnimations.sheetInfo:getFrameIndex("deaths/sawbladeLeft"), gibPhysicsScale,
-          gibPhysicsScale, 0.5, 0.5, player.x, player.y, true, 100, -350, 30, -90, sawbladeLeftBody, vx, vy)
-        createGibSpriteObject(deathAnimations.sheetInfo:getFrameIndex("deaths/sawbladeRight"), gibPhysicsScale,
-          gibPhysicsScale, 0.5, 0.5, player.x, player.y, true, -100, -350, -30, -90, sawbladeRightBody, vx, vy)
+        local sawbladeLeftFrame = getDeathFrameIndex("deaths/sawbladeLeft")
+        local sawbladeRightFrame = getDeathFrameIndex("deaths/sawbladeRight")
+        if sawbladeLeftFrame and sawbladeRightFrame then
+          createGibSpriteObject(sawbladeLeftFrame, gibPhysicsScale,
+            gibPhysicsScale, 0.5, 0.5, player.x, player.y, true, 100, -350, 30, -90, sawbladeLeftBody, vx, vy)
+          createGibSpriteObject(sawbladeRightFrame, gibPhysicsScale,
+            gibPhysicsScale, 0.5, 0.5, player.x, player.y, true, -100, -350, -30, -90, sawbladeRightBody, vx, vy)
+        end
       else
         print("WARNING: Sawblade physics data not available")
       end
@@ -274,6 +299,9 @@ local function newCorpsParts(displayGroup, playerToUse)
   local function readyRocketParts()
     if not startedClean then
       local rocketPath = composer.powerUpEffectImageSheetInfo:getFrameIndex("rocketPart1")
+      if not rocketPath then
+        return
+      end
       for i = 1, 3 do
         local index = rocketPath + i - 1
         rocketParts[#rocketParts + 1] = display.newImage(composer.powerUpEffectImageSheet, index)
@@ -298,11 +326,15 @@ local function newCorpsParts(displayGroup, playerToUse)
 
   local function dropSkull(vx, vy)
     if not startedClean then
-      skullList[#skullList].x = player.x
-      skullList[#skullList].y = player.y
-      skullList[#skullList]:setLinearVelocity(vx, vy)
-      skullList[#skullList].alpha = 1
-      skullList[#skullList]:toFront()
+      local skull = getLast(skullList)
+      if not skull then
+        return
+      end
+      skull.x = player.x
+      skull.y = player.y
+      skull:setLinearVelocity(vx, vy)
+      skull.alpha = 1
+      skull:toFront()
     end
   end
 
@@ -310,7 +342,10 @@ local function newCorpsParts(displayGroup, playerToUse)
 
   local function readySkull()
     if not startedClean then
-      local skullPath = deathAnimations.sheetInfo:getFrameIndex("deaths/headSkull")
+      local skullPath = getDeathFrameIndex("deaths/headSkull")
+      if not skullPath then
+        return
+      end
       skullList[#skullList + 1] = display.newImage(deathAnimations.sheet, skullPath)
       skullList[#skullList].xScale = 0.5
       skullList[#skullList].yScale = 0.5
@@ -332,11 +367,15 @@ local function newCorpsParts(displayGroup, playerToUse)
 
   local function dropHeadShot(vx, vy)
     if not startedClean then
-      headShotList[#headShotList].x = player.x
-      headShotList[#headShotList].y = player.y
-      headShotList[#headShotList]:setLinearVelocity(vx, vy)
-      headShotList[#headShotList].alpha = 1
-      headShotList[#headShotList]:toFront()
+      local headShot = getLast(headShotList)
+      if not headShot then
+        return
+      end
+      headShot.x = player.x
+      headShot.y = player.y
+      headShot:setLinearVelocity(vx, vy)
+      headShot.alpha = 1
+      headShot:toFront()
     end
   end
 
@@ -344,7 +383,10 @@ local function newCorpsParts(displayGroup, playerToUse)
 
   local function readyHeadShot()
     if not startedClean then
-      local skullPath = deathAnimations.sheetInfo:getFrameIndex("deaths/headSingleShot")
+      local skullPath = getDeathFrameIndex("deaths/headSingleShot")
+      if not skullPath then
+        return
+      end
       headShotList[#headShotList + 1] = display.newImage(deathAnimations.sheet, skullPath)
       headShotList[#headShotList].xScale = 0.5
       headShotList[#headShotList].yScale = 0.5
@@ -366,13 +408,17 @@ local function newCorpsParts(displayGroup, playerToUse)
 
   local function dropHead(vx, vy)
     if not startedClean then
-      headList[#headList].x = player.x
-      headList[#headList].y = player.y - 15
-      headList[#headList]:setLinearVelocity(vx, vy)
-      headList[#headList].alpha = 1
-      headList[#headList]:toFront()
-      headList[#headList]:applyForce(math.random(-bpForce * 0.5, bpForce * 0.5), math.random(-bpForce * 2, -15),
-        headList[#headList].x, headList[#headList].y)
+      local head = getLast(headList)
+      if not head then
+        return
+      end
+      head.x = player.x
+      head.y = player.y - 15
+      head:setLinearVelocity(vx, vy)
+      head.alpha = 1
+      head:toFront()
+      head:applyForce(math.random(-bpForce * 0.5, bpForce * 0.5), math.random(-bpForce * 2, -15),
+        head.x, head.y)
     end
   end
 
@@ -380,7 +426,10 @@ local function newCorpsParts(displayGroup, playerToUse)
 
   local function readyHead()
     if not startedClean then
-      local headPath = deathAnimations.sheetInfo:getFrameIndex("deaths/headSingle")
+      local headPath = getDeathFrameIndex("deaths/headSingle")
+      if not headPath then
+        return
+      end
       headList[#headList + 1] = display.newImage(deathAnimations.sheet, headPath)
       headList[#headList].xScale = 0.5
       headList[#headList].yScale = 0.5
@@ -402,11 +451,15 @@ local function newCorpsParts(displayGroup, playerToUse)
 
   local function dropBrain(vx, vy)
     if not startedClean then
-      brainList[#brainList].x = player.x + 8
-      brainList[#brainList].y = player.y - 15
-      brainList[#brainList]:setLinearVelocity(vx, vy)
-      brainList[#brainList].alpha = 1
-      brainList[#brainList]:toFront()
+      local brain = getLast(brainList)
+      if not brain then
+        return
+      end
+      brain.x = player.x + 8
+      brain.y = player.y - 15
+      brain:setLinearVelocity(vx, vy)
+      brain.alpha = 1
+      brain:toFront()
     end
   end
 

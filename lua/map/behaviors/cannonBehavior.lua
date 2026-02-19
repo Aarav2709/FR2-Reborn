@@ -38,11 +38,38 @@ local function addBehavior(block)
   sprite.y = block.y + yOffset
   sprite:scale(block.scale, block.scale)
   displayGroup:insert(sprite)
-  local physicsPath = "lua.map.assets.physics.town_special"
+  if composer.culler and composer.culler.addAnimatedTile then
+    composer.culler.addAnimatedTile(block.x, sprite)
+    sprite.isVisible = false
+  end
+  local currentTheme = composer.data and composer.data.currentLevelTheme
+  if not currentTheme then
+    currentTheme = block.theme or "forest"
+  end
+  local physicsPath = "lua.map.assets.physics." .. currentTheme .. "_special"
   local physicsSheet = require(physicsPath).physicsData(block.scale)
-  local bodies = {
-    physicsSheet:get(startImage)
-  }
+  local function getBodiesFor(key)
+    local ok, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13 = pcall(physicsSheet.get, physicsSheet, key)
+    if not ok then
+      return nil
+    end
+    local candidates = {b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13}
+    local output = {}
+    for i = 1, #candidates do
+      if candidates[i] then
+        output[#output + 1] = candidates[i]
+      end
+    end
+    return output
+  end
+
+  local bodies = getBodiesFor(startImage)
+  if not bodies or #bodies == 0 then
+    bodies = getBodiesFor("cannon")
+  end
+  if not bodies or #bodies == 0 then
+    return
+  end
   for i, body in ipairs(bodies) do
     body.filter = obstacleFilter
   end
@@ -92,6 +119,7 @@ local function addBehavior(block)
       if object and cannonEffect and not startedClean then
         objectsShot[object.id] = system.getTimer()
         cannonEffect.playEffect()
+        play()
         if object.playSound then
           object.playSound("cannon")
         end

@@ -97,24 +97,26 @@ local function createImage(layerId)
   local dimX = 480
   local dimY = 320
   local yOffset = 0
-  local xOffset = 0
+  local screenOriginX = display.screenOriginX or 0
+  local visibleWidth = math.ceil((display.actualContentWidth or display.contentWidth or 480) + math.abs(screenOriginX) * 2)
+  local xOffset = math.floor(screenOriginX)
   if layerId == 2 then
-    dimX = 680
+    dimX = math.max(680, visibleWidth)
     dimY = 327
     if theme == "space" then
       yOffset = -10
     end
   elseif layerId == 3 then
     if theme == "space" then
-      dimX = 680
+      dimX = math.max(680, visibleWidth)
       dimY = 327
     else
-      dimX = 680
+      dimX = math.max(680, visibleWidth)
       dimY = 236
       yOffset = 110
     end
   else
-    dimX = math.max(480, math.ceil(display.actualContentWidth or display.contentWidth or 480))
+    dimX = math.max(480, visibleWidth)
   end
   image = display.newImageRect("images/map/" .. theme .. "/background/" .. layerId .. "_" .. backdrop .. ".png", dimX, dimY)
   if not image then

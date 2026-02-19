@@ -72,10 +72,7 @@ local function new(monsterData, networkFormat)
     if not pathValue then
       return nil, nil
     end
-    local i, j = string.find(pathValue, "[%w_]+/[%w_]+/")
-    if not i or not j then
-      i, j = string.find(pathValue, "[%w_]+/")
-    end
+    local i, j = string.find(pathValue, "[%w_]+/")
     if not i or not j then
       return pathValue, nil
     end
@@ -131,6 +128,39 @@ local function new(monsterData, networkFormat)
     return nil
   end
 
+  local function resolvePowerupFrame(sheetInfo, restOfPath, frameKey)
+    if not sheetInfo then
+      return nil
+    end
+
+    local candidates = {}
+    local function addCandidate(value)
+      if value and value ~= "" then
+        for i = 1, #candidates do
+          if candidates[i] == value then
+            return
+          end
+        end
+        candidates[#candidates + 1] = value
+      end
+    end
+
+    addCandidate(frameKey)
+    addCandidate(restOfPath)
+
+    local fromRest = getPowerupFrameCandidates(restOfPath)
+    for i = 1, #fromRest do
+      addCandidate(fromRest[i])
+    end
+
+    local fromFrame = getPowerupFrameCandidates(frameKey)
+    for i = 1, #fromFrame do
+      addCandidate(fromFrame[i])
+    end
+
+    return findFrameInSheet(sheetInfo, candidates)
+  end
+
   local function overrideSkeletonFunctions()
     function skeleton:createImage(attachment)
       composer.debugger.profile("CreateImage")
@@ -169,8 +199,8 @@ local function new(monsterData, networkFormat)
         local powerupPrefix, frameKey = splitPrefixAndFrame(restOfPath)
         local imagePath
 
-        if powerupPrefix == "speed" and effectImageSheetSpeedInfo and effectImageSheetSpeed and effectsSpeedSequence and frameKey then
-          imagePath = effectImageSheetSpeedInfo:getFrameIndex(frameKey)
+        if powerupPrefix == "speed" and effectImageSheetSpeedInfo and effectImageSheetSpeed and effectsSpeedSequence then
+          imagePath = resolvePowerupFrame(effectImageSheetSpeedInfo, restOfPath, frameKey)
           if imagePath then
             image = display.newSprite(effectImageSheetSpeed, effectsSpeedSequence)
             image:setFrame(imagePath)
@@ -178,12 +208,7 @@ local function new(monsterData, networkFormat)
         end
 
         if not image and effectImageSheetInfo and effectImageSheet and effectsSequence then
-          if frameKey then
-            imagePath = effectImageSheetInfo:getFrameIndex(frameKey)
-          else
-            local candidates = getPowerupFrameCandidates(restOfPath)
-            imagePath = findFrameInSheet(effectImageSheetInfo, candidates)
-          end
+          imagePath = resolvePowerupFrame(effectImageSheetInfo, restOfPath, frameKey)
           if imagePath then
             image = display.newSprite(effectImageSheet, effectsSequence)
             image:setFrame(imagePath)
@@ -225,15 +250,10 @@ local function new(monsterData, networkFormat)
         if prepath == "powerups" and restOfPath then
           local powerupPrefix, frameKey = splitPrefixAndFrame(restOfPath)
           local imagePath
-          if powerupPrefix == "speed" and effectImageSheetSpeedInfo and frameKey then
-            imagePath = effectImageSheetSpeedInfo:getFrameIndex(frameKey)
+          if powerupPrefix == "speed" and effectImageSheetSpeedInfo then
+            imagePath = resolvePowerupFrame(effectImageSheetSpeedInfo, restOfPath, frameKey)
           elseif effectImageSheetInfo then
-            if frameKey then
-              imagePath = effectImageSheetInfo:getFrameIndex(frameKey)
-            else
-              local candidates = getPowerupFrameCandidates(restOfPath)
-              imagePath = findFrameInSheet(effectImageSheetInfo, candidates)
-            end
+            imagePath = resolvePowerupFrame(effectImageSheetInfo, restOfPath, frameKey)
           end
           if imagePath then
             image:setFrame(imagePath)

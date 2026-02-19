@@ -86,6 +86,8 @@ function M.loadAnimations3()
   composer.powerUpEffectImageSheet = graphics.newImageSheet("images/game/powerups/effects.png", composer.powerUpEffectImageSheetInfo:getSheet())
   composer.characterPowerUpEffectsImageSheetInfo = require("lua.monsters.powerUpEffects")
   composer.characterPowerUpEffectsImageSheet = graphics.newImageSheet("images/monsters/powerups/powerUpEffects.png", composer.characterPowerUpEffectsImageSheetInfo:getSheet())
+  composer.characterPowerUpEffectsSpeedImageSheetInfo = require("lua.monsters.powerUpEffectsSpeed")
+  composer.characterPowerUpEffectsSpeedImageSheet = graphics.newImageSheet("images/monsters/powerups/powerUpEffectsSpeed.png", composer.characterPowerUpEffectsSpeedImageSheetInfo:getSheet())
   local lightningEffectStartIndex = composer.powerUpEffectImageSheetInfo:getFrameIndex("lightningBolt1")
   local lightningEffectSequenceData = {
     name = "normal",

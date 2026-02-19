@@ -7,7 +7,7 @@ local function new(monsterData, networkFormat)
   local monsterData = monsterData
   local skeletonData, spineLoader, skeleton, animationHandler, monsterGroup, lastUpdateTime, animationSpeedFactor, runAnimation
   local startedClean = false
-  local loadMonsterToMemory, runningType, effectImageSheet, effectImageSheetInfo, effectsSequence, id, skin, hat, facewear, neck, item, boots, path, memoryIndex, imageSheet, imageSheetInfo, characterSequence
+  local loadMonsterToMemory, runningType, effectImageSheet, effectImageSheetInfo, effectsSequence, effectImageSheetSpeed, effectImageSheetSpeedInfo, effectsSpeedSequence, id, skin, hat, facewear, neck, item, boots, path, memoryIndex, imageSheet, imageSheetInfo, characterSequence
   local blinkIndex = 0
   local blinkState = 1
   local paused = false
@@ -50,6 +50,64 @@ local function new(monsterData, networkFormat)
     end
   end
 
+  local function splitPathSegments(pathValue)
+    local segments = {}
+    if not pathValue then
+      return segments
+    end
+    for part in string.gmatch(pathValue, "[^/]+") do
+      segments[#segments + 1] = part
+    end
+    return segments
+  end
+
+  local function getPowerupFrameCandidates(restOfPath)
+    local candidates = {}
+    if not restOfPath then
+      return candidates
+    end
+
+    local function pushCandidate(value)
+      if value and value ~= "" then
+        for i = 1, #candidates do
+          if candidates[i] == value then
+            return
+          end
+        end
+        candidates[#candidates + 1] = value
+      end
+    end
+
+    pushCandidate(restOfPath)
+
+    local segments = splitPathSegments(restOfPath)
+    local count = #segments
+    if count >= 2 then
+      pushCandidate(table.concat(segments, "/", 2, count))
+      pushCandidate(segments[count])
+      pushCandidate(segments[1] .. "/" .. segments[count])
+    end
+    if count >= 3 then
+      pushCandidate(segments[count - 1] .. "/" .. segments[count])
+      pushCandidate(segments[2] .. "/" .. segments[3])
+    end
+
+    return candidates
+  end
+
+  local function findFrameInSheet(sheetInfo, candidates)
+    if not sheetInfo or not candidates then
+      return nil
+    end
+    for i = 1, #candidates do
+      local frameIndex = sheetInfo:getFrameIndex(candidates[i])
+      if frameIndex then
+        return frameIndex
+      end
+    end
+    return nil
+  end
+
   local function overrideSkeletonFunctions()
     function skeleton:createImage(attachment)
       composer.debugger.profile("CreateImage")
@@ -84,11 +142,24 @@ local function new(monsterData, networkFormat)
           print("  -> Available frames: " .. tostring(#imageSheetInfo:getSheet().frames))
                 end
 
-      elseif prepath == "powerups" and effectImageSheetInfo and restOfPath then
-        local imagePath = effectImageSheetInfo:getFrameIndex(restOfPath)
-        if imagePath then
-          image = display.newSprite(effectImageSheet, effectsSequence)
-          image:setFrame(imagePath)
+      elseif prepath == "powerups" and restOfPath then
+        local candidates = getPowerupFrameCandidates(restOfPath)
+        local imagePath
+
+        if effectImageSheetSpeedInfo and effectImageSheetSpeed and effectsSpeedSequence then
+          imagePath = findFrameInSheet(effectImageSheetSpeedInfo, candidates)
+          if imagePath then
+            image = display.newSprite(effectImageSheetSpeed, effectsSpeedSequence)
+            image:setFrame(imagePath)
+          end
+        end
+
+        if not image and effectImageSheetInfo and effectImageSheet and effectsSequence then
+          imagePath = findFrameInSheet(effectImageSheetInfo, candidates)
+          if imagePath then
+            image = display.newSprite(effectImageSheet, effectsSequence)
+            image:setFrame(imagePath)
+          end
         end
       end
 
@@ -393,6 +464,8 @@ local function new(monsterData, networkFormat)
     }
     effectImageSheetInfo = composer.characterPowerUpEffectsImageSheetInfo
     effectImageSheet = composer.characterPowerUpEffectsImageSheet
+    effectImageSheetSpeedInfo = composer.characterPowerUpEffectsSpeedImageSheetInfo
+    effectImageSheetSpeed = composer.characterPowerUpEffectsSpeedImageSheet
     if effectImageSheetInfo and effectImageSheet then
       effectsSequence = {
         start = 1,
@@ -400,6 +473,14 @@ local function new(monsterData, networkFormat)
       }
     else
       effectsSequence = nil
+    end
+    if effectImageSheetSpeedInfo and effectImageSheetSpeed then
+      effectsSpeedSequence = {
+        start = 1,
+        count = #effectImageSheetSpeedInfo:getSheet().frames
+      }
+    else
+      effectsSpeedSequence = nil
     end
     spineLoader = spineInterface.newMonster()
     skeleton = spineLoader.getSkeleton()

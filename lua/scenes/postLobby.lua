@@ -65,11 +65,11 @@ function scene:create(event)
 
     layoutPostLobby = function()
         if backgroundImage then
-            backgroundImage.x = display.contentWidth * 0.5
-            backgroundImage.y = display.contentHeight * 0.5
+            backgroundImage.x = display.screenOriginX + display.actualContentWidth * 0.5
+            backgroundImage.y = display.screenOriginY + display.actualContentHeight * 0.5
             local contentWidth = display.actualContentWidth
             local contentHeight = display.actualContentHeight
-            local scale = math.max(contentWidth / backgroundImage.width, contentHeight / backgroundImage.height)
+            local scale = math.max(contentWidth / backgroundImage.width, contentHeight / backgroundImage.height) * 1.01
             backgroundImage.xScale = scale
             backgroundImage.yScale = scale
         end

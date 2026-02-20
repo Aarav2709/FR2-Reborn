@@ -1,7 +1,7 @@
 local composer = require("composer")
 local layoutGroup = require("lua.modules.layoutGroup")
 local scene = composer.newScene()
-local clean, cleanEnter, checkForNewNotifications
+local clean, cleanEnter, checkForNewNotifications, refreshMainMenuAvatar
 local notificationPlugin
 if "simulator" ~= system.getInfo("environment") then
   local success, plugin = pcall(require, "plugin.notifications")
@@ -145,15 +145,28 @@ function scene:create(event)
 
   local monsterLoader = require("spine-corona.monsterLoader")
   playerAvatarGroup = display.newGroup()
-  local avatarData = composer.database.getAvatarData()
-  playerAvatar = monsterLoader.new(avatarData, true)
-  if playerAvatar and playerAvatar.stopAllAnimation then
-    playerAvatar.stopAllAnimation()
+  refreshMainMenuAvatar = function()
+    if not playerAvatarGroup then
+      return
+    end
+    if playerAvatar then
+      playerAvatar.clean()
+      playerAvatar = nil
+    end
+    local avatarData = composer.database.getAvatarData()
+    if not avatarData then
+      return
+    end
+    -- Use local avatar format (same as marketplace) so equipped cosmetics are applied.
+    playerAvatar = monsterLoader.new(avatarData)
+    if playerAvatar and playerAvatar.getGroup then
+      local avatarGroup = playerAvatar.getGroup()
+      avatarGroup.xScale = 0.6
+      avatarGroup.yScale = 0.6
+      playerAvatarGroup:insert(avatarGroup)
+    end
   end
-  local avatarGroup = playerAvatar.getGroup()
-  avatarGroup.xScale = 0.6
-  avatarGroup.yScale = 0.6
-  playerAvatarGroup:insert(avatarGroup)
+  refreshMainMenuAvatar()
 
   layoutMainMenu = function()
     local screenLeft = display.screenOriginX
@@ -416,6 +429,9 @@ function scene:show(event)
   local phase = event.phase
   local screenGroup = self.view
   if phase == "will" then
+    if refreshMainMenuAvatar then
+      refreshMainMenuAvatar()
+    end
     return
   end
   local androidLogic = require("lua.modules.androidBackButton")

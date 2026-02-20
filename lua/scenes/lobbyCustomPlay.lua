@@ -1,4 +1,5 @@
 local composer = require("composer")
+local layoutGroup = require("lua.modules.layoutGroup")
 local tcpClient = require("lua.network.tcpClient")
 local scene = composer.newScene()
 local clean, cleanEnter, playerText, refreshTable, mapText, shouldStartQuickPlay, numberOfNotifications, showImages, avatarDisplayGroupList, startGame, startChat
@@ -6,9 +7,14 @@ local playerAvatarImage = {}
 local backgroundImage, backgroundImage2, tableBackground, titleText, searchText
 local btnBack, btnChat, btnPlay, btnSettings, searchForFriendButton
 local layoutLobbyCustomPlay, resizeListener
+local uiGroup, updateUiGroup
+local UI_BASE_W, UI_BASE_H
 
 function scene:create(event)
-    local screenGroup = self.view
+  local screenGroup = self.view
+  UI_BASE_W = display.contentWidth
+  UI_BASE_H = display.contentHeight
+  uiGroup, updateUiGroup = layoutGroup.new(screenGroup, UI_BASE_W, UI_BASE_H)
     local runOnce = true
     local tableHelper = require("lua.modules.tableHelper")
     local inviteTimeTable = {}
@@ -198,28 +204,34 @@ function scene:create(event)
     btnPlay.alpha = 0
 
     layoutLobbyCustomPlay = function()
-        local contentLeft = display.screenOriginX
-        local contentTop = display.screenOriginY
-        local contentWidth = display.actualContentWidth
-        local contentHeight = display.actualContentHeight
-        local centerX = contentLeft + contentWidth * 0.5
-        local centerY = contentTop + contentHeight * 0.5
+        local screenLeft = display.screenOriginX
+        local screenTop = display.screenOriginY
+        local screenWidth = display.actualContentWidth
+        local screenHeight = display.actualContentHeight
+        local screenCenterX = screenLeft + screenWidth * 0.5
+        local screenCenterY = screenTop + screenHeight * 0.5
+
+        local contentLeft = 0
+        local contentTop = 0
+        local contentWidth = UI_BASE_W
+        local contentHeight = UI_BASE_H
+        local centerX = UI_BASE_W * 0.5
 
         if backgroundImage then
-            backgroundImage.x = centerX
-            backgroundImage.y = centerY
+            backgroundImage.x = screenCenterX
+            backgroundImage.y = screenCenterY
             backgroundImage.xScale = 1
             backgroundImage.yScale = 1
-            local scale = math.max(contentWidth / backgroundImage.width, contentHeight / backgroundImage.height)
+            local scale = math.max(screenWidth / backgroundImage.width, screenHeight / backgroundImage.height)
             backgroundImage.xScale = scale
             backgroundImage.yScale = scale
         end
         if backgroundImage2 then
-            backgroundImage2.x = centerX
-            backgroundImage2.y = centerY
+            backgroundImage2.x = screenCenterX
+            backgroundImage2.y = screenCenterY
             backgroundImage2.xScale = 1
             backgroundImage2.yScale = 1
-            local scale = math.max(contentWidth / backgroundImage2.width, contentHeight / backgroundImage2.height)
+            local scale = math.max(screenWidth / backgroundImage2.width, screenHeight / backgroundImage2.height)
             backgroundImage2.xScale = scale
             backgroundImage2.yScale = scale
         end
@@ -356,29 +368,29 @@ function scene:create(event)
 
     local function generateFriendTableView()
         friendTableView = tableHelper.new(306, 44, 180, 276, 40, nil, "friends", tableCallback)
-        friendTableView.createTable(createFriendList(), screenGroup)
+        friendTableView.createTable(createFriendList(), uiGroup)
     end
 
     local function updateDisplayGroups()
-        screenGroup:insert(tableBackground)
+        uiGroup:insert(tableBackground)
         local friendTable = friendTableView and friendTableView.getTable and friendTableView.getTable()
         if friendTable then
-            screenGroup:insert(friendTable)
+            uiGroup:insert(friendTable)
         end
-        screenGroup:insert(backgroundImage2)
-        screenGroup:insert(btnBack)
-        screenGroup:insert(btnChat)
-        screenGroup:insert(btnPlay)
-        screenGroup:insert(titleText)
-        screenGroup:insert(btnSettings)
-        screenGroup:insert(mapText)
-        screenGroup:insert(searchForFriendButton)
+        screenGroup:insert(1, backgroundImage2)
+        uiGroup:insert(btnBack)
+        uiGroup:insert(btnChat)
+        uiGroup:insert(btnPlay)
+        uiGroup:insert(titleText)
+        uiGroup:insert(btnSettings)
+        uiGroup:insert(mapText)
+        uiGroup:insert(searchForFriendButton)
         for i = 1, #playerText do
-            screenGroup:insert(avatarDisplayGroupList[i])
-            screenGroup:insert(playerText[i])
+            uiGroup:insert(avatarDisplayGroupList[i])
+            uiGroup:insert(playerText[i])
         end
-        screenGroup:insert(backgroundImage)
-        screenGroup:insert(searchText)
+        screenGroup:insert(2, backgroundImage)
+        uiGroup:insert(searchText)
     end
 
     function refreshTable()
@@ -388,7 +400,7 @@ function scene:create(event)
                 yPos = friendTableView.getTable():getContentPosition()
             end
             friendTableView.cleanTable()
-            friendTableView.createTable(createFriendList(), screenGroup)
+            friendTableView.createTable(createFriendList(), uiGroup)
             updateDisplayGroups()
             if yPos and friendTableView.getTable() then
                 friendTableView.getTable():scrollToY({ y = yPos, time = 0 })
@@ -461,7 +473,10 @@ function scene:show(event)
     local kickButtons = {}
     composer.data.chatLog = {}
     androidLogic.addBackButton("lua.scenes.playMenu", "lua.scenes.lobbyCustomPlay")
-    resizeListener = function()
+  resizeListener = function()
+    if updateUiGroup then
+      updateUiGroup()
+    end
         if layoutLobbyCustomPlay then
             layoutLobbyCustomPlay()
         end
@@ -576,8 +591,8 @@ function scene:show(event)
         end
         mapImage = display.newImageRect(path, 80, 104)
         mapImage.x = 50
-        mapImage.y = display.contentHeight * 0.5
-        screenGroup:insert(mapImage)
+        mapImage.y = UI_BASE_H * 0.5
+        uiGroup:insert(mapImage)
     end
 
     local function returnToPlayMenu()
@@ -660,7 +675,7 @@ function scene:show(event)
             chatNotification = display.newImageRect("images/gui/mainMenu/alert.png", 20, 20)
             chatNotification.x = 280
             chatNotification.y = 272
-            screenGroup:insert(chatNotification)
+            uiGroup:insert(chatNotification)
             chatNotificationText = composer.newText({
                 string = numberOfNotifications,
                 x = chatNotification.x,
@@ -672,7 +687,7 @@ function scene:show(event)
                     1
                 }
             })
-            screenGroup:insert(chatNotificationText)
+            uiGroup:insert(chatNotificationText)
             if composer.database.getSound() == 1 and composer.getCurrentSceneName() == "lua.scenes.lobbyCustomPlay" then
                 audio.play(composer.data.sounds.message_received)
             end
@@ -930,3 +945,4 @@ scene:addEventListener("show", scene)
 scene:addEventListener("hide", scene)
 scene:addEventListener("destroy", scene)
 return scene
+

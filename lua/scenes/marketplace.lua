@@ -1,11 +1,17 @@
 local composer = require("composer")
+local layoutGroup = require("lua.modules.layoutGroup")
 local scene = composer.newScene()
 local clean, cleanEnter
 local marketBackground, backgroundCoins, backgroundRoof, backgroundBottom, leftBarImage, marketBackgroundBlur
 local layoutMarketplace, resizeListener
+local uiGroup, updateUiGroup
+local UI_BASE_W, UI_BASE_H
 
 function scene:create(event)
   local screenGroup = self.view
+  UI_BASE_W = display.contentWidth
+  UI_BASE_H = display.contentHeight
+  uiGroup, updateUiGroup = layoutGroup.new(screenGroup, UI_BASE_W, UI_BASE_H)
   local tableHelper = require("lua.modules.tableHelper")
   local trailHelper = require("lua.modules.trails")
   local tcpFormat = require("lua.network.tcpMessageFormat")
@@ -72,28 +78,31 @@ function scene:create(event)
   leftBarImage.height = leftBarImage.height + 0
   leftBarDisplayGroup:insert(leftBarImage)
   layoutMarketplace = function()
-    local contentLeft = display.screenOriginX
-    local contentTop = display.screenOriginY
-    local contentWidth = display.actualContentWidth
-    local contentHeight = display.actualContentHeight
-    local centerX = contentLeft + contentWidth * 0.5
-    local centerY = contentTop + contentHeight * 0.5
+    local screenLeft = display.screenOriginX
+    local screenTop = display.screenOriginY
+    local screenWidth = display.actualContentWidth
+    local screenHeight = display.actualContentHeight
+
+    local contentLeft = 0
+    local contentTop = 0
+    local contentWidth = UI_BASE_W
+    local contentHeight = UI_BASE_H
 
     if marketBackgroundBlur then
-      marketBackgroundBlur.x = contentLeft + contentWidth + marketBackgroundOffsetX
-      marketBackgroundBlur.y = contentTop + contentHeight + marketBackgroundOffsetY
+      marketBackgroundBlur.x = screenLeft + screenWidth + marketBackgroundOffsetX
+      marketBackgroundBlur.y = screenTop + screenHeight + marketBackgroundOffsetY
       marketBackgroundBlur.xScale = 1
       marketBackgroundBlur.yScale = 1
-      local scale = math.max(contentWidth / marketBackgroundBlur.width, contentHeight / marketBackgroundBlur.height)
+      local scale = math.max(screenWidth / marketBackgroundBlur.width, screenHeight / marketBackgroundBlur.height)
       marketBackgroundBlur.xScale = scale
       marketBackgroundBlur.yScale = scale
     end
      if marketBackground then
-      marketBackground.x = contentLeft + contentWidth + marketBackgroundOffsetX
-      marketBackground.y = contentTop + contentHeight + marketBackgroundOffsetY
+      marketBackground.x = screenLeft + screenWidth + marketBackgroundOffsetX
+      marketBackground.y = screenTop + screenHeight + marketBackgroundOffsetY
       marketBackground.xScale = 1
       marketBackground.yScale = 1
-      local scale = math.max(contentWidth / marketBackground.width, contentHeight / marketBackground.height)
+      local scale = math.max(screenWidth / marketBackground.width, screenHeight / marketBackground.height)
       marketBackground.xScale = scale
       marketBackground.yScale = scale
     end
@@ -135,8 +144,8 @@ function scene:create(event)
   end
 
   local function createItemEffect()
-    trailHelper.createTrail(itemTrailSelected, monster.getGroup().x - 5, monster.getGroup().y - 50, screenGroup)
-    screenGroup:insert(monster.getGroup())
+    trailHelper.createTrail(itemTrailSelected, monster.getGroup().x - 5, monster.getGroup().y - 50, uiGroup)
+    uiGroup:insert(monster.getGroup())
   end
 
   local function playItemEffect()
@@ -195,7 +204,7 @@ function scene:create(event)
     monsterGroup.yScale = 0.5
     monsterGroup.x = 512
     monsterGroup.y = 208
-    screenGroup:insert(monsterGroup)
+    uiGroup:insert(monsterGroup)
     if newMonsterData[6] then
       itemTrailSelected = tonumber(newMonsterData[6])
       playItemEffect()
@@ -263,7 +272,7 @@ function scene:create(event)
         1
       }
     })
-    screenGroup:insert(title)
+    uiGroup:insert(title)
   end
 
   local function updateTextInfo(index)
@@ -294,7 +303,7 @@ function scene:create(event)
       masterSkinBackground = display.newImageRect("images/gui/market/masterWindow.png", 112, 40)
       masterSkinBackground.x = 280
       masterSkinBackground.y = 359
-      screenGroup:insert(masterSkinBackground)
+      uiGroup:insert(masterSkinBackground)
     end
 
     if currentMarketData[index].master then
@@ -325,8 +334,8 @@ function scene:create(event)
             1
           }
         })
-        screenGroup:insert(masterSkinInfo)
-        screenGroup:insert(masterSkinText)
+        uiGroup:insert(masterSkinInfo)
+        uiGroup:insert(masterSkinText)
       else
         masterSkinInfo = composer.newText({
           string = composer.localized.get("Unlocked"),
@@ -339,7 +348,7 @@ function scene:create(event)
             1
           }
         })
-        screenGroup:insert(masterSkinInfo)
+        uiGroup:insert(masterSkinInfo)
       end
     elseif currentMarketData[index].seasonal then
       addMasterSkinBackground()
@@ -354,7 +363,7 @@ function scene:create(event)
           1
         }
       })
-      screenGroup:insert(masterSkinInfo)
+      uiGroup:insert(masterSkinInfo)
     elseif currentMarketData[index].spinningPrize then
       addMasterSkinBackground()
       masterSkinInfo = composer.newText({
@@ -368,7 +377,7 @@ function scene:create(event)
           1
         }
       })
-      screenGroup:insert(masterSkinInfo)
+      uiGroup:insert(masterSkinInfo)
     elseif currentMarketData[index].achievementPrize then
       addMasterSkinBackground()
       masterSkinInfo = composer.newText({
@@ -382,7 +391,7 @@ function scene:create(event)
           1
         }
       })
-      screenGroup:insert(masterSkinInfo)
+      uiGroup:insert(masterSkinInfo)
     elseif currentMarketData[index].weeklyPrice then
       addMasterSkinBackground()
       masterSkinInfo = composer.newText({
@@ -396,7 +405,7 @@ function scene:create(event)
           1
         }
       })
-      screenGroup:insert(masterSkinInfo)
+      uiGroup:insert(masterSkinInfo)
     elseif tabSelected == 8 and currentMarketData[itemSelected].characterId and not boughtItems[tostring(currentMarketData[itemSelected].characterId)] then
       addMasterSkinBackground()
       local text = composer.localized.get("Buy") ..
@@ -414,7 +423,7 @@ function scene:create(event)
           1
         }
       })
-      screenGroup:insert(masterSkinInfo)
+      uiGroup:insert(masterSkinInfo)
     elseif tabSelected == 8 and findIndexOnId(currentMarketData[itemSelected].key) == 10 then
       addMasterSkinBackground()
       local text = composer.localized.get("Forever")
@@ -432,7 +441,7 @@ function scene:create(event)
           1
         }
       })
-      screenGroup:insert(masterSkinInfo)
+      uiGroup:insert(masterSkinInfo)
       if masterSkinBackground then
         masterSkinBackground.y = 355
       end
@@ -440,7 +449,7 @@ function scene:create(event)
         "images/gui/market/items/boosts/" .. currentMarketData[itemSelected].key .. "_2.png", 100, 69)
       bubbleWindow.x = 420
       bubbleWindow.y = 92
-      screenGroup:insert(bubbleWindow)
+      uiGroup:insert(bubbleWindow)
     elseif not isItemBought(currentMarketData[1]) and tabSelected == 2 and itemSelected ~= 1 then
       addMasterSkinBackground()
       local text = composer.localized.get("Buy") ..
@@ -456,7 +465,7 @@ function scene:create(event)
           1
         }
       })
-      screenGroup:insert(masterSkinInfo)
+      uiGroup:insert(masterSkinInfo)
     end
   end
 
@@ -521,7 +530,7 @@ function scene:create(event)
         1
       }
     })
-    screenGroup:insert(moneyLabel)
+    uiGroup:insert(moneyLabel)
     gemLabel = composer.newText({
       string = composer.database.getGems(),
       size = 14,
@@ -534,7 +543,7 @@ function scene:create(event)
         1
       }
     })
-    screenGroup:insert(gemLabel)
+    uiGroup:insert(gemLabel)
   end
 
   local function flashLabel(label)
@@ -841,7 +850,7 @@ function scene:create(event)
     if not marketTableList[1].active then
       marketTableList[2].active = true
     end
-    marketTable.createTable(marketTableList, screenGroup)
+    marketTable.createTable(marketTableList, leftBarDisplayGroup)
   end
 
   local function tableViewCellButtonRelease()
@@ -1220,24 +1229,24 @@ function scene:create(event)
     horizontalTableView.anchorChildren = true
     horizontalTableView.x = 145
     horizontalTableView.y = 332
-    screenGroup:insert(horizontalTableView)
+    uiGroup:insert(horizontalTableView)
     horizontalTableView:startAt(itemSelected)
     updateItemTitle(itemSelected)
-    screenGroup:insert(leftBarDisplayGroup)
+    uiGroup:insert(leftBarDisplayGroup)
   end
 
   local function updateDisplayGroup()
-    screenGroup:insert(marketBackgroundBlur)
-    screenGroup:insert(marketBackground)
-    screenGroup:insert(leftBarDisplayGroup)
+    screenGroup:insert(1, marketBackgroundBlur)
+    screenGroup:insert(2, marketBackground)
+    uiGroup:insert(leftBarDisplayGroup)
     leftBarDisplayGroup:insert(marketTable.getTable())
     leftBarDisplayGroup:insert(backgroundBottom)
-    screenGroup:insert(backgroundCoins)
+    uiGroup:insert(backgroundCoins)
     leftBarDisplayGroup:insert(backgroundRoofGroup)
     leftBarDisplayGroup:insert(btnBack)
-    screenGroup:insert(btnBuy)
-    screenGroup:insert(btnSkin)
-    screenGroup:insert(btnSkinBack)
+    uiGroup:insert(btnBuy)
+    uiGroup:insert(btnSkin)
+    uiGroup:insert(btnSkinBack)
     if layoutMarketplace then
       layoutMarketplace()
     end
@@ -1322,6 +1331,9 @@ function scene:show(event)
   androidLogic.addBackButton("lua.scenes.mainMenu", "lua.scenes.marketplace")
   composer.database.resetMarketNotification()
   resizeListener = function()
+    if updateUiGroup then
+      updateUiGroup()
+    end
     if layoutMarketplace then
       layoutMarketplace()
     end
@@ -1356,3 +1368,9 @@ scene:addEventListener("show", scene)
 scene:addEventListener("hide", scene)
 scene:addEventListener("destroy", scene)
 return scene
+
+
+
+
+
+

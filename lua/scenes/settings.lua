@@ -1,10 +1,17 @@
 local composer = require("composer")
+local layoutGroup = require("lua.modules.layoutGroup")
 local scene = composer.newScene()
 local clean, cleanEnter, httpsCallback
 local background, layoutSettings, resizeListener
+local uiGroup, updateUiGroup
+local UI_BASE_W, UI_BASE_H
 
 function scene:create(event)
-    local group = self.view
+  local screenGroup = self.view
+  UI_BASE_W = display.contentWidth
+  UI_BASE_H = display.contentHeight
+  uiGroup, updateUiGroup = layoutGroup.new(screenGroup, UI_BASE_W, UI_BASE_H)
+    local group = uiGroup
     local httpsFormat = require("lua.network.httpsMessageFormat")
     local tableHelper = require("lua.modules.tableHelper")
     local settingsTable, settingsList, creditsTable, infoTable
@@ -20,8 +27,6 @@ function scene:create(event)
     background.x = -1
     background.y = -2
     layoutSettings = function()
-        group.x = 0
-        group.y = 0
         if background then
             background.xScale = 1
             background.yScale = 1
@@ -471,7 +476,10 @@ function scene:show(event)
     local group = self.view
     local androidLogic = require("lua.modules.androidBackButton")
 
-    resizeListener = function()
+  resizeListener = function()
+    if updateUiGroup then
+      updateUiGroup()
+    end
         if layoutSettings then
             layoutSettings()
         end

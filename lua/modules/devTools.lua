@@ -441,6 +441,7 @@ local function updateUI()
   addLine(string.format("Mode: %s", modeText), colText, 12, 8)
   addLine(string.format("Zoom: %.0f%%", M.zoomLevel * 100), colText, 12, 8)
   addLine(string.format("Hidden: %s", hiddenText), colText, 12, 8)
+  addLine(string.format("Base: %.0f, %.0f  %.0fx%.0f", display.screenOriginX, display.screenOriginY, display.actualContentWidth, display.actualContentHeight), colText, 12, 8)
   lineY = lineY + 6
   addLine("SELECTION", colHeader, 12, 0)
   if obj then
@@ -450,17 +451,20 @@ local function updateUI()
     local cycle = #M.objectsAtPoint > 1 and string.format(" (%d/%d)", M.currentObjectIndex, #M.objectsAtPoint) or ""
     local localX = math.floor(info.x or 0)
     local localY = math.floor(info.y or 0)
-    local w = math.floor(info.width or 0)
-    local h = math.floor(info.height or 0)
     local globalX, globalY
-    local parentScaleX, parentScaleY
+    local baseX, baseY, pctX, pctY
+    local rightOffset, bottomOffset
     pcall(function() globalX, globalY = obj:localToContent(0, 0) end)
-    pcall(function()
-      if obj.parent then
-        parentScaleX = obj.parent.xScale
-        parentScaleY = obj.parent.yScale
+    if globalX and globalY then
+      baseX = globalX - display.screenOriginX
+      baseY = globalY - display.screenOriginY
+      if display.actualContentWidth ~= 0 and display.actualContentHeight ~= 0 then
+        pctX = (baseX / display.actualContentWidth) * 100
+        pctY = (baseY / display.actualContentHeight) * 100
       end
-    end)
+      rightOffset = (display.screenOriginX + display.actualContentWidth) - globalX
+      bottomOffset = (display.screenOriginY + display.actualContentHeight) - globalY
+    end
     local isHidden = (info.isVisible == false) or (info.alpha and info.alpha <= 0)
     local hiddenTag = isHidden and " [HIDDEN]" or ""
     addLine(string.format("Target: %s%s%s", name, cycle, hiddenTag), colText, 12, 8)
@@ -470,27 +474,24 @@ local function updateUI()
     addLine(string.format("Pos L: %d, %d", localX, localY), colText, 12, 8)
     if globalX and globalY then
       addLine(string.format("Pos G: %d, %d", math.floor(globalX), math.floor(globalY)), colText, 12, 8)
+      addLine(string.format("Pos Base: %d, %d", math.floor(baseX), math.floor(baseY)), colText, 12, 8)
+      addLine(string.format("Pos %%: %.1f%%, %.1f%%", pctX or 0, pctY or 0), colText, 12, 8)
+      addLine(string.format("From Edges: L%d T%d R%d B%d", math.floor(baseX), math.floor(baseY), math.floor(rightOffset or 0), math.floor(bottomOffset or 0)), colText, 12, 8)
     else
       addLine("Pos G: --", colText, 12, 8)
-    end
-    addLine(string.format("Size L: %d x %d", w, h), colText, 12, 8)
-    if info.contentBounds then
-      local cb = info.contentBounds
-      local gw = math.floor(cb.xMax - cb.xMin)
-      local gh = math.floor(cb.yMax - cb.yMin)
-      addLine(string.format("Size G: %d x %d", gw, gh), colText, 12, 8)
-    else
-      addLine("Size G: --", colText, 12, 8)
-    end
-    if parentScaleX and parentScaleY then
-      addLine(string.format("Parent Scale: %.2f, %.2f", parentScaleX, parentScaleY), colText, 12, 8)
+      addLine("Pos Base: --", colText, 12, 8)
+      addLine("Pos %: --", colText, 12, 8)
+      addLine("From Edges: --", colText, 12, 8)
     end
   else
     addLine("Target: None", colText, 12, 8)
     lineY = lineY + 6
     addLine("TRANSFORM", colHeader, 12, 0)
-    addLine("Pos: --", colText, 12, 8)
-    addLine("Size: --", colText, 12, 8)
+    addLine("Pos L: --", colText, 12, 8)
+    addLine("Pos G: --", colText, 12, 8)
+    addLine("Pos Base: --", colText, 12, 8)
+    addLine("Pos %: --", colText, 12, 8)
+    addLine("From Edges: --", colText, 12, 8)
   end
 
   if M.infoBackground then

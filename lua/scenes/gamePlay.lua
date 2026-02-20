@@ -5,6 +5,46 @@ local powerUpButton, powerUpButtonFX, jumpButton, homeButton, shineEffect, jumpB
 
 function scene:create(event)
   local screenGroup = self.view
+  local function getUiBase()
+    local left = display.screenOriginX
+    local top = display.screenOriginY
+    local width = display.actualContentWidth
+    local height = display.actualContentHeight
+    return left, top, width, height
+  end
+
+  local function applyGameplayButtonLayout()
+    local left, top, width, height = getUiBase()
+    local right = left + width
+    local bottom = top + height
+
+    if jumpButton then
+      jumpButton.x = right - jumpButton.width * 0.5
+      jumpButton.y = bottom - jumpButton.height * 0.5
+    end
+    if jumpButtonImage then
+      jumpButtonImage.x = right - jumpButtonImage.width * 0.5
+      jumpButtonImage.y = bottom - jumpButtonImage.height * 0.5
+    end
+    if powerUpButton then
+      powerUpButton.x = left + powerUpButton.width * 0.5
+      powerUpButton.y = bottom - powerUpButton.height * 0.5
+    end
+    if powerupButtonImage then
+      -- Keep the icon anchored to bottom-left using base-screen coordinates.
+      powerupButtonImage.x = left + powerupButtonImage.width * 0.5
+      powerupButtonImage.y = bottom - powerupButtonImage.height * 0.5
+    end
+    if powerUpButtonFX and powerupButtonImage then
+      powerUpButtonFX.x = powerupButtonImage.x - 5
+      powerUpButtonFX.y = powerupButtonImage.y + 3
+    end
+    if shineEffect and powerupButtonImage then
+      shineEffect.x = powerupButtonImage.x - 5
+      shineEffect.y = powerupButtonImage.y + 3
+    end
+  end
+
   local textColor = {
     1,
     1,
@@ -60,34 +100,23 @@ function scene:create(event)
   })
   UIgroup:insert(positionNumber)
   jumpButton = display.newImageRect("images/transparent.png", 150, 150)
-  jumpButton.x = display.contentWidth - jumpButton.width * 0.5
-  jumpButton.y = display.contentHeight - jumpButton.height * 0.5
   jumpButtonGroup:insert(jumpButton)
   jumpButtonImage = display.newImageRect("images/game/buttonJump.png", 68, 63)
-  jumpButtonImage.x = display.contentWidth - jumpButtonImage.width * 0.5
-  jumpButtonImage.y = display.contentHeight - jumpButtonImage.height * 0.5
   jumpButtonGroup:insert(jumpButtonImage)
   powerUpButton = display.newImageRect("images/transparent.png", 150, 150)
-  powerUpButton.x = powerUpButton.width * 0.5
-  powerUpButton.y = display.contentHeight - powerUpButton.height * 0.5
   powerUpButtonGroup:insert(powerUpButton)
   powerupButtonImage = display.newImageRect("images/game/buttonPowerup.png", 68, 63)
-  powerupButtonImage.x = powerupButtonImage.width * 0.5
-  powerupButtonImage.y = display.contentHeight - powerupButtonImage.height * 0.5
   powerUpButtonGroup:insert(powerupButtonImage)
   powerUpButtonFX = display.newSprite(composer.powerUpFXImageSheet, composer.data.animations.puButtonEffect)
   powerUpButtonFX.xScale = 0.5
   powerUpButtonFX.yScale = 0.5
-  powerUpButtonFX.x = powerupButtonImage.x - 5
-  powerUpButtonFX.y = powerupButtonImage.y + 3
   powerUpButtonGroup:insert(powerUpButtonFX)
   shineEffect = display.newSprite(composer.powerUpFXImageSheet, composer.data.animations.shineEffect)
   shineEffect.xScale = 0.5
   shineEffect.yScale = 0.5
-  shineEffect.x = powerupButtonImage.x - 5
-  shineEffect.y = powerupButtonImage.y + 3
   shineEffect.alpha = 0
   powerUpButtonGroup:insert(shineEffect)
+  applyGameplayButtonLayout()
   lagIndicator = display.newImageRect("images/game/networkAlert.png", 25, 25)
   lagIndicator.x = 125
   lagIndicator.y = 20
@@ -203,6 +232,8 @@ function scene:show(event)
   local myPlayerId = composer.database.getPlayerInformation().playerId
   local stopSend = false
   local btnPowerUpPress, changeSceneTimer, shineTimer
+  local POWERUP_ICON_BASE_LEFT = 28
+  local POWERUP_ICON_BASE_BOTTOM = 29
   system.activate("multitouch")
 
   local function playSound(soundType, channelIndex)
@@ -343,8 +374,8 @@ function scene:show(event)
       puType = puType - 50
     end
     powerUpImage = getPuIcon(puType, 60)
-    powerUpImage.x = powerupButtonImage.x
-    powerUpImage.y = powerupButtonImage.y
+    powerUpImage.x = display.screenOriginX + POWERUP_ICON_BASE_LEFT
+    powerUpImage.y = (display.screenOriginY + display.actualContentHeight) - POWERUP_ICON_BASE_BOTTOM
     powerUpButtonGroup:insert(powerUpImage)
     powerUpImageReady = true
     powerUpButtonFX:setSequence("gotPU")

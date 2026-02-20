@@ -1,60 +1,103 @@
-# FR2-Reborn
+# FR2 Reborn
 
-FR2-Reborn is a **mobile-first Solar2D game project** based on the legacy Fun Run 2 codebase.
-This repository is primarily intended for **Android and iOS** builds and is **not optimized for desktop gameplay**.
+FR2 Reborn is a **mobile first Solar2D game project** inspired by the legacy Fun Run 2 experience.
 
-The project is currently in an **unstable and incomplete state**. Many systems are partially implemented or broken due to resolution changes, asset scaling issues, and legacy assumptions from older devices.
+The project is a **full code rewrite**, built using original game assets provided by Dirtybit through publicly available APKs. All gameplay systems, rendering logic, and architecture are rewritten and maintained independently.
+
+The game is currently **near completion**, with the remaining work focused on UI completion, polish, and a small set of known issues.
 
 ## Project Status
 
-* Actively being debugged and restructured
-* UI layout, sprite scaling, and powerups are currently broken
-* Resolution handling is in transition from legacy low-resolution setups to modern 16:9 mobile displays
-* Desktop simulator support is limited and unreliable
+FR2 Reborn is **not released publicly**.
 
-This repository should be treated as a **work-in-progress**, not a finished or playable game.
+The game is currently tested only by:
+* Core developers
+* A closed group of 4 internal testers
+
+Public release will occur **only at version 1.0.0**, once all known issues are resolved and all UI systems are completed.
+
+Most historical bugs related to maps, crashes, rendering, scaling, physics, and gameplay systems have already been fixed.
+
+## Known Issues
+
+The following issues are still pending and must be resolved before version 1.0.0:
+
+* Map name appears doubled
+* Coins and coin icons are misaligned
+* Item preview does not function
+* Lobby bear does not display the selected avatar correctly
+* Skin changing is not functional
+* Powerups appear visually glitched
+
+All other previously reported issues have been resolved.
+
+## UI Completion Status
+
+Not all user interfaces are finalized.
+
+Some UI screens are:
+* Incomplete
+* Temporarily placeholder
+* Missing final layout or animations
+
+UI completion is a required milestone before public release and is actively being worked on.
 
 ## Target Platforms
 
-* Android (primary)
-* iOS (secondary)
+* Android is the primary target platform
+* iOS is supported as a secondary platform
 
-Desktop platforms:
-
-* Not officially supported
-* Solar2D Simulator is used only for development and debugging
+Desktop platforms are not officially supported. The Solar2D simulator is used strictly for development and debugging.
 
 ## Engine and Technology
 
-* Engine: Solar2D (Corona SDK legacy)
-* Language: Lua (LuaJIT runtime)
+* Engine: Solar2D
+* Language: Lua using LuaJIT
 * Scene management: Composer
-* Physics: Solar2D physics (Box2D)
-* Rendering: Mobile GPU oriented pipeline
+* Physics engine: Box2D via Solar2D
+* Rendering: Mobile GPU focused rendering pipeline
 
 ## Resolution and Scaling
 
-The game logic and assets were originally designed for **low internal resolutions** and are being adapted to modern phone resolutions such as:
+The original game logic and assets were designed for low internal resolutions. The project has been adapted for modern mobile displays, including common aspect ratios such as 16 by 9.
 
-* 1280x720
-* 1920x1080
+Major fixes already completed:
+* UI scaling consistency
+* Sprite anchoring and positioning
+* Camera anchoring and movement
+* Powerup sizing and placement
+* Map tiling and background alignment
 
-Current issues include:
+Minor visual inconsistencies may still exist on uncommon screen sizes.
 
-* Overscaled UI
-* Misaligned sprites
-* Incorrect anchor and content scaling
-* Powerups rendering at wrong sizes or positions
+## Assets and Attribution
 
-These issues are expected and are part of ongoing fixes.
+This is a **fan made, non commercial project**.
+
+All original game assets, trademarks, and intellectual property belong to **Dirtybit**. Assets used in this project originate from official Fun Run 2 APKs made publicly available by Dirtybit.
+
+FR2 Reborn does not claim ownership of any original assets and exists purely as a technical and educational rewrite of the game logic.
 
 ## Legal Notice
 
-This is a fan-made, non-commercial project.
-It is not affiliated with Dirtybit or the original Fun Run developers.
+This project is not affiliated with Dirtybit or the original Fun Run development team.
 
-All original trademarks and assets belong to their respective owners.
+All rights to original assets and trademarks remain with their respective owners.
+
+## Public Release!
+
+This will be the **first public release** of FR2 Reborn. Estimated release date is estimated to be in Q1-Q2 of 2026.
+
+Release conditions:
+* All known issues resolved
+* All UI screens fully completed
+* Stable gameplay experience
+* No critical crashes
+* Release ready Android build
+* Optional iOS build depending on stability
+
+Until version 1.0.0 is released, the project remains private and accessible only to developers and internal testers. If you're interested in making the game release faster, feel free to join our [Discord Server](https://discord.gg/k8XM2k23kd) and apply for being a tester! This makes us way easier to fix the bugs and also, you get exclusive credits and special rewards right in the game!
 
 ## License
 
-MIT License. See the LICENSE file for details.
+The source code in this repository is released under the MIT License. See the LICENSE file for details.

@@ -197,7 +197,7 @@ function scene:create(event)
     local characterId = itemData.characterId
     if not characterId and itemData.key then
       local keyNum = tonumber(itemData.key)
-      if keyNum and keyNum > 100 then
+      if keyNum and keyNum > 100 and keyNum < 300 then
         characterId = keyNum - 100
       end
     end
@@ -212,13 +212,79 @@ function scene:create(event)
     end
     return characterId, skinId or 0
   end
-  local icon
-  local characterId, skinId = resolveAvatarIds(item)
-  if characterId then
+  local function copyAvatarData(src)
+    local out = {}
+    if type(src) ~= "table" then
+      return out
+    end
+    for i = 1, #src do
+      out[i] = src[i]
+    end
+    return out
+  end
+
+  local function getPreviewSlot(itemData)
+    if itemData and itemData.itemType then
+      return tonumber(itemData.itemType)
+    end
+    if itemData and itemData.skinId then
+      return 2
+    end
+    local keyNum = itemData and tonumber(itemData.key)
+    if not keyNum then
+      return nil
+    end
+    if itemData and itemData.characterId and tonumber(itemData.characterId) ~= keyNum then
+      return 2
+    end
+    local category = composer.storeConfig.getItemCategory(keyNum)
+    if category == "avatars" then
+      return 1
+    elseif category == "hat" then
+      return 3
+    elseif category == "facewear" then
+      return 4
+    elseif category == "neck" then
+      return 5
+    elseif category == "trail" then
+      return 6
+    elseif category == "shoes" then
+      return 7
+    end
+    return nil
+  end
+
+  local function buildPreviewMonsterData(itemData)
+    local base = copyAvatarData(composer.database.getAvatarData())
+    if #base < 7 then
+      base = { 101, 0, 0, 0, 0, 0, 0 }
+    end
+    local slot = getPreviewSlot(itemData)
+
+    local keyNum = tonumber(itemData.key)
+    local characterId, skinId = resolveAvatarIds(itemData)
+    if slot == 1 then
+      local avatarId = characterId or keyNum
+      if avatarId then
+        base[1] = avatarId
+        base[2] = composer.database.getDefaultSkinForAvatar(avatarId) or 0
+      end
+    elseif slot == 2 then
+      if characterId then
+        base[1] = characterId
+      end
+      base[2] = keyNum or skinId or 0
+    elseif slot >= 3 and slot <= 7 then
+      base[slot] = keyNum or 0
+    end
+    return base
+  end
+
+  local icon, avatarMonster
+  local previewMonsterData = buildPreviewMonsterData(item)
+  if previewMonsterData then
     local monsterLoader = require("spine-corona.monsterLoader")
-    local monsterData = { characterId, skinId or 0, 0, 0, 0, 0, 0 }
-    local avatarMonster = monsterLoader.new(monsterData, false)
-    avatarMonster.stopAllAnimation()
+    avatarMonster = monsterLoader.new(previewMonsterData)
     icon = avatarMonster.getGroup()
     icon.xScale = 0.4
     icon.yScale = 0.4
@@ -695,6 +761,10 @@ function scene:create(event)
     display.remove(moneyLabelRed)
     display.remove(gemLabel)
     display.remove(gemLabelRed)
+    if avatarMonster and avatarMonster.clean then
+      avatarMonster.clean()
+      avatarMonster = nil
+    end
     stopTimers()
     alphaBackground:removeEventListener("touch", backgroundImageTouchEvent)
     backgroundImage:removeEventListener("touch", escapeTouchEvent)

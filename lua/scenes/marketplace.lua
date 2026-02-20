@@ -170,7 +170,10 @@ function scene:create(event)
       monster.clean()
       monster = nil
     end
-    local newMonsterData = composer.tableHelper.deepCopy(monsterData)
+    -- Build preview from currently equipped loadout so preview always matches
+    -- "what player is wearing now + candidate item".
+    local equippedMonsterData = composer.database.getAvatarData() or monsterData
+    local newMonsterData = composer.tableHelper.deepCopy(equippedMonsterData)
     if spriteType == 1 then
       local skinInfo = boughtItems[tostring(currentMarketData[index].key)]
       if skinInfo then
@@ -580,7 +583,8 @@ function scene:create(event)
   end
 
   local function findItemSelectedForSpriteType(currentMonster)
-    local inedxToSearchFor = tonumber(monsterData[tabSelected])
+    local equippedMonsterData = composer.database.getAvatarData() or monsterData
+    local inedxToSearchFor = tonumber(equippedMonsterData[tabSelected])
     if currentMonster then
       if tabSelected == 1 then
         inedxToSearchFor = currentMonster

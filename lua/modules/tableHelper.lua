@@ -1022,13 +1022,13 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
     local params = row.params
     local credits = composer.newText({
       string = params.creditInfo,
-      size = params.size
+      size = params.size,
+      x = 100,
+      y = row.contentHeight * 0.5,
+      ax = 0,
+      ay = 0.5
     })
     row:insert(credits)
-    credits.anchorX = 0
-    credits.anchorY = 0
-    credits.x = 100
-    credits.y = 24
   end
 
   local function onRowRender(event)

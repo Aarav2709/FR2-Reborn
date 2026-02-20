@@ -398,12 +398,17 @@ function scene:create(event)
     local headerFontSize = 20
     local itemFontSize = 15
     addToCredits("")
-    addToCredits("FR2-Reborn V: " .. composer.config.fullVersion, headerFontSize)
+    addToCredits("FR2R-V: " .. composer.config.fullVersion, headerFontSize)
     addToCredits("")
     addToCredits(composer.localized.get("Credits"), headerFontSize)
-    addToCredits("Malik Johnson", itemFontSize)
-    addToCredits("Aarav Gupta", itemFontSize)
-    addToCredits("UncBuddy", itemFontSize)
+    addToCredits("Malik Johnson (Backend Dev)", itemFontSize)
+    addToCredits("Aarav Gupta (Frontend Dev)", itemFontSize)
+    addToCredits("FoP (Beta Tester)", itemFontSize)
+    addToCredits("ElkerMage (Beta Tester)", itemFontSize)
+    addToCredits("Badluck737 (Beta Tester)", itemFontSize)
+    addToCredits("LionBot (Beta Tester)", itemFontSize)
+    addToCredits("Wehtogen (Beta Tester)", itemFontSize)
+    addToCredits("nomovistarthanks42 (Beta Tester)", itemFontSize)
 
     local function creditsTableCallback()
     end
@@ -415,12 +420,12 @@ function scene:create(event)
     end
 
     local function createCredits()
-        creditsTable = tableHelper.new(10, 80, 300, 283, 22, nil, "credits", creditsTableCallback)
+        creditsTable = tableHelper.new(10, 113, 300, 174, 22, nil, "credits", creditsTableCallback)
         creditsTable.createTable(creditsTableData, group)
     end
 
     local function createInfoTable()
-        infoTable = tableHelper.new(240, 102, 300, 283, 22, nil, "credits", creditsTableCallback)
+        infoTable = tableHelper.new(240, 135, 300, 174, 22, nil, "credits", creditsTableCallback)
         infoTable.createTable(infoTableData, group)
     end
 

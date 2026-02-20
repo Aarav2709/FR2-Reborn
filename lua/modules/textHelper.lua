@@ -1,5 +1,12 @@
 local composer = require("composer")
-local font = "Brady Bunch Remastered"
+local fallbackFont = "Brady Bunch Remastered"
+
+local function getGameFont()
+  if composer and composer.data and composer.data.font then
+    return composer.data.font
+  end
+  return fallbackFont
+end
 
 local function createAdvancedText(params)
   local text = params.string
@@ -55,7 +62,7 @@ local function createAdvancedText(params)
     width = width,
     height = height,
     fontSize = size,
-    font = font,
+    font = getGameFont(),
     align = align
   }
   local newText

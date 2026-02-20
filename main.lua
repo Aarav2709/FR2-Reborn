@@ -2,7 +2,6 @@ display.setStatusBar(display.HiddenStatusBar)
 system.setIdleTimer(false)
 isAndroid = "Android" == system.getInfo("platformName")
 isSimulator = "simulator" == system.getInfo("environment")
-local font = "Brady Bunch Remastered"
 if isAndroid then
     native.setProperty("androidSystemUiVisibility", "immersiveSticky")
 end
@@ -129,9 +128,64 @@ if isAndroid then
     androidLogic.startAndroidBackButton()
 end
 
+local function resolveGameFont()
+    local candidates = {
+        "Brady Bunch Remastered",
+        "BradyBunchRemastered",
+        "Brady Bunch Remastered.ttf",
+        "BradyBunchRemastered.ttf"
+    }
+    local fontNames = native.getFontNames() or {}
+    local available = {}
+    for i = 1, #fontNames do
+        available[fontNames[i]] = true
+    end
+    for i = 1, #candidates do
+        if available[candidates[i]] then
+            return candidates[i]
+        end
+    end
+    return candidates[1]
+end
+
+local function enforceGameFont(fontName)
+    local originalNewText = display.newText
+    local originalNewEmbossedText = display.newEmbossedText
+
+    local function normalizeFont(inputFont)
+        if inputFont == nil or inputFont == native.systemFont or inputFont == native.systemFontBold then
+            return fontName
+        end
+        return inputFont
+    end
+
+    display.newText = function(...)
+        local argc = select("#", ...)
+        if argc == 1 and type((...)) == "table" then
+            local options = (...)
+            options.font = normalizeFont(options.font)
+            return originalNewText(options)
+        end
+        local text, x, y, inputFont, size = ...
+        return originalNewText(text, x, y, normalizeFont(inputFont), size)
+    end
+
+    display.newEmbossedText = function(...)
+        local argc = select("#", ...)
+        if argc == 1 and type((...)) == "table" then
+            local options = (...)
+            options.font = normalizeFont(options.font)
+            return originalNewEmbossedText(options)
+        end
+        local text, x, y, inputFont, size = ...
+        return originalNewEmbossedText(text, x, y, normalizeFont(inputFont), size)
+    end
+end
+
 local function main()
     composer.data = {}
-    composer.data.font = font
+    composer.data.font = resolveGameFont()
+    enforceGameFont(composer.data.font)
     composer.data.version = composer.config.version
     composer.data.serverVersion = composer.config.serverVersion
     composer.data.sounds = {}

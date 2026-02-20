@@ -2,23 +2,9 @@ local composer = require("composer")
 local dropDownModule = require("lua.modules.dropdownHelper")
 local scene = composer.newScene()
 local powerUpButton, powerUpButtonFX, jumpButton, homeButton, shineEffect, jumpButtonGroup, powerUpButtonGroup, UIgroup, cameraGroup, cameraGroupForeground, countdownField, countdownImg, positionNumber, positionTexts, lagIndicator, jumpButtonImage, powerupButtonImage, selfHuntersMark, selfArrowImage, clean, cleanEnter
-local cameraAnchorX, cameraAnchorY
-local CAMERA_ANCHOR_BASE_X = 65
-local CAMERA_ANCHOR_BASE_Y = 230
-local POSITION_TOP_BASE_Y = 23
 
 function scene:create(event)
   local screenGroup = self.view
-  local function relativeX(value)
-    return display.contentWidth * (value / 480)
-  end
-
-  local function relativeY(value)
-    return display.contentHeight * (value / 320)
-  end
-
-  cameraAnchorX = relativeX(CAMERA_ANCHOR_BASE_X)
-  cameraAnchorY = relativeY(CAMERA_ANCHOR_BASE_Y)
   local textColor = {
     1,
     1,
@@ -49,12 +35,12 @@ function scene:create(event)
   })
   UIgroup:insert(countdownField)
   selfArrowImage = display.newImageRect("images/game/selfArrow.png", 15, 15)
-  selfArrowImage.x = cameraAnchorX
-  selfArrowImage.y = cameraAnchorY - relativeY(44)
+  selfArrowImage.x = 150
+  selfArrowImage.y = 160
   UIgroup:insert(selfArrowImage)
   selfHuntersMark = display.newImageRect("images/game/markIcon.png", 37, 34)
-  selfHuntersMark.x = cameraAnchorX
-  selfHuntersMark.y = cameraAnchorY - relativeY(44)
+  selfHuntersMark.x = 150
+  selfHuntersMark.y = 160
   selfHuntersMark.alpha = 0
   UIgroup:insert(selfHuntersMark)
   homeButton = display.newImageRect("images/gui/common/buttonClosePopup.png", 35, 35)
@@ -63,8 +49,8 @@ function scene:create(event)
   UIgroup:insert(homeButton)
   positionNumber = composer.newText({
     string = "22",
-    x = display.contentWidth * 0.5,
-    y = relativeY(POSITION_TOP_BASE_Y),
+    x = 443,
+    y = 19,
     size = 40,
     color = {
       1,
@@ -72,41 +58,39 @@ function scene:create(event)
       1
     }
   })
-  positionNumber.anchorX = 0.5
-  positionNumber.anchorY = 0.5
   UIgroup:insert(positionNumber)
-  jumpButton = display.newImageRect("images/transparent.png", 190, 190)
+  jumpButton = display.newImageRect("images/transparent.png", 150, 150)
   jumpButton.x = display.contentWidth - jumpButton.width * 0.5
   jumpButton.y = display.contentHeight - jumpButton.height * 0.5
   jumpButtonGroup:insert(jumpButton)
-  jumpButtonImage = display.newImageRect("images/game/buttonJump.png", 82, 76)
+  jumpButtonImage = display.newImageRect("images/game/buttonJump.png", 68, 63)
   jumpButtonImage.x = display.contentWidth - jumpButtonImage.width * 0.5
   jumpButtonImage.y = display.contentHeight - jumpButtonImage.height * 0.5
   jumpButtonGroup:insert(jumpButtonImage)
-  powerUpButton = display.newImageRect("images/transparent.png", 190, 190)
+  powerUpButton = display.newImageRect("images/transparent.png", 150, 150)
   powerUpButton.x = powerUpButton.width * 0.5
   powerUpButton.y = display.contentHeight - powerUpButton.height * 0.5
   powerUpButtonGroup:insert(powerUpButton)
-  powerupButtonImage = display.newImageRect("images/game/buttonPowerup.png", 82, 76)
+  powerupButtonImage = display.newImageRect("images/game/buttonPowerup.png", 68, 63)
   powerupButtonImage.x = powerupButtonImage.width * 0.5
   powerupButtonImage.y = display.contentHeight - powerupButtonImage.height * 0.5
   powerUpButtonGroup:insert(powerupButtonImage)
   powerUpButtonFX = display.newSprite(composer.powerUpFXImageSheet, composer.data.animations.puButtonEffect)
-  powerUpButtonFX.xScale = 0.6
-  powerUpButtonFX.yScale = 0.6
+  powerUpButtonFX.xScale = 0.5
+  powerUpButtonFX.yScale = 0.5
   powerUpButtonFX.x = powerupButtonImage.x - 5
   powerUpButtonFX.y = powerupButtonImage.y + 3
   powerUpButtonGroup:insert(powerUpButtonFX)
   shineEffect = display.newSprite(composer.powerUpFXImageSheet, composer.data.animations.shineEffect)
-  shineEffect.xScale = 0.6
-  shineEffect.yScale = 0.6
+  shineEffect.xScale = 0.5
+  shineEffect.yScale = 0.5
   shineEffect.x = powerupButtonImage.x - 5
   shineEffect.y = powerupButtonImage.y + 3
   shineEffect.alpha = 0
   powerUpButtonGroup:insert(shineEffect)
   lagIndicator = display.newImageRect("images/game/networkAlert.png", 25, 25)
-  lagIndicator.x = relativeX(125)
-  lagIndicator.y = relativeY(20)
+  lagIndicator.x = 125
+  lagIndicator.y = 20
   UIgroup:insert(lagIndicator)
   lagIndicator.alpha = 0
   positionTexts = {}
@@ -183,12 +167,6 @@ function scene:show(event)
   if phase == "will" then
     return
   end
-  if not cameraAnchorX then
-    cameraAnchorX = display.contentWidth * (CAMERA_ANCHOR_BASE_X / 480)
-  end
-  if not cameraAnchorY then
-    cameraAnchorY = display.contentHeight * (CAMERA_ANCHOR_BASE_Y / 320)
-  end
   local screenGroup = self.view
   local killMessagesGroup = display.newGroup()
   local mapInterface = require("lua.map.interface")
@@ -217,15 +195,8 @@ function scene:show(event)
     1
   }
   local bottomBarList = {}
-  local barInsetLeft = display.contentWidth * (38 / 480)
-  local barInsetRight = display.contentWidth * (45 / 480)
-  local rawStartX = powerupButtonImage and powerupButtonImage.x or 40
-  local rawEndX = jumpButtonImage and jumpButtonImage.x or (display.contentWidth - 40)
-  local minRawX = math.min(rawStartX, rawEndX)
-  local maxRawX = math.max(rawStartX, rawEndX)
-  local bottomBarStartX = minRawX + barInsetLeft
-  local bottomBarEndX = maxRawX - barInsetRight
-  local bottomBarLength2 = math.max(1, bottomBarEndX - bottomBarStartX)
+  local bottomBarLength = 80
+  local bottomBarLength2 = 300
   local playerList = {}
   local killTextMessages = {}
   local playerSelf, quitAlert, disconnectAlert, sendTimer, playerTimer, localCountdownTimer, puImageShufflerTimer, playerStartedTimer, antiStuckTimer, antiStuckCounter, botStuckTimer, startTimer, send, powerUpImage
@@ -372,8 +343,8 @@ function scene:show(event)
       puType = puType - 50
     end
     powerUpImage = getPuIcon(puType, 60)
-    powerUpImage.x = 34
-    powerUpImage.y = 376
+    powerUpImage.x = powerupButtonImage.x
+    powerUpImage.y = powerupButtonImage.y
     powerUpButtonGroup:insert(powerUpImage)
     powerUpImageReady = true
     powerUpButtonFX:setSequence("gotPU")
@@ -397,18 +368,7 @@ function scene:show(event)
   end
 
   local function updateBottomBar(index)
-    local length = mapInterface.getLength() - 10
-    if length <= 0 then
-      bottomBarList[index].x = bottomBarStartX
-      return
-    end
-    local progress = playerList[index].x / length
-    if progress < 0 then
-      progress = 0
-    elseif progress > 1 then
-      progress = 1
-    end
-    bottomBarList[index].x = progress * bottomBarLength2 + bottomBarStartX
+    bottomBarList[index].x = playerList[index].x / (mapInterface.getLength() - 10) * bottomBarLength2 + bottomBarLength
   end
 
   local function updatePositionNumber(position)
@@ -538,12 +498,12 @@ function scene:show(event)
       end
       if activeCameraX then
         mapInterface.updateBackgrounds(-playerSelf.x, -playerSelf.y)
-        cameraGroup.x = -playerSelf.x + cameraAnchorX
-        cameraGroupForeground.x = -playerSelf.x + cameraAnchorX
+        cameraGroup.x = -playerSelf.x + 150
+        cameraGroupForeground.x = -playerSelf.x + 150
       end
       if activeCameraY then
-        cameraGroup.y = -playerSelf.y + cameraAnchorY
-        cameraGroupForeground.y = -playerSelf.y + cameraAnchorY
+        cameraGroup.y = -playerSelf.y + 204
+        cameraGroupForeground.y = -playerSelf.y + 204
       end
       if gameRunning then
         if composer.onboarding.isActive == true then
@@ -1359,30 +1319,13 @@ function scene:show(event)
     end
     for i = 1, #playerList do
       bottomBarList[i] = playerList[i].getPlayerHead()
-      local length = mapInterface.getLength() - 10
-      if length <= 0 then
-        bottomBarList[i].x = bottomBarStartX
-      else
-        local progress = playerList[i].x / length
-        if progress < 0 then
-          progress = 0
-        elseif progress > 1 then
-          progress = 1
-        end
-        bottomBarList[i].x = progress * bottomBarLength2 + bottomBarStartX
-      end
+      bottomBarList[i].x = playerList[i].x / (mapInterface.getLength() - 10) * bottomBarLength2 + bottomBarLength
       bottomBarList[i].y = display.contentHeight
       UIgroup:insert(bottomBarList[i])
     end
     if playerSelf then
       UIgroup:insert(bottomBarList[playerSelf.id])
       updatePositionNumber(playerPosition)
-    end
-    if positionNumber then
-      positionNumber.x = display.contentWidth * 0.5
-      positionNumber.y = display.contentHeight * (POSITION_TOP_BASE_Y / 320)
-      positionNumber.anchorX = 0.5
-      positionNumber.anchorY = 0.5
     end
     playerTimer = timer.performWithDelay(100, updatePlayers, 0)
     shineTimer = timer.performWithDelay(4000, playShineEffect, 0)

@@ -1,10 +1,17 @@
 local composer = require("composer")
+local layoutGroup = require("lua.modules.layoutGroup")
 local scene = composer.newScene()
 local clean, cleanEnter
 local background, layoutRanking, resizeListener
+local uiGroup, updateUiGroup
+local UI_BASE_W, UI_BASE_H
 
 function scene:create(event)
-  local group = self.view
+  local screenGroup = self.view
+  UI_BASE_W = display.contentWidth
+  UI_BASE_H = display.contentHeight
+  uiGroup, updateUiGroup = layoutGroup.new(screenGroup, UI_BASE_W, UI_BASE_H)
+  local group = uiGroup
   local tableHelper = require("lua.modules.tableHelper")
   local trailHelper = require("lua.modules.trails")
   local monsterLoader = require("spine-corona.monsterLoader")
@@ -42,13 +49,8 @@ function scene:create(event)
     background.y = 0
   end
   layoutRanking = function()
-    local contentLeft = display.screenOriginX
-    local contentTop = display.screenOriginY
     local contentWidth = display.actualContentWidth
     local contentHeight = display.actualContentHeight
-
-    group.x = contentLeft
-    group.y = contentTop
     if background then
       background.xScale = 1
       background.yScale = 1
@@ -58,8 +60,8 @@ function scene:create(event)
     end
   end
   local tableBackground = display.newImageRect("images/gui/ranking/cell.png", 480, 320)
-  tableBackground.x = display.contentWidth * 0.5
-  tableBackground.y = display.contentHeight * 0.5
+  tableBackground.x = UI_BASE_W * 0.5
+  tableBackground.y = UI_BASE_H * 0.5
   local selectedTableImage = display.newImageRect("images/gui/ranking/marker.png", 67, 44)
   if selectedTableImage then
     selectedTableImage.x = 302
@@ -493,7 +495,7 @@ function scene:create(event)
   end
 
   local function updateDisplayGroup()
-    if background then group:insert(background) end
+    if background then screenGroup:insert(1, background) end
     if textGroup then
       if avatarName then textGroup:insert(avatarName) end
       if games then textGroup:insert(games) end
@@ -616,6 +618,9 @@ function scene:show(event)
   local androidLogic = require("lua.modules.androidBackButton")
 
   resizeListener = function()
+    if updateUiGroup then
+      updateUiGroup()
+    end
     if layoutRanking then
       layoutRanking()
     end

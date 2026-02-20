@@ -2,13 +2,19 @@
 -- Bot difficulty selection for offline practice mode
 
 local composer = require("composer")
+local layoutGroup = require("lua.modules.layoutGroup")
 local scene = composer.newScene()
 local clean, cleanEnter
 local backgroundImage, headerText, subText, btnEasy, easyDesc, btnMedium, mediumDesc, btnHard, hardDesc, btnBack
 local layoutDifficultySelect, resizeListener
+local uiGroup, updateUiGroup
+local UI_BASE_W, UI_BASE_H
 
 function scene:create(event)
   local screenGroup = self.view
+  UI_BASE_W = display.contentWidth
+  UI_BASE_H = display.contentHeight
+  uiGroup, updateUiGroup = layoutGroup.new(screenGroup, UI_BASE_W, UI_BASE_H)
 
   -- Background
   backgroundImage = display.newImageRect("images/gui/common/bgMain.png", 1920, 1080)
@@ -22,7 +28,7 @@ function scene:create(event)
     size = 32,
     color = { 1, 1, 1 }
   })
-  screenGroup:insert(headerText)
+  uiGroup:insert(headerText)
 
   -- Subtitle
   subText = composer.newText({
@@ -32,7 +38,7 @@ function scene:create(event)
     size = 16,
     color = { 0.8, 0.8, 0.8 }
   })
-  screenGroup:insert(subText)
+  uiGroup:insert(subText)
 
   -- Difficulty button handlers
   local function btnEasyRelease(event)
@@ -72,7 +78,7 @@ function scene:create(event)
     x = 0,
     y = 0
   })
-  screenGroup:insert(btnEasy)
+  uiGroup:insert(btnEasy)
 
   easyDesc = composer.newText({
     string = "Slow Bots\n70% Speed",
@@ -82,7 +88,7 @@ function scene:create(event)
     color = { 0.5, 1, 0.5 },
     align = "center"
   })
-  screenGroup:insert(easyDesc)
+  uiGroup:insert(easyDesc)
 
   -- Medium button
   btnMedium = composer.newButton({
@@ -99,7 +105,7 @@ function scene:create(event)
     x = 0,
     y = 0
   })
-  screenGroup:insert(btnMedium)
+  uiGroup:insert(btnMedium)
 
   mediumDesc = composer.newText({
     string = "Normal Bots\n100% Speed",
@@ -109,7 +115,7 @@ function scene:create(event)
     color = { 1, 1, 0.5 },
     align = "center"
   })
-  screenGroup:insert(mediumDesc)
+  uiGroup:insert(mediumDesc)
 
   -- Hard button
   btnHard = composer.newButton({
@@ -126,7 +132,7 @@ function scene:create(event)
     x = 0,
     y = 0
   })
-  screenGroup:insert(btnHard)
+  uiGroup:insert(btnHard)
 
   hardDesc = composer.newText({
     string = "Fast Bots\n130% Speed",
@@ -136,7 +142,7 @@ function scene:create(event)
     color = { 1, 0.5, 0.5 },
     align = "center"
   })
-  screenGroup:insert(hardDesc)
+  uiGroup:insert(hardDesc)
 
   -- Back button
   btnBack = composer.newButton({
@@ -147,22 +153,28 @@ function scene:create(event)
     x = 0,
     y = 0
   })
-  screenGroup:insert(btnBack)
+  uiGroup:insert(btnBack)
 
   layoutDifficultySelect = function()
-    local contentLeft = display.screenOriginX
-    local contentTop = display.screenOriginY
-    local contentWidth = display.actualContentWidth
-    local contentHeight = display.actualContentHeight
-    local centerX = contentLeft + contentWidth * 0.5
-    local centerY = contentTop + contentHeight * 0.5
+    local screenLeft = display.screenOriginX
+    local screenTop = display.screenOriginY
+    local screenWidth = display.actualContentWidth
+    local screenHeight = display.actualContentHeight
+    local screenCenterX = screenLeft + screenWidth * 0.5
+    local screenCenterY = screenTop + screenHeight * 0.5
+
+    local contentLeft = 0
+    local contentTop = 0
+    local contentWidth = UI_BASE_W
+    local contentHeight = UI_BASE_H
+    local centerX = UI_BASE_W * 0.5
 
     if backgroundImage then
-      backgroundImage.x = centerX
-      backgroundImage.y = centerY
+      backgroundImage.x = screenCenterX
+      backgroundImage.y = screenCenterY
       backgroundImage.xScale = 1
       backgroundImage.yScale = 1
-      local scale = math.max(contentWidth / backgroundImage.width, contentHeight / backgroundImage.height)
+      local scale = math.max(screenWidth / backgroundImage.width, screenHeight / backgroundImage.height)
       backgroundImage.xScale = scale
       backgroundImage.yScale = scale
     end
@@ -237,6 +249,9 @@ function scene:show(event)
     androidLogic.addBackButton("lua.scenes.playMenu")
   end
   resizeListener = function()
+    if updateUiGroup then
+      updateUiGroup()
+    end
     if layoutDifficultySelect then
       layoutDifficultySelect()
     end

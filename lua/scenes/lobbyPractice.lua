@@ -1,12 +1,18 @@
 local composer = require("composer")
+local layoutGroup = require("lua.modules.layoutGroup")
 local scene = composer.newScene()
 local clean, cleanEnter
 local backgroundImage, buttonStickBottom, window, buttonStickTop
 local btnNextZone, btnPrevZone, btnBack, mapIconsGroup
 local layoutLobbyPractice, resizeListener
+local uiGroup, updateUiGroup
+local UI_BASE_W, UI_BASE_H
 
 function scene:create(event)
-    local screenGroup = self.view
+  local screenGroup = self.view
+  UI_BASE_W = display.contentWidth
+  UI_BASE_H = display.contentHeight
+  uiGroup, updateUiGroup = layoutGroup.new(screenGroup, UI_BASE_W, UI_BASE_H)
     local startedClean = false
     mapIconsGroup = display.newGroup()
     local practiceButtons = {}
@@ -103,7 +109,7 @@ function scene:create(event)
             local iconPos = iconPositions[basePos]
             local textPos = textPositions[basePos]
             if iconPos then
-                local padding = (baseZone - 1) * 1920
+                local padding = (baseZone - 1) * UI_BASE_W
                 practiceButtons[i].x = iconPos.x + padding
                 practiceButtons[i].y = iconPos.y
                 if practiceButtonsText[i] and textPos then
@@ -129,7 +135,7 @@ function scene:create(event)
         if lookingAtZone < maksZones then
             btnNextZone.isVisible = true
         end
-        local newXPos = -1 * (lookingAtZone - 1) * 1920
+        local newXPos = -1 * (lookingAtZone - 1) * UI_BASE_W
         transition.to(mapIconsGroup, { time = 200, x = newXPos })
     end
 
@@ -150,7 +156,7 @@ function scene:create(event)
         if lookingAtZone >= maksZones then
             btnNextZone.isVisible = false
         end
-        local newXPos = -1 * (lookingAtZone - 1) * 1920
+        local newXPos = -1 * (lookingAtZone - 1) * UI_BASE_W
         transition.to(mapIconsGroup, { time = 200, x = newXPos })
     end
 
@@ -178,19 +184,25 @@ function scene:create(event)
     })
 
     layoutLobbyPractice = function()
-        local contentLeft = display.screenOriginX
-        local contentTop = display.screenOriginY
-        local contentWidth = display.actualContentWidth
-        local contentHeight = display.actualContentHeight
-        local centerX = contentLeft + contentWidth * 0.5
-        local centerY = contentTop + contentHeight * 0.5
+        local screenLeft = display.screenOriginX
+        local screenTop = display.screenOriginY
+        local screenWidth = display.actualContentWidth
+        local screenHeight = display.actualContentHeight
+        local screenCenterX = screenLeft + screenWidth * 0.5
+        local screenCenterY = screenTop + screenHeight * 0.5
+
+        local contentLeft = 0
+        local contentTop = 0
+        local contentWidth = UI_BASE_W
+        local contentHeight = UI_BASE_H
+        local centerX = UI_BASE_W * 0.5
 
         if backgroundImage then
-            backgroundImage.x = centerX
-            backgroundImage.y = centerY
+            backgroundImage.x = screenCenterX
+            backgroundImage.y = screenCenterY
             backgroundImage.xScale = 1
             backgroundImage.yScale = 1
-            local scale = math.max(contentWidth / backgroundImage.width, contentHeight / backgroundImage.height)
+            local scale = math.max(screenWidth / backgroundImage.width, screenHeight / backgroundImage.height)
             backgroundImage.xScale = scale
             backgroundImage.yScale = scale
         end
@@ -225,14 +237,14 @@ function scene:create(event)
     end
 
     local function updateDisplay()
-        screenGroup:insert(backgroundImage)
-        screenGroup:insert(buttonStickBottom)
-        screenGroup:insert(buttonStickTop)
-        screenGroup:insert(window)
-        screenGroup:insert(mapIconsGroup)
-        screenGroup:insert(btnNextZone)
-        screenGroup:insert(btnPrevZone)
-        screenGroup:insert(btnBack)
+        screenGroup:insert(1, backgroundImage)
+        uiGroup:insert(buttonStickBottom)
+        uiGroup:insert(buttonStickTop)
+        uiGroup:insert(window)
+        uiGroup:insert(mapIconsGroup)
+        uiGroup:insert(btnNextZone)
+        uiGroup:insert(btnPrevZone)
+        uiGroup:insert(btnBack)
     end
 
     function clean()
@@ -270,7 +282,10 @@ function scene:show(event)
         androidLogic.removeBackButton()
     end
 
-    resizeListener = function()
+  resizeListener = function()
+    if updateUiGroup then
+      updateUiGroup()
+    end
         if layoutLobbyPractice then
             layoutLobbyPractice()
         end

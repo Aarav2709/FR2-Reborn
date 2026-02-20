@@ -1,12 +1,18 @@
 local composer = require("composer")
+local layoutGroup = require("lua.modules.layoutGroup")
 local tcpClient = require("lua.network.tcpClient")
 local scene = composer.newScene()
 local clean, cleanEnter, playerAvatarImage, playerText, map1Text, map2Text, countdownText, showImages, avatarDisplayGroupList
 local backgroundImage, backgroundImage2, voteText, searchText, btnBack
 local layoutLobbyQuickPlay, resizeListener
+local uiGroup, updateUiGroup
+local UI_BASE_W, UI_BASE_H
 
 function scene:create(event)
-    local screenGroup = self.view
+  local screenGroup = self.view
+  UI_BASE_W = display.contentWidth
+  UI_BASE_H = display.contentHeight
+  uiGroup, updateUiGroup = layoutGroup.new(screenGroup, UI_BASE_W, UI_BASE_H)
     local voteTextColor = {
         0.1450980392156863,
         0.08235294117647059,
@@ -34,7 +40,7 @@ function scene:create(event)
     voteText.alpha = 0
     for i = 1, 4 do
         avatarDisplayGroupList[i] = display.newGroup()
-        screenGroup:insert(avatarDisplayGroupList[i])
+        uiGroup:insert(avatarDisplayGroupList[i])
     end
     searchText = composer.newText({
         string = composer.localized.get("SearchingForGame"),
@@ -144,28 +150,33 @@ function scene:create(event)
     btnBack.alpha = 0
 
     layoutLobbyQuickPlay = function()
-        local contentLeft = display.screenOriginX
-        local contentTop = display.screenOriginY
-        local contentWidth = display.actualContentWidth
-        local contentHeight = display.actualContentHeight
-        local centerX = contentLeft + contentWidth * 0.5
-        local centerY = contentTop + contentHeight * 0.5
+        local screenLeft = display.screenOriginX
+        local screenTop = display.screenOriginY
+        local screenWidth = display.actualContentWidth
+        local screenHeight = display.actualContentHeight
+        local screenCenterX = screenLeft + screenWidth * 0.5
+        local screenCenterY = screenTop + screenHeight * 0.5
+
+        local contentLeft = 0
+        local contentTop = 0
+        local contentWidth = UI_BASE_W
+        local contentHeight = UI_BASE_H
 
         if backgroundImage then
-            backgroundImage.x = centerX
-            backgroundImage.y = centerY
+            backgroundImage.x = screenCenterX
+            backgroundImage.y = screenCenterY
             backgroundImage.xScale = 1
             backgroundImage.yScale = 1
-            local scale = math.max(contentWidth / backgroundImage.width, contentHeight / backgroundImage.height)
+            local scale = math.max(screenWidth / backgroundImage.width, screenHeight / backgroundImage.height)
             backgroundImage.xScale = scale
             backgroundImage.yScale = scale
         end
         if backgroundImage2 then
-            backgroundImage2.x = centerX
-            backgroundImage2.y = centerY
+            backgroundImage2.x = screenCenterX
+            backgroundImage2.y = screenCenterY
             backgroundImage2.xScale = 1
             backgroundImage2.yScale = 1
-            local scale = math.max(contentWidth / backgroundImage2.width, contentHeight / backgroundImage2.height)
+            local scale = math.max(screenWidth / backgroundImage2.width, screenHeight / backgroundImage2.height)
             backgroundImage2.xScale = scale
             backgroundImage2.yScale = scale
         end
@@ -245,18 +256,18 @@ function scene:create(event)
     end
 
     local function updateDisplayGroups()
-        screenGroup:insert(backgroundImage)
-        screenGroup:insert(backgroundImage2)
+        screenGroup:insert(1, backgroundImage)
+        screenGroup:insert(2, backgroundImage2)
         for i = 1, 4 do
-            screenGroup:insert(avatarDisplayGroupList[i])
-            screenGroup:insert(playerText[i])
+            uiGroup:insert(avatarDisplayGroupList[i])
+            uiGroup:insert(playerText[i])
         end
-        screenGroup:insert(map1Text)
-        screenGroup:insert(map2Text)
-        screenGroup:insert(voteText)
-        screenGroup:insert(countdownText)
-        screenGroup:insert(searchText)
-        screenGroup:insert(btnBack)
+        uiGroup:insert(map1Text)
+        uiGroup:insert(map2Text)
+        uiGroup:insert(voteText)
+        uiGroup:insert(countdownText)
+        uiGroup:insert(searchText)
+        uiGroup:insert(btnBack)
     end
 
     function clean()
@@ -297,7 +308,10 @@ function scene:show(event)
     local monsters = {}
     local countdownTimer
     androidLogic.addBackButton("lua.scenes.playMenu", "lua.scenes.lobbyQuickPlay")
-    resizeListener = function()
+  resizeListener = function()
+    if updateUiGroup then
+      updateUiGroup()
+    end
         if layoutLobbyQuickPlay then
             layoutLobbyQuickPlay()
         end
@@ -368,8 +382,8 @@ function scene:show(event)
         end
         map1Text.text = votesMap1
         map2Text.text = votesMap2
-        screenGroup:insert(map1Text)
-        screenGroup:insert(map2Text)
+        uiGroup:insert(map1Text)
+        uiGroup:insert(map2Text)
     end
 
     local function levelAlternativ1Release(self, event)
@@ -398,7 +412,7 @@ function scene:show(event)
         levelAlternativ1.tap = levelAlternativ1Release
         levelAlternativ1.x = 50
         levelAlternativ1.y = 102
-        screenGroup:insert(levelAlternativ1)
+        uiGroup:insert(levelAlternativ1)
         if mapData1 then
             mapName1 = composer.newText({
                 string = mapData1.name,
@@ -406,7 +420,7 @@ function scene:show(event)
                 x = levelAlternativ1.x,
                 y = levelAlternativ1.y + 28
             })
-            screenGroup:insert(mapName1)
+            uiGroup:insert(mapName1)
         end
         levelAlternativ2 = display.newImageRect(alt2, 88, 90)
         local mapData2 = composer.data.getMapInfo(mapAvailable[2])
@@ -421,7 +435,7 @@ function scene:show(event)
         levelAlternativ2.tap = levelAlternativ2Release
         levelAlternativ2.x = 50
         levelAlternativ2.y = 206
-        screenGroup:insert(levelAlternativ2)
+        uiGroup:insert(levelAlternativ2)
         if mapData2 then
             mapName2 = composer.newText({
                 string = mapData2.name,
@@ -429,7 +443,7 @@ function scene:show(event)
                 x = levelAlternativ2.x,
                 y = levelAlternativ2.y + 29
             })
-            screenGroup:insert(mapName2)
+            uiGroup:insert(mapName2)
         end
         levelAlternativ1:addEventListener("tap", levelAlternativ1)
         levelAlternativ2:addEventListener("tap", levelAlternativ2)
@@ -688,3 +702,4 @@ scene:addEventListener("show", scene)
 scene:addEventListener("hide", scene)
 scene:addEventListener("destroy", scene)
 return scene
+

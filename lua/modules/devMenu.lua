@@ -480,8 +480,22 @@ local function buildMenu()
     currentY = addRow(menuGroup, currentY, "Reset Data", true, false, function()
         composer.database.reset()
         composer.database.createDefaultOfflinePlayer()
+        composer.database.setAvatarData({ 1, 0, 0, 0, 0, 0, 0 }, false)
+        composer.database.setItems({
+            [1] = {},
+            [2] = {},
+            [3] = {},
+            [4] = {},
+            [5] = {},
+            [6] = {},
+            [7] = {}
+        })
         local marketScene = composer.getScene("lua.scenes.marketplace")
         if marketScene and marketScene.refreshMarketUI then marketScene.refreshMarketUI() end
+        local mainMenuScene = composer.getScene("lua.scenes.mainMenu")
+        if mainMenuScene and mainMenuScene.refreshAvatarDisplay then
+            mainMenuScene.refreshAvatarDisplay()
+        end
     end, { 0.6, 0.1, 0.1, 1 })
     currentY = addSeparator(menuGroup, currentY)
 

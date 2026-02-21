@@ -166,6 +166,7 @@ function scene:create(event)
       playerAvatarGroup:insert(avatarGroup)
     end
   end
+  scene.refreshAvatarDisplay = refreshMainMenuAvatar
   refreshMainMenuAvatar()
 
   layoutMainMenu = function()

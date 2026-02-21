@@ -254,7 +254,7 @@
             "price":24000,
             "plate":1,
             "minBuild":54,
-            "title":"mouse lemur"
+            "title":"Aye Aye"
         },
         "138":{
             "tier":1,
@@ -3868,7 +3868,7 @@
             "price": 4000,
             "tier": 4,
             "plate":1,
-            "title": "Pirate Boots" 
+            "title": "Pirate Boots"
         },
         "709": {
             "gemPrice": 1,
@@ -4540,7 +4540,7 @@
             "minBuild":64,
             "board": true,
             "title": "Fresh board"
-        }   
+        }
     },
     "spins":
     {

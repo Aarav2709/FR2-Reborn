@@ -85,7 +85,7 @@ local function shouldAddItem(item)
   if item then
     if item.hidden then
       return false
-    elseif item.minBuild and tonumber(item.minBuild) > tonumber(composer.config.serverVersion) then
+    elseif not composer.config.offlineMode and item.minBuild and tonumber(item.minBuild) > tonumber(composer.config.serverVersion) then
       return false
     end
   else

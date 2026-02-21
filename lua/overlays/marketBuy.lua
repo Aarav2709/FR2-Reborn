@@ -274,7 +274,7 @@ function scene:create(event)
         base[1] = characterId
       end
       base[2] = keyNum or skinId or 0
-    elseif slot >= 3 and slot <= 7 then
+    elseif type(slot) == "number" and slot >= 3 and slot <= 7 then
       base[slot] = keyNum or 0
     end
     return base
@@ -599,6 +599,10 @@ function scene:create(event)
       errorInfo.text = composer.localized.get("nofriends")
       return
     end
+    if composer.config.offlineMode or not composer.comm.isOnline() then
+      completeLocalPurchase("coins", 0)
+      return
+    end
     if not composer.data.iapCallActive then
       composer.analytics.newEvent("design", {
         event_id = "market:cashPurchase:" .. item.key,
@@ -651,6 +655,9 @@ function scene:create(event)
     btnWithCoins.isVisible = item.price ~= nil
     btnWithGems.isVisible = gemPrice ~= nil
     btnWithCash.isVisible = item.tier ~= nil
+    if composer.config.offlineMode then
+      btnWithCash.isVisible = false
+    end
     local anyVisible = btnWithCoins.isVisible or btnWithGems.isVisible or btnWithCash.isVisible
     if not anyVisible then
       btnWithCoins.isVisible = true

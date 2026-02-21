@@ -473,6 +473,14 @@ function scene:create(event)
   end
 
   local function updateBuyButtonState(index)
+    if composer.config.offlineMode then
+      if index and isItemBought(currentMarketData[index]) then
+        btnBuy.isVisible = false
+      else
+        btnBuy.isVisible = true
+      end
+      return
+    end
     if index and currentMarketData[index].spinningPrize then
       btnBuy.isVisible = false
     elseif index and currentMarketData[index].weeklyPrice then
@@ -880,7 +888,7 @@ function scene:create(event)
         area = composer.config.fullVersion
       })
     end
-    if isLocked() then
+    if not composer.config.offlineMode and isLocked() then
       if item and item.key then
         composer.analytics.newEvent("design", {
           event_id = "market:buyButton:locked:" .. item.key,
@@ -1117,7 +1125,7 @@ function scene:create(event)
             masterLocked = true
           end
         end
-        if data.index ~= 1 and (not ownFirstItem or masterLocked) then
+        if not composer.config.offlineMode and data.index ~= 1 and (not ownFirstItem or masterLocked) then
           locked = display.newImageRect("images/gui/market/masterLocked.png", 37, 37)
           locked.x = 42
           locked.y = 40

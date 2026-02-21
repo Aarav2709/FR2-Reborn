@@ -398,7 +398,7 @@ function scene:create(event)
     local headerFontSize = 20
     local itemFontSize = 15
     addToCredits("")
-    addToCredits("FR2R-V: " .. composer.config.fullVersion, headerFontSize)
+    addToCredits("FR2R (v0.6.0)", headerFontSize)
     addToCredits("")
     addToCredits(composer.localized.get("Credits"), headerFontSize)
     addToCredits("Malik Johnson (Backend Dev)", itemFontSize)
@@ -406,9 +406,10 @@ function scene:create(event)
     addToCredits("FoP (Beta Tester)", itemFontSize)
     addToCredits("ElkerMage (Beta Tester)", itemFontSize)
     addToCredits("Badluck737 (Beta Tester)", itemFontSize)
+    addToCredits("Abe (Beta Tester)", itemFontSize)
     addToCredits("LionBot (Beta Tester)", itemFontSize)
     addToCredits("Wehtogen (Beta Tester)", itemFontSize)
-    addToCredits("nomovistarthanks42 (Beta Tester)", itemFontSize)
+    addToCredits("Chucho (Beta Tester)", itemFontSize)
 
     local function creditsTableCallback()
     end

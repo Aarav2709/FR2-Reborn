@@ -1,18 +1,12 @@
 local composer = require("composer")
 local assetLoader = require("lua.modules.assetLoader")
-local layoutGroup = require("lua.modules.layoutGroup")
 local scene = composer.newScene()
 local updateLoadbar, cleanEnter
 local backgroundSnapshot, backgroundSource, logo, text1, loadBarBG, loadBarRect, loadBar, loadBarForground
 local downloadText, layoutLoadingScene, resizeListener
-local uiGroup, updateUiGroup
-local UI_BASE_W, UI_BASE_H
 
 function scene:create(event)
   local screenGroup = self.view
-  UI_BASE_W = display.contentWidth
-  UI_BASE_H = display.contentHeight
-  uiGroup, updateUiGroup = layoutGroup.new(screenGroup, UI_BASE_W, UI_BASE_H)
   local transitionTime = 200
   backgroundSnapshot = display.newSnapshot(480, 320)
   backgroundSnapshot.fill.effect = "filter.blur"
@@ -20,27 +14,27 @@ function scene:create(event)
   screenGroup:insert(backgroundSnapshot)
   backgroundSource = display.newImageRect(backgroundSnapshot.group, "images/gui/common/bgMain_blur.png", 480, 320)
   logo = display.newImageRect("images/gui/common/logo.png", 224, 135)
-  uiGroup:insert(logo)
+  screenGroup:insert(logo)
   text1 = composer.newText({
     string = composer.localized.get("DirtybitGame"),
     x = 0,
     y = 0,
     size = 22
   })
-  uiGroup:insert(text1)
+  screenGroup:insert(text1)
   loadBarBG = display.newImageRect("images/gui/loading/loadingBarBG.png", 200, 22)
-  uiGroup:insert(loadBarBG)
+  screenGroup:insert(loadBarBG)
   loadBarRect = display.newRect(0, 0, 0, 20)
   loadBarRect:setFillColor(1, 1, 1, 1)
   loadBarRect.anchorX = 0
   loadBarRect.anchorY = 0.5
-  uiGroup:insert(loadBarRect)
+  screenGroup:insert(loadBarRect)
   loadBar = display.newImageRect("images/gui/loading/loadingBarFiller.png", 12, 20)
   loadBar.anchorX = 0
   loadBar.anchorY = 0.5
-  uiGroup:insert(loadBar)
+  screenGroup:insert(loadBar)
   loadBarForground = display.newImageRect("images/gui/loading/loadingBar.png", 220, 40)
-  uiGroup:insert(loadBarForground)
+  screenGroup:insert(loadBarForground)
 
   layoutLoadingScene = function()
     local contentLeft = display.screenOriginX
@@ -49,8 +43,6 @@ function scene:create(event)
     local contentHeight = display.actualContentHeight
     local centerX = contentLeft + contentWidth * 0.5
     local centerY = contentTop + contentHeight * 0.5
-    local uiCenterX = UI_BASE_W * 0.5
-    local uiCenterY = UI_BASE_H * 0.5
 
     if backgroundSnapshot then
       backgroundSnapshot.x = centerX
@@ -63,16 +55,16 @@ function scene:create(event)
       backgroundSnapshot:invalidate()
     end
     if logo then
-      logo.x = uiCenterX
-      logo.y = UI_BASE_H * 0.25
+      logo.x = centerX
+      logo.y = contentTop + contentHeight * 0.25
     end
     if text1 then
       text1.x = 455
       text1.y = 251
     end
     if loadBarBG then
-      loadBarBG.x = uiCenterX
-      loadBarBG.y = UI_BASE_H * 0.7
+      loadBarBG.x = centerX
+      loadBarBG.y = contentTop + contentHeight * 0.7
     end
     if loadBarRect and loadBarBG then
       loadBarRect.x = loadBarBG.x - loadBarBG.width * 0.5
@@ -83,12 +75,12 @@ function scene:create(event)
       loadBar.y = loadBarBG.y
     end
     if loadBarForground then
-      loadBarForground.x = uiCenterX
-      loadBarForground.y = UI_BASE_H * 0.7
+      loadBarForground.x = centerX
+      loadBarForground.y = contentTop + contentHeight * 0.7
     end
     if downloadText then
-      downloadText.x = uiCenterX
-      downloadText.y = UI_BASE_H * 0.8
+      downloadText.x = centerX
+      downloadText.y = contentTop + contentHeight * 0.8
     end
   end
 
@@ -131,14 +123,11 @@ function scene:show(event)
     size = 22
   })
   downloadText.isVisible = false
-  uiGroup:insert(downloadText)
+  screenGroup:insert(downloadText)
   if layoutLoadingScene then
     layoutLoadingScene()
   end
   resizeListener = function()
-    if updateUiGroup then
-      updateUiGroup()
-    end
     if layoutLoadingScene then
       layoutLoadingScene()
     end

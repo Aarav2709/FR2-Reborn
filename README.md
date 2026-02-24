@@ -12,7 +12,7 @@ FR2 Reborn is **not released publicly**.
 
 The game is currently tested only by:
 * Core developers
-* A closed group of 4 internal testers
+* A closed group of internal testers
 
 Public release will occur **only at version 1.0.0**, once all known issues are resolved and all UI systems are completed.
 

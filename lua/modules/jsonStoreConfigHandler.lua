@@ -40,6 +40,24 @@ local function getProductMap(item)
     hashmap = configInput.feet
   elseif 1000 < item and item < 1100 then
     hashmap = configInput.boosts
+  elseif item >= 1200 and item < 1300 then
+    hashmap = configInput.sawblade
+  elseif item >= 1300 and item < 1400 then
+    hashmap = configInput.beartrap
+  elseif item >= 1400 and item < 1500 then
+    hashmap = configInput.rocket
+  elseif item >= 1500 and item < 1600 then
+    hashmap = configInput.shield
+  elseif item >= 1600 and item < 1700 then
+    hashmap = configInput.balloon
+  elseif item >= 1700 and item < 1800 then
+    hashmap = configInput.magnet
+  elseif item >= 1800 and item < 1900 then
+    hashmap = configInput.gun
+  elseif item >= 1900 and item < 2000 then
+    hashmap = configInput.speed
+  elseif item >= 2000 and item < 2100 then
+    hashmap = configInput.punchbox
   else
     print("ERROR: No hashmap for id", item)
     return nil
@@ -62,6 +80,24 @@ function M.getItemCategory(item)
     return "shoes"
   elseif 1000 < item and item < 1100 then
     return "boosts"
+  elseif item >= 1200 and item < 1300 then
+    return "sawblade"
+  elseif item >= 1300 and item < 1400 then
+    return "beartrap"
+  elseif item >= 1400 and item < 1500 then
+    return "rocket"
+  elseif item >= 1500 and item < 1600 then
+    return "shield"
+  elseif item >= 1600 and item < 1700 then
+    return "balloon"
+  elseif item >= 1700 and item < 1800 then
+    return "magnet"
+  elseif item >= 1800 and item < 1900 then
+    return "gun"
+  elseif item >= 1900 and item < 2000 then
+    return "speed"
+  elseif item >= 2000 and item < 2100 then
+    return "punchbox"
   else
     print("ERROR: No category for id", item)
     return nil
@@ -402,6 +438,73 @@ end
 function M.getAllHats()
   reloadConfigIfNil()
   return configInput.hats
+end
+
+local powerupCategories = {
+  { name = "sawblade", idBase = 1200, imagePath = "sawblade" },
+  { name = "beartrap", idBase = 1300, imagePath = "beartrap" },
+  { name = "rocket", idBase = 1400, imagePath = "rocket" },
+  { name = "shield", idBase = 1500, imagePath = "shield" },
+  { name = "balloon", idBase = 1600, imagePath = "balloon" },
+  { name = "magnet", idBase = 1700, imagePath = "magnet" },
+  { name = "gun", idBase = 1800, imagePath = "gun" },
+  { name = "speed", idBase = 1900, imagePath = "speed" },
+  { name = "punchbox", idBase = 2000, imagePath = "punchbox" }
+}
+
+function M.getAllPowerupsSortedOnPrice()
+  reloadConfigIfNil()
+  local list = {}
+  for _, cat in ipairs(powerupCategories) do
+    if configInput[cat.name] then
+      -- Find the first/original item for this powerup type
+      for key, value in pairs(configInput[cat.name]) do
+        if value.original or value.preOwned then
+          local item = {}
+          for k, v in pairs(value) do item[k] = v end
+          item.key = key
+          item.imagePath = "images/gui/market/items/" .. cat.imagePath .. "/" .. key .. ".png"
+          item.powerupCategory = cat.name
+          addSalesInfo(item)
+          addSeasonalInfo(item)
+          list[#list + 1] = item
+          break
+        end
+      end
+    end
+  end
+  return sortOnPrice(list)
+end
+
+function M.getAllPowerupsOfTypeSortedOnPrice(category)
+  reloadConfigIfNil()
+  local list = {}
+  if configInput[category] then
+    for key, value in pairs(configInput[category]) do
+      if shouldAddItem(value) then
+        local item = {}
+        for k, v in pairs(value) do item[k] = v end
+        item.key = key
+        item.imagePath = "images/gui/market/items/" .. category .. "/" .. key .. ".png"
+        item.powerupCategory = category
+        addSalesInfo(item)
+        addSeasonalInfo(item)
+        list[#list + 1] = item
+      end
+    end
+  end
+  return sortOnPrice(list)
+end
+
+function M.getPowerupCategoryFromId(itemId)
+  itemId = tonumber(itemId)
+  if not itemId then return nil end
+  for _, cat in ipairs(powerupCategories) do
+    if itemId >= cat.idBase and itemId < cat.idBase + 100 then
+      return cat.name
+    end
+  end
+  return nil
 end
 
 function M.getItem(itemId)

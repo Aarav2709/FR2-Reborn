@@ -174,25 +174,27 @@ function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDi
     local cloudBottomPath = composer.powerUpEffectImageSheetInfo:getFrameIndex("lightningCloudBottom")
     local cloudTopPath = composer.powerUpEffectImageSheetInfo:getFrameIndex("lightningCloudTop")
     local cloudBackgroundPath = composer.powerUpEffectImageSheetInfo:getFrameIndex("lightningBackground")
+    local cw = display.contentWidth
+    local ch = display.contentHeight
     cloudBottom = display.newImage(composer.powerUpEffectImageSheet, cloudBottomPath)
-    cloudBottom.xScale = 0.5
-    cloudBottom.yScale = 0.5
+    cloudBottom.xScale = cw / 480
+    cloudBottom.yScale = ch / 320
     cloudBottom.anchorX = 1
     cloudBottom.anchorY = 0
-    cloudBottom.x = display.contentWidth
+    cloudBottom.x = cw
     cloudBottom.y = 0
     cloudBottom.alpha = 0
     cloudTop = display.newImage(composer.powerUpEffectImageSheet, cloudTopPath)
-    cloudTop.xScale = 0.5
-    cloudTop.yScale = 0.5
+    cloudTop.xScale = cw / 480
+    cloudTop.yScale = ch / 320
     cloudTop.anchorX = 0
     cloudTop.anchorY = 0
     cloudTop.x = 0
     cloudTop.y = 0
     cloudTop.alpha = 0
-    cloudBackground = display.newImageRect(composer.powerUpEffectImageSheet, cloudBackgroundPath, 480, 320)
-    cloudBackground.x = display.contentWidth * 0.5
-    cloudBackground.y = display.contentHeight * 0.5
+    cloudBackground = display.newImageRect(composer.powerUpEffectImageSheet, cloudBackgroundPath, cw, ch)
+    cloudBackground.x = cw * 0.5
+    cloudBackground.y = ch * 0.5
     cloudBackground.alpha = 0
     screenGroup:insert(cloudBackground)
     screenGroup:insert(cloudBottom)
@@ -216,15 +218,16 @@ function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDi
   end
 
   local function moveClouds()
+    local cw = display.contentWidth
     cloudBottom.alpha = 1
     cloudTop.alpha = 1
     transition.to(cloudBottom, {
-      x = 530,
+      x = cw + cw * 0.1,
       time = 1500,
       tag = "lightningCloud"
     })
     transition.to(cloudTop, {
-      x = -50,
+      x = -cw * 0.1,
       time = 1500,
       tag = "lightningCloud"
     })

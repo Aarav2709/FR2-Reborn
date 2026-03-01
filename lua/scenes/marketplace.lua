@@ -19,11 +19,14 @@ function scene:create(event)
   local monsterLoader = require("spine-corona.monsterLoader")
   local tableView = require("lua.modules.tableViewHorizontal")
   local inApp = require("lua.iap.inAppPurchase")
+  local powerUpPreviewer = require("lua.gameLogic.powerUpPreviewer")
   local leftBarDisplayGroup = display.newGroup()
   local title, moneyLabel
   local itemSelected = 1
   local tabSelected = 0
   local oldEffect = 0
+  local savedPowerupIndex = 1
+  local powerUpPreviewImage = nil
   local itemTimer, horizontalTableView, currentMarketData, updateTableView, marketTable, marketTableList, monster, updateMoneyLabel, updateMarketplace, btnSkin, btnSkinBack, btnBuy, btnBack, tableViewData, masterSkinBackground, masterSkinInfo, masterSkinText, bubbleWindow
   local gemLabel, gemIcon
   local monsterData = composer.database.getAvatarData()
@@ -166,10 +169,30 @@ function scene:create(event)
     if currentMarketData[index] == nil then
       return
     end
+    -- Clean up any existing powerup preview
+    if powerUpPreviewImage then
+      display.remove(powerUpPreviewImage)
+      powerUpPreviewImage = nil
+    end
+    powerUpPreviewer.softClean()
     if monster then
       monster.clean()
       monster = nil
     end
+
+    -- For powerup tabs (9 and 10), show powerup preview instead of character
+    if tabSelected == 9 or tabSelected == 10 then
+      local itemKey = currentMarketData[itemSelected].key
+      local category = composer.storeConfig.getItemCategory(tonumber(itemKey))
+      if category then
+        powerUpPreviewImage = powerUpPreviewer.showPreviewForCategory(category, itemKey)
+        if powerUpPreviewImage then
+          uiGroup:insert(powerUpPreviewImage)
+        end
+      end
+      return
+    end
+
     -- Build preview from currently equipped loadout so preview always matches
     -- "what player is wearing now + candidate item".
     local equippedMonsterData = composer.database.getAvatarData() or monsterData
@@ -180,7 +203,11 @@ function scene:create(event)
         local defaultSkin = skinInfo.s
         if defaultSkin and defaultSkin ~= 0 then
           local skinData = composer.storeConfig.getItem(tonumber(defaultSkin))
-          newMonsterData[2] = skinData.skinId
+          if type(skinData) == "table" then
+            newMonsterData[2] = skinData.skinId
+          else
+            newMonsterData[2] = 0
+          end
         else
           newMonsterData[2] = 0
         end
@@ -197,7 +224,6 @@ function scene:create(event)
     end
     if tabSelected == 8 and index == 1 then
       newMonsterData[1] = newMonsterData[1]
-    elseif tabSelected == 10 then
     else
       newMonsterData[spriteType] = currentMarketData[itemSelected].key
     end
@@ -240,6 +266,8 @@ function scene:create(event)
       return 7
     elseif 1000 < key and key < 1100 then
       return 10
+    elseif key >= 1200 and key < 2100 then
+      return 9
     end
   end
 
@@ -502,6 +530,10 @@ function scene:create(event)
     local slotToChange = spriteType
     if index == 0 then
       index = 1
+    elseif spriteType == 9 or spriteType == 10 then
+      -- Powerup tabs: index is simple array position, no id conversion needed
+      if not index or index < 1 then index = 1 end
+      if index > #currentMarketData then index = #currentMarketData end
     elseif spriteType == 8 then
       if 100 < index then
         index = findIndexOnId(index)
@@ -510,6 +542,7 @@ function scene:create(event)
     elseif 100 < index then
       index = findIndexOnKey(index)
     end
+    itemSelected = index
     updateItemTitle(index)
     updateTextInfo(index)
     changeAvatar(slotToChange, index)
@@ -591,6 +624,11 @@ function scene:create(event)
   end
 
   local function findItemSelectedForSpriteType(currentMonster)
+    -- Powerup tabs don't map to monsterData slots
+    if tabSelected == 9 or tabSelected == 10 then
+      itemSelected = 1
+      return
+    end
     local equippedMonsterData = composer.database.getAvatarData() or monsterData
     local inedxToSearchFor = tonumber(equippedMonsterData[tabSelected])
     if currentMonster then
@@ -633,6 +671,10 @@ function scene:create(event)
     if not currentMarketData then
       return
     end
+    -- Powerup tabs don't affect monster/avatar data
+    if tabSelected == 9 or tabSelected == 10 then
+      return
+    end
     if tabSelected == 2 then
       giveNoticeOfSkinChanges()
     end
@@ -664,6 +706,8 @@ function scene:create(event)
         deselectIndex = 2
       elseif deselectIndex == 8 then
         deselectIndex = 1
+      elseif deselectIndex == 9 or deselectIndex == 10 then
+        deselectIndex = 8
       end
       if marketTable.getTable():getRowAtIndex(deselectIndex) then
         marketTable.getTable():getRowAtIndex(deselectIndex).setActiveState(false)
@@ -677,21 +721,31 @@ function scene:create(event)
       selectIndex = 2
     elseif selectIndex == 8 then
       selectIndex = 1
+    elseif selectIndex == 9 or selectIndex == 10 then
+      selectIndex = 8
     end
     findItemSelectedForSpriteType(currentMonster)
-    if tabSelected == 2 or tabSelected == 8 or tabSelected == 1 and currentMonster then
+    if tabSelected == 9 or tabSelected == 10 then
+      -- Powerup tabs: use index 1 as default, no monster data mapping
+      updateMarketplace(tabSelected, 1)
+      if marketTable.getTable():getRowAtIndex(selectIndex) then
+        marketTable.getTable():getRowAtIndex(selectIndex).setActiveState(true)
+      end
+    elseif tabSelected == 2 or tabSelected == 8 or tabSelected == 1 and currentMonster then
       updateMarketplace(tabSelected, currentMonster)
       if (tabSelected == 8 or tabSelected == 1) and marketTable.getTable():getRowAtIndex(selectIndex) then
         marketTable.getTable():getRowAtIndex(selectIndex).setActiveState(true)
       end
     else
       updateMarketplace(tabSelected, monsterData[tabSelected])
-      marketTable.getTable():getRowAtIndex(selectIndex).setActiveState(true)
+      if marketTable.getTable():getRowAtIndex(selectIndex) then
+        marketTable.getTable():getRowAtIndex(selectIndex).setActiveState(true)
+      end
     end
-    if tabSelected == 1 then
+    if tabSelected == 1 or tabSelected == 9 then
       btnSkin.isVisible = true
       btnSkinBack.isVisible = false
-    elseif tabSelected == 2 then
+    elseif tabSelected == 2 or tabSelected == 10 then
       btnSkin.isVisible = false
       btnSkinBack.isVisible = true
     else
@@ -734,6 +788,22 @@ function scene:create(event)
       updateMarketTabSelected(2, currentMonster)
     elseif tabSelected == 2 then
       setUpForAvatar(currentMarketData[1].key)
+    elseif tabSelected == 9 then
+      -- Drill into per-type powerup skins
+      local itemKey = currentMarketData[itemSelected].key
+      local category = composer.storeConfig.getPowerupCategoryFromId(tonumber(itemKey))
+      if category then
+        savedPowerupIndex = itemSelected
+        storeTempMonsterChanges()
+        currentMarketData = composer.storeConfig.getAllPowerupsOfTypeSortedOnPrice(category)
+        updateMarketTabSelected(10)
+      end
+    elseif tabSelected == 10 then
+      -- Back to all powerups
+      storeTempMonsterChanges()
+      currentMarketData = composer.storeConfig.getAllPowerupsSortedOnPrice()
+      itemSelected = savedPowerupIndex
+      updateMarketTabSelected(9)
     end
   end
 
@@ -799,6 +869,19 @@ function scene:create(event)
     end
   end
 
+  local function btnPowerupsRelease(self, event, noSound)
+    if tabSelected ~= 9 then
+      if not noSound then
+        composer.audio.play("button_press")
+      end
+      storeTempMonsterChanges()
+      powerUpPreviewer.clean()
+      powerUpPreviewer.init()
+      currentMarketData = composer.storeConfig.getAllPowerupsSortedOnPrice()
+      updateMarketTabSelected(9)
+    end
+  end
+
   marketTable = tableHelper.new(3, 44, 120, 300, 58, nil, "market", function()
   end, 32)
 
@@ -831,6 +914,10 @@ function scene:create(event)
       {
         image = "images/gui/market/categoryShoes.png",
         onClick = btnFeetRelease
+      },
+      {
+        image = "images/gui/market/categoryPowerups.png",
+        onClick = btnPowerupsRelease
       }
     }
     if composer.database.salesItem then
@@ -1300,6 +1387,11 @@ function scene:create(event)
       monster.clean()
       monster = nil
     end
+    if powerUpPreviewImage then
+      display.remove(powerUpPreviewImage)
+      powerUpPreviewImage = nil
+    end
+    powerUpPreviewer.clean()
   end
 
   function scene:overlayEnded(data)

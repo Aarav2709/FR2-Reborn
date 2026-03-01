@@ -1096,6 +1096,7 @@ function scene:show(event)
         powerUpButtonFX.alpha = 1
         powerUpButtonFX:setSequence("click")
         powerUpButtonFX:play()
+        timer.performWithDelay(300, hidePowerUpButtonFX)
         composer.audio.play("no_powerup")
       end
       return true

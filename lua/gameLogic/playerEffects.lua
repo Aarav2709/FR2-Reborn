@@ -412,8 +412,8 @@ function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDi
     bloodScreenTL.alpha = 0
     screenGroup:insert(bloodScreenTL)
     bloodScreenTR = display.newSprite(composer.powerUpEffectImageSheet, composer.data.animations.trBloodEffect)
-    bloodScreenTL.xScale = 0.5
-    bloodScreenTL.yScale = 0.5
+    bloodScreenTR.xScale = 0.5
+    bloodScreenTR.yScale = 0.5
     bloodScreenTR.anchorX = 1
     bloodScreenTR.anchorY = 0
     bloodScreenTR.x = display.contentWidth

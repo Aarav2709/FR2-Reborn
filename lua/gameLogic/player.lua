@@ -89,6 +89,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   local playerCorpses = basicPlayerCorpses.newCorpsParts(bodyParts, player)
   local previousVelocity = {}
   local ninjaTimer, ninjaEffectTimer, rocketBlinkTimer, disablePreviousPowerUp, updatePowerUpImageFunction
+  local onCollisionPowerUp
   local reservedChannels = 5
   local channelList = {}
   for i = 1, reservedChannels do
@@ -587,6 +588,26 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
             end
             state = 4
             changeSpeedState = 2
+          elseif collisionEvent.other.floatingBladeTrap then
+            if not booleanStates.playerInvulnerable then
+              local isNetworkGame = false
+              if not mainPlayer then
+                if composer.data.gameInfo.gameType ~= 0 then
+                  isNetworkGame = true
+                end
+              end
+              onCollisionPowerUp(98, 97, isNetworkGame)
+            end
+          elseif collisionEvent.other.flatBladeTrap then
+            if not booleanStates.playerInvulnerable then
+              local isNetworkGame = false
+              if not mainPlayer then
+                if composer.data.gameInfo.gameType ~= 0 then
+                  isNetworkGame = true
+                end
+              end
+              onCollisionPowerUp(98, 98, isNetworkGame)
+            end
           else
             state = 1
           end
@@ -1194,8 +1215,8 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     playerEffects.runBloodScreen(override)
   end
 
-  local function playHitAnimation(puType, hitType, killer)
-    if puType == 1 then
+  local function playHitAnimation(puType, hitType, killer, overrideDeadTime)
+    if puType == 1 or puType == 97 or puType == 98 then
       playSound("blade_hit")
     elseif puType == 2 then
       playSound("trap_hit")
@@ -1210,7 +1231,9 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     if hitType == 1 then
       playKillMessage(killer, puType, playerId)
       local baseDeadTime = 1000
-      if playerPosition == 1 then
+      if overrideDeadTime then
+        baseDeadTime = overrideDeadTime
+      elseif playerPosition == 1 then
         local aheadState = isFarAhead()
         if aheadState == 1 then
           baseDeadTime = 1500
@@ -1225,7 +1248,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       end
       local shouldHidePlayer = true
       local vx, vy = getLinearVelocityOnPlayer()
-      if puType == 1 then
+      if puType == 1 or puType == 97 or puType == 98 then
         playBloodScreen(false)
         if composer.database.getViolence() == 1 and isMainPlayerCloseEnough() then
           tryToSpawnBloodDecal()
@@ -1296,7 +1319,9 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
         hidePlayerSprite()
       end
       disablePreviousPowerUp()
-      setLinearVelocityOnPlayer(0, 0)
+      if puType ~= 98 then
+        setLinearVelocityOnPlayer(0, 0)
+      end
       if 0 < speeds.topSpeedX then
         speeds.tempSpeedX = speeds.topSpeedX
         speeds.topSpeedX = 0
@@ -1323,11 +1348,36 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     monster.resetBones()
   end
 
-  local function onCollisionPowerUp(killer, puType)
+  onCollisionPowerUp = function(killer, puType)
     if booleanStates.startedClean then
     elseif gameTimes.goalTime == -1 and not booleanStates.playerInvulnerable then
       local hitType = 0
       local list = {}
+      local deadTime = nil
+      -- Environmental hazards (blade traps) - puType 97/98
+      if puType == 98 or puType == 97 then
+        booleanStates.killedByLevel = true
+        hitType = 1
+        deadTime = 500
+        if puType == 98 then
+          -- Flat blade trap: apply bounce effect
+          local vx, vy = player:getLinearVelocity()
+          if math.abs(vy) > 100 then
+            vx = vx * 0.7
+          end
+          local newVy = -math.abs(vy * 1.3)
+          if newVy < -700 then
+            newVy = -700
+          end
+          if -500 < newVy then
+            newVy = -500
+          end
+          player.onGround = false
+          setLinearVelocityOnPlayer(vx, newVy)
+          state = 1
+          changeSpeedState = 2
+        end
+      end
       if booleanStates.shieldActive then
         hitType = 3
         playerEffects.playShieldAbsorb()
@@ -1335,10 +1385,10 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
         hitType = 2
       elseif puType == 7 or puType == 8 then
         hitType = 4
-      else
+      elseif hitType == 0 then
         hitType = 1
       end
-      playHitAnimation(puType, hitType, killer)
+      playHitAnimation(puType, hitType, killer, deadTime)
       list = {
         k = killer,
         p = puType,

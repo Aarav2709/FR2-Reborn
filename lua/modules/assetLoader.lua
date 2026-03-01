@@ -233,7 +233,7 @@ function M.loadAnimations2()
     {
       name = "shieldActive",
       start = shieldActiveIndex,
-      count = 6,
+      count = 7,
       time = 300,
       loopCount = 18
     },

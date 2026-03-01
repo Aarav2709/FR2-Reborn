@@ -546,8 +546,10 @@ local function new(monsterData, networkFormat)
       skin = 0
     else
       if skin ~= 0 and 100 < skin then
-        skin = composer.storeConfig.getItem(skin).skinId
-        if skin == nil then
+        local skinItem = composer.storeConfig.getItem(skin)
+        if type(skinItem) == "table" and skinItem.skinId then
+          skin = skinItem.skinId
+        else
           skin = 0
         end
       end

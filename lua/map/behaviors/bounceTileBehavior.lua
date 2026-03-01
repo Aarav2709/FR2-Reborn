@@ -197,11 +197,9 @@ function L3_1(A0_2)
   L14_2.mapElement = true
   L14_2.bounce = true
   L18_2 = L1_1
-  L18_2 = L18_2.culler
-  L18_2 = L18_2.addAnimatedTile
-  L19_2 = A0_2.x
-  L20_2 = L14_2
-  L18_2(L19_2, L20_2)
+  if L18_2.culler and L18_2.culler.addAnimatedTile then
+    L18_2.culler.addAnimatedTile(A0_2.x, L14_2)
+  end
   L14_2.isVisible = false
 
   function L18_2()

@@ -55,11 +55,9 @@ function L3_1(A0_2)
   L11_2 = L8_2
   L9_2(L10_2, L11_2)
   L9_2 = L1_1
-  L9_2 = L9_2.culler
-  L9_2 = L9_2.addAnimatedTile
-  L10_2 = A0_2.x
-  L11_2 = L8_2
-  L9_2(L10_2, L11_2)
+  if L9_2.culler and L9_2.culler.addAnimatedTile then
+    L9_2.culler.addAnimatedTile(A0_2.x, L8_2)
+  end
   L8_2.isVisible = false
   local L19_2 = L1_1 and L1_1.data and L1_1.data.currentLevelTheme
   if not L19_2 then

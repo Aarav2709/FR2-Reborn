@@ -118,11 +118,9 @@ function L3_1(A0_2)
   L14_2 = L5_2
   L12_2(L13_2, L14_2)
   L12_2 = L1_1
-  L12_2 = L12_2.culler
-  L12_2 = L12_2.addAnimatedTile
-  L13_2 = A0_2.x
-  L14_2 = L5_2
-  L12_2(L13_2, L14_2)
+  if L12_2.culler and L12_2.culler.addAnimatedTile then
+    L12_2.culler.addAnimatedTile(A0_2.x, L5_2)
+  end
   L5_2.isVisible = false
 
   function L12_2()

@@ -672,8 +672,8 @@ local function new(monsterData, networkFormat)
   end
 
   local function getAnimationList()
-    if animationHandler and animationHandler.skeletonData then
-      return animationHandler.skeletonData:getAnimations()
+    if animationHandler and animationHandler.data and animationHandler.data.skeletonData then
+      return animationHandler.data.skeletonData.animations
     end
     return nil
   end

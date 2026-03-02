@@ -185,8 +185,8 @@ function scene:create(event)
             voteText.y = contentTop + contentHeight * 0.05
         end
         if searchText then
-            searchText.x = centerX
-            searchText.y = centerY
+            searchText.x = screenCenterX
+            searchText.y = screenCenterY
         end
         if avatarDisplayGroupList[1] then
             avatarDisplayGroupList[1].x = contentLeft + contentWidth * 0.45

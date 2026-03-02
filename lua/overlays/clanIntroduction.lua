@@ -38,8 +38,8 @@ function L4_1(A0_2, A1_2)
   L11_2 = display
   L11_2 = L11_2.newImageRect
   L12_2 = "images/gui/common/black.png"
-  L13_2 = 480
-  L14_2 = 320
+  L13_2 = display.actualContentWidth + 100
+  L14_2 = display.actualContentHeight + 100
   L11_2 = L11_2(L12_2, L13_2, L14_2)
   L12_2 = display
   L12_2 = L12_2.contentWidth

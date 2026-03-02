@@ -11,7 +11,7 @@ function scene:create(event)
   if event.params and event.params.username then
     username = event.params.username
   end
-  local backgroundImage = display.newImageRect("images/gui/common/black.png", 480, 320)
+  local backgroundImage = display.newImageRect("images/gui/common/black.png", display.actualContentWidth + 100, display.actualContentHeight + 100)
   backgroundImage.x = display.contentWidth * 0.5
   backgroundImage.y = display.contentHeight * 0.5
   local backgroundWindow = display.newImageRect("images/gui/login/window.png", 350, 137)

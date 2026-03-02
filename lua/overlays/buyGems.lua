@@ -59,8 +59,8 @@ function L5_1(A0_2, A1_2)
   L15_2 = display
   L15_2 = L15_2.newImageRect
   L16_2 = "images/gui/common/black.png"
-  L17_2 = 480
-  L18_2 = 320
+  L17_2 = display.actualContentWidth + 100
+  L18_2 = display.actualContentHeight + 100
   L15_2 = L15_2(L16_2, L17_2, L18_2)
   L16_2 = display
   L16_2 = L16_2.contentWidth

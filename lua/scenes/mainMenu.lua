@@ -363,7 +363,7 @@ function scene:create(event)
 
   local function addTutorialImages()
     if composer.data.tutorial then
-      tutorialLoadingScreen = display.newImageRect("images/gui/common/bgBlur.png", 480, 320)
+      tutorialLoadingScreen = display.newImageRect("images/gui/common/bgBlur.png", display.actualContentWidth + 100, display.actualContentHeight + 100)
       screenGroup:insert(tutorialLoadingScreen)
       tutorialLoadingScreen.alpha = 0
       loadText = composer.newText({

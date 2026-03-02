@@ -194,7 +194,7 @@ local function newListItem(params)
   thisItem.onRelease = onRelease
   thisItem.left = left
   thisItem.right = right
-  if data.price or data.tier then
+  if data.price or data.tier or data.gemPrice then
     local t = callback(data)
     thisItem:insert(t)
     thisItem.group = t

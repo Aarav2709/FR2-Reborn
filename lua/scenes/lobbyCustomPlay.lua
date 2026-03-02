@@ -24,7 +24,7 @@ function scene:create(event)
     avatarDisplayGroupList = {}
     backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 1920, 1080)
     -- backgroundImage2 = display.newImageRect("images/gui/common/bgMain.png", 1920, 1080)
-    tableBackground = display.newImageRect("images/gui/ranking/cell.png", 480, 320)
+    tableBackground = display.newImageRect("images/gui/ranking/cell.png", display.actualContentWidth, display.actualContentHeight)
     titleText = composer.newText({
         string = composer.localized.get("InviteFriends"),
         size = 24,

@@ -10,7 +10,7 @@ function scene:create(event)
   spinningGroup.anchorY = 0.5
   spinningGroup.x = display.contentWidth * 0.5
   spinningGroup.y = 180
-  local backgroundImage = display.newImageRect("images/gui/common/black.png", 480, 320)
+  local backgroundImage = display.newImageRect("images/gui/common/black.png", display.actualContentWidth + 100, display.actualContentHeight + 100)
   backgroundImage.x = display.contentWidth * 0.5
   backgroundImage.y = display.contentHeight * 0.5
   local backgroundWindow = display.newImageRect("images/gui/ranking/prizesPopup.png", 351, 262)

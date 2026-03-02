@@ -8,7 +8,7 @@ function scene:create(event)
   local dropdownGroup = display.newGroup()
   local facebookTimeout
   local canClickButton = true
-  local backgroundImage = display.newImageRect("images/gui/common/black.png", 480, 320)
+  local backgroundImage = display.newImageRect("images/gui/common/black.png", display.actualContentWidth + 100, display.actualContentHeight + 100)
   backgroundImage.x = display.contentWidth * 0.5
   backgroundImage.y = display.contentHeight * 0.5
   local backgroundWindow = display.newImageRect("images/gui/login/window.png", 350, 137)

@@ -59,8 +59,8 @@ function scene:create(event)
       logo.y = contentTop + contentHeight * 0.25
     end
     if text1 then
-      text1.x = 455
-      text1.y = 251
+      text1.x = centerX
+      text1.y = contentTop + contentHeight * 0.45
     end
     if loadBarBG then
       loadBarBG.x = centerX

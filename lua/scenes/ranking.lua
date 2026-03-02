@@ -59,7 +59,7 @@ function scene:create(event)
       background.yScale = scale
     end
   end
-  local tableBackground = display.newImageRect("images/gui/ranking/cell.png", 480, 320)
+  local tableBackground = display.newImageRect("images/gui/ranking/cell.png", display.actualContentWidth, display.actualContentHeight)
   tableBackground.x = UI_BASE_W * 0.5
   tableBackground.y = UI_BASE_H * 0.5
   local selectedTableImage = display.newImageRect("images/gui/ranking/marker.png", 67, 44)

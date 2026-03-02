@@ -11,7 +11,7 @@ function scene:create(event)
   local reward = event.params.rewardThatIsWon
   local value = event.params.rewardValue
   local dropdownGroup = display.newGroup()
-  local backgroundImage = display.newImageRect("images/gui/common/black.png", 480, 320)
+  local backgroundImage = display.newImageRect("images/gui/common/black.png", display.actualContentWidth + 100, display.actualContentHeight + 100)
   backgroundImage.x = display.contentWidth * 0.5
   backgroundImage.y = display.contentHeight * 0.5
   local backgroundWindow = display.newImageRect("images/gui/market/popup/window.png", 215, 200)

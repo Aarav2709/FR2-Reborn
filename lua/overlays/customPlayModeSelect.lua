@@ -6,7 +6,7 @@ function scene:create(event)
   local setGameModeFunction = event.params.setGameModeFunction
   local sceneGroup = self.view
   local dropdownGroup = display.newGroup()
-  local backgroundImage = display.newImageRect("images/gui/common/black.png", 480, 320)
+  local backgroundImage = display.newImageRect("images/gui/common/black.png", display.actualContentWidth + 100, display.actualContentHeight + 100)
   backgroundImage.x = display.contentWidth * 0.5
   backgroundImage.y = display.contentHeight * 0.5
   sceneGroup:insert(backgroundImage)

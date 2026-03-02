@@ -15,7 +15,7 @@ function L3_1(A0_2)
   L2_2 = L2_2.powerUpImageSheetInfo
   L3_2 = L2_2
   L2_2 = L2_2.getFrameIndex
-  L4_2 = "1201"
+  L4_2 = "sawblade"
   L2_2 = L2_2(L3_2, L4_2)
   L3_2 = "floatingBladeTrap"
   L4_2 = nil

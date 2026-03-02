@@ -2204,8 +2204,8 @@ function composer.onboarding.powerBoxFunction(playerId)
 end
 
 local function createBlades(displayGroup)
-  local bladeImagePath = composer.powerUpImageSheetInfo:getFrameIndex("sawblade")
-  local bladeBloodImagePath = composer.powerUpImageSheetInfo:getFrameIndex("sawbladeBloody")
+  local bladeImagePath = composer.powerUpImageSheetInfo:getFrameIndex("1201")
+  local bladeBloodImagePath = composer.powerUpImageSheetInfo:getFrameIndex("1201")
   local bladeImage = display.newImage(composer.powerUpImageSheet, bladeImagePath)
   bladeImage.xScale = 0.5
   bladeImage.yScale = 0.5

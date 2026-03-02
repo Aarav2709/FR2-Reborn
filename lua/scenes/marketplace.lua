@@ -147,6 +147,7 @@ function scene:create(event)
   end
 
   local function createItemEffect()
+    if not monster then return end
     trailHelper.createTrail(itemTrailSelected, monster.getGroup().x - 5, monster.getGroup().y - 50, uiGroup)
     uiGroup:insert(monster.getGroup())
   end
@@ -169,6 +170,12 @@ function scene:create(event)
     if currentMarketData[index] == nil then
       return
     end
+    -- Cancel any running item effect timer before cleaning up monster
+    if itemTimer then
+      timer.cancel(itemTimer)
+      itemTimer = nil
+    end
+    oldEffect = 0
     -- Clean up any existing powerup preview
     if powerUpPreviewImage then
       display.remove(powerUpPreviewImage)

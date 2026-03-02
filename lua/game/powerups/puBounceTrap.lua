@@ -1,6 +1,7 @@
 local M = {}
 local composer = require("composer")
 local physics = require("physics")
+local assetLoader = require("lua.modules.assetLoader")
 
 local function new(id, player, x, y, displayGroup, playerList)
   local trapSprite
@@ -65,7 +66,7 @@ local function new(id, player, x, y, displayGroup, playerList)
 
   local function createTrap()
     playerList[id].removeBounceTrapAnimation()
-    trapSprite = display.newSprite(composer.powerUpImageSheet, composer.data.animations.bounceTrapSet)
+    trapSprite = display.newSprite(composer.powerUpImageSheet, assetLoader.getBounceTrapAnimation(2001))
     local newShape = {
       30,
       -10,

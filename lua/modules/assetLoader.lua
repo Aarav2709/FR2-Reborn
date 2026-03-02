@@ -218,96 +218,13 @@ function M.loadAnimations2()
   local animations = composer.data.animations
   composer.powerUpImageSheetInfo = require("lua.game.powerups.powerupsImageSheet")
   composer.powerUpImageSheet = graphics.newImageSheet("images/game/powerups/powerups.png", composer.powerUpImageSheetInfo:getSheet())
-  local shieldStartIndex = composer.powerUpImageSheetInfo:getFrameIndex("shieldEnter1")
-  local shieldActiveIndex = composer.powerUpImageSheetInfo:getFrameIndex("shieldActive1")
-  local shieldEndIndex = composer.powerUpImageSheetInfo:getFrameIndex("shieldEnd1")
-  local shieldAbsorbIndex = composer.powerUpImageSheetInfo:getFrameIndex("shieldAbs1")
-  local shieldSequenceData = {
-    {
-      name = "shieldStart",
-      start = shieldStartIndex,
-      count = 6,
-      time = 300,
-      loopCount = 1
-    },
-    {
-      name = "shieldActive",
-      start = shieldActiveIndex,
-      count = 7,
-      time = 300,
-      loopCount = 18
-    },
-    {
-      name = "shieldEnd",
-      start = shieldEndIndex,
-      count = 7,
-      time = 300,
-      loopCount = 1
-    },
-    {
-      name = "shieldAbsorb",
-      start = shieldAbsorbIndex,
-      count = 8,
-      time = 500,
-      loopCount = 1
-    }
-  }
-  animations.shieldSpriteSet = shieldSequenceData
-  local trapCloseIndex = composer.powerUpImageSheetInfo:getFrameIndex("trap1")
-  local trapBloodCloseIndex = composer.powerUpImageSheetInfo:getFrameIndex("trapBlood1")
-  local trapBloodOpenIndex = composer.powerUpImageSheetInfo:getFrameIndex("trapBlood4")
-  local trapSequenceData = {
-    {
-      name = "closeNormal",
-      start = trapCloseIndex,
-      count = 4,
-      time = 70,
-      loopCount = 1
-    },
-    {
-      name = "closeBlood",
-      start = trapBloodCloseIndex,
-      count = 4,
-      time = 70,
-      loopCount = 1
-    },
-    {
-      name = "openBlood",
-      frames = {
-        trapBloodOpenIndex,
-        trapBloodOpenIndex - 1,
-        trapBloodOpenIndex - 2,
-        trapBloodOpenIndex - 3
-      },
-      time = 1000,
-      loopCount = 1
-    }
-  }
-  animations.trapSet = trapSequenceData
-  local bounceStartIndex = composer.powerUpImageSheetInfo:getFrameIndex("punchBox1")
-  local bounceReturnIndex = composer.powerUpImageSheetInfo:getFrameIndex("punchBox5")
-  local bounceSequenceData = {
-    {
-      name = "play",
-      start = bounceStartIndex,
-      count = 5,
-      time = 70,
-      loopCount = 1
-    },
-    {
-      name = "reset",
-      frames = {
-        bounceReturnIndex,
-        bounceReturnIndex - 1,
-        bounceReturnIndex - 2,
-        bounceReturnIndex - 3,
-        bounceReturnIndex - 4
-      },
-      time = 800,
-      loopCount = 1
-    }
-  }
-  animations.bounceTrapSet = bounceSequenceData
+
+  -- Pre-build default trap animation (skin 1301)
+  animations["1301"] = M.getTrapAnimation(1301)
+
+  -- Pre-build default bounce trap animation (skin 2001)
+  animations["2001"] = M.getBounceTrapAnimation(2001)
+
   local teleportEffectStartIndex = composer.powerUpImageSheetInfo:getFrameIndex("tp1")
   local teleportEffectStopIndex = composer.powerUpImageSheetInfo:getFrameIndex("tp7")
   local teleportEffectSequenceData = {
@@ -540,6 +457,50 @@ function M.checksumProcedure(serverConfigCheckSum, serverMapCheckSum)
   elseif serverMapCheckSum ~= composer.data.mapChecksum then
     checkMapCheckSumAndDownload()
   end
+end
+
+function M.getTrapAnimation(skinId)
+  local animations = composer.data.animations
+  skinId = skinId or 1301
+  local key = "" .. skinId
+  if animations[key] then
+    return animations[key]
+  end
+  local startFrame = composer.powerUpImageSheetInfo:getFrameIndex("" .. skinId)
+  local endFrame = composer.powerUpImageSheetInfo:getFrameIndex("" .. skinId .. "_4")
+  if not startFrame or not endFrame then
+    startFrame = composer.powerUpImageSheetInfo:getFrameIndex("1301")
+    endFrame = composer.powerUpImageSheetInfo:getFrameIndex("1301_4")
+    key = "1301"
+  end
+  local sequenceData = {
+    { name = "close", start = startFrame, count = 4, time = 70, loopCount = 1 },
+    { name = "open", frames = { endFrame, endFrame - 1, endFrame - 2, endFrame - 3 }, time = 1000, loopCount = 1 }
+  }
+  animations[key] = sequenceData
+  return animations[key]
+end
+
+function M.getBounceTrapAnimation(skinId)
+  local animations = composer.data.animations
+  skinId = skinId or 2001
+  local key = "" .. skinId
+  if animations[key] then
+    return animations[key]
+  end
+  local startFrame = composer.powerUpImageSheetInfo:getFrameIndex("" .. skinId)
+  local endFrame = composer.powerUpImageSheetInfo:getFrameIndex("" .. skinId .. "_5")
+  if not startFrame or not endFrame then
+    startFrame = composer.powerUpImageSheetInfo:getFrameIndex("2001")
+    endFrame = composer.powerUpImageSheetInfo:getFrameIndex("2001_5")
+    key = "2001"
+  end
+  local sequenceData = {
+    { name = "play", start = startFrame, count = 5, time = 70, loopCount = 1 },
+    { name = "reset", frames = { endFrame, endFrame - 1, endFrame - 2, endFrame - 3, endFrame - 4 }, time = 800, loopCount = 1 }
+  }
+  animations[key] = sequenceData
+  return animations[key]
 end
 
 function M.loadSpine()

@@ -15,7 +15,7 @@ function L3_1(A0_2)
   L2_2 = L2_2.powerUpImageSheetInfo
   L3_2 = L2_2
   L2_2 = L2_2.getFrameIndex
-  L4_2 = "1201"
+  L4_2 = "sawblade"
   L2_2 = L2_2(L3_2, L4_2)
   L3_2 = "bladeTrap"
   L4_2 = nil
@@ -91,7 +91,7 @@ function L3_1(A0_2)
   L10_2(L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2)
   L6_2.bodyType = "static"
   L6_2.isFixedRotation = true
-  L6_2.floatingBladeTrap = true
+  L6_2.flatBladeTrap = true
   L6_2.mapElement = true
   L10_2 = false
   L11_2 = 20

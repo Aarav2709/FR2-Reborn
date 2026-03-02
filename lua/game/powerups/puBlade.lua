@@ -1,8 +1,8 @@
 local M = {}
 local composer = require("composer")
 local physics = require("physics")
-local bladeImagePath = composer.powerUpImageSheetInfo:getFrameIndex("sawblade")
-local bladeBloodImagePath = composer.powerUpImageSheetInfo:getFrameIndex("sawbladeBloody")
+local bladeImagePath = composer.powerUpImageSheetInfo:getFrameIndex("1201")
+local bladeBloodImagePath = composer.powerUpImageSheetInfo:getFrameIndex("1201")
 
 local function new(id, player, x, y, displayGroup, playerList)
   local blade = display.newGroup()

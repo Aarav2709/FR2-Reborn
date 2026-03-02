@@ -176,17 +176,20 @@ function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDi
     local cloudBackgroundPath = composer.powerUpEffectImageSheetInfo:getFrameIndex("lightningBackground")
     local cw = display.contentWidth
     local ch = display.contentHeight
+    -- Cloud sprites are 1060×188 source. Original 0.5 scale covered 480px screen.
+    -- For current resolution, use uniform scale to cover screen width with ~10% overshoot.
+    local cloudScale = cw / 960
     cloudBottom = display.newImage(composer.powerUpEffectImageSheet, cloudBottomPath)
-    cloudBottom.xScale = cw / 480
-    cloudBottom.yScale = ch / 320
+    cloudBottom.xScale = cloudScale
+    cloudBottom.yScale = cloudScale
     cloudBottom.anchorX = 1
     cloudBottom.anchorY = 0
     cloudBottom.x = cw
     cloudBottom.y = 0
     cloudBottom.alpha = 0
     cloudTop = display.newImage(composer.powerUpEffectImageSheet, cloudTopPath)
-    cloudTop.xScale = cw / 480
-    cloudTop.yScale = ch / 320
+    cloudTop.xScale = cloudScale
+    cloudTop.yScale = cloudScale
     cloudTop.anchorX = 0
     cloudTop.anchorY = 0
     cloudTop.x = 0
@@ -312,34 +315,58 @@ function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDi
     magnetEffect:play()
   end
 
-  local shieldSprite = display.newSprite(composer.powerUpImageSheet, composer.data.animations.shieldSpriteSet)
-  shieldSprite.xScale = 0.5
-  shieldSprite.yScale = 0.5
-  shieldSprite.y = -10
-  shieldSprite.alpha = 0
+  -- Shield: TWO display.newImage objects (main + absorb overlay with mask wipe)
+  local shieldItemId = 1501
+  local shieldMainFrame = composer.powerUpImageSheetInfo:getFrameIndex("" .. shieldItemId)
+  local shieldAbsorbFrame = composer.powerUpImageSheetInfo:getFrameIndex("" .. shieldItemId .. "_2")
+
+  local shieldImage = display.newImage(composer.powerUpImageSheet, shieldMainFrame)
+  shieldImage.xScale = 0.5
+  shieldImage.yScale = 0.5
+  shieldImage.y = -10
+  shieldImage.alpha = 0
+
+  local shieldAbsorbImage = display.newImage(composer.powerUpImageSheet, shieldAbsorbFrame)
+  shieldAbsorbImage.xScale = 0.4
+  shieldAbsorbImage.yScale = 0.4
+  shieldAbsorbImage.y = -10
+  shieldAbsorbImage.alpha = 0
+
+  local shieldMask = graphics.newMask("images/game/powerups/mask.png")
+  shieldAbsorbImage:setMask(shieldMask)
+  shieldAbsorbImage.maskScaleX = 2
+  shieldAbsorbImage.maskScaleY = 2
+  shieldAbsorbImage.maskX = -110
+  shieldAbsorbImage.maskY = -110
 
   function C.hidePowerUpShield()
-    transition.cancel(shieldSprite)
+    transition.cancel(shieldImage)
+    transition.cancel(shieldAbsorbImage)
     booleanStates.shieldActive = false
-    shieldSprite.alpha = 0
-    shieldSprite:pause()
+    shieldImage.alpha = 0
+    shieldAbsorbImage.alpha = 0
   end
 
-  local function playPowerUpShieldActive(event)
-    if event then
-      if event.phase == "ended" and shieldSprite.animationType == 1 then
-        shieldSprite:setSequence("shieldActive")
-        shieldSprite:play()
-        shieldSprite.animationType = 2
-      elseif event.phase == "ended" and shieldSprite.animationType == 2 then
-        shieldSprite:setSequence("shieldEnd")
-        shieldSprite:play()
-        shieldSprite.animationType = 3
-        player.playSound("invul_end")
-      elseif event.phase == "ended" and shieldSprite.animationType == 3 then
-        C.hidePowerUpShield()
-      end
-    end
+  -- Shield bounce: mutual recursion for idle pulsing
+  local function shieldPulseA()
+  end
+  local function shieldPulseB()
+  end
+  function shieldPulseA()
+    transition.to(shieldImage, {
+      time = 200,
+      xScale = 0.5,
+      yScale = 0.5,
+      onComplete = shieldPulseB
+    })
+  end
+  function shieldPulseB()
+    transition.to(shieldImage, {
+      time = 200,
+      xScale = 0.45,
+      yScale = 0.55,
+      onComplete = shieldPulseA
+    })
   end
 
   local function shieldOverEffect()
@@ -357,41 +384,50 @@ function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDi
         end
       end
 
-      local function hide()
-        transition.cancel(shieldSprite)
-        shieldSprite.alpha = 0
-        booleanStates.shieldActive = false
-      end
-
-      local function transitionScale()
-        transition.to(shieldSprite, {
+      local function startBlink()
+        transition.to(shieldImage, {
           time = 200,
           alpha = targetAlpha,
           xScale = targetScale,
           yScale = targetScale,
           onRepeat = setTransitionTarget,
-          onComplete = hide,
+          onComplete = C.hidePowerUpShield,
           iterations = 4
         })
       end
 
-      transitionScale()
+      startBlink()
     end
   end
 
   function C.playShieldAbsorb()
-    shieldSprite.animationType = 1
-    shieldSprite:setSequence("shieldAbsorb")
-    shieldSprite:play()
+    shieldAbsorbImage.maskX = -110
+    shieldAbsorbImage.maskY = -110
+    shieldAbsorbImage.alpha = 1
+    transition.to(shieldAbsorbImage, {
+      time = 400,
+      maskX = 110,
+      maskY = 110
+    })
   end
 
   function C.playPowerUpShieldStart()
-    transition.cancel(shieldSprite)
-    shieldSprite.animationType = 1
-    shieldSprite.alpha = 1
-    shieldSprite:setSequence("shieldStart")
-    shieldSprite:play()
-    transition.to(shieldSprite, {time = 3200, onComplete = shieldOverEffect})
+    transition.cancel(shieldImage)
+    -- 3200ms shield duration timer
+    transition.to(shieldImage, {
+      time = 3200,
+      onComplete = shieldOverEffect
+    })
+    -- Pop-in entrance animation
+    shieldImage.xScale = 0.01
+    shieldImage.yScale = 0.01
+    transition.to(shieldImage, {
+      time = 300,
+      alpha = 1,
+      xScale = 0.5,
+      yScale = 0.5,
+      onComplete = shieldPulseA
+    })
   end
 
   local bloodScreenBL, bloodScreenTL, bloodScreenTR
@@ -542,7 +578,6 @@ function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDi
     bloodSquirtSprite:removeEventListener("sprite", hideBloodSquirt)
     teleportEffect:removeEventListener("sprite", hideTeleportEffect)
     magnetEffect:removeEventListener("sprite", hideMagnetEffect)
-    shieldSprite:removeEventListener("sprite", playPowerUpShieldActive)
     jumpEffect:removeEventListener("sprite", hideJumpEffect)
     landEffect:removeEventListener("sprite", hideLandEffect)
     markBloodEffect:removeEventListener("sprite", hideMarkBloodEffect)
@@ -566,7 +601,6 @@ function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDi
     bloodSquirtSprite:addEventListener("sprite", hideBloodSquirt)
     teleportEffect:addEventListener("sprite", hideTeleportEffect)
     magnetEffect:addEventListener("sprite", hideMagnetEffect)
-    shieldSprite:addEventListener("sprite", playPowerUpShieldActive)
     jumpEffect:addEventListener("sprite", hideJumpEffect)
     landEffect:addEventListener("sprite", hideLandEffect)
     markBloodEffect:addEventListener("sprite", hideMarkBloodEffect)
@@ -580,7 +614,8 @@ function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDi
     player:insert(lightningDeathSprite)
     player:insert(teleportEffect)
     player:insert(magnetEffect)
-    player:insert(shieldSprite)
+    player:insert(shieldImage)
+    player:insert(shieldAbsorbImage)
     spriteDisplay:insert(bloodSquirtSprite)
     bodyParts:insert(jumpEffect)
     bodyParts:insert(landEffect)

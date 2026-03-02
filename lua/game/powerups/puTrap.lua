@@ -1,6 +1,7 @@
 local M = {}
 local composer = require("composer")
 local physics = require("physics")
+local assetLoader = require("lua.modules.assetLoader")
 
 local function new(id, player, x, y, displayGroup, playerList)
   local trapSprite
@@ -17,18 +18,14 @@ local function new(id, player, x, y, displayGroup, playerList)
   end
 
   local function playSpriteCloseEffect()
-    if haveHitSomeone then
-      trapSprite:setSequence("closeBlood")
-    else
-      trapSprite:setSequence("closeNormal")
-    end
+    trapSprite:setSequence("close")
     trapSprite:play()
     trapClosed = true
     haveHitSomeone = true
   end
 
   local function playSpriteOpenEffect()
-    trapSprite:setSequence("openBlood")
+    trapSprite:setSequence("open")
     trapSprite:play()
     trapClosed = false
   end
@@ -74,7 +71,7 @@ local function new(id, player, x, y, displayGroup, playerList)
 
   local function createTrap()
     playerList[id].removeTrapAnimation()
-    trapSprite = display.newSprite(composer.powerUpImageSheet, composer.data.animations.trapSet)
+    trapSprite = display.newSprite(composer.powerUpImageSheet, assetLoader.getTrapAnimation(1301))
     local newShape = {
       20,
       0,

@@ -382,14 +382,14 @@ function L7_1(A0_2, A1_2)
       L30_2(L31_2, L32_2)
     end
   end
-  
+
   function L25_2()
     local L0_3, L1_3
     L0_3 = L0_1
     L0_3 = L0_3.hideOverlay
     L0_3()
   end
-  
+
   function L26_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L0_1
@@ -407,7 +407,7 @@ function L7_1(A0_2, A1_2)
     L3_3 = L0_3
     L1_3(L2_3, L3_3)
   end
-  
+
   L27_2 = L0_1
   L27_2 = L27_2.newButton
   L28_2 = {}
@@ -452,7 +452,7 @@ function L7_1(A0_2, A1_2)
   L29_2.onRelease = L26_2
   L28_2 = L28_2(L29_2)
   L28_2.isVisible = false
-  
+
   function L29_2()
     local L0_3, L1_3, L2_3
     L0_3 = L2_2
@@ -484,7 +484,7 @@ function L7_1(A0_2, A1_2)
     L0_3 = L28_2
     L0_3.isVisible = true
   end
-  
+
   function L30_2()
     local L0_3, L1_3
     L0_3 = L0_1
@@ -492,7 +492,7 @@ function L7_1(A0_2, A1_2)
     L1_3 = L1_1
     L0_3(L1_3)
   end
-  
+
   L31_2 = L0_1
   L31_2 = L31_2.newButton
   L32_2 = {}
@@ -507,7 +507,7 @@ function L7_1(A0_2, A1_2)
   L32_2.x = L33_2
   L32_2.y = 80
   L31_2 = L31_2(L32_2)
-  
+
   function L32_2()
     local L0_3, L1_3, L2_3
     L0_3 = L5_2
@@ -576,7 +576,7 @@ function L7_1(A0_2, A1_2)
     L2_3 = L6_2
     L0_3(L1_3, L2_3)
   end
-  
+
   function L33_2(A0_3)
     local L1_3
     L1_3 = A0_3.phase
@@ -592,7 +592,7 @@ function L7_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   function L34_2(A0_3)
     local L1_3, L2_3
     L1_3 = A0_3.phase
@@ -621,7 +621,7 @@ function L7_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   function L35_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L8_2
@@ -637,7 +637,7 @@ function L7_1(A0_2, A1_2)
     L3_3 = L34_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   function L36_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L2_2
@@ -682,19 +682,19 @@ function L7_1(A0_2, A1_2)
     L3_3 = L34_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   L2_1 = L36_2
   L36_2 = L32_2
   L36_2()
   L36_2 = L35_2
   L36_2()
-  
+
   function L36_2()
     local L0_3, L1_3
     L0_3 = L29_2
     L0_3()
   end
-  
+
   L37_2 = L0_1
   L37_2 = L37_2.bouncer
   L37_2 = L37_2.down
@@ -714,7 +714,7 @@ function L7_1(A0_2, A1_2)
   L3_2 = require
   L4_2 = "lua.modules.androidBackButton"
   L3_2 = L3_2(L4_2)
-  
+
   function L4_2()
     local L0_3, L1_3
     L0_3 = L3_2
@@ -722,7 +722,7 @@ function L7_1(A0_2, A1_2)
     L1_3 = false
     L0_3(L1_3)
   end
-  
+
   L3_1 = L4_2
   L4_2 = L6_1
   if L4_2 then

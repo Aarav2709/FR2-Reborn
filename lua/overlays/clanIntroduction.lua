@@ -407,7 +407,7 @@ function L4_1(A0_2, A1_2)
   L31_2.color = L32_2
   L31_2.align = "center"
   L30_2 = L30_2(L31_2)
-  
+
   function L31_2(A0_3)
     local L1_3, L2_3
     L1_3 = L0_1
@@ -416,7 +416,7 @@ function L4_1(A0_2, A1_2)
     L2_3 = A0_3
     L1_3(L2_3)
   end
-  
+
   L32_2 = L6_2.new
   L33_2 = L20_2.x
   L34_2 = L20_2.y
@@ -439,7 +439,7 @@ function L4_1(A0_2, A1_2)
   L33_2 = L33_2(L34_2)
   L34_2 = L33_2.hide
   L34_2()
-  
+
   function L34_2()
     local L0_3, L1_3
     L0_3 = L9_2
@@ -452,7 +452,7 @@ function L4_1(A0_2, A1_2)
       L9_2 = L0_3
     end
   end
-  
+
   function L35_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = {}
@@ -465,7 +465,7 @@ function L4_1(A0_2, A1_2)
     L3_3 = L0_3
     L1_3(L2_3, L3_3)
   end
-  
+
   function L36_2()
     local L0_3, L1_3
     L0_3 = L0_1
@@ -473,7 +473,7 @@ function L4_1(A0_2, A1_2)
     L0_3 = L0_3.getOpenClans
     L0_3()
   end
-  
+
   function L37_2()
     local L0_3, L1_3
     L0_3 = L3_2
@@ -490,7 +490,7 @@ function L4_1(A0_2, A1_2)
       L0_3.isVisible = false
     end
   end
-  
+
   L38_2 = L0_1
   L38_2 = L38_2.newButton
   L39_2 = {}
@@ -560,7 +560,7 @@ function L4_1(A0_2, A1_2)
   L42_2.image = "images/gui/ranking/promotion/buttonOk.png"
   L42_2.onRelease = L37_2
   L41_2 = L41_2(L42_2)
-  
+
   function L42_2(A0_3)
     local L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3, L10_3, L11_3
     L1_3 = {}
@@ -614,7 +614,7 @@ function L4_1(A0_2, A1_2)
     end
     return L1_3
   end
-  
+
   function L43_2(A0_3)
     local L1_3, L2_3, L3_3, L4_3, L5_3, L6_3
     L1_3 = A0_3.m
@@ -766,13 +766,13 @@ function L4_1(A0_2, A1_2)
       end
     end
   end
-  
+
   function L44_2()
     local L0_3, L1_3
     L0_3 = true
     L10_2 = L0_3
   end
-  
+
   function L45_2()
     local L0_3, L1_3
     L0_3 = L0_1
@@ -781,7 +781,7 @@ function L4_1(A0_2, A1_2)
     L0_3 = true
     return L0_3
   end
-  
+
   L46_2 = L0_1
   L46_2 = L46_2.newButton
   L47_2 = {}
@@ -796,7 +796,7 @@ function L4_1(A0_2, A1_2)
   L48_2 = L48_2 + -108
   L47_2.y = L48_2
   L46_2 = L46_2(L47_2)
-  
+
   function L47_2(A0_3)
     local L1_3, L2_3
     L1_3 = A0_3.phase
@@ -812,7 +812,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   function L48_2(A0_3)
     local L1_3, L2_3
     L1_3 = A0_3.phase
@@ -825,7 +825,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   function L49_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L11_2
@@ -841,7 +841,7 @@ function L4_1(A0_2, A1_2)
     L3_3 = L48_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   function L50_2()
     local L0_3, L1_3, L2_3
     L0_3 = L2_2
@@ -945,7 +945,7 @@ function L4_1(A0_2, A1_2)
     L2_3 = L8_2
     L0_3(L1_3, L2_3)
   end
-  
+
   function L51_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = display
@@ -971,7 +971,7 @@ function L4_1(A0_2, A1_2)
     L3_3 = L48_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   L2_1 = L51_2
   L51_2 = L50_2
   L51_2()
@@ -1021,7 +1021,7 @@ function L4_1(A0_2, A1_2)
   L3_2 = require
   L4_2 = "lua.modules.androidBackButton"
   L3_2 = L3_2(L4_2)
-  
+
   function L4_2()
     local L0_3, L1_3
     L0_3 = L3_2
@@ -1029,7 +1029,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = false
     L0_3(L1_3)
   end
-  
+
   L3_1 = L4_2
   L4_2 = L3_2.isOverlay
   L5_2 = true

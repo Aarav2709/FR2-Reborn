@@ -121,14 +121,14 @@ function L7_1(A0_2, A1_2)
   L10_2 = 0
   L11_2 = nil
   L12_2 = nil
-  
+
   function L13_2()
     local L0_3, L1_3
     L0_3 = L0_1
     L0_3 = L0_3.hideOverlay
     L0_3()
   end
-  
+
   function L14_2()
     local L0_3, L1_3
     L0_3 = L4_1
@@ -141,7 +141,7 @@ function L7_1(A0_2, A1_2)
       L4_1 = L0_3
     end
   end
-  
+
   function L15_2()
     local L0_3, L1_3, L2_3
     L0_3 = L14_2
@@ -155,7 +155,7 @@ function L7_1(A0_2, A1_2)
     L0_3 = L0_3(L1_3, L2_3)
     L4_1 = L0_3
   end
-  
+
   function L16_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3
     L0_3 = L7_2
@@ -171,7 +171,7 @@ function L7_1(A0_2, A1_2)
     L1_3 = L1_3 .. L2_3 .. L3_3 .. L4_3 .. L5_3
     L0_3.text = L1_3
   end
-  
+
   function L17_2(A0_3)
     local L1_3, L2_3, L3_3
     L1_3 = L0_1
@@ -181,7 +181,7 @@ function L7_1(A0_2, A1_2)
     L3_3 = A0_3.storeType
     L1_3(L2_3, L3_3)
   end
-  
+
   function L18_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3
     L0_3 = L15_2
@@ -230,7 +230,7 @@ function L7_1(A0_2, A1_2)
       L0_3(L1_3)
     end
   end
-  
+
   function L19_2()
     local L0_3, L1_3
     L0_3 = L5_1
@@ -243,7 +243,7 @@ function L7_1(A0_2, A1_2)
       L5_1 = L0_3
     end
   end
-  
+
   function L20_2()
     local L0_3, L1_3, L2_3
     L0_3 = L14_2
@@ -259,7 +259,7 @@ function L7_1(A0_2, A1_2)
     L0_3 = L0_3(L1_3, L2_3)
     L5_1 = L0_3
   end
-  
+
   function L21_2(A0_3, A1_3)
     local L2_3, L3_3, L4_3
     L2_3 = false
@@ -278,7 +278,7 @@ function L7_1(A0_2, A1_2)
       L3_3(L4_3)
     end
   end
-  
+
   function L22_2(A0_3, A1_3)
     local L2_3, L3_3, L4_3, L5_3, L6_3
     L2_3 = L11_2
@@ -328,7 +328,7 @@ function L7_1(A0_2, A1_2)
       end
     end
   end
-  
+
   function L23_2()
     local L0_3, L1_3
     L0_3 = L10_2
@@ -341,7 +341,7 @@ function L7_1(A0_2, A1_2)
     L0_3 = true
     return L0_3
   end
-  
+
   L24_2 = L0_1
   L24_2 = L24_2.newButton
   L25_2 = {}
@@ -363,7 +363,7 @@ function L7_1(A0_2, A1_2)
   L24_2 = L24_2(L25_2)
   L12_2 = L24_2
   L12_2.isVisible = false
-  
+
   function L24_2(A0_3)
     local L1_3
     L1_3 = A0_3.phase
@@ -372,7 +372,7 @@ function L7_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   function L25_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L4_2
@@ -382,7 +382,7 @@ function L7_1(A0_2, A1_2)
     L3_3 = L24_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   function L26_2()
     local L0_3, L1_3, L2_3
     L0_3 = L3_2
@@ -416,7 +416,7 @@ function L7_1(A0_2, A1_2)
     L2_3 = L12_2
     L0_3(L1_3, L2_3)
   end
-  
+
   function L27_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = display
@@ -426,11 +426,11 @@ function L7_1(A0_2, A1_2)
     L0_3 = L0_1
     L0_3 = L0_3.commHttps
     L0_3 = L0_3.setCallback
-    
+
     function L1_3()
       local L0_4, L1_4
     end
-    
+
     L0_3(L1_3)
     L0_3 = L4_2
     L1_3 = L0_3
@@ -439,9 +439,9 @@ function L7_1(A0_2, A1_2)
     L3_3 = L24_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   L2_1 = L27_2
-  
+
   function L27_2(A0_3)
     local L1_3, L2_3, L3_3, L4_3, L5_3, L6_3
     L1_3 = A0_3.m
@@ -494,7 +494,7 @@ function L7_1(A0_2, A1_2)
     L2_3()
     -- lbl_47 removed
   end
-  
+
   L28_2 = L26_2
   L28_2()
   L28_2 = L25_2
@@ -518,11 +518,11 @@ function L7_1(A0_2, A1_2)
   if L2_2 == "will" then
     return
   end
-  
+
   function L3_2()
     local L0_3, L1_3
   end
-  
+
   L3_1 = L3_2
 end
 

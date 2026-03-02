@@ -97,7 +97,7 @@ function L4_1(A0_2, A1_2)
   L11_2[3] = L14_2
   L10_2.color = L11_2
   L9_2 = L9_2(L10_2)
-  
+
   function L10_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3
     L0_3 = false
@@ -178,7 +178,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = L1_3.hideOverlay
     L1_3()
   end
-  
+
   L11_2 = L0_1
   L11_2 = L11_2.newButton
   L12_2 = {}
@@ -199,7 +199,7 @@ function L4_1(A0_2, A1_2)
   L13_2 = L13_2 + 50
   L12_2.y = L13_2
   L11_2 = L11_2(L12_2)
-  
+
   function L12_2()
     local L0_3, L1_3
     L0_3 = L0_1
@@ -210,7 +210,7 @@ function L4_1(A0_2, A1_2)
     L0_3 = L0_3.hideOverlay
     L0_3()
   end
-  
+
   L13_2 = L0_1
   L13_2 = L13_2.newButton
   L14_2 = {}
@@ -231,7 +231,7 @@ function L4_1(A0_2, A1_2)
   L15_2 = L15_2 + 50
   L14_2.y = L15_2
   L13_2 = L13_2(L14_2)
-  
+
   function L14_2()
     local L0_3, L1_3
     L0_3 = L0_1
@@ -243,7 +243,7 @@ function L4_1(A0_2, A1_2)
     L0_3 = L0_3.hideOverlay
     L0_3()
   end
-  
+
   L15_2 = L0_1
   L15_2 = L15_2.newButton
   L16_2 = {}
@@ -264,7 +264,7 @@ function L4_1(A0_2, A1_2)
   L17_2 = L17_2 + 50
   L16_2.y = L17_2
   L15_2 = L15_2(L16_2)
-  
+
   function L16_2(A0_3)
     local L1_3
     L1_3 = A0_3.phase
@@ -276,7 +276,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   function L17_2(A0_3)
     local L1_3
     L1_3 = A0_3.phase
@@ -285,7 +285,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   function L18_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L6_2
@@ -301,7 +301,7 @@ function L4_1(A0_2, A1_2)
     L3_3 = L17_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   function L19_2()
     local L0_3, L1_3, L2_3
     L0_3 = L2_2
@@ -345,7 +345,7 @@ function L4_1(A0_2, A1_2)
     L2_3 = L3_2
     L0_3(L1_3, L2_3)
   end
-  
+
   function L20_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = display
@@ -373,7 +373,7 @@ function L4_1(A0_2, A1_2)
     L3_3 = L17_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   L2_1 = L20_2
   L20_2 = L19_2
   L20_2()
@@ -392,7 +392,7 @@ function L4_1(A0_2, A1_2)
   L3_2 = require
   L4_2 = "lua.modules.androidBackButton"
   L3_2 = L3_2(L4_2)
-  
+
   function L4_2()
     local L0_3, L1_3
     L0_3 = L3_2
@@ -400,7 +400,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = false
     L0_3(L1_3)
   end
-  
+
   L3_1 = L4_2
   L4_2 = L3_2.isOverlay
   L5_2 = true

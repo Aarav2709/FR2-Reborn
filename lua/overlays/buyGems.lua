@@ -185,7 +185,7 @@ function L5_1(A0_2, A1_2)
   L23_2.y = L24_2
   L23_2.size = 12
   L22_2 = L22_2(L23_2)
-  
+
   function L23_2()
     local L0_3, L1_3
     L0_3 = L9_2
@@ -198,7 +198,7 @@ function L5_1(A0_2, A1_2)
       L9_2 = L0_3
     end
   end
-  
+
   function L24_2()
     local L0_3, L1_3
     L0_3 = L6_2
@@ -213,7 +213,7 @@ function L5_1(A0_2, A1_2)
     L0_3 = L23_2
     L0_3()
   end
-  
+
   function L25_2()
     local L0_3, L1_3
     L0_3 = L0_1
@@ -226,7 +226,7 @@ function L5_1(A0_2, A1_2)
     L0_3 = L21_2
     L0_3.text = ""
   end
-  
+
   function L26_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3, L6_3
     L0_3 = L21_2
@@ -243,7 +243,7 @@ function L5_1(A0_2, A1_2)
         L1_3 = L0_1
         L1_3 = L1_3.hideOverlay
         L1_3()
-        
+
         function L1_3()
           local L0_4, L1_4
           L0_4 = L0_1
@@ -255,7 +255,7 @@ function L5_1(A0_2, A1_2)
           L1_4 = "lua.scenes.marketplace"
           L0_4(L1_4)
         end
-        
+
         L2_3 = {}
         L2_3.message = [[
 Network connection error
@@ -276,7 +276,7 @@ Click OK and we'll restore your purchase]]
       L1_3()
     end
   end
-  
+
   function L27_2()
     local L0_3, L1_3, L2_3
     L0_3 = L0_1
@@ -293,7 +293,7 @@ Click OK and we'll restore your purchase]]
     L0_3 = L13_2
     L0_3.isVisible = true
   end
-  
+
   function L28_2(A0_3, A1_3)
     local L2_3, L3_3
     L2_3 = type
@@ -311,7 +311,7 @@ Click OK and we'll restore your purchase]]
       end
     end
   end
-  
+
   function L29_2(A0_3)
     local L1_3, L2_3, L3_3, L4_3, L5_3
     L1_3 = A0_3.m
@@ -379,7 +379,7 @@ Click OK and we'll restore your purchase]]
     end
     -- lbl_62 removed
   end
-  
+
   function L30_2(A0_3)
     local L1_3, L2_3, L3_3
     L1_3 = A0_3.m
@@ -442,7 +442,7 @@ Click OK and we'll restore your purchase]]
       end
     end
   end
-  
+
   function L31_2(A0_3)
     local L1_3, L2_3, L3_3
     L1_3 = print
@@ -471,7 +471,7 @@ Click OK and we'll restore your purchase]]
       L1_3.text = "iap in progress"
     end
   end
-  
+
   function L32_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3, L10_3, L11_3, L12_3, L13_3, L14_3, L15_3, L16_3, L17_3, L18_3
     L0_3 = L11_2
@@ -554,14 +554,14 @@ Click OK and we'll restore your purchase]]
         L15_3.image = L9_3
         L15_3.width = L5_3
         L15_3.height = L6_3
-        
+
         function L16_3()
           local L0_4, L1_4
           L0_4 = L31_2
           L1_4 = L3_3
           L0_4(L1_4)
         end
-        
+
         L15_3.onRelease = L16_3
         L15_3.x = L10_3
         L15_3.y = L11_3
@@ -605,17 +605,17 @@ Click OK and we'll restore your purchase]]
     else
     end
   end
-  
+
   L33_2 = L32_2
   L33_2()
-  
+
   function L33_2()
     local L0_3, L1_3
     L0_3 = L0_1
     L0_3 = L0_3.hideOverlay
     L0_3()
   end
-  
+
   L34_2 = L0_1
   L34_2 = L34_2.newButton
   L35_2 = {}
@@ -630,7 +630,7 @@ Click OK and we'll restore your purchase]]
   L36_2 = L36_2 + 30
   L35_2.y = L36_2
   L34_2 = L34_2(L35_2)
-  
+
   function L35_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3, L6_3
     L0_3 = L2_2
@@ -709,7 +709,7 @@ Click OK and we'll restore your purchase]]
     L2_3 = L21_2
     L0_3(L1_3, L2_3)
   end
-  
+
   function L36_2(A0_3)
     local L1_3
     L1_3 = A0_3.phase
@@ -721,7 +721,7 @@ Click OK and we'll restore your purchase]]
     L1_3 = true
     return L1_3
   end
-  
+
   function L37_2(A0_3)
     local L1_3
     L1_3 = A0_3.phase
@@ -730,13 +730,13 @@ Click OK and we'll restore your purchase]]
     L1_3 = true
     return L1_3
   end
-  
+
   function L38_2()
     local L0_3, L1_3
     L0_3 = L23_2
     L0_3()
   end
-  
+
   function L39_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L13_2
@@ -764,7 +764,7 @@ Click OK and we'll restore your purchase]]
     L3_3 = L38_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   function L40_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3
     L0_3 = display
@@ -819,7 +819,7 @@ Click OK and we'll restore your purchase]]
     L3_3 = L38_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   L2_1 = L40_2
   L40_2 = L35_2
   L40_2()
@@ -857,7 +857,7 @@ function L5_1(A0_2, A1_2)
   L3_2 = require
   L4_2 = "lua.modules.androidBackButton"
   L3_2 = L3_2(L4_2)
-  
+
   function L4_2()
     local L0_3, L1_3
     L0_3 = L3_2
@@ -865,7 +865,7 @@ function L5_1(A0_2, A1_2)
     L1_3 = false
     L0_3(L1_3)
   end
-  
+
   L3_1 = L4_2
   L4_2 = L3_2.isOverlay
   L5_2 = true

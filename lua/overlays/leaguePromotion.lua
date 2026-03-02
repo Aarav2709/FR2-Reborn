@@ -216,14 +216,14 @@ function L6_1(A0_2, A1_2)
     L25_2 = true
     L20_2(L21_2, L22_2, L23_2, L24_2, L25_2)
   end
-  
+
   function L20_2()
     local L0_3, L1_3
     L0_3 = L0_1
     L0_3 = L0_3.hideOverlay
     L0_3()
   end
-  
+
   function L21_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L0_1
@@ -237,7 +237,7 @@ function L6_1(A0_2, A1_2)
     L3_3 = L0_3
     L1_3(L2_3, L3_3)
   end
-  
+
   L22_2 = L0_1
   L22_2 = L22_2.newButton
   L23_2 = {}
@@ -280,7 +280,7 @@ function L6_1(A0_2, A1_2)
   L24_2.image = "images/gui/ranking/promotion/buttonRanking.png"
   L24_2.onRelease = L21_2
   L23_2 = L23_2(L24_2)
-  
+
   function L24_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3
     L0_3 = L0_1
@@ -292,7 +292,7 @@ function L6_1(A0_2, A1_2)
     L5_3 = otherNames
     L0_3(L1_3, L2_3, L3_3, L4_3, L5_3)
   end
-  
+
   L25_2 = L0_1
   L25_2 = L25_2.newButton
   L26_2 = {}
@@ -307,7 +307,7 @@ function L6_1(A0_2, A1_2)
   L26_2.x = L27_2
   L26_2.y = 80
   L25_2 = L25_2(L26_2)
-  
+
   function L26_2()
     local L0_3, L1_3, L2_3
     L0_3 = L4_2
@@ -366,7 +366,7 @@ function L6_1(A0_2, A1_2)
     L2_3 = L5_2
     L0_3(L1_3, L2_3)
   end
-  
+
   function L27_2(A0_3)
     local L1_3
     L1_3 = A0_3.phase
@@ -378,7 +378,7 @@ function L6_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   function L28_2(A0_3)
     local L1_3
     L1_3 = A0_3.phase
@@ -387,7 +387,7 @@ function L6_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   function L29_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L6_2
@@ -403,7 +403,7 @@ function L6_1(A0_2, A1_2)
     L3_3 = L28_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   function L30_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L19_2
@@ -425,7 +425,7 @@ function L6_1(A0_2, A1_2)
     L3_3 = L28_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   L2_1 = L30_2
   L30_2 = L26_2
   L30_2()
@@ -449,7 +449,7 @@ function L6_1(A0_2, A1_2)
   L3_2 = require
   L4_2 = "lua.modules.androidBackButton"
   L3_2 = L3_2(L4_2)
-  
+
   function L4_2()
     local L0_3, L1_3
     L0_3 = L3_2
@@ -457,7 +457,7 @@ function L6_1(A0_2, A1_2)
     L1_3 = false
     L0_3(L1_3)
   end
-  
+
   L3_1 = L4_2
   L4_2 = L3_2.isOverlay
   L5_2 = true

@@ -153,7 +153,7 @@ function L5_1(A0_2, A1_2)
   L23_2.y = L24_2
   L23_2.size = 12
   L22_2 = L22_2(L23_2)
-  
+
   function L23_2()
     local L0_3, L1_3
     L0_3 = L8_2
@@ -166,7 +166,7 @@ function L5_1(A0_2, A1_2)
       L8_2 = L0_3
     end
   end
-  
+
   function L24_2()
     local L0_3, L1_3
     L0_3 = L6_2
@@ -181,7 +181,7 @@ function L5_1(A0_2, A1_2)
     L0_3 = L23_2
     L0_3()
   end
-  
+
   function L25_2()
     local L0_3, L1_3
     L0_3 = L0_1
@@ -194,7 +194,7 @@ function L5_1(A0_2, A1_2)
     L0_3 = L21_2
     L0_3.text = ""
   end
-  
+
   function L26_2()
     local L0_3, L1_3, L2_3
     L0_3 = L21_2
@@ -209,7 +209,7 @@ function L5_1(A0_2, A1_2)
     L0_3 = L25_2
     L0_3()
   end
-  
+
   function L27_2()
     local L0_3, L1_3, L2_3
     L0_3 = L0_1
@@ -226,7 +226,7 @@ function L5_1(A0_2, A1_2)
     L0_3 = L15_2
     L0_3.isVisible = true
   end
-  
+
   function L28_2(A0_3, A1_3)
     local L2_3, L3_3
     L2_3 = type
@@ -244,7 +244,7 @@ function L5_1(A0_2, A1_2)
       end
     end
   end
-  
+
   function L29_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = A1_2
@@ -281,7 +281,7 @@ function L5_1(A0_2, A1_2)
     L3_3 = L0_3
     L1_3(L2_3, L3_3)
   end
-  
+
   function L30_2(A0_3)
     local L1_3, L2_3, L3_3, L4_3, L5_3
     L1_3 = A0_3.m
@@ -351,7 +351,7 @@ function L5_1(A0_2, A1_2)
     end
     -- lbl_64 removed
   end
-  
+
   function L31_2(A0_3)
     local L1_3, L2_3, L3_3
     L1_3 = A0_3.m
@@ -414,7 +414,7 @@ function L5_1(A0_2, A1_2)
       end
     end
   end
-  
+
   function L32_2(A0_3)
     local L1_3, L2_3, L3_3
     L1_3 = print
@@ -443,7 +443,7 @@ function L5_1(A0_2, A1_2)
       L1_3.text = "iap in progress"
     end
   end
-  
+
   function L33_2(A0_3)
     local L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3, L10_3, L11_3, L12_3
     L1_3 = L13_2
@@ -510,14 +510,14 @@ function L5_1(A0_2, A1_2)
       L8_3.image = L4_3
       L8_3.width = L2_3
       L8_3.height = L3_3
-      
+
       function L9_3()
         local L0_4, L1_4
         L0_4 = L32_2
         L1_4 = L1_3
         L0_4(L1_4)
       end
-      
+
       L8_3.onRelease = L9_3
       L8_3.x = L5_3
       L8_3.y = L6_3
@@ -546,7 +546,7 @@ function L5_1(A0_2, A1_2)
     else
     end
   end
-  
+
   function L34_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3
     L0_3 = A1_2
@@ -577,7 +577,7 @@ function L5_1(A0_2, A1_2)
     L3_3 = #L3_3
     L2_3(L3_3)
   end
-  
+
   function L35_2()
     local L0_3, L1_3
     L0_3 = L0_1
@@ -586,7 +586,7 @@ function L5_1(A0_2, A1_2)
     L0_3 = L29_2
     L0_3()
   end
-  
+
   L36_2 = L0_1
   L36_2 = L36_2.newButton
   L37_2 = {}
@@ -601,7 +601,7 @@ function L5_1(A0_2, A1_2)
   L38_2 = L38_2 + 84
   L37_2.y = L38_2
   L36_2 = L36_2(L37_2)
-  
+
   function L37_2()
     local L0_3, L1_3, L2_3
     L0_3 = L2_2
@@ -687,7 +687,7 @@ function L5_1(A0_2, A1_2)
     L2_3 = L21_2
     L0_3(L1_3, L2_3)
   end
-  
+
   function L38_2(A0_3)
     local L1_3
     L1_3 = A0_3.phase
@@ -699,7 +699,7 @@ function L5_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   function L39_2(A0_3)
     local L1_3
     L1_3 = A0_3.phase
@@ -708,13 +708,13 @@ function L5_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   function L40_2()
     local L0_3, L1_3
     L0_3 = L23_2
     L0_3()
   end
-  
+
   function L41_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L15_2
@@ -742,7 +742,7 @@ function L5_1(A0_2, A1_2)
     L3_3 = L40_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   function L42_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = display
@@ -780,7 +780,7 @@ function L5_1(A0_2, A1_2)
     L3_3 = L40_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   L2_1 = L42_2
   L42_2 = L34_2
   L42_2()
@@ -820,7 +820,7 @@ function L5_1(A0_2, A1_2)
   L3_2 = require
   L4_2 = "lua.modules.androidBackButton"
   L3_2 = L3_2(L4_2)
-  
+
   function L4_2()
     local L0_3, L1_3
     L0_3 = L3_2
@@ -828,7 +828,7 @@ function L5_1(A0_2, A1_2)
     L1_3 = false
     L0_3(L1_3)
   end
-  
+
   L3_1 = L4_2
   L4_2 = L3_2.isOverlay
   L5_2 = true

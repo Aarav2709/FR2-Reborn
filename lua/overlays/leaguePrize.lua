@@ -104,7 +104,7 @@ function L6_1(A0_2, A1_2)
   L12_2 = L12_2 * 0.27
   L11_2.y = L12_2
   L11_2.yScale = -1
-  
+
   function L12_2()
     local L0_3, L1_3, L2_3
     L0_3 = L2_2
@@ -148,7 +148,7 @@ function L6_1(A0_2, A1_2)
       return L1_3
     end
   end
-  
+
   L13_2 = L0_1
   L13_2 = L13_2.localized
   L13_2 = L13_2.get
@@ -255,14 +255,14 @@ function L6_1(A0_2, A1_2)
     L25_2 = true
     L20_2(L21_2, L22_2, L23_2, L24_2, L25_2)
   end
-  
+
   function L20_2()
     local L0_3, L1_3
     L0_3 = L0_1
     L0_3 = L0_3.hideOverlay
     L0_3()
   end
-  
+
   function L21_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3, L6_3
     L0_3 = L0_1
@@ -294,7 +294,7 @@ function L6_1(A0_2, A1_2)
     L3_3 = L0_3
     L1_3(L2_3, L3_3)
   end
-  
+
   L22_2 = L0_1
   L22_2 = L22_2.newButton
   L23_2 = {}
@@ -337,7 +337,7 @@ function L6_1(A0_2, A1_2)
   L24_2.image = "images/gui/ranking/promotion/buttonShop.png"
   L24_2.onRelease = L21_2
   L23_2 = L23_2(L24_2)
-  
+
   function L24_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3, L10_3, L11_3, L12_3, L13_3
     L0_3 = 0
@@ -476,7 +476,7 @@ function L6_1(A0_2, A1_2)
     L1_3 = L6_2
     L1_3.y = 196
   end
-  
+
   function L25_2()
     local L0_3, L1_3
     L0_3 = L0_1
@@ -484,7 +484,7 @@ function L6_1(A0_2, A1_2)
     L1_3 = L1_1
     L0_3(L1_3)
   end
-  
+
   L26_2 = L0_1
   L26_2 = L26_2.newButton
   L27_2 = {}
@@ -499,7 +499,7 @@ function L6_1(A0_2, A1_2)
   L27_2.x = L28_2
   L27_2.y = 80
   L26_2 = L26_2(L27_2)
-  
+
   function L27_2()
     local L0_3, L1_3, L2_3
     L0_3 = L4_2
@@ -563,7 +563,7 @@ function L6_1(A0_2, A1_2)
     L2_3 = L5_2
     L0_3(L1_3, L2_3)
   end
-  
+
   function L28_2(A0_3)
     local L1_3
     L1_3 = A0_3.phase
@@ -575,7 +575,7 @@ function L6_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   function L29_2(A0_3)
     local L1_3
     L1_3 = A0_3.phase
@@ -584,7 +584,7 @@ function L6_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   function L30_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L7_2
@@ -600,7 +600,7 @@ function L6_1(A0_2, A1_2)
     L3_3 = L29_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   function L31_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = display
@@ -636,7 +636,7 @@ function L6_1(A0_2, A1_2)
     L3_3 = L29_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   L2_1 = L31_2
   L31_2 = L27_2
   L31_2()
@@ -662,7 +662,7 @@ function L6_1(A0_2, A1_2)
   L3_2 = require
   L4_2 = "lua.modules.androidBackButton"
   L3_2 = L3_2(L4_2)
-  
+
   function L4_2()
     local L0_3, L1_3
     L0_3 = L3_2
@@ -670,7 +670,7 @@ function L6_1(A0_2, A1_2)
     L1_3 = false
     L0_3(L1_3)
   end
-  
+
   L3_1 = L4_2
   L4_2 = L0_1
   L4_2.showLeaguePrize = false

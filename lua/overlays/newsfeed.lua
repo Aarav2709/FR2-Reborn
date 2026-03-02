@@ -109,7 +109,7 @@ function L4_1(A0_2, A1_2)
   L13_2.isVisible = false
   L14_2 = nil
   L15_2 = 15000
-  
+
   function L16_2()
     local L0_3, L1_3
     L0_3 = L13_2
@@ -117,12 +117,12 @@ function L4_1(A0_2, A1_2)
     L0_3 = L8_2
     L0_3.isVisible = false
   end
-  
+
   function L17_2()
     local L0_3, L1_3
     L0_3 = L8_2
     L0_3.isVisible = true
-    
+
     function L0_3()
       local L0_4, L1_4, L2_4, L3_4
       L0_4 = transition
@@ -137,11 +137,11 @@ function L4_1(A0_2, A1_2)
       L0_4 = L0_4(L1_4, L2_4)
       L9_2 = L0_4
     end
-    
+
     L1_3 = L0_3
     L1_3()
   end
-  
+
   function L18_2()
     local L0_3, L1_3
     L0_3 = L9_2
@@ -156,7 +156,7 @@ function L4_1(A0_2, A1_2)
     L0_3 = L8_2
     L0_3.isVisible = false
   end
-  
+
   function L19_2(A0_3)
     local L1_3, L2_3, L3_3, L4_3, L5_3
     L1_3 = L17_2
@@ -184,7 +184,7 @@ function L4_1(A0_2, A1_2)
     L2_3 = L2_3(L3_3, L4_3, L5_3)
     L14_2 = L2_3
   end
-  
+
   function L20_2(A0_3)
     local L1_3, L2_3, L3_3
     L1_3 = string
@@ -201,7 +201,7 @@ function L4_1(A0_2, A1_2)
     end
     return L1_3
   end
-  
+
   function L21_2(A0_3)
     local L1_3, L2_3, L3_3
     L1_3 = A0_3.url
@@ -276,7 +276,7 @@ function L4_1(A0_2, A1_2)
       end
     end
   end
-  
+
   function L22_2()
     local L0_3, L1_3
     L0_3 = L0_1
@@ -285,7 +285,7 @@ function L4_1(A0_2, A1_2)
     L0_3 = true
     return L0_3
   end
-  
+
   function L23_2()
     local L0_3, L1_3
     L0_3 = L11_2
@@ -297,7 +297,7 @@ function L4_1(A0_2, A1_2)
       L0_3(L1_3)
     end
   end
-  
+
   L24_2 = L0_1
   L24_2 = L24_2.newButton
   L25_2 = {}
@@ -328,7 +328,7 @@ function L4_1(A0_2, A1_2)
   L26_2 = L26_2 + -142
   L25_2.y = L26_2
   L24_2 = L24_2(L25_2)
-  
+
   function L25_2(A0_3)
     local L1_3, L2_3
     L1_3 = A0_3.phase
@@ -344,7 +344,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   function L26_2(A0_3)
     local L1_3, L2_3
     L1_3 = A0_3.phase
@@ -357,7 +357,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   function L27_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L6_2
@@ -379,7 +379,7 @@ function L4_1(A0_2, A1_2)
     L3_3 = L21_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   function L28_2()
     local L0_3, L1_3, L2_3
     L0_3 = L2_2
@@ -423,7 +423,7 @@ function L4_1(A0_2, A1_2)
     L2_3 = L3_2
     L0_3(L1_3, L2_3)
   end
-  
+
   function L29_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L18_2
@@ -472,7 +472,7 @@ function L4_1(A0_2, A1_2)
     L3_3 = L26_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   L2_1 = L29_2
   L29_2 = L28_2
   L29_2()
@@ -493,7 +493,7 @@ function L4_1(A0_2, A1_2)
   L3_2 = require
   L4_2 = "lua.modules.androidBackButton"
   L3_2 = L3_2(L4_2)
-  
+
   function L4_2()
     local L0_3, L1_3
     L0_3 = L3_2
@@ -501,7 +501,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = false
     L0_3(L1_3)
   end
-  
+
   L3_1 = L4_2
   L4_2 = L3_2.isOverlay
   L5_2 = true

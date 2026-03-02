@@ -129,7 +129,7 @@ function L4_1(A0_2, A1_2)
   L20_2[3] = L23_2
   L19_2.color = L20_2
   L18_2 = L18_2(L19_2)
-  
+
   function L19_2()
     local L0_3, L1_3
     L0_3 = L7_2
@@ -142,7 +142,7 @@ function L4_1(A0_2, A1_2)
       L7_2 = L0_3
     end
   end
-  
+
   function L20_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = {}
@@ -156,7 +156,7 @@ function L4_1(A0_2, A1_2)
     L3_3 = L0_3
     L1_3(L2_3, L3_3)
   end
-  
+
   L21_2 = L0_1
   L21_2 = L21_2.newButton
   L22_2 = {}
@@ -171,7 +171,7 @@ function L4_1(A0_2, A1_2)
   L22_2.image = "images/gui/ranking/friendsToggle2.png"
   L22_2.onRelease = L20_2
   L21_2 = L21_2(L22_2)
-  
+
   function L22_2(A0_3)
     local L1_3, L2_3, L3_3
     L1_3 = A0_3.m
@@ -280,7 +280,7 @@ function L4_1(A0_2, A1_2)
       L1_3()
     end
   end
-  
+
   function L23_2()
     local L0_3, L1_3, L2_3
     L0_3 = true
@@ -293,7 +293,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = L1_3(L2_3)
     L0_3.text = L1_3
   end
-  
+
   function L24_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3
     L0_3 = L0_1
@@ -334,7 +334,7 @@ function L4_1(A0_2, A1_2)
       return L1_3
     end
   end
-  
+
   function L25_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3, L10_3, L11_3, L12_3, L13_3, L14_3
     L0_3 = L8_2
@@ -472,7 +472,7 @@ function L4_1(A0_2, A1_2)
       L8_2 = L8_3
     end
   end
-  
+
   L26_2 = L0_1
   L26_2 = L26_2.newButton
   L27_2 = {}
@@ -500,7 +500,7 @@ function L4_1(A0_2, A1_2)
     L28_2 = ""
     L27_2(L28_2)
   end
-  
+
   function L27_2()
     local L0_3, L1_3
     L0_3 = L0_1
@@ -509,7 +509,7 @@ function L4_1(A0_2, A1_2)
     L0_3 = true
     return L0_3
   end
-  
+
   L28_2 = L0_1
   L28_2 = L28_2.newButton
   L29_2 = {}
@@ -524,7 +524,7 @@ function L4_1(A0_2, A1_2)
   L30_2 = L30_2 + -108
   L29_2.y = L30_2
   L28_2 = L28_2(L29_2)
-  
+
   function L29_2(A0_3)
     local L1_3, L2_3
     L1_3 = A0_3.phase
@@ -540,7 +540,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   function L30_2(A0_3)
     local L1_3, L2_3
     L1_3 = A0_3.phase
@@ -553,7 +553,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   function L31_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L11_2
@@ -569,7 +569,7 @@ function L4_1(A0_2, A1_2)
     L3_3 = L30_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   function L32_2()
     local L0_3, L1_3, L2_3
     L0_3 = L2_2
@@ -628,7 +628,7 @@ function L4_1(A0_2, A1_2)
     L2_3 = L6_2
     L0_3(L1_3, L2_3)
   end
-  
+
   function L33_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L15_2
@@ -664,7 +664,7 @@ function L4_1(A0_2, A1_2)
     L3_3 = L30_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   L2_1 = L33_2
   L33_2 = L32_2
   L33_2()
@@ -688,7 +688,7 @@ function L4_1(A0_2, A1_2)
   L3_2 = require
   L4_2 = "lua.modules.androidBackButton"
   L3_2 = L3_2(L4_2)
-  
+
   function L4_2()
     local L0_3, L1_3
     L0_3 = L3_2
@@ -696,7 +696,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = false
     L0_3(L1_3)
   end
-  
+
   L3_1 = L4_2
   L4_2 = L3_2.isOverlay
   L5_2 = true

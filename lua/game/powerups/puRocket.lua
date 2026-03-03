@@ -9,7 +9,7 @@ local function new(id, playerList, displayGroup)
   local player = playerList[id]
   local killTimer
   local startedClean = false
-  local hitDistance = 250
+  local hitDistance = 200
   local beam
   local stuckCounter = 0
   local prevY = 0
@@ -46,11 +46,14 @@ local function new(id, playerList, displayGroup)
   local function rocketAcceleration()
     if player and player.getPlayerGoalTime() < 1 and not isStuck() then
       local ySpeed = 10
-      local xSpeed = 3
+      local xSpeed = 4
       local hitsDown = physics.rayCast(player.x + 12, player.y + 20, player.x + 90, player.y + 100, "closest")
       local hitsUp = physics.rayCast(player.x + 10, player.y - 20, player.x + 10, player.y - 50, "closest")
       local vx, vy = player:getLinearVelocity()
       if hitsUp then
+        if not hitsUp[1].object or not hitsUp[1].object.mapElement then
+          -- Ignore non-terrain hits
+        else
         local posDiffX = player.x - hitsUp[1].position.x
         local posDiffY = player.y - hitsUp[1].position.y
         local distance = math.sqrt(posDiffX * posDiffX + posDiffY * posDiffY)
@@ -62,7 +65,11 @@ local function new(id, playerList, displayGroup)
           ySpeed = 0
         end
         player.booleanStates.rocketActiveHigh = false
+        end
       elseif hitsDown then
+        if not hitsDown[1].object or not hitsDown[1].object.mapElement then
+          -- Ignore non-terrain hits
+        else
         local posDiffX = player.x - hitsDown[1].position.x
         local posDiffY = player.y - hitsDown[1].position.y
         local distance = math.sqrt(posDiffX * posDiffX + posDiffY * posDiffY)
@@ -83,6 +90,7 @@ local function new(id, playerList, displayGroup)
           ySpeed = -5
         end
         player.booleanStates.rocketActiveHigh = false
+        end
       else
         if vy < 0 then
           ySpeed = 20

@@ -53,9 +53,9 @@ function scene:create(event)
   backgroundCoins.x = 726
   backgroundCoins.y = 2
   local backgroundRoofGroup = display.newGroup()
-  local backgroundRoof0 = display.newImageRect(backgroundRoofGroup, "images/gui/market/roof.png", 480, 30)
-  backgroundRoof = display.newImageRect(backgroundRoofGroup, "images/gui/market/roof.png", 480, 30)
-  local backgroundRoof2 = display.newImageRect(backgroundRoofGroup, "images/gui/market/roof.png", 480, 30)
+  local backgroundRoof0 = display.newImageRect(backgroundRoofGroup, "images/gui/market/roof.png", display.actualContentWidth, 30)
+  backgroundRoof = display.newImageRect(backgroundRoofGroup, "images/gui/market/roof.png", display.actualContentWidth, 30)
+  local backgroundRoof2 = display.newImageRect(backgroundRoofGroup, "images/gui/market/roof.png", display.actualContentWidth, 30)
   backgroundRoof.anchorX = 0
   backgroundRoof.anchorY = 0
   backgroundRoof.x = 39

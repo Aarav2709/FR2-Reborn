@@ -39,12 +39,15 @@ function scene:create(event)
   if isAndroid then
     textFieldSize = 35
   end
-  local alphaBackground = display.newRect(0, 0, display.contentWidth, display.contentHeight)
+  local alphaBackground = display.newRect(display.screenOriginX, display.screenOriginY, display.actualContentWidth, display.actualContentHeight)
   alphaBackground.anchorX = 0
   alphaBackground.anchorY = 0
   alphaBackground:setFillColor(0, 0, 0, 0.5882352941176471)
-  alphaBackground.x = 0
-  alphaBackground.y = 0
+  alphaBackground.x = display.screenOriginX
+  alphaBackground.y = display.screenOriginY
+  local contentGroup = display.newGroup()
+  contentGroup.xScale = display.contentWidth / 480
+  contentGroup.yScale = display.contentHeight / 320
   local tableBackground = display.newImageRect("images/gui/customplay/chatWindow.png", 287, 320)
   tableBackground.anchorX = 0.5
   tableBackground.anchorY = 0
@@ -269,15 +272,16 @@ function scene:create(event)
 
   local function updateDisplayGroup()
     group:insert(alphaBackground)
-    group:insert(tableBackground)
-    group:insert(closeButton)
+    contentGroup:insert(tableBackground)
+    contentGroup:insert(closeButton)
+    group:insert(contentGroup)
   end
 
   local function updateDisplayGroup2()
-    group:insert(bottomTableBackground)
-    group:insert(closeButton)
-    group:insert(chatTextField)
-    group:insert(sendButton)
+    contentGroup:insert(bottomTableBackground)
+    contentGroup:insert(closeButton)
+    contentGroup:insert(chatTextField)
+    contentGroup:insert(sendButton)
   end
 
   local function addListeners()
@@ -315,7 +319,7 @@ function scene:create(event)
   end
 
   updateDisplayGroup()
-  chatTable.createTable({}, group)
+  chatTable.createTable({}, contentGroup)
   updateDisplayGroup2()
   addListenersTimer = timer.performWithDelay(200, addListeners)
   if composer.data.chatLog then

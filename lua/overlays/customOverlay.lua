@@ -159,18 +159,21 @@ local function createCustomOverlay(infoTextId, doNotOverrideMessage, extra)
   background = display.newImageRect("images/gui/common/generalPopup.png", 248, 105)
   background.anchorX = 0.5
   background.anchorY = 0
-  background.x = 454
+  background.x = 240
   background.y = 150
-  alphaBackground = display.newRect(0, 0, display.contentWidth, display.contentHeight)
+  alphaBackground = display.newRect(display.screenOriginX, display.screenOriginY, display.actualContentWidth, display.actualContentHeight)
   alphaBackground.anchorX = 0
   alphaBackground.anchorY = 0
   alphaBackground:setFillColor(0, 0, 0, 0.5882352941176471)
-  alphaBackground.x = 0
-  alphaBackground.y = 0
+  alphaBackground.x = display.screenOriginX
+  alphaBackground.y = display.screenOriginY
+  local overlayContentGroup = display.newGroup()
+  overlayContentGroup.xScale = display.contentWidth / 480
+  overlayContentGroup.yScale = display.contentHeight / 320
   info = composer.newText({
     string = text,
     size = 22,
-    x = 452,
+    x = 240,
     y = 195,
     width = 220,
     height = 60,
@@ -188,7 +191,7 @@ local function createCustomOverlay(infoTextId, doNotOverrideMessage, extra)
   end
 
   contiuneButton = composer.newButton({
-    x = 452,
+    x = 240,
     y = 225,
     width = 126,
     height = 40,
@@ -199,9 +202,10 @@ local function createCustomOverlay(infoTextId, doNotOverrideMessage, extra)
 
   local function updateDisplayGroup()
     overlayGroup:insert(alphaBackground)
-    overlayGroup:insert(background)
-    overlayGroup:insert(info)
-    overlayGroup:insert(contiuneButton)
+    overlayContentGroup:insert(background)
+    overlayContentGroup:insert(info)
+    overlayContentGroup:insert(contiuneButton)
+    overlayGroup:insert(overlayContentGroup)
   end
 
   local function canExit()

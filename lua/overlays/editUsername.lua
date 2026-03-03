@@ -75,7 +75,7 @@ function scene:create(event)
     }
   })
   gemLabelRed.alpha = 0
-  local alphaBackground = display.newRect(0, 0, display.contentWidth, display.contentHeight)
+  local alphaBackground = display.newRect(display.screenOriginX, display.screenOriginY, display.actualContentWidth, display.actualContentHeight)
   alphaBackground.anchorX = 0
   alphaBackground.anchorY = 0
   alphaBackground:setFillColor(0, 0, 0, 0.5882352941176471)
@@ -263,6 +263,8 @@ function scene:create(event)
   if not isAndroid then
     native.setKeyboardFocus(nameTextField)
   end
+  dropdownGroup.xScale = display.contentWidth / 480
+  dropdownGroup.yScale = display.contentHeight / 320
   composer.bouncer.down(dropdownGroup)
 end
 

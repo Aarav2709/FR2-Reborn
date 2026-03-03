@@ -7,7 +7,7 @@ function scene:create(event)
   local startedClean = false
   local addListenersTimer
   local dropdownGroup = display.newGroup()
-  local alphaBackground = display.newRect(0, 0, display.contentWidth, display.contentHeight)
+  local alphaBackground = display.newRect(display.screenOriginX, display.screenOriginY, display.actualContentWidth, display.actualContentHeight)
   alphaBackground.anchorX = 0
   alphaBackground.anchorY = 0
   alphaBackground:setFillColor(0, 0, 0, 0.5882352941176471)
@@ -119,6 +119,8 @@ function scene:create(event)
 
   updateDisplayGroup()
   addListenersTimer = timer.performWithDelay(200, addListeners)
+  dropdownGroup.xScale = display.contentWidth / 480
+  dropdownGroup.yScale = display.contentHeight / 320
   composer.bouncer.down(dropdownGroup)
 end
 

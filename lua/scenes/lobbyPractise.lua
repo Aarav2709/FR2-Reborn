@@ -11,6 +11,9 @@ function L4_1(A0_2, A1_2)
   local L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2, L19_2, L20_2, L21_2, L22_2, L23_2, L24_2, L25_2
   L2_2 = A0_2.view
   L3_2 = false
+  local L26_2 = display.newGroup()
+  L26_2.xScale = display.contentWidth / 480
+  L26_2.yScale = display.contentHeight / 320
   L4_2 = display
   L4_2 = L4_2.newGroup
   L4_2 = L4_2()
@@ -39,14 +42,8 @@ function L4_1(A0_2, A1_2)
   L17_2 = 42
   L18_2 = 45
   L15_2 = L15_2(L16_2, L17_2, L18_2)
-  L16_2 = display
-  L16_2 = L16_2.contentWidth
-  L16_2 = L16_2 * 0.5
-  L15_2.x = L16_2
-  L16_2 = display
-  L16_2 = L16_2.contentHeight
-  L16_2 = L16_2 * 0.8
-  L15_2.y = L16_2
+  L15_2.x = 240
+  L15_2.y = 256
   L16_2 = display
   L16_2 = L16_2.newImageRect
   L17_2 = "images/gui/practice/window.png"
@@ -73,7 +70,7 @@ function L4_1(A0_2, A1_2)
   L19_2 = L19_2 * 0.51
   L18_2 = L18_2 - L19_2
   L17_2.y = L18_2
-  
+
   function L18_2(A0_3)
     local L1_3, L2_3, L3_3
     L1_3 = L0_1
@@ -117,7 +114,7 @@ function L4_1(A0_2, A1_2)
     L2_3 = "lua.scenes.gamePlay"
     L1_3(L2_3)
   end
-  
+
   function L19_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3, L10_3, L11_3, L12_3, L13_3, L14_3, L15_3, L16_3, L17_3
     L0_3 = 140
@@ -149,14 +146,14 @@ function L4_1(A0_2, A1_2)
         L11_3(L12_3, L13_3)
         return
       end
-      
+
       function L11_3()
         local L0_4, L1_4
         L0_4 = L18_2
         L1_4 = L5_3
         L0_4(L1_4)
       end
-      
+
       L12_3 = "images/gui/practice/icon"
       L13_3 = L5_3
       L14_3 = ".png"
@@ -247,7 +244,7 @@ function L4_1(A0_2, A1_2)
       L14_3(L15_3, L16_3)
     end
   end
-  
+
   function L20_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L7_2
@@ -276,7 +273,7 @@ function L4_1(A0_2, A1_2)
     L3_3.x = L0_3
     L1_3(L2_3, L3_3)
   end
-  
+
   L21_2 = L0_1
   L21_2 = L21_2.newButton
   L22_2 = {}
@@ -288,7 +285,7 @@ function L4_1(A0_2, A1_2)
   L22_2.y = 140
   L21_2 = L21_2(L22_2)
   L13_2 = L21_2
-  
+
   function L21_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L7_2
@@ -317,7 +314,7 @@ function L4_1(A0_2, A1_2)
     L3_3.x = L0_3
     L1_3(L2_3, L3_3)
   end
-  
+
   L22_2 = L0_1
   L22_2 = L22_2.newButton
   L23_2 = {}
@@ -329,7 +326,7 @@ function L4_1(A0_2, A1_2)
   L23_2.y = 140
   L22_2 = L22_2(L23_2)
   L12_2 = L22_2
-  
+
   function L22_2()
     local L0_3, L1_3
     L0_3 = L0_1
@@ -337,7 +334,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = "lua.scenes.mainMenu"
     L0_3(L1_3)
   end
-  
+
   L23_2 = L0_1
   L23_2 = L23_2.newButton
   L24_2 = {}
@@ -348,51 +345,56 @@ function L4_1(A0_2, A1_2)
   L24_2.x = 50
   L24_2.y = 292
   L23_2 = L23_2(L24_2)
-  
+
   function L24_2()
     local L0_3, L1_3, L2_3
-    L0_3 = L2_2
+    L0_3 = L26_2
     L1_3 = L0_3
     L0_3 = L0_3.insert
     L2_3 = L14_2
     L0_3(L1_3, L2_3)
-    L0_3 = L2_2
+    L0_3 = L26_2
     L1_3 = L0_3
     L0_3 = L0_3.insert
     L2_3 = L15_2
     L0_3(L1_3, L2_3)
-    L0_3 = L2_2
+    L0_3 = L26_2
     L1_3 = L0_3
     L0_3 = L0_3.insert
     L2_3 = L17_2
     L0_3(L1_3, L2_3)
-    L0_3 = L2_2
+    L0_3 = L26_2
     L1_3 = L0_3
     L0_3 = L0_3.insert
     L2_3 = L16_2
     L0_3(L1_3, L2_3)
-    L0_3 = L2_2
+    L0_3 = L26_2
     L1_3 = L0_3
     L0_3 = L0_3.insert
     L2_3 = L4_2
     L0_3(L1_3, L2_3)
-    L0_3 = L2_2
+    L0_3 = L26_2
     L1_3 = L0_3
     L0_3 = L0_3.insert
     L2_3 = L12_2
     L0_3(L1_3, L2_3)
-    L0_3 = L2_2
+    L0_3 = L26_2
     L1_3 = L0_3
     L0_3 = L0_3.insert
     L2_3 = L13_2
     L0_3(L1_3, L2_3)
-    L0_3 = L2_2
+    L0_3 = L26_2
     L1_3 = L0_3
     L0_3 = L0_3.insert
     L2_3 = L23_2
     L0_3(L1_3, L2_3)
+    L0_3 = L2_2
+    L1_3 = L0_3
+    L0_3 = L0_3.insert
+    L2_3 = L26_2
+    L0_3(L1_3, L2_3)
   end
-  
+
   function L25_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3
     L0_3 = true
@@ -421,7 +423,7 @@ function L4_1(A0_2, A1_2)
       L4_3(L5_3)
     end
   end
-  
+
   L2_1 = L25_2
   L25_2 = L24_2
   L25_2()
@@ -447,14 +449,14 @@ function L4_1(A0_2, A1_2)
   L4_2 = require
   L5_2 = "lua.modules.androidBackButton"
   L4_2 = L4_2(L5_2)
-  
+
   function L5_2()
     local L0_3, L1_3
     L0_3 = L4_2
     L0_3 = L0_3.removeBackButton
     L0_3()
   end
-  
+
   L3_1 = L5_2
   L5_2 = L4_2.addBackButton
   L6_2 = "lua.scenes.playMenu"

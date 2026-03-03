@@ -1,6 +1,7 @@
 local composer = require("composer")
 local scene = composer.newScene()
 local clean, cleanEnter, usernameTextField, informationTextLabel, possibleFriendsTable, limitField, hildeInputFields
+local contentGroup
 
 function scene:create(event)
   local group = self.view
@@ -9,12 +10,15 @@ function scene:create(event)
   if isAndroid then
     textFieldSize = 40
   end
-  local alphaBackground = display.newRect(0, 0, display.contentWidth, display.contentHeight)
+  local alphaBackground = display.newRect(display.screenOriginX, display.screenOriginY, display.actualContentWidth, display.actualContentHeight)
   alphaBackground.anchorX = 0
   alphaBackground.anchorY = 0
   alphaBackground:setFillColor(0, 0, 0, 0.5882352941176471)
-  alphaBackground.x = 0
-  alphaBackground.y = 0
+  alphaBackground.x = display.screenOriginX
+  alphaBackground.y = display.screenOriginY
+  contentGroup = display.newGroup()
+  contentGroup.xScale = display.contentWidth / 480
+  contentGroup.yScale = display.contentHeight / 320
   local tableBackground = display.newImageRect("images/gui/friends/mainWindow.png", 330, 320)
   tableBackground.anchorX = 0.5
   tableBackground.anchorY = 0
@@ -28,7 +32,7 @@ function scene:create(event)
   local infoText = composer.newText({
     string = composer.localized.get("Add friend"),
     size = 30,
-    x = display.contentWidth * 0.5,
+    x = 240,
     y = 16,
     color = {
       1,
@@ -46,7 +50,7 @@ function scene:create(event)
   informationTextLabel = composer.newText({
     string = "",
     size = 20,
-    x = display.contentWidth * 0.5,
+    x = 240,
     y = 140,
     width = 200,
     color = {
@@ -56,8 +60,8 @@ function scene:create(event)
     }
   })
   local inputBackground = display.newImageRect("images/gui/friends/searchCover.png", 300, 55)
-  inputBackground.x = usernameTextField.x
-  inputBackground.y = usernameTextField.y + 6
+  inputBackground.x = 240
+  inputBackground.y = 86
 
   local function closeOverlayButtonEvent()
     composer.hideOverlay()
@@ -143,17 +147,18 @@ function scene:create(event)
 
   local function updateDisplayGroup()
     group:insert(alphaBackground)
-    group:insert(tableBackground)
-    group:insert(tableTitleBakground)
-    group:insert(inputBackground)
-    group:insert(infoText)
-    group:insert(usernameTextField)
-    group:insert(informationTextLabel)
-    group:insert(closeOverlayButton)
+    contentGroup:insert(tableBackground)
+    contentGroup:insert(tableTitleBakground)
+    contentGroup:insert(inputBackground)
+    contentGroup:insert(infoText)
+    contentGroup:insert(usernameTextField)
+    contentGroup:insert(informationTextLabel)
+    contentGroup:insert(closeOverlayButton)
     if backButton then
-      group:insert(backButton)
+      contentGroup:insert(backButton)
     end
-    group:insert(searchForFriendButton)
+    contentGroup:insert(searchForFriendButton)
+    group:insert(contentGroup)
   end
 
   local function addListeners()
@@ -241,8 +246,8 @@ function scene:show(event)
   end
 
   local function updateDisplayGroup()
-    group:insert(possibleFriendsGroup)
-    group:insert(informationTextLabel)
+    contentGroup:insert(possibleFriendsGroup)
+    contentGroup:insert(informationTextLabel)
   end
 
   function cleanEnter()

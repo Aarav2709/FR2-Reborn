@@ -2,8 +2,9 @@ local M = {}
 local composer = require("composer")
 local spawnGibs = true
 
-function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDisplay, bodyParts, screenGroup)
+function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDisplay, bodyParts, screenGroup, customPowerUpSkins)
   local C = {}
+  customPowerUpSkins = customPowerUpSkins or {}
   local deathAnimation = composer.data.monsterInMemory[monster.getMemoryIndex()]
   local bloodSplatter = display.newSprite(composer.powerUpEffectImageSheet, composer.data.animations.bloodEffect)
   bloodSplatter.xScale = 0.5
@@ -317,6 +318,17 @@ function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDi
 
   -- Shield: TWO display.newImage objects (main + absorb overlay with mask wipe)
   local shieldItemId = 1501
+  -- Determine shield skin from customPowerUpSkins
+  if customPowerUpSkins then
+    for i = 1, #customPowerUpSkins do
+      local itemId = tonumber(customPowerUpSkins[i])
+      if itemId and composer.storeConfig.getItemCategory(itemId) == "shield" then
+        if composer.storeConfig.canDrawItem(itemId) then
+          shieldItemId = itemId
+        end
+      end
+    end
+  end
   local shieldMainFrame = composer.powerUpImageSheetInfo:getFrameIndex("" .. shieldItemId)
   local shieldAbsorbFrame = composer.powerUpImageSheetInfo:getFrameIndex("" .. shieldItemId .. "_2")
 

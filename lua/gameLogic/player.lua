@@ -7,7 +7,7 @@ local monsterLoader = require("spine-corona.monsterLoader")
 local powerUpChance = require("lua.gameLogic.powerUpChance")
 local basicPlayerEffects = require("lua.gameLogic.playerEffects")
 
-local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList, startXPos, startYPos)
+local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList, startXPos, startYPos, customPowerUpSkins)
   local player = display.newGroup()
   local playerGhost = display.newGroup()
   local spriteDisplay = display.newGroup()
@@ -100,7 +100,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   local playSoundOnChannel, playSound, playKillMessage
   player.mainPlayer = mainPlayer
   local playerEffects = basicPlayerEffects.createEffects(player, playerCorpses, monster, booleanStates, spriteDisplay,
-    bodyParts, screenGroup)
+    bodyParts, screenGroup, customPowerUpSkins)
   local disconnectBar = display.newImageRect("images/game/avatar/disconnected.png", 18, 18)
   local headBarBackground
   if mainPlayer then
@@ -1156,11 +1156,16 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
 
   local function setPlayerAlive()
     booleanStates.playerDead = false
+    booleanStates.playerInvulnerable = false
     partlyShowPlayerSprite()
     returnToPreviousSpeed()
     if booleanStates.speedActive then
       stopPowerUpSpeed(false)
     end
+    -- Reset run animation after respawn
+    pcall(function()
+      monster.setAnimation("run", true, false)
+    end)
   end
 
   local function setKillMessageFunction(newFunction)
@@ -1215,7 +1220,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     playerEffects.runBloodScreen(override)
   end
 
-  local function playHitAnimation(puType, hitType, killer, overrideDeadTime)
+  local function playHitAnimation(puType, hitType, killer, overrideDeadTime, isNetworkGame)
     if puType == 1 or puType == 97 or puType == 98 then
       playSound("blade_hit")
     elseif puType == 2 then
@@ -1229,7 +1234,9 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       playSound("rocket_hit")
     end
     if hitType == 1 then
-      playKillMessage(killer, puType, playerId)
+      if not isNetworkGame then
+        playKillMessage(killer, puType, playerId)
+      end
       local baseDeadTime = 1000
       if overrideDeadTime then
         baseDeadTime = overrideDeadTime
@@ -1348,7 +1355,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     monster.resetBones()
   end
 
-  onCollisionPowerUp = function(killer, puType)
+  onCollisionPowerUp = function(killer, puType, isNetworkGame)
     if booleanStates.startedClean then
     elseif gameTimes.goalTime == -1 and not booleanStates.playerInvulnerable then
       local hitType = 0
@@ -1388,13 +1395,13 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       elseif hitType == 0 then
         hitType = 1
       end
-      playHitAnimation(puType, hitType, killer, deadTime)
+      playHitAnimation(puType, hitType, killer, deadTime, isNetworkGame)
       list = {
         k = killer,
         p = puType,
         h = hitType
       }
-      if 0 < composer.data.gameInfo.gameType then
+      if 0 < composer.data.gameInfo.gameType and not isNetworkGame then
         composer.tcpClient.sendPlayerHitByPowerUp(killer, puType, 0, hitType, 0)
       end
       return hitType
@@ -1637,6 +1644,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   player.isFixedRotation = true
   player.mobileUser = false
   player.ninjaMark = false
+  player.customPowerUpSkins = customPowerUpSkins or {}
   playerGhost.x = player.x
   playerGhost.y = player.y
   playerGhost.isFixedRotation = true

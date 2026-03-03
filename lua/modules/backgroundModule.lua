@@ -7,22 +7,10 @@ L2_1 = "images/gui/common/bgMain.png"
 L3_1 = "images/gui/common/bgMain_blur.png"
 
 function L4_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2
-  L1_2 = display
-  L1_2 = L1_2.newImageRect
-  L2_2 = A0_2
-  L3_2 = 480
-  L4_2 = 320
-  L1_2 = L1_2(L2_2, L3_2, L4_2)
-  L2_2 = display
-  L2_2 = L2_2.contentWidth
-  L2_2 = L2_2 * 0.5
-  L1_2.x = L2_2
-  L2_2 = display
-  L2_2 = L2_2.contentHeight
-  L2_2 = L2_2 * 0.5
-  L1_2.y = L2_2
-  return L1_2
+  local img = display.newImageRect(A0_2, display.actualContentWidth, display.actualContentHeight)
+  img.x = display.contentCenterX
+  img.y = display.contentCenterY
+  return img
 end
 
 function L5_1()

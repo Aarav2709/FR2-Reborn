@@ -178,6 +178,8 @@ function scene:create(event)
     native.setKeyboardFocus(nameTextField)
   end
   composer.commHttps.setCallback(httpsCallback)
+  dropdownGroup.xScale = display.contentWidth / 480
+  dropdownGroup.yScale = display.contentHeight / 320
   composer.bouncer.down(dropdownGroup)
 end
 

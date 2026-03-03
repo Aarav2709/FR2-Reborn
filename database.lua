@@ -529,6 +529,22 @@ end
 
 M.setItems = setItems
 
+function M.changePowerupSkin(skinId)
+    if composer.databaseData.powerupSkin then
+        composer.databaseData.powerupSkin[1] = skinId
+    else
+        composer.databaseData.powerupSkin = { skinId }
+    end
+    return true
+end
+
+function M.getPowerupSkin()
+    if composer.databaseData.powerupSkin then
+        return composer.databaseData.powerupSkin
+    end
+    return {}
+end
+
 function M.setNewDefaultSkinForAvatar(avatarId, skinId)
     loadItemsFromDb()
     if composer.databaseData.items then

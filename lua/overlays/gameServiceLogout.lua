@@ -19,12 +19,10 @@ function L4_1(A0_2, A1_2)
   L6_2 = L6_2.logoutCallback
   L7_2 = display
   L7_2 = L7_2.newRect
-  L8_2 = 0
-  L9_2 = 0
-  L10_2 = display
-  L10_2 = L10_2.contentWidth
-  L11_2 = display
-  L11_2 = L11_2.contentHeight
+  L8_2 = display.screenOriginX
+  L9_2 = display.screenOriginY
+  L10_2 = display.actualContentWidth
+  L11_2 = display.actualContentHeight
   L7_2 = L7_2(L8_2, L9_2, L10_2, L11_2)
   L7_2.anchorX = 0
   L7_2.anchorY = 0
@@ -96,14 +94,14 @@ function L4_1(A0_2, A1_2)
   L10_2.anchorY = 0
   L10_2.x = 240
   L10_2.y = 45
-  
+
   function L11_2()
     local L0_3, L1_3
     L0_3 = L0_1
     L0_3 = L0_3.hideOverlay
     L0_3()
   end
-  
+
   L12_2 = L0_1
   L12_2 = L12_2.newButton
   L13_2 = {}
@@ -114,7 +112,7 @@ function L4_1(A0_2, A1_2)
   L13_2.image = "images/gui/common/buttonClosePopupBrown.png"
   L13_2.onRelease = L11_2
   L12_2 = L12_2(L13_2)
-  
+
   function L13_2()
     local L0_3, L1_3
     L0_3 = L0_1
@@ -126,7 +124,7 @@ function L4_1(A0_2, A1_2)
     L0_3 = L0_3.hideOverlay
     L0_3()
   end
-  
+
   L14_2 = L0_1
   L14_2 = L14_2.newButton
   L15_2 = {}
@@ -147,7 +145,7 @@ function L4_1(A0_2, A1_2)
   L15_2.text = L16_2
   L15_2.onRelease = L13_2
   L14_2 = L14_2(L15_2)
-  
+
   function L15_2(A0_3)
     local L1_3
     L1_3 = A0_3.phase
@@ -159,13 +157,13 @@ function L4_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   function L16_2(A0_3)
     local L1_3
     L1_3 = true
     return L1_3
   end
-  
+
   function L17_2()
     local L0_3, L1_3, L2_3
     L0_3 = L2_2
@@ -204,7 +202,7 @@ function L4_1(A0_2, A1_2)
     L2_3 = L5_2
     L0_3(L1_3, L2_3)
   end
-  
+
   function L18_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L3_2
@@ -229,7 +227,7 @@ function L4_1(A0_2, A1_2)
       L0_3(L1_3, L2_3, L3_3)
     end
   end
-  
+
   function L19_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L3_2
@@ -266,7 +264,7 @@ function L4_1(A0_2, A1_2)
     L3_3 = L16_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   L2_1 = L19_2
   L19_2 = L17_2
   L19_2()
@@ -276,6 +274,8 @@ function L4_1(A0_2, A1_2)
   L21_2 = L18_2
   L19_2 = L19_2(L20_2, L21_2)
   L4_2 = L19_2
+  L5_2.xScale = display.contentWidth / 480
+  L5_2.yScale = display.contentHeight / 320
   L19_2 = L0_1
   L19_2 = L19_2.bouncer
   L19_2 = L19_2.down
@@ -295,7 +295,7 @@ function L4_1(A0_2, A1_2)
   L4_2 = require
   L5_2 = "lua.modules.androidBackButton"
   L4_2 = L4_2(L5_2)
-  
+
   function L5_2()
     local L0_3, L1_3
     L0_3 = L4_2
@@ -303,7 +303,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = false
     L0_3(L1_3)
   end
-  
+
   L3_1 = L5_2
   L5_2 = L4_2.isOverlay
   L6_2 = true

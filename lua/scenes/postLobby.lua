@@ -81,13 +81,13 @@ function scene:create(event)
     end
   end
   local backgroundTimeImage = display.newImageRect("images/gui/postgame/windowTimes.png", 300, 170)
-  backgroundTimeImage.x = 748
-  backgroundTimeImage.y = 80
+  backgroundTimeImage.x = display.contentWidth * 0.8
+  backgroundTimeImage.y = display.contentHeight * 0.2
   local photoIcon = display.newImageRect("images/gui/postgame/photo.png", 40, 40)
   photoIcon.xScale = 1
   photoIcon.yScale = 1
-  photoIcon.x = 875
-  photoIcon.y = 169
+  photoIcon.x = backgroundTimeImage.x + backgroundTimeImage.width * 0.42
+  photoIcon.y = backgroundTimeImage.y + backgroundTimeImage.height * 0.5
   screenGroup:insert(photoIcon)
   -- Screenshot Functionality - Work In Progress - Coming Soon
   -- local function copyFile(sourcePath, destPath)
@@ -159,20 +159,20 @@ function scene:create(event)
   -- end
   -- photoIcon:addEventListener("tap", savePostLobbyScreenshot)
   local chatButtonOverlay = display.newImageRect("images/gui/postgame/buttonToggle.png", 65, 65)
-  chatButtonOverlay.x = 160
-  chatButtonOverlay.y = 384
+  chatButtonOverlay.x = display.contentWidth * 0.0625
+  chatButtonOverlay.y = display.contentHeight * 0.919
   chatButtonOverlay.isVisible = false
   local friendButtonOverlay = display.newImageRect("images/gui/postgame/buttonToggle.png", 65, 65)
-  friendButtonOverlay.x = 250
-  friendButtonOverlay.y = 384
+  friendButtonOverlay.x = display.contentWidth * 0.1875
+  friendButtonOverlay.y = display.contentHeight * 0.919
   friendButtonOverlay.isVisible = false
   local marketButtonOverlay = display.newImageRect("images/gui/postgame/buttonToggle.png", 65, 65)
-  marketButtonOverlay.x = 680
-  marketButtonOverlay.y = 384
+  marketButtonOverlay.x = display.contentWidth * 0.73
+  marketButtonOverlay.y = display.contentHeight * 0.919
   marketButtonOverlay.isVisible = false
   local chatButtonDropdown = display.newImageRect("images/gui/postgame/bubbleList.png", 175, 179)
-  chatButtonDropdown.x = display.contentWidth * 0.26
-  chatButtonDropdown.y = display.contentHeight * 0.65
+  chatButtonDropdown.x = display.contentWidth * 0.19
+  chatButtonDropdown.y = display.contentHeight * 0.56
   chatButtonDropdown.isVisible = false
   local name = ""
   if composer.onboarding.isActive == true then
@@ -187,8 +187,8 @@ function scene:create(event)
     string = name,
     size = 30,
     z = 7,
-    x = 755,
-    y = 21,
+    x = display.contentWidth * 0.8,
+    y = backgroundTimeImage.y - backgroundTimeImage.height * 0.26,
     color = {
       1,
       1,
@@ -198,8 +198,8 @@ function scene:create(event)
 
   local placeholdersEnabled = false
   local placeholderGroup = display.newGroup()
-  local placeholderMapX = 755
-  local placeholderMapY = 21
+  local placeholderMapX = display.contentWidth * 0.8
+  local placeholderMapY = backgroundTimeImage.y - backgroundTimeImage.height * 0.26
   local mapPlaceholder = composer.newText({
     string = "STUMPY SLOPES",
     size = 30,
@@ -328,8 +328,8 @@ function scene:create(event)
         width = 156,
         height = 30,
         onRelease = sendChatMessage,
-        x = 236,
-        y = 171 + i * 30
+        x = display.contentWidth * 0.19,
+        y = display.contentHeight * 0.56 + (-60 + i * 30)
       })
       chatButtons[i].isVisible = false
       screenGroup:insert(chatButtons[i])
@@ -425,16 +425,16 @@ function scene:create(event)
     width = 35,
     height = 35,
     onRelease = returnToMenuButtonRelease,
-    x = 30,
-    y = 20
+    x = display.contentWidth * 0.046,
+    y = display.contentHeight * 0.069
   })
   local rematchButton = composer.newButton({
     image = "images/gui/postgame/buttonReplay.png",
     width = 115,
     height = 61,
     onRelease = rematchButtonRelease,
-    x = display.contentWidth - 128,
-    y = 384
+    x = display.contentWidth * 0.896,
+    y = display.contentHeight * 0.919
   })
   addFriendsButton = composer.newButton({
     image = "images/gui/postgame/buttonFriends.png",
@@ -502,17 +502,17 @@ function scene:create(event)
     screenGroup:insert(monsterGroup)
     local x, y
     if pos == 1 then
-      x = 254
-      y = 176
+      x = display.contentWidth * 0.271
+      y = display.contentHeight * 0.4
     elseif pos == 2 then
-      x = 94
-      y = 236
+      x = display.contentWidth * 0.096
+      y = display.contentHeight * 0.516
     elseif pos == 3 then
-      x = 412
-      y = 250
+      x = display.contentWidth * 0.458
+      y = display.contentHeight * 0.538
     elseif pos == 4 then
-      x = 576
-      y = 310
+      x = display.contentWidth * 0.646
+      y = display.contentHeight * 0.663
     end
     monsterGroup.y = y + 40
     monsterGroup.x = x
@@ -573,8 +573,8 @@ function scene:create(event)
 
   local function updateRank(rating, deltaRating, extraDelay)
     if deltaRating then
-      local ratingX = 463
-      local ratingY = 39
+      local ratingX = display.contentWidth * 0.3125
+      local ratingY = display.contentHeight * 0.069
       local ratingIconX = ratingX + 36
       rankingEarned = composer.newText({
         string = "",
@@ -665,8 +665,8 @@ function scene:create(event)
       composer.database.setMoney(money)
     end
     if deltaMoney then
-      local moneyX = 319
-      local moneyY = 39
+      local moneyX = display.contentWidth * 0.0625
+      local moneyY = display.contentHeight * 0.069
       local moneyIconX = moneyX + 36
       local moneyText = composer.newText({
         string = "",
@@ -892,8 +892,8 @@ function scene:create(event)
       rankingTextGroup.anchorX = 0
       rankingTextGroup.anchorY = 0
       rankingTextGroup.anchorChildren = true
-      rankingTextGroup.x = 612
-      rankingTextGroup.y = 46
+      rankingTextGroup.x = display.contentWidth * 0.63
+      rankingTextGroup.y = display.contentHeight * 0.113
       rankingTextGroup.xScale = rankingGroupScale
       rankingTextGroup.yScale = rankingGroupScale
       screenGroup:insert(rankingTextGroup)
@@ -910,8 +910,8 @@ function scene:create(event)
   end
 
   local backgroundStatsImage = display.newImageRect("images/gui/postgame/windowCurrency.png", 318, 70)
-  backgroundStatsImage.x = display.contentWidth * 0.509
-  backgroundStatsImage.y = 384
+  backgroundStatsImage.x = display.contentWidth * 0.455
+  backgroundStatsImage.y = display.contentHeight * 0.916
   screenGroup:insert(backgroundStatsImage)
 
   local function createOnlinePostLobby()
@@ -1031,11 +1031,11 @@ function scene:create(event)
   if composer.data.gameInfo.gameType ~= 0 then
     createOnlinePostLobby()
   end
-  newStatsGroup.x = 95
-  newStatsGroup.y = display.contentHeight - 62
+  newStatsGroup.x = display.contentWidth * 0.455 - 130
+  newStatsGroup.y = display.contentHeight * 0.916 - 20
   screenGroup:insert(newStatsGroup)
-  newTotalStatsGroup.x = 95
-  newTotalStatsGroup.y = display.contentHeight - 44
+  newTotalStatsGroup.x = display.contentWidth * 0.455 - 130
+  newTotalStatsGroup.y = display.contentHeight * 0.916 + 2
   screenGroup:insert(newTotalStatsGroup)
   if composer.data.gameInfo.stats and next(composer.data.gameInfo.stats) then
     updateStats(1)

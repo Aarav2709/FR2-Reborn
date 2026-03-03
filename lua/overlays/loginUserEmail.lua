@@ -233,6 +233,8 @@ function scene:create(event)
   end
 
   updateDisplayGroups()
+  dropdownGroup.xScale = display.contentWidth / 480
+  dropdownGroup.yScale = display.contentHeight / 320
   addListeners()
   composer.commHttps.setCallback(httpsCallback)
 end

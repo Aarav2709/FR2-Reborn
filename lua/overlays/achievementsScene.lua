@@ -36,12 +36,15 @@ function scene:create(event)
       1
     }
   })
-  local alphaBackground = display.newRect(0, 0, display.contentWidth, display.contentHeight)
+  local alphaBackground = display.newRect(display.screenOriginX, display.screenOriginY, display.actualContentWidth, display.actualContentHeight)
   alphaBackground.anchorX = 0
   alphaBackground.anchorY = 0
   alphaBackground:setFillColor(0, 0, 0, 0.5882352941176471)
-  alphaBackground.x = 0
-  alphaBackground.y = 0
+  alphaBackground.x = display.screenOriginX
+  alphaBackground.y = display.screenOriginY
+  local contentGroup = display.newGroup()
+  contentGroup.xScale = display.contentWidth / 480
+  contentGroup.yScale = display.contentHeight / 320
   local tableBackground = display.newImageRect("images/gui/friends/mainWindow.png", 330, 320)
   tableBackground.anchorX = 0.5
   tableBackground.anchorY = 0
@@ -213,7 +216,7 @@ function scene:create(event)
         dailySorted = true
         sortTable(dailyTable)
       end
-      challangesTable.createTable(dailyTable, group)
+      challangesTable.createTable(dailyTable, contentGroup)
       challangesTable.getTable():setIsLocked(true)
       showDaily()
     elseif newTable == 2 then
@@ -221,7 +224,7 @@ function scene:create(event)
         achSorted = true
         sortTable(allAchivements)
       end
-      achievementsTable.createTable(allAchivements, group)
+      achievementsTable.createTable(allAchivements, contentGroup)
       showAchievements()
     elseif newTable == 3 then
       if overrideSortTable or not earnCoinsSorted then
@@ -229,10 +232,10 @@ function scene:create(event)
         sortTable(allEarnCoins)
       end
       checkIfAdsShoudBeRemoved()
-      earnCoinTable.createTable(allEarnCoins, group)
+      earnCoinTable.createTable(allEarnCoins, contentGroup)
       showEarnCoins()
     end
-    group:insert(closeOverlayButton)
+    contentGroup:insert(closeOverlayButton)
   end
 
   function checkIfAdsShoudBeRemoved(needToRefresh)
@@ -324,7 +327,7 @@ function scene:create(event)
     elseif activeTableInt == 3 then
       earnCoinTable.refreshTable()
     end
-    group:insert(closeOverlayButton)
+    contentGroup:insert(closeOverlayButton)
   end
 
   local function addBoostItems()
@@ -547,20 +550,21 @@ function scene:create(event)
 
   local function updateDisplayGroup()
     group:insert(alphaBackground)
-    group:insert(tableBackground)
-    group:insert(tablePaperBackground)
-    group:insert(showDailyButton)
-    group:insert(showAchievementsButton)
-    group:insert(showEarnCoinsButton)
-    group:insert(dailyActive)
-    group:insert(achievementsActive)
-    group:insert(earnCoinActive)
-    group:insert(tableTitleBakground)
-    group:insert(infoText)
-    group:insert(closeOverlayButton)
-    group:insert(infoTextServer)
-    group:insert(backgroundCoins)
-    group:insert(moneyText)
+    contentGroup:insert(tableBackground)
+    contentGroup:insert(tablePaperBackground)
+    contentGroup:insert(showDailyButton)
+    contentGroup:insert(showAchievementsButton)
+    contentGroup:insert(showEarnCoinsButton)
+    contentGroup:insert(dailyActive)
+    contentGroup:insert(achievementsActive)
+    contentGroup:insert(earnCoinActive)
+    contentGroup:insert(tableTitleBakground)
+    contentGroup:insert(infoText)
+    contentGroup:insert(closeOverlayButton)
+    contentGroup:insert(infoTextServer)
+    contentGroup:insert(backgroundCoins)
+    contentGroup:insert(moneyText)
+    group:insert(contentGroup)
   end
 
   local function addListeners()

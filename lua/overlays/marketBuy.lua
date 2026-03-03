@@ -17,7 +17,7 @@ function scene:create(event)
   local saleGroup = display.newGroup()
   local iapPriceTimeout
   local tryingToBuy = false
-  local alphaBackground = display.newRect(0, 0, display.contentWidth, display.contentHeight)
+  local alphaBackground = display.newRect(display.screenOriginX, display.screenOriginY, display.actualContentWidth, display.actualContentHeight)
   alphaBackground.anchorX = 0
   alphaBackground.anchorY = 0
   alphaBackground:setFillColor(0, 0, 0, 0.7843137254901961)
@@ -785,6 +785,8 @@ function scene:create(event)
   checkForDescriptionText()
   composer.commHttps.setCallback(httpsCallback)
   inApp.setInAppPurchaseCallback(inAppCallback)
+  dropdownGroup.xScale = display.contentWidth / 480
+  dropdownGroup.yScale = display.contentHeight / 320
   composer.bouncer.down(dropdownGroup)
   if event.params.itemIAPStatus == 1 then
     iapPriceTimeout = timer.performWithDelay(5000, iapUpdated)

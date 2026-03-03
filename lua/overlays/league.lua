@@ -13,6 +13,8 @@ function L4_1(A0_2, A1_2)
   L3_2 = display
   L3_2 = L3_2.newGroup
   L3_2 = L3_2()
+  L3_2.xScale = display.contentWidth / 480
+  L3_2.yScale = display.contentHeight / 320
   L4_2 = display
   L4_2 = L4_2.newGroup
   L4_2 = L4_2()
@@ -133,12 +135,12 @@ function L4_1(A0_2, A1_2)
   L62_2.overlayWithNetwork = true
   L62_2 = display
   L62_2 = L62_2.newRect
-  L63_2 = 0
-  L64_2 = 0
+  L63_2 = display.screenOriginX
+  L64_2 = display.screenOriginY
   L65_2 = display
-  L65_2 = L65_2.contentWidth
+  L65_2 = L65_2.actualContentWidth
   L66_2 = display
-  L66_2 = L66_2.contentHeight
+  L66_2 = L66_2.actualContentHeight
   L62_2 = L62_2(L63_2, L64_2, L65_2, L66_2)
   L62_2.anchorX = 0
   L62_2.anchorY = 0
@@ -149,8 +151,8 @@ function L4_1(A0_2, A1_2)
   L67_2 = 0
   L68_2 = 0.5882352941176471
   L63_2(L64_2, L65_2, L66_2, L67_2, L68_2)
-  L62_2.x = 0
-  L62_2.y = 0
+  L62_2.x = display.screenOriginX
+  L62_2.y = display.screenOriginY
   L63_2 = display
   L63_2 = L63_2.newImageRect
   L64_2 = "images/gui/ranking/mainOverlay.png"
@@ -442,7 +444,7 @@ function L4_1(A0_2, A1_2)
   L85_2.y = 60
   L85_2.isVisible = false
   L86_2 = nil
-  
+
   function L87_2()
     local L0_3, L1_3
     L0_3 = false
@@ -478,7 +480,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = L1_3 ~= nil
     L0_3.isVisible = L1_3
   end
-  
+
   L88_2 = L0_1
   L88_2 = L88_2.newButton
   L89_2 = {}
@@ -501,7 +503,7 @@ function L4_1(A0_2, A1_2)
   L88_2 = L88_2(L89_2)
   L86_2 = L88_2
   L86_2.isVisible = false
-  
+
   function L88_2()
     local L0_3, L1_3
     L0_3 = L22_2
@@ -514,7 +516,7 @@ function L4_1(A0_2, A1_2)
       L0_3.isVisible = false
     end
   end
-  
+
   function L89_2(A0_3, A1_3, A2_3, A3_3, A4_3, A5_3, A6_3, A7_3, A8_3)
     local L9_3, L10_3
     L9_3 = L0_1
@@ -532,7 +534,7 @@ function L4_1(A0_2, A1_2)
     L9_3.isVisible = A7_3
     return L9_3
   end
-  
+
   function L90_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3
     L0_3 = L30_2
@@ -592,7 +594,7 @@ function L4_1(A0_2, A1_2)
     L0_3 = L73_2
     L0_3.isVisible = false
   end
-  
+
   function L91_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3, L6_3
     L0_3 = L22_2
@@ -617,7 +619,7 @@ function L4_1(A0_2, A1_2)
       end
     end
   end
-  
+
   function L92_2(A0_3, A1_3)
     local L2_3, L3_3, L4_3, L5_3, L6_3
     L2_3 = L22_2
@@ -666,7 +668,7 @@ function L4_1(A0_2, A1_2)
     L5_3 = L5_3 == A0_3
     return L5_3
   end
-  
+
   function L93_2()
     local L0_3, L1_3
     L0_3 = L29_2
@@ -679,7 +681,7 @@ function L4_1(A0_2, A1_2)
       L29_2 = L0_3
     end
   end
-  
+
   function L94_2(A0_3)
     local L1_3, L2_3, L3_3, L4_3, L5_3
     L1_3 = L93_2
@@ -705,7 +707,7 @@ function L4_1(A0_2, A1_2)
     L4_3 = L29_2
     L2_3(L3_3, L4_3)
   end
-  
+
   function L95_2(A0_3, A1_3)
     local L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3, L10_3, L11_3, L12_3
     L2_3 = 1
@@ -746,7 +748,7 @@ function L4_1(A0_2, A1_2)
       end
     end
   end
-  
+
   function L96_2(A0_3)
     local L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3
     L1_3 = 0
@@ -759,7 +761,7 @@ function L4_1(A0_2, A1_2)
       L5_3(L6_3, L7_3)
     end
   end
-  
+
   function L97_2(A0_3, A1_3)
     local L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3
     L2_3 = L22_2
@@ -894,7 +896,7 @@ function L4_1(A0_2, A1_2)
       L6_3(L7_3, L8_3, L9_3)
     end
   end
-  
+
   function L98_2(A0_3)
     local L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3
     if A0_3 then
@@ -926,7 +928,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = ""
     return L1_3
   end
-  
+
   function L99_2(A0_3, A1_3)
     local L2_3, L3_3
     if A0_3 then
@@ -947,7 +949,7 @@ function L4_1(A0_2, A1_2)
       end
     end
   end
-  
+
   function L100_2(A0_3, A1_3)
     local L2_3
     if A0_3 then
@@ -964,7 +966,7 @@ function L4_1(A0_2, A1_2)
     L2_3 = nil
     return L2_3
   end
-  
+
   function L101_2(A0_3, A1_3)
     local L2_3, L3_3
     if A0_3 then
@@ -982,7 +984,7 @@ function L4_1(A0_2, A1_2)
       end
     end
   end
-  
+
   function L102_2(A0_3, A1_3)
     local L2_3
     if A0_3 then
@@ -999,7 +1001,7 @@ function L4_1(A0_2, A1_2)
     L2_3 = nil
     return L2_3
   end
-  
+
   function L103_2(A0_3, A1_3)
     local L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3, L10_3, L11_3, L12_3, L13_3, L14_3, L15_3, L16_3, L17_3
     L2_3 = L22_2
@@ -1076,7 +1078,7 @@ function L4_1(A0_2, A1_2)
       end
     end
   end
-  
+
   function L104_2(A0_3, A1_3, A2_3)
     local L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3, L10_3, L11_3, L12_3, L13_3, L14_3, L15_3, L16_3, L17_3
     L3_3 = L22_2
@@ -1172,7 +1174,7 @@ function L4_1(A0_2, A1_2)
       end
     end
   end
-  
+
   function L105_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3
     L0_3 = 1
@@ -1200,7 +1202,7 @@ function L4_1(A0_2, A1_2)
       end
     end
   end
-  
+
   function L106_2(A0_3)
     local L1_3
     L1_3 = L22_2
@@ -1220,7 +1222,7 @@ function L4_1(A0_2, A1_2)
       end
     end
   end
-  
+
   function L107_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3
     L0_3 = L77_2
@@ -1247,7 +1249,7 @@ function L4_1(A0_2, A1_2)
     L4_3 = 0
     L0_3(L1_3, L2_3, L3_3, L4_3)
   end
-  
+
   function L108_2(A0_3)
     local L1_3
     L1_3 = L81_2
@@ -1256,7 +1258,7 @@ function L4_1(A0_2, A1_2)
       L1_3.isVisible = A0_3
     end
   end
-  
+
   function L109_2(A0_3)
     local L1_3, L2_3, L3_3, L4_3
     L1_3 = L81_2
@@ -1295,7 +1297,7 @@ function L4_1(A0_2, A1_2)
     L3_3 = L81_2
     L1_3(L2_3, L3_3)
   end
-  
+
   function L110_2(A0_3, A1_3, A2_3)
     local L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3
     L3_3 = L77_2
@@ -1434,7 +1436,7 @@ function L4_1(A0_2, A1_2)
       L5_3(L6_3, L7_3, L8_3, L9_3)
     end
   end
-  
+
   function L111_2(A0_3, A1_3)
     local L2_3, L3_3, L4_3, L5_3, L6_3
     L2_3 = L0_1
@@ -1466,7 +1468,7 @@ function L4_1(A0_2, A1_2)
     L6_3 = A1_3
     L3_3(L4_3, L5_3, L6_3)
   end
-  
+
   function L112_2(A0_3, A1_3, A2_3)
     local L3_3, L4_3, L5_3, L6_3
     if A0_3 then
@@ -1518,7 +1520,7 @@ function L4_1(A0_2, A1_2)
       L3_3(L4_3, L5_3, L6_3)
     end
   end
-  
+
   function L49_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3
     L0_3 = L0_1
@@ -1570,7 +1572,7 @@ function L4_1(A0_2, A1_2)
     L2_3 = L45_2
     L2_3()
   end
-  
+
   function L113_2(A0_3)
     local L1_3, L2_3
     L1_3 = L17_2
@@ -1578,7 +1580,7 @@ function L4_1(A0_2, A1_2)
     L2_3 = A0_3
     L1_3(L2_3)
   end
-  
+
   function L48_2(A0_3)
     local L1_3, L2_3, L3_3
     L1_3 = L17_2
@@ -1600,7 +1602,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = L45_2
     L1_3()
   end
-  
+
   function L50_2(A0_3)
     local L1_3, L2_3, L3_3
     L1_3 = L68_2
@@ -1643,7 +1645,7 @@ function L4_1(A0_2, A1_2)
     L3_3 = L1_3
     L2_3(L3_3)
   end
-  
+
   function L114_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3
     L1_3 = L15_2
@@ -1711,7 +1713,7 @@ function L4_1(A0_2, A1_2)
       end
     end
   end
-  
+
   function L115_2(A0_3)
     local L1_3, L2_3
     L1_3 = L16_2
@@ -1793,7 +1795,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   function L116_2(A0_3)
     local L1_3
     L1_3 = L68_2
@@ -1805,7 +1807,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = L57_2
     L1_3.isVisible = A0_3
   end
-  
+
   function L117_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3
     L0_3 = L115_2
@@ -1907,7 +1909,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = L85_2
     L1_3.isVisible = false
   end
-  
+
   function L118_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = 7
@@ -1931,7 +1933,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = false
     L0_3(L1_3)
   end
-  
+
   function L119_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L115_2
@@ -1978,7 +1980,7 @@ function L4_1(A0_2, A1_2)
       L1_3()
     end
   end
-  
+
   function L120_2()
     local L0_3, L1_3, L2_3
     L0_3 = 3
@@ -2012,7 +2014,7 @@ function L4_1(A0_2, A1_2)
     L0_3 = L114_2
     L0_3()
   end
-  
+
   function L121_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L115_2
@@ -2058,7 +2060,7 @@ function L4_1(A0_2, A1_2)
       end
     end
   end
-  
+
   function L122_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L115_2
@@ -2140,11 +2142,11 @@ function L4_1(A0_2, A1_2)
       L1_3.text = L2_3
     end
   end
-  
+
   function L123_2()
     local L0_3, L1_3
   end
-  
+
   function L124_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3, L10_3, L11_3, L12_3
     L0_3 = L54_2
@@ -2345,7 +2347,7 @@ function L4_1(A0_2, A1_2)
     L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3, L10_3, L11_3, L12_3 = L2_3(L3_3)
     L1_3(L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3, L10_3, L11_3, L12_3)
   end
-  
+
   L125_2 = {}
   L37_2[1] = L125_2
   L125_2 = L37_2[1]
@@ -2450,7 +2452,7 @@ function L4_1(A0_2, A1_2)
   L134_2 = true
   L126_2 = L126_2(L127_2, L128_2, L129_2, L130_2, L131_2, L132_2, L133_2, L134_2)
   L125_2[2] = L126_2
-  
+
   function L125_2(A0_3)
     local L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3, L10_3, L11_3, L12_3, L13_3, L14_3, L15_3, L16_3, L17_3, L18_3, L19_3
     L1_3 = 80
@@ -2547,7 +2549,7 @@ function L4_1(A0_2, A1_2)
     L6_3 = L6_3 <= 0
     L5_3.isVisible = L6_3
   end
-  
+
   function L47_2(A0_3)
     local L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3
     L1_3 = L2_2
@@ -2756,7 +2758,7 @@ function L4_1(A0_2, A1_2)
     end
     -- lbl_170 removed
   end
-  
+
   function L126_2(A0_3, A1_3, A2_3)
     local L3_3, L4_3, L5_3, L6_3
     L3_3 = A2_3 == 8
@@ -2787,7 +2789,7 @@ function L4_1(A0_2, A1_2)
       L5_3(L6_3)
     end
   end
-  
+
   function L44_2(A0_3, A1_3, A2_3)
     local L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3, L10_3
     L3_3 = L22_2
@@ -2874,14 +2876,14 @@ function L4_1(A0_2, A1_2)
       L6_3()
     end
   end
-  
+
   function L127_2()
     local L0_3, L1_3
     L0_3 = L0_1
     L0_3 = L0_3.hideOverlay
     L0_3()
   end
-  
+
   function L46_2(A0_3)
     local L1_3, L2_3, L3_3, L4_3
     L1_3 = L22_2
@@ -2903,7 +2905,7 @@ function L4_1(A0_2, A1_2)
     L3_3 = L1_3
     L2_3(L3_3)
   end
-  
+
   function L128_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3
     L0_3 = L105_2
@@ -2973,7 +2975,7 @@ function L4_1(A0_2, A1_2)
       end
     end
   end
-  
+
   function L129_2()
     local L0_3, L1_3, L2_3
     L0_3 = L105_2
@@ -3054,7 +3056,7 @@ function L4_1(A0_2, A1_2)
       L0_3.text = L1_3
     end
   end
-  
+
   function L130_2()
     local L0_3, L1_3, L2_3
     L0_3 = L53_2
@@ -3070,7 +3072,7 @@ function L4_1(A0_2, A1_2)
       L0_3(L1_3, L2_3)
     end
   end
-  
+
   function L131_2()
     local L0_3, L1_3, L2_3
     L0_3 = L35_2
@@ -3084,7 +3086,7 @@ function L4_1(A0_2, A1_2)
       L0_3(L1_3, L2_3)
     end
   end
-  
+
   function L132_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L105_2
@@ -3159,7 +3161,7 @@ function L4_1(A0_2, A1_2)
       L0_3(L1_3)
     end
   end
-  
+
   function L133_2(A0_3)
     local L1_3
     L1_3 = A0_3.phase
@@ -3171,13 +3173,13 @@ function L4_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   function L134_2(A0_3)
     local L1_3
     L1_3 = true
     return L1_3
   end
-  
+
   L135_2 = L0_1
   L135_2 = L135_2.newButton
   L136_2 = {}
@@ -3270,7 +3272,7 @@ function L4_1(A0_2, A1_2)
   L135_2 = L135_2(L136_2)
   L39_2 = L135_2
   L39_2.isVisible = false
-  
+
   function L135_2(A0_3)
     local L1_3, L2_3, L3_3, L4_3, L5_3
     L1_3 = 1
@@ -3281,7 +3283,7 @@ function L4_1(A0_2, A1_2)
       L5_3.index = L4_3
     end
   end
-  
+
   function L43_2(A0_3, A1_3, A2_3)
     local L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3, L10_3, L11_3, L12_3, L13_3, L14_3, L15_3
     L3_3 = L22_2
@@ -3337,7 +3339,7 @@ function L4_1(A0_2, A1_2)
     L5_3 = L3_3
     L4_3(L5_3)
   end
-  
+
   function L45_2()
     local L0_3, L1_3
     L0_3 = L30_2
@@ -3365,7 +3367,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = L30_2
     L0_3(L1_3)
   end
-  
+
   function L136_2(A0_3, A1_3)
     local L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3
     L2_3 = A1_3.phase
@@ -3506,9 +3508,9 @@ function L4_1(A0_2, A1_2)
     L2_3 = true
     return L2_3
   end
-  
+
   L6_2.touch = L136_2
-  
+
   function L136_2(A0_3)
     local L1_3, L2_3, L3_3, L4_3, L5_3, L6_3
     L1_3 = L0_1
@@ -3544,7 +3546,7 @@ function L4_1(A0_2, A1_2)
     L2_3 = 5
     return L2_3
   end
-  
+
   function L137_2(A0_3, A1_3)
     local L2_3, L3_3, L4_3, L5_3, L6_3, L7_3
     L2_3 = L0_1
@@ -3565,7 +3567,7 @@ function L4_1(A0_2, A1_2)
       end
     end
   end
-  
+
   function L138_2(A0_3)
     local L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3, L9_3
     if A0_3 then
@@ -3597,7 +3599,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = ""
     return L1_3
   end
-  
+
   function L139_2(A0_3)
     local L1_3, L2_3, L3_3, L4_3, L5_3, L6_3
     L1_3 = L16_2
@@ -4259,13 +4261,13 @@ function L4_1(A0_2, A1_2)
       end
     end
   end
-  
+
   function L140_2(A0_3)
     local L1_3
     L1_3 = true
     return L1_3
   end
-  
+
   function L141_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L64_2
@@ -4287,7 +4289,7 @@ function L4_1(A0_2, A1_2)
     L3_3 = L6_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   function L142_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3
     L0_3 = true
@@ -4370,7 +4372,7 @@ function L4_1(A0_2, A1_2)
     L0_3 = L0_1
     L0_3.overlayWithNetwork = false
   end
-  
+
   L2_1 = L142_2
   L142_2 = L141_2
   L142_2()
@@ -4406,7 +4408,7 @@ function L4_1(A0_2, A1_2)
   L3_2 = require
   L4_2 = "lua.modules.androidBackButton"
   L3_2 = L3_2(L4_2)
-  
+
   function L4_2()
     local L0_3, L1_3
     L0_3 = L3_2
@@ -4414,7 +4416,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = false
     L0_3(L1_3)
   end
-  
+
   L3_1 = L4_2
   L4_2 = L3_2.isOverlay
   L5_2 = true

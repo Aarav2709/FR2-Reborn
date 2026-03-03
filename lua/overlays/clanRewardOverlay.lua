@@ -695,6 +695,8 @@ function L7_1(A0_2, A1_2)
     L0_3()
   end
 
+  L6_2.xScale = display.contentWidth / 480
+  L6_2.yScale = display.contentHeight / 320
   L37_2 = L0_1
   L37_2 = L37_2.bouncer
   L37_2 = L37_2.down

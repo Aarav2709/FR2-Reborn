@@ -282,7 +282,7 @@ function scene:show(event)
           powerUp = 6
         end
         playerList[i] = basicPlayer.new(i, list[i].username, list[i].avatar, powerUp, mainPlayer, playerList,
-          startXPos + (i - 1) * 40, startYPos)
+          startXPos + (i - 1) * 40, startYPos, list[i].customPowerUps)
         playerList[i].addPlaySoundFunction(playSound)
         playerList[i].playerId = list[i].playerId
         if mainPlayer then

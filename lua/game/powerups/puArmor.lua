@@ -6,7 +6,6 @@ local function new(id, playerList)
   armor.y = 1
   local player = playerList[id]
   local startedClean = false
-  playerList[id].armorPowerUp()
 
   local function removeObject()
     if startedClean or player == nil then

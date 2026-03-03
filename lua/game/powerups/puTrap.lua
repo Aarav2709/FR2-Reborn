@@ -71,7 +71,19 @@ local function new(id, player, x, y, displayGroup, playerList)
 
   local function createTrap()
     playerList[id].removeTrapAnimation()
-    trapSprite = display.newSprite(composer.powerUpImageSheet, assetLoader.getTrapAnimation(1301))
+    -- Determine trap skin from player's customPowerUpSkins
+    local skinId = 1301
+    if playerList[id] and playerList[id].customPowerUpSkins then
+      for i = 1, #playerList[id].customPowerUpSkins do
+        local itemId = tonumber(playerList[id].customPowerUpSkins[i])
+        if itemId and composer.storeConfig.getItemCategory(itemId) == "beartrap" then
+          if composer.storeConfig.canDrawItem(itemId) then
+            skinId = itemId
+          end
+        end
+      end
+    end
+    trapSprite = display.newSprite(composer.powerUpImageSheet, assetLoader.getTrapAnimation(skinId))
     local newShape = {
       20,
       0,

@@ -602,6 +602,8 @@ function scene:create(event)
   updateDisplayGroups()
   composer.commHttps.setCallback(httpsCallback)
   composer.comm.setCallback(commCallback)
+  dropdownGroup.xScale = display.contentWidth / 480
+  dropdownGroup.yScale = display.contentHeight / 320
   composer.bouncer.down(dropdownGroup)
   spinningGroup.touch = spinWheel
   spinningGroup:addEventListener("touch", spinningGroup)

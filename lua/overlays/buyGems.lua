@@ -833,6 +833,8 @@ Click OK and we'll restore your purchase]]
   L40_2 = L5_2.setInAppPurchaseCallback
   L41_2 = L28_2
   L40_2(L41_2)
+  L14_2.xScale = display.contentWidth / 480
+  L14_2.yScale = display.contentHeight / 320
   L40_2 = L0_1
   L40_2 = L40_2.bouncer
   L40_2 = L40_2.down

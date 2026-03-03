@@ -8,11 +8,11 @@ local downloadText, layoutLoadingScene, resizeListener
 function scene:create(event)
   local screenGroup = self.view
   local transitionTime = 200
-  backgroundSnapshot = display.newSnapshot(480, 320)
+  backgroundSnapshot = display.newSnapshot(1920, 1080)
   backgroundSnapshot.fill.effect = "filter.blur"
   backgroundSnapshot.fill.effect.blurSize = 6
   screenGroup:insert(backgroundSnapshot)
-  backgroundSource = display.newImageRect(backgroundSnapshot.group, "images/gui/common/bgMain_blur.png", 480, 320)
+  backgroundSource = display.newImageRect(backgroundSnapshot.group, "images/gui/common/bgMain_blur.png", 1920, 1080)
   logo = display.newImageRect("images/gui/common/logo.png", 224, 135)
   screenGroup:insert(logo)
   text1 = composer.newText({

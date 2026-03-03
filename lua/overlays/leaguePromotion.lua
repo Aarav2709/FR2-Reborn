@@ -431,6 +431,8 @@ function L6_1(A0_2, A1_2)
   L30_2()
   L30_2 = L29_2
   L30_2()
+  L5_2.xScale = display.contentWidth / 480
+  L5_2.yScale = display.contentHeight / 320
   L30_2 = L0_1
   L30_2 = L30_2.bouncer
   L30_2 = L30_2.down

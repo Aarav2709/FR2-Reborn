@@ -246,6 +246,8 @@ function L4_1(A0_2, A1_2)
   L2_1 = L19_2
   L19_2 = L18_2
   L19_2()
+  L3_2.xScale = display.contentWidth / 480
+  L3_2.yScale = display.contentHeight / 320
   L19_2 = L17_2
   L19_2()
 end

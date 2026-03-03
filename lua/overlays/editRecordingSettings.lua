@@ -41,12 +41,10 @@ function L4_1(A0_2, A1_2)
   L10_2.y = 0
   L11_2 = display
   L11_2 = L11_2.newRect
-  L12_2 = 0
-  L13_2 = 0
-  L14_2 = display
-  L14_2 = L14_2.contentWidth
-  L15_2 = display
-  L15_2 = L15_2.contentHeight
+  L12_2 = display.screenOriginX
+  L13_2 = display.screenOriginY
+  L14_2 = display.actualContentWidth
+  L15_2 = display.actualContentHeight
   L11_2 = L11_2(L12_2, L13_2, L14_2, L15_2)
   L11_2.anchorX = 0
   L11_2.anchorY = 0
@@ -190,7 +188,7 @@ function L4_1(A0_2, A1_2)
   L19_2[3] = L22_2
   L18_2.color = L19_2
   L17_2 = L17_2(L18_2)
-  
+
   function L18_2(A0_3)
     local L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3
     L1_3 = "images/gui/settings/toggleOn.png"
@@ -316,7 +314,7 @@ function L4_1(A0_2, A1_2)
     L5_3 = L5_3[A0_3]
     L3_3(L4_3, L5_3)
   end
-  
+
   function L19_2(A0_3)
     local L1_3, L2_3, L3_3
     L1_3 = "off"
@@ -346,7 +344,7 @@ function L4_1(A0_2, A1_2)
     L3_3 = L3_3[2]
     L2_3(L3_3)
   end
-  
+
   function L20_2(A0_3)
     local L1_3, L2_3
     L1_3 = A0_3.phase
@@ -358,9 +356,9 @@ function L4_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   L6_2[1] = L20_2
-  
+
   function L20_2(A0_3)
     local L1_3, L2_3
     L1_3 = A0_3.phase
@@ -372,9 +370,9 @@ function L4_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   L6_2[2] = L20_2
-  
+
   function L20_2(A0_3)
     local L1_3, L2_3
     if A0_3 then
@@ -393,7 +391,7 @@ function L4_1(A0_2, A1_2)
       L1_3(L2_3)
     end
   end
-  
+
   function L21_2(A0_3)
     local L1_3, L2_3
     if A0_3 then
@@ -412,7 +410,7 @@ function L4_1(A0_2, A1_2)
       L1_3(L2_3)
     end
   end
-  
+
   function L22_2(A0_3)
     local L1_3, L2_3
     L1_3 = L20_2
@@ -421,7 +419,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = L15_2
     L1_3.text = ""
   end
-  
+
   function L23_2(A0_3)
     local L1_3, L2_3
     L1_3 = L21_2
@@ -430,19 +428,19 @@ function L4_1(A0_2, A1_2)
     L1_3 = L15_2
     L1_3.text = ""
   end
-  
+
   function L24_2(A0_3)
     local L1_3
     L1_3 = L15_2
     L1_3.text = "Broadcasting now..."
   end
-  
+
   function L25_2(A0_3)
     local L1_3
     L1_3 = L15_2
     L1_3.text = "Recording now..."
   end
-  
+
   function L26_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3
     L0_3 = L0_1
@@ -506,7 +504,7 @@ function L4_1(A0_2, A1_2)
       end
     end
   end
-  
+
   L27_2 = L0_1
   L27_2 = L27_2.newButton
   L28_2 = {}
@@ -518,7 +516,7 @@ function L4_1(A0_2, A1_2)
   L28_2.y = 200
   L27_2 = L27_2(L28_2)
   L8_2 = L27_2
-  
+
   function L27_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3
     L0_3 = L0_1
@@ -582,7 +580,7 @@ function L4_1(A0_2, A1_2)
       end
     end
   end
-  
+
   L28_2 = L0_1
   L28_2 = L28_2.newButton
   L29_2 = {}
@@ -594,7 +592,7 @@ function L4_1(A0_2, A1_2)
   L29_2.y = 200
   L28_2 = L28_2(L29_2)
   L9_2 = L28_2
-  
+
   function L28_2()
     local L0_3, L1_3
     L0_3 = L0_1
@@ -640,17 +638,17 @@ function L4_1(A0_2, A1_2)
       end
     end
   end
-  
+
   L29_2 = L28_2
   L29_2()
-  
+
   function L29_2()
     local L0_3, L1_3
     L0_3 = L0_1
     L0_3 = L0_3.hideOverlay
     L0_3()
   end
-  
+
   function L30_2(A0_3)
     local L1_3
     L1_3 = A0_3.phase
@@ -662,13 +660,13 @@ function L4_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   function L31_2(A0_3)
     local L1_3
     L1_3 = true
     return L1_3
   end
-  
+
   L32_2 = L0_1
   L32_2 = L32_2.newButton
   L33_2 = {}
@@ -679,7 +677,7 @@ function L4_1(A0_2, A1_2)
   L33_2.image = "images/gui/common/buttonClosePopupBrown.png"
   L33_2.onRelease = L29_2
   L32_2 = L32_2(L33_2)
-  
+
   function L33_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3, L6_3
     L0_3 = L2_2
@@ -761,11 +759,11 @@ function L4_1(A0_2, A1_2)
     L2_3 = L7_2
     L0_3(L1_3, L2_3)
   end
-  
+
   function L34_2(A0_3)
     local L1_3
   end
-  
+
   function L35_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L11_2
@@ -805,7 +803,7 @@ function L4_1(A0_2, A1_2)
     L3_3 = L25_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   function L36_2()
     local L0_3, L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3
     L0_3 = display
@@ -871,7 +869,7 @@ function L4_1(A0_2, A1_2)
     L3_3 = L25_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   L2_1 = L36_2
   L36_2 = 1
   L37_2 = 2
@@ -890,6 +888,8 @@ function L4_1(A0_2, A1_2)
   L36_2 = L36_2.setCallback
   L37_2 = L34_2
   L36_2(L37_2)
+  L7_2.xScale = display.contentWidth / 480
+  L7_2.yScale = display.contentHeight / 320
   L36_2 = L0_1
   L36_2 = L36_2.bouncer
   L36_2 = L36_2.down
@@ -909,7 +909,7 @@ function L4_1(A0_2, A1_2)
   L4_2 = require
   L5_2 = "lua.modules.androidBackButton"
   L4_2 = L4_2(L5_2)
-  
+
   function L5_2()
     local L0_3, L1_3
     L0_3 = L4_2
@@ -917,7 +917,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = false
     L0_3(L1_3)
   end
-  
+
   L3_1 = L5_2
   L5_2 = L4_2.isOverlay
   L6_2 = true

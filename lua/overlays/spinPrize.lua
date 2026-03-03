@@ -184,6 +184,8 @@ function scene:create(event)
 
   updateDisplayGroups()
   addListeners()
+  dropdownGroup.xScale = display.contentWidth / 480
+  dropdownGroup.yScale = display.contentHeight / 320
   composer.bouncer.down(dropdownGroup)
 end
 

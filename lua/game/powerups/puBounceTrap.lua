@@ -66,7 +66,19 @@ local function new(id, player, x, y, displayGroup, playerList)
 
   local function createTrap()
     playerList[id].removeBounceTrapAnimation()
-    trapSprite = display.newSprite(composer.powerUpImageSheet, assetLoader.getBounceTrapAnimation(2001))
+    -- Determine bounce trap skin from player's customPowerUpSkins
+    local skinId = 2001
+    if playerList[id] and playerList[id].customPowerUpSkins then
+      for i = 1, #playerList[id].customPowerUpSkins do
+        local itemId = tonumber(playerList[id].customPowerUpSkins[i])
+        if itemId and composer.storeConfig.getItemCategory(itemId) == "punchbox" then
+          if composer.storeConfig.canDrawItem(itemId) then
+            skinId = itemId
+          end
+        end
+      end
+    end
+    trapSprite = display.newSprite(composer.powerUpImageSheet, assetLoader.getBounceTrapAnimation(skinId))
     local newShape = {
       30,
       -10,

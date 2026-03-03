@@ -7,12 +7,15 @@ function scene:create(event)
   local group = self.view
   local tableHelper = require("lua.modules.tableHelper")
   local mapTable
-  local alphaBackground = display.newRect(0, 0, display.contentWidth, display.contentHeight)
+  local alphaBackground = display.newRect(display.screenOriginX, display.screenOriginY, display.actualContentWidth, display.actualContentHeight)
   alphaBackground.anchorX = 0
   alphaBackground.anchorY = 0
   alphaBackground:setFillColor(0, 0, 0, 0.5882352941176471)
-  alphaBackground.x = 0
-  alphaBackground.y = 0
+  alphaBackground.x = display.screenOriginX
+  alphaBackground.y = display.screenOriginY
+  local contentGroup = display.newGroup()
+  contentGroup.xScale = display.contentWidth / 480
+  contentGroup.yScale = display.contentHeight / 320
   local tableBackground = display.newImageRect("images/gui/customplay/settingsWindow.png", 251, 320)
   tableBackground.x = 240
   tableBackground.y = 160
@@ -64,15 +67,16 @@ function scene:create(event)
   end
 
   mapTable = tableHelper.new(150, 36, 180, 284, 100, nil, "map", tableCallback)
-  mapTable.createTable(composer.data.mapInfo, group)
+  mapTable.createTable(composer.data.mapInfo, contentGroup)
 
   local function updateDisplayGroup()
     group:insert(alphaBackground)
-    group:insert(tableBackground)
-    group:insert(mapTable.getTable())
-    group:insert(tableTitleBakground)
-    group:insert(infoText)
-    group:insert(closeOverlayButton)
+    contentGroup:insert(tableBackground)
+    contentGroup:insert(mapTable.getTable())
+    contentGroup:insert(tableTitleBakground)
+    contentGroup:insert(infoText)
+    contentGroup:insert(closeOverlayButton)
+    group:insert(contentGroup)
   end
 
   local function addListeners()

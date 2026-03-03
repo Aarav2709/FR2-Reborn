@@ -22,12 +22,10 @@ function L5_1(A0_2, A1_2)
   L6_2 = L6_2.toConvert
   L7_2 = display
   L7_2 = L7_2.newRect
-  L8_2 = 0
-  L9_2 = 0
-  L10_2 = display
-  L10_2 = L10_2.contentWidth
-  L11_2 = display
-  L11_2 = L11_2.contentHeight
+  L8_2 = display.screenOriginX
+  L9_2 = display.screenOriginY
+  L10_2 = display.actualContentWidth
+  L11_2 = display.actualContentHeight
   L7_2 = L7_2(L8_2, L9_2, L10_2, L11_2)
   L7_2.anchorX = 0
   L7_2.anchorY = 0
@@ -305,6 +303,8 @@ function L5_1(A0_2, A1_2)
   L21_2()
   L21_2 = L20_2
   L21_2()
+  L8_2.xScale = display.contentWidth / 480
+  L8_2.yScale = display.contentHeight / 320
   L21_2 = L0_1
   L21_2 = L21_2.bouncer
   L21_2 = L21_2.down

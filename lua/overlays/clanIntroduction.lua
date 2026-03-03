@@ -984,6 +984,8 @@ function L4_1(A0_2, A1_2)
   L51_2(L52_2)
   L51_2 = A1_2.params
   L51_2 = L51_2.doDropdownEffect
+  L8_2.xScale = display.contentWidth / 480
+  L8_2.yScale = display.contentHeight / 320
   if L51_2 == false then
   else
     L51_2 = L0_1

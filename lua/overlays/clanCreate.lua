@@ -668,6 +668,8 @@ function L4_1(A0_2, A1_2)
   L2_1 = L33_2
   L33_2 = L32_2
   L33_2()
+  L3_2.xScale = display.contentWidth / 480
+  L3_2.yScale = display.contentHeight / 320
   L33_2 = L31_2
   L33_2()
   L33_2 = L0_1

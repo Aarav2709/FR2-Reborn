@@ -1,10 +1,30 @@
 local M = {}
 local composer = require("composer")
 local physics = require("physics")
-local bladeImagePath = composer.powerUpImageSheetInfo:getFrameIndex("1201")
-local bladeBloodImagePath = composer.powerUpImageSheetInfo:getFrameIndex("1201")
 
 local function new(id, player, x, y, displayGroup, playerList)
+  -- Determine blade skin from player's customPowerUpSkins
+  local skinId = 1201
+  if playerList[id] and playerList[id].customPowerUpSkins then
+    for i = 1, #playerList[id].customPowerUpSkins do
+      local itemId = tonumber(playerList[id].customPowerUpSkins[i])
+      if itemId and composer.storeConfig.getItemCategory(itemId) == "sawblade" then
+        if composer.storeConfig.canDrawItem(itemId) then
+          skinId = itemId
+        end
+      end
+    end
+  end
+  local hasHit = composer.storeConfig.hasHitImage(skinId)
+  local bladeImagePath = composer.powerUpImageSheetInfo:getFrameIndex("" .. skinId)
+  local bladeBloodImagePath
+  if hasHit then
+    bladeBloodImagePath = composer.powerUpImageSheetInfo:getFrameIndex("" .. skinId .. "_2")
+  end
+  if not bladeBloodImagePath then
+    bladeBloodImagePath = bladeImagePath
+  end
+
   local blade = display.newGroup()
   local cleaning = false
   local bladeImage, bladeBloodImage

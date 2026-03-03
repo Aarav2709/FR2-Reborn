@@ -13,12 +13,15 @@ function scene:create(event)
     isMysteryBox = event.params.mysteryBox
   end
   composer.overlayWithNetwork = true
-  local alphaBackground = display.newRect(0, 0, display.contentWidth, display.contentHeight)
+  local alphaBackground = display.newRect(display.screenOriginX, display.screenOriginY, display.actualContentWidth, display.actualContentHeight)
   alphaBackground.anchorX = 0
   alphaBackground.anchorY = 0
   alphaBackground:setFillColor(0, 0, 0, 0.5882352941176471)
-  alphaBackground.x = 0
-  alphaBackground.y = 0
+  alphaBackground.x = display.screenOriginX
+  alphaBackground.y = display.screenOriginY
+  local contentGroup = display.newGroup()
+  contentGroup.xScale = display.contentWidth / 480
+  contentGroup.yScale = display.contentHeight / 320
   local tableBackground = display.newImageRect("images/gui/friends/mainWindow.png", 330, 320)
   tableBackground.anchorX = 0.5
   tableBackground.anchorY = 0
@@ -211,7 +214,7 @@ function scene:create(event)
     hideDeleteButtons()
     activeTableInt = newTable
     if newTable == 1 then
-      gameInviteTable.createTable(getInboxData(), group)
+      gameInviteTable.createTable(getInboxData(), contentGroup)
       tableTitleText.text = composer.localized.get("inbox")
       gameInviteInactive.alpha = 0
       composer.analytics.newEvent("design", {
@@ -219,7 +222,7 @@ function scene:create(event)
         area = composer.config.fullVersion
       })
     elseif newTable == 2 then
-      friendsTable.createTable(getFriendsData(), group)
+      friendsTable.createTable(getFriendsData(), contentGroup)
       tableTitleText.text = composer.localized.get("Friends")
       friendInviteInactive.alpha = 0
       searchForFriendButton.alpha = 1
@@ -229,7 +232,7 @@ function scene:create(event)
       })
       toggleDeleteButton.isVisible = true
     elseif newTable == 3 then
-      facebookTable.createTable(getFacebookFriendsData(), group)
+      facebookTable.createTable(getFacebookFriendsData(), contentGroup)
       tableTitleText.text = composer.localized.get("FacebookFriends")
       facebookInactive.alpha = 0
       composer.analytics.newEvent("design", {
@@ -251,11 +254,11 @@ function scene:create(event)
   function refreshTable()
     if startedClean then
     elseif activeTableInt == 1 then
-      gameInviteTable.refreshTable(getInboxData(), group)
+      gameInviteTable.refreshTable(getInboxData(), contentGroup)
     elseif activeTableInt == 2 then
-      friendsTable.refreshTable(getFriendsData(), group)
+      friendsTable.refreshTable(getFriendsData(), contentGroup)
     elseif activeTableInt == 3 then
-      facebookTable.refreshTable(getFacebookFriendsData(), group)
+      facebookTable.refreshTable(getFacebookFriendsData(), contentGroup)
     end
     updateTableDisplayGroup()
   end
@@ -358,38 +361,39 @@ function scene:create(event)
   end
 
   function updateTableDisplayGroup()
-    group:insert(tableBackground)
-    group:insert(gameInviteButton)
-    group:insert(friendInviteButton)
-    group:insert(facebookButton)
-    group:insert(friendInviteInactive)
-    group:insert(gameInviteInactive)
-    group:insert(facebookInactive)
+    contentGroup:insert(tableBackground)
+    contentGroup:insert(gameInviteButton)
+    contentGroup:insert(friendInviteButton)
+    contentGroup:insert(facebookButton)
+    contentGroup:insert(friendInviteInactive)
+    contentGroup:insert(gameInviteInactive)
+    contentGroup:insert(facebookInactive)
     if activeTableInt == 1 then
-      group:insert(gameInviteTable.getTable())
-      group:insert(gameInviteButton)
+      contentGroup:insert(gameInviteTable.getTable())
+      contentGroup:insert(gameInviteButton)
     end
     if activeTableInt == 2 then
-      group:insert(friendsTable.getTable())
-      group:insert(friendInviteButton)
+      contentGroup:insert(friendsTable.getTable())
+      contentGroup:insert(friendInviteButton)
     end
     if activeTableInt == 3 then
-      group:insert(facebookTable.getTable())
-      group:insert(facebookButton)
+      contentGroup:insert(facebookTable.getTable())
+      contentGroup:insert(facebookButton)
     end
-    group:insert(tableTitleBakground)
-    group:insert(tableTitleText)
-    group:insert(searchForFriendButton)
-    group:insert(facebookGroup)
-    group:insert(facebookConnectButton)
-    group:insert(closeOverlayButton)
-    group:insert(toggleDeleteButton)
-    group:insert(toggleDeleteButtonActive)
+    contentGroup:insert(tableTitleBakground)
+    contentGroup:insert(tableTitleText)
+    contentGroup:insert(searchForFriendButton)
+    contentGroup:insert(facebookGroup)
+    contentGroup:insert(facebookConnectButton)
+    contentGroup:insert(closeOverlayButton)
+    contentGroup:insert(toggleDeleteButton)
+    contentGroup:insert(toggleDeleteButtonActive)
   end
 
   local function updateDisplayGroup()
     group:insert(alphaBackground)
     updateTableDisplayGroup()
+    group:insert(contentGroup)
   end
 
   local function moveToMysteryItemScene()

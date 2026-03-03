@@ -38,12 +38,10 @@ function L4_1(A0_2, A1_2)
   L7_2.y = 80
   L8_2 = display
   L8_2 = L8_2.newRect
-  L9_2 = 0
-  L10_2 = 0
-  L11_2 = display
-  L11_2 = L11_2.contentWidth
-  L12_2 = display
-  L12_2 = L12_2.contentHeight
+  L9_2 = display.screenOriginX
+  L10_2 = display.screenOriginY
+  L11_2 = display.actualContentWidth
+  L12_2 = display.actualContentHeight
   L8_2 = L8_2(L9_2, L10_2, L11_2, L12_2)
   L8_2.anchorX = 0
   L8_2.anchorY = 0
@@ -112,14 +110,14 @@ function L4_1(A0_2, A1_2)
   L12_2 = L12_2.white
   L11_2.color = L12_2
   L10_2 = L10_2(L11_2)
-  
+
   function L11_2()
     local L0_3, L1_3
     L0_3 = L0_1
     L0_3 = L0_3.hideOverlay
     L0_3()
   end
-  
+
   function L12_2(A0_3)
     local L1_3
     L1_3 = A0_3.phase
@@ -131,7 +129,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   function L13_2(A0_3)
     local L1_3
     L1_3 = A0_3.phase
@@ -140,7 +138,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   function L14_2(A0_3)
     local L1_3, L2_3, L3_3, L4_3, L5_3
     L1_3 = L0_1
@@ -157,7 +155,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = true
     return L1_3
   end
-  
+
   L15_2 = L0_1
   L15_2 = L15_2.newButton
   L16_2 = {}
@@ -180,7 +178,7 @@ function L4_1(A0_2, A1_2)
   L16_2.image = "images/gui/common/buttonTextA.png"
   L16_2.onRelease = L14_2
   L15_2 = L15_2(L16_2)
-  
+
   function L16_2()
     local L0_3, L1_3
     L0_3 = L0_1
@@ -189,7 +187,7 @@ function L4_1(A0_2, A1_2)
     L0_3 = true
     return L0_3
   end
-  
+
   L17_2 = L0_1
   L17_2 = L17_2.newButton
   L18_2 = {}
@@ -212,7 +210,7 @@ function L4_1(A0_2, A1_2)
   L18_2.image = "images/gui/common/buttonTextB.png"
   L18_2.onRelease = L16_2
   L17_2 = L17_2(L18_2)
-  
+
   function L18_2()
     local L0_3, L1_3
     L0_3 = L17_2
@@ -220,7 +218,7 @@ function L4_1(A0_2, A1_2)
     L0_3 = L15_2
     L0_3.isVisible = false
   end
-  
+
   L19_2 = L0_1
   L19_2 = L19_2.newButton
   L20_2 = {}
@@ -233,7 +231,7 @@ function L4_1(A0_2, A1_2)
   L20_2.image = "images/gui/common/buttonClosePopupBrown.png"
   L20_2.onRelease = L11_2
   L19_2 = L19_2(L20_2)
-  
+
   function L20_2()
     local L0_3, L1_3, L2_3
     L0_3 = L2_2
@@ -282,7 +280,7 @@ function L4_1(A0_2, A1_2)
     L2_3 = L5_2
     L0_3(L1_3, L2_3)
   end
-  
+
   function L21_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L8_2
@@ -298,10 +296,10 @@ function L4_1(A0_2, A1_2)
     L3_3 = L13_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   L22_2 = nil
   L23_2 = nil
-  
+
   function L24_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L3_2
@@ -350,13 +348,13 @@ function L4_1(A0_2, A1_2)
     L3_3 = L13_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   L2_1 = L24_2
   L24_2 = L20_2
   L24_2()
   L24_2 = L21_2
   L24_2()
-  
+
   function L24_2(A0_3)
     local L1_3, L2_3, L3_3
     L1_3 = A0_3.m
@@ -366,7 +364,7 @@ function L4_1(A0_2, A1_2)
     if L1_3 == L2_3 then
       function L1_3()
         local L0_4, L1_4, L2_4, L3_4
-        
+
         L0_4 = timer
         L0_4 = L0_4.performWithDelay
         L1_4 = 1000
@@ -375,7 +373,7 @@ function L4_1(A0_2, A1_2)
         L0_4 = L0_4(L1_4, L2_4, L3_4)
         L23_2 = L0_4
       end
-      
+
       L2_3 = L3_2
       L2_3 = L2_3.refreshMoney
       L3_3 = L1_3
@@ -384,11 +382,11 @@ function L4_1(A0_2, A1_2)
       L2_3()
     end
   end
-  
+
   L25_2 = timer
   L25_2 = L25_2.performWithDelay
   L26_2 = 500
-  
+
   function L27_2()
     local L0_3, L1_3
     L0_3 = L0_1
@@ -397,10 +395,12 @@ function L4_1(A0_2, A1_2)
     L1_3 = L24_2
     L0_3(L1_3)
   end
-  
+
   L28_2 = 1
   L25_2 = L25_2(L26_2, L27_2, L28_2)
   L22_2 = L25_2
+  L5_2.xScale = display.contentWidth / 480
+  L5_2.yScale = display.contentHeight / 320
   L25_2 = L0_1
   L25_2 = L25_2.bouncer
   L25_2 = L25_2.down
@@ -420,7 +420,7 @@ function L4_1(A0_2, A1_2)
   L4_2 = require
   L5_2 = "lua.modules.androidBackButton"
   L4_2 = L4_2(L5_2)
-  
+
   function L5_2()
     local L0_3, L1_3
     L0_3 = L4_2
@@ -428,7 +428,7 @@ function L4_1(A0_2, A1_2)
     L1_3 = false
     L0_3(L1_3)
   end
-  
+
   L3_1 = L5_2
   L5_2 = L4_2.isOverlay
   L6_2 = true

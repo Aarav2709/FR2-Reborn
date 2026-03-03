@@ -13,7 +13,7 @@ function scene:create(event)
   local dropdownGroup = display.newGroup()
   local claimingDaily = {}
   composer.overlayWithNetwork = true
-  local alphaBackground = display.newRect(0, 0, display.contentWidth, display.contentHeight)
+  local alphaBackground = display.newRect(display.screenOriginX, display.screenOriginY, display.actualContentWidth, display.actualContentHeight)
   alphaBackground.anchorX = 0
   alphaBackground.anchorY = 0
   alphaBackground:setFillColor(0, 0, 0, 0.5882352941176471)
@@ -206,6 +206,8 @@ function scene:create(event)
   createDailyChallengeTable(composer.todayChallenges.data, composer.todayChallenges.time)
   setActiveTable()
   composer.comm.setCallback(tcpCallback)
+  dropdownGroup.xScale = display.contentWidth / 480
+  dropdownGroup.yScale = display.contentHeight / 320
   composer.bouncer.down(dropdownGroup)
 end
 

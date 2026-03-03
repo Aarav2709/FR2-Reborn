@@ -607,4 +607,24 @@ function M.isThereNewItems(itemType)
   return false
 end
 
+function M.canDrawItem(itemId)
+  itemId = tonumber(itemId)
+  if not itemId then return false end
+  if composer.powerUpImageSheetInfo then
+    local frameIndex = composer.powerUpImageSheetInfo:getFrameIndex("" .. itemId)
+    return frameIndex ~= nil
+  end
+  return false
+end
+
+function M.hasHitImage(itemId)
+  itemId = tonumber(itemId)
+  if not itemId then return false end
+  local item = M.getItem(itemId)
+  if item and item.hasHitImage then
+    return true
+  end
+  return false
+end
+
 return M

@@ -284,6 +284,8 @@ function L4_1(A0_2, A1_2)
   L21_2 = 1
   L18_2 = L18_2(L19_2, L20_2, L21_2)
   L9_2 = L18_2
+  L4_2.xScale = display.contentWidth / 480
+  L4_2.yScale = display.contentHeight / 320
   L18_2 = L0_1
   L18_2 = L18_2.bouncer
   L18_2 = L18_2.down

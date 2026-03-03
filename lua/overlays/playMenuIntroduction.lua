@@ -353,6 +353,8 @@ function L4_1(A0_2, A1_2)
   L19_2()
   L19_2 = L17_2
   L19_2()
+  L4_2.xScale = display.contentWidth / 480
+  L4_2.yScale = display.contentHeight / 320
   L19_2 = L0_1
   L19_2 = L19_2.bouncer
   L19_2 = L19_2.down

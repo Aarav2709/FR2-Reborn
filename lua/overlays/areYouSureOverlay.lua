@@ -38,12 +38,12 @@ function L3_1(A0_2)
   L2_2.y = L9_2
   L9_2 = display
   L9_2 = L9_2.newRect
-  L10_2 = 0
-  L11_2 = 0
+  L10_2 = display.screenOriginX
+  L11_2 = display.screenOriginY
   L12_2 = display
-  L12_2 = L12_2.contentWidth
+  L12_2 = L12_2.actualContentWidth
   L13_2 = display
-  L13_2 = L13_2.contentHeight
+  L13_2 = L13_2.actualContentHeight
   L9_2 = L9_2(L10_2, L11_2, L12_2, L13_2)
   L3_2 = L9_2
   L3_2.anchorX = 0
@@ -55,8 +55,8 @@ function L3_1(A0_2)
   L13_2 = 0
   L14_2 = 0.5882352941176471
   L9_2(L10_2, L11_2, L12_2, L13_2, L14_2)
-  L3_2.x = 0
-  L3_2.y = 0
+  L3_2.x = display.screenOriginX
+  L3_2.y = display.screenOriginY
   L9_2 = 16
   L10_2 = A0_2.textSize
   if L10_2 then
@@ -72,8 +72,8 @@ function L3_1(A0_2)
   L12_2 = L12_2(L13_2)
   L11_2.string = L12_2
   L11_2.size = 18
-  L11_2.x = 240
-  L11_2.y = 170
+  L11_2.x = L2_2.x
+  L11_2.y = L2_2.y + 10
   L11_2.width = 220
   L11_2.align = "center"
   L11_2.ay = 0.5
@@ -93,8 +93,8 @@ function L3_1(A0_2)
   L12_2 = A0_2.text
   L11_2.string = L12_2
   L11_2.size = L9_2
-  L11_2.x = 240
-  L11_2.y = 140
+  L11_2.x = L2_2.x
+  L11_2.y = L2_2.y - 20
   L11_2.width = 240
   L11_2.align = "center"
   L11_2.ay = 0.5
@@ -111,7 +111,7 @@ function L3_1(A0_2)
   L11_2.color = L12_2
   L10_2 = L10_2(L11_2)
   L4_2 = L10_2
-  
+
   function L10_2()
     local L0_3, L1_3
     L0_3 = L5_2
@@ -129,7 +129,7 @@ function L3_1(A0_2)
     L0_3 = L0_3.clean
     L0_3()
   end
-  
+
   function L11_2()
     local L0_3, L1_3
     L0_3 = true
@@ -139,7 +139,7 @@ function L3_1(A0_2)
     L1_3 = L10_2
     L0_3(L1_3)
   end
-  
+
   function L12_2()
     local L0_3, L1_3
     L0_3 = L5_2
@@ -157,7 +157,7 @@ function L3_1(A0_2)
     L0_3 = L0_3.clean
     L0_3()
   end
-  
+
   L13_2 = L1_1
   L13_2 = L13_2.newButton
   L14_2 = {}
@@ -181,13 +181,13 @@ function L3_1(A0_2)
   L14_2.image = "images/gui/common/buttonTextA.png"
   L14_2.onRelease = L12_2
   L13_2 = L13_2(L14_2)
-  
+
   function L14_2()
     local L0_3, L1_3
     L0_3 = L10_2
     L0_3()
   end
-  
+
   L15_2 = L1_1
   L15_2 = L15_2.newButton
   L16_2 = {}
@@ -211,7 +211,7 @@ function L3_1(A0_2)
   L16_2.image = "images/gui/common/buttonTextB.png"
   L16_2.onRelease = L14_2
   L15_2 = L15_2(L16_2)
-  
+
   function L16_2(A0_3)
     local L1_3
     L1_3 = A0_3.phase
@@ -222,13 +222,13 @@ function L3_1(A0_2)
     L1_3 = true
     return L1_3
   end
-  
+
   function L17_2(A0_3)
     local L1_3
     L1_3 = true
     return L1_3
   end
-  
+
   function L18_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L3_2
@@ -244,7 +244,7 @@ function L3_1(A0_2)
     L3_3 = L17_2
     L0_3(L1_3, L2_3, L3_3)
   end
-  
+
   function L19_2()
     local L0_3, L1_3, L2_3
     L0_3 = L1_2
@@ -278,7 +278,7 @@ function L3_1(A0_2)
     L2_3 = L15_2
     L0_3(L1_3, L2_3)
   end
-  
+
   function L20_2()
     local L0_3, L1_3, L2_3, L3_3
     L0_3 = L7_2
@@ -348,7 +348,7 @@ function L3_1(A0_2)
       L1_2 = L0_3
     end
   end
-  
+
   L1_2.clean = L20_2
   L21_2 = L19_2
   L21_2()

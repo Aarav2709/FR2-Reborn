@@ -36,12 +36,10 @@ function L5_1(A0_2, A1_2)
   L14_2 = nil
   L15_2 = display
   L15_2 = L15_2.newRect
-  L16_2 = 0
-  L17_2 = 0
-  L18_2 = display
-  L18_2 = L18_2.contentWidth
-  L19_2 = display
-  L19_2 = L19_2.contentHeight
+  L16_2 = display.screenOriginX
+  L17_2 = display.screenOriginY
+  L18_2 = display.actualContentWidth
+  L19_2 = display.actualContentHeight
   L15_2 = L15_2(L16_2, L17_2, L18_2, L19_2)
   L15_2.anchorX = 0
   L15_2.anchorY = 0
@@ -796,6 +794,8 @@ function L5_1(A0_2, A1_2)
   L42_2 = L5_2.setInAppPurchaseCallback
   L43_2 = L28_2
   L42_2(L43_2)
+  L16_2.xScale = display.contentWidth / 480
+  L16_2.yScale = display.contentHeight / 320
   L42_2 = L0_1
   L42_2 = L42_2.bouncer
   L42_2 = L42_2.down

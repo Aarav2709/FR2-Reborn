@@ -2,7 +2,8 @@ settings = {
     excludeFiles = {
         all = {
             "Decompiled/*",
-            "FR2-ORIGINAL/*"
+            "FR2-ORIGINAL/*",
+            ".git/*"
         },
         osx = {
             "*"
@@ -23,12 +24,22 @@ settings = {
         supported = { "landscapeRight", "landscapeLeft" }
     },
 
+    splashScreen = {
+        ios = {
+            enable = false
+        }
+    },
+
     -- Offline-only project: no monetization, no ads, no IAP, no analytics
     plugins = {},
 
     iphone = {
+        xcassets = "iOSResources/Images.xcassets",
         plist = {
             UIStatusBarHidden = true,
+            UIViewControllerBasedStatusBarAppearance = false,
+            UILaunchStoryboardName = "LaunchScreen",
+            UIRequiresFullScreen = true,
             CFBundleDisplayName = "FR2 Offline"
         }
     },

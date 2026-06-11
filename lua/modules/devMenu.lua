@@ -25,6 +25,8 @@ local lastSceneName = nil
 local sceneScrollView = nil
 local sceneScrollMax = 0
 local sceneScrollY = 0
+local sceneScrollTargetY = 0
+local sceneScrollHoverTimer = nil
 local dragStartX = 0
 local dragStartY = 0
 local menuPosX = display.contentCenterX - (menuWidth * 0.5)
@@ -180,6 +182,10 @@ local function refreshOverlayList()
 end
 
 local function clearMenu()
+    if sceneScrollHoverTimer then
+        timer.cancel(sceneScrollHoverTimer)
+        sceneScrollHoverTimer = nil
+    end
     if menuGroup then
         display.remove(menuGroup)
         menuGroup = nil
@@ -313,6 +319,7 @@ local function buildSceneList(parent, startY)
 
     sceneScrollMax = math.max(0, contentY - listHeight)
     sceneScrollY = 0
+    sceneScrollTargetY = 0
     return startY + listHeight
 end
 
@@ -405,6 +412,7 @@ local function buildOverlayList(parent, startY)
 
     sceneScrollMax = math.max(0, contentY - listHeight)
     sceneScrollY = 0
+    sceneScrollTargetY = 0
     return startY + listHeight
 end
 
@@ -634,22 +642,29 @@ function M.init()
             return false
         end
 
-        local scrollSensitivity = 25
-        sceneScrollY = sceneScrollY - (event.scrollY * scrollSensitivity)
+        local scrollSensitivity = 18
+        local scrollTime = 220
+        sceneScrollTargetY = sceneScrollTargetY - (event.scrollY * scrollSensitivity)
 
-        if sceneScrollY < -sceneScrollMax then
-            sceneScrollY = -sceneScrollMax
-        elseif sceneScrollY > 0 then
-            sceneScrollY = 0
+        if sceneScrollTargetY < -sceneScrollMax then
+            sceneScrollTargetY = -sceneScrollMax
+        elseif sceneScrollTargetY > 0 then
+            sceneScrollTargetY = 0
         end
 
+        sceneScrollY = sceneScrollTargetY
         sceneScrollView:scrollToPosition({
-            y = sceneScrollY,
-            time = 80,
+            y = sceneScrollTargetY,
+            time = scrollTime,
             transition = easing.outQuad
         })
 
-        timer.performWithDelay(1, function()
+        if sceneScrollHoverTimer then
+            timer.cancel(sceneScrollHoverTimer)
+            sceneScrollHoverTimer = nil
+        end
+        sceneScrollHoverTimer = timer.performWithDelay(scrollTime, function()
+            sceneScrollHoverTimer = nil
             if not hoverRows then return end
             for i = 1, #hoverRows do
                 local rect = hoverRows[i]

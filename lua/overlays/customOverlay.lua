@@ -168,8 +168,11 @@ local function createCustomOverlay(infoTextId, doNotOverrideMessage, extra)
   alphaBackground.x = display.screenOriginX
   alphaBackground.y = display.screenOriginY
   local overlayContentGroup = display.newGroup()
-  overlayContentGroup.xScale = display.contentWidth / 480
-  overlayContentGroup.yScale = display.contentHeight / 320
+  local overlayScale = math.min(display.contentWidth / 480, display.contentHeight / 320)
+  overlayContentGroup.xScale = overlayScale
+  overlayContentGroup.yScale = overlayScale
+  overlayContentGroup.x = (display.contentWidth - 480 * overlayScale) * 0.5
+  overlayContentGroup.y = (display.contentHeight - 320 * overlayScale) * 0.5
   info = composer.newText({
     string = text,
     size = 22,

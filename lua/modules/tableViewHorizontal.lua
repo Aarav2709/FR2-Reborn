@@ -1,7 +1,7 @@
-local screenW, screenH = 330, display.contentHeight
+local screenW, screenH = display.contentWidth, display.contentHeight
 local viewableScreenW, viewableScreenH = display.viewableContentWidth, display.viewableContentHeight
 local screenOffsetW, screenOffsetH = display.contentWidth - display.viewableContentWidth, display.contentHeight - display.viewableContentHeight
-local centerScreenX = 240
+local centerScreenX = display.contentWidth * 0.5
 local currentTarget, detailScreen, velocity, currentDefault, currentOver, prevY, onScrollEnd, numberOfItems, delta, startPos, prevPos
 local startTime, lastTime, prevTime = 0, 0, 0
 local M = {}
@@ -213,6 +213,8 @@ local function newList(params)
   local onRelease = params.onRelease
   local left = params.left or 20
   local right = params.right or 48
+  screenW = params.screenWidth or display.contentWidth
+  centerScreenX = params.centerX or (screenW * 0.5)
   local cat = params.cat
   local order = params.order or {}
   local categoryBackground = params.categoryBackground

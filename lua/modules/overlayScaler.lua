@@ -31,8 +31,11 @@ end
 -- to the current content area.
 function M.scaleGroup(group)
   if group then
-    group.xScale = display.contentWidth / OLD_WIDTH
-    group.yScale = display.contentHeight / OLD_HEIGHT
+    local scale = math.min(display.contentWidth / OLD_WIDTH, display.contentHeight / OLD_HEIGHT)
+    group.xScale = scale
+    group.yScale = scale
+    group.x = (display.contentWidth - OLD_WIDTH * scale) * 0.5
+    group.y = (display.contentHeight - OLD_HEIGHT * scale) * 0.5
   end
 end
 

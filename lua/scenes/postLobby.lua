@@ -68,11 +68,11 @@ function scene:create(event)
     local centerX = contentLeft + contentWidth * 0.5
     local centerY = contentTop + contentHeight * 0.5
 
-    screenGroup.x = contentLeft
-    screenGroup.y = contentTop
+    screenGroup.x = 0
+    screenGroup.y = 0
     if backgroundImage then
-      backgroundImage.x = display.contentWidth * 0.5
-      backgroundImage.y = display.contentHeight * 0.5
+      backgroundImage.x = centerX
+      backgroundImage.y = centerY
       backgroundImage.xScale = 1
       backgroundImage.yScale = 1
       local scale = math.max(contentWidth / backgroundImage.width, contentHeight / backgroundImage.height)

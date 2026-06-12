@@ -50,20 +50,20 @@ function scene:create(event)
 
     local function addMapIcons()
         local iconPositions = {
-            [1] = { x = 410, y = 250 }, -- STUMPY SLOPES
-            [2] = { x = 555, y = 250 }, -- BOUNCY FOREST
-            [3] = { x = 700, y = 250 }, -- THORNY SCRUB
-            [4] = { x = 410, y = 350 }, -- SPEED MEADOW
-            [5] = { x = 555, y = 350 }, -- HASTY HILLS
-            [6] = { x = 700, y = 350 } -- FOREST FALL
+            [1] = { x = 335, y = 215 }, -- STUMPY SLOPES
+            [2] = { x = 480, y = 215 }, -- BOUNCY FOREST
+            [3] = { x = 625, y = 215 }, -- THORNY SCRUB
+            [4] = { x = 335, y = 315 }, -- SPEED MEADOW
+            [5] = { x = 480, y = 315 }, -- HASTY HILLS
+            [6] = { x = 625, y = 315 } -- FOREST FALL
         }
         local textPositions = {
-            [1] = { x = 312, y = 179 }, -- STUMPY SLOPES
-            [2] = { x = 457, y = 179 }, -- BOUNCY FOREST
-            [3] = { x = 602, y = 179 }, -- THORNY SCRUB
-            [4] = { x = 312, y = 282 }, -- SPEED MEADOW
-            [5] = { x = 457, y = 282 }, -- HASTY HILLS
-            [6] = { x = 602, y = 282 } -- FOREST FALL
+            [1] = { x = 335, y = 250 }, -- STUMPY SLOPES
+            [2] = { x = 480, y = 250 }, -- BOUNCY FOREST
+            [3] = { x = 625, y = 250 }, -- THORNY SCRUB
+            [4] = { x = 335, y = 350 }, -- SPEED MEADOW
+            [5] = { x = 480, y = 350 }, -- HASTY HILLS
+            [6] = { x = 625, y = 350 } -- FOREST FALL
         }
         for i = 1, numberOfMaps do
             local baseZone = math.ceil(i / iconsPerPage)

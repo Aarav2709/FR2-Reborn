@@ -1135,7 +1135,9 @@ function scene:create(event)
       onRelease = tableViewCellButtonRelease,
       onScrollEnd = onTableViewScrollEnd,
       left = 250,
-      right = 0,
+      right = 120,
+      screenWidth = display.contentWidth,
+      centerX = display.contentWidth * 0.5,
       width = 80,
       height = 80,
       callback = function(data)
@@ -1333,7 +1335,7 @@ function scene:create(event)
     horizontalTableView.anchorX = 0
     horizontalTableView.anchorY = 1
     horizontalTableView.anchorChildren = true
-    horizontalTableView.x = 145
+    horizontalTableView.x = 0
     horizontalTableView.y = 332
     uiGroup:insert(horizontalTableView)
     horizontalTableView:startAt(itemSelected)

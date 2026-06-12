@@ -38,8 +38,8 @@ function M.showShield(itemKey)
   local baseScale = 0.8
   image.xScale = baseScale
   image.yScale = baseScale
-  image.x = 290
-  image.y = 112
+  image.x = display.contentWidth * 0.5
+  image.y = display.contentHeight * 0.34
 
   local scaleUp, scaleDown
   function scaleUp()
@@ -70,8 +70,8 @@ function M.showSawblade(itemKey)
   local image = display.newImageRect("images/gui/market/items/sawblade/" .. itemKey .. ".png", 65, 72)
   image.anchorX = 0.5
   image.anchorY = 0.5
-  image.x = 290
-  image.y = 130
+  image.x = display.contentWidth * 0.5
+  image.y = display.contentHeight * 0.36
   activePreview = { image = image }
   activePreview.effect = function()
     if activePreview and activePreview.image then
@@ -87,8 +87,8 @@ function M.showBearTrap(itemKey)
   local image = display.newImageRect("images/gui/market/items/beartrap/" .. itemKey .. ".png", 70, 81)
   image.anchorX = 0
   image.anchorY = 0
-  image.x = 254
-  image.y = 82
+  image.x = display.contentWidth * 0.5 - image.width * 0.5
+  image.y = display.contentHeight * 0.24
   activePreview = { image = image }
   return image
 end
@@ -99,8 +99,8 @@ function M.showPunchbox(itemKey)
   local image = display.newImageRect("images/gui/market/items/punchbox/" .. itemKey .. ".png", 70, 81)
   image.anchorX = 0
   image.anchorY = 0
-  image.x = 244
-  image.y = 82
+  image.x = display.contentWidth * 0.5 - image.width * 0.5
+  image.y = display.contentHeight * 0.24
   activePreview = { image = image }
   return image
 end
@@ -111,8 +111,8 @@ function M.showGenericPowerup(itemKey, category)
   local image = display.newImageRect("images/gui/market/items/" .. category .. "/" .. itemKey .. ".png", 70, 81)
   image.anchorX = 0.5
   image.anchorY = 0.5
-  image.x = 290
-  image.y = 112
+  image.x = display.contentWidth * 0.5
+  image.y = display.contentHeight * 0.34
   activePreview = { image = image }
   return image
 end

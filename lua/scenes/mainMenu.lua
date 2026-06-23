@@ -161,8 +161,8 @@ function scene:create(event)
     playerAvatar = monsterLoader.new(avatarData)
     if playerAvatar and playerAvatar.getGroup then
       local avatarGroup = playerAvatar.getGroup()
-      avatarGroup.xScale = 0.6
-      avatarGroup.yScale = 0.6
+      avatarGroup.xScale = 0.5
+      avatarGroup.yScale = 0.5
       playerAvatarGroup:insert(avatarGroup)
     end
   end
@@ -174,6 +174,12 @@ function scene:create(event)
     local screenTop = display.screenOriginY
     local screenWidth = display.actualContentWidth
     local screenHeight = display.actualContentHeight
+    local ratio = screenWidth / screenHeight
+    local buttonScale = 1.0
+    if ratio < 1.8 then
+    -- tablets
+      buttonScale = 1.25
+    end
     local screenCenterX = screenLeft + screenWidth * 0.5
     local screenCenterY = screenTop + screenHeight * 0.5
     local contentLeft = 0
@@ -198,9 +204,21 @@ function scene:create(event)
       logo.y = contentTop + contentHeight * 0.25
     end
     if playerAvatarGroup then
-      playerAvatarGroup.x =178
-      playerAvatarGroup.y = 300
-    end
+      playerAvatarGroup.x = contentLeft + contentWidth * 0.2
+      playerAvatarGroup.y = contentTop + contentHeight * 0.7
+
+      local ratio = screenWidth / screenHeight
+
+      if ratio < 1.8 then
+        -- tablets
+        playerAvatarGroup.xScale = 1.8
+        playerAvatarGroup.yScale = 1.8
+      else
+        -- phones
+        playerAvatarGroup.xScale = 1.2
+        playerAvatarGroup.yScale = 1.2
+      end
+  end
     if buttonStick then
       buttonStick.x = centerX
       buttonStick.y = contentTop + contentHeight * 0.75
@@ -221,14 +239,11 @@ function scene:create(event)
       btnClan.x = contentLeft + 100
       btnClan.y = bottom - 31
     end
-    if btnSettings then
-      btnSettings.x = contentLeft + 55
-      btnSettings.y = bottom - 382
-    end
-    if btnNewsfeedSubtleSettings then
-      btnNewsfeedSubtleSettings.x = contentLeft + 105
-      btnNewsfeedSubtleSettings.y = bottom - 382
-    end
+    btnSettings.x = screenLeft + 40
+    btnSettings.y = screenTop + 40
+
+    btnNewsfeedSubtleSettings.x = screenLeft + 90
+    btnNewsfeedSubtleSettings.y = screenTop + 40
     if btnRanking then
       btnRanking.x = contentLeft + 170
       btnRanking.y = bottom - 28

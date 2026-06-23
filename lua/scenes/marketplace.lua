@@ -246,12 +246,23 @@ function scene:create(event)
       playItemEffect()
     end
   end
-
+-- debugging.
   local function findIndexOnKey(key)
+    print("Looking for key:", key)
+    print("currentMarketData size:", #currentMarketData)
+
     for i = 1, #currentMarketData do
-      if tonumber(currentMarketData[i].key) == tonumber(key) then
-        return i
-      end
+        if tonumber(currentMarketData[i].key) == tonumber(key) then
+            print("FOUND at index", i)
+            return i
+        end
+    end
+
+    print("FAILED TO FIND KEY:", key)
+
+    local startIdx = math.max(1, #currentMarketData - 10)
+    for i = startIdx, #currentMarketData do
+        print(i, currentMarketData[i].key)
     end
   end
 
@@ -546,9 +557,13 @@ function scene:create(event)
         index = findIndexOnId(index)
       end
       slotToChange = findIndexOnId(currentMarketData[index].key)
-    elseif 100 < index then
+    elseif 100 < index and index > #currentMarketData then -- attempt to fix.
       index = findIndexOnKey(index)
     end
+    -- debugging again.
+    print("updateMarketplace spriteType =", spriteType)
+    print("updateMarketplace newIndex =", newIndex)
+    print("updateMarketplace final index =", index)
     itemSelected = index
     updateItemTitle(index)
     updateTextInfo(index)

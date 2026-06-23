@@ -1244,7 +1244,6 @@
             "price":999999,
             "tier":1,
             "plate":4,
-            "weeklyPrice":true,
             "title":"Diamond Fox"
         },
         "5203":{
@@ -3018,7 +3017,6 @@
         "504": {
             "price": 5500000,
             "plate":1,
-            "weeklyPrice":true,
             "minBuild":15,
             "dev":true,
             "title": "Gold medal"
@@ -3044,7 +3042,6 @@
         "508": {
             "price": 5300000,
             "plate":1,
-            "weeklyPrice":true,
             "minBuild":15,
             "dev":true,
             "title": "Bronze medal"
@@ -3052,7 +3049,6 @@
         "509": {
             "price": 5400000,
             "plate":1,
-            "weeklyPrice":true,
             "minBuild":15,
             "dev":true,
             "title": "Silver medal"
@@ -3067,7 +3063,6 @@
         "511": {
             "price": 5600000,
             "plate":1,
-            "weeklyPrice":true,
             "minBuild":15,
             "dev":true,
             "title": "Emerald medal"
@@ -3075,7 +3070,6 @@
         "512": {
             "price": 5700000,
             "plate":1,
-            "weeklyPrice":true,
             "minBuild":15,
             "dev":true,
             "title": "Diamond medal"
@@ -5021,7 +5015,6 @@
             "gemPrice":4000,
             "minBuild":35,
             "plate":5,
-            "weeklyPrice":true,
             "title":"Golden fox balloon"
         },
         "1606": {

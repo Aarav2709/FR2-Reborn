@@ -58,6 +58,8 @@ local function getProductMap(item)
     hashmap = configInput.speed
   elseif item >= 2000 and item < 2100 then
     hashmap = configInput.punchbox
+    elseif item >= 5000 and item < 6000 then
+    hashmap = configInput.skins
   else
     print("ERROR: No hashmap for id", item)
     return nil

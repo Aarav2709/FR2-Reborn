@@ -695,8 +695,14 @@ function scene:create(event)
     end
     -- Powerup tabs don't affect monster/avatar data
     if tabSelected == 9 or tabSelected == 10 then
-      return
-    end
+      if currentMarketData[itemSelected] then
+        composer.database.changePowerupSkin(
+            currentMarketData[itemSelected].key
+        )
+      end
+    return
+  end
+
     if tabSelected == 2 then
       giveNoticeOfSkinChanges()
     end

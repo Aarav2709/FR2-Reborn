@@ -76,13 +76,13 @@ local function new(id, player, x, y, displayGroup, playerList)
     if playerList[id] and playerList[id].customPowerUpSkins then
       for i = 1, #playerList[id].customPowerUpSkins do
         local itemId = tonumber(playerList[id].customPowerUpSkins[i])
+
         if itemId and composer.storeConfig.getItemCategory(itemId) == "beartrap" then
-          if composer.storeConfig.canDrawItem(itemId) then
             skinId = itemId
-          end
         end
       end
-    end
+  end
+
     trapSprite = display.newSprite(composer.powerUpImageSheet, assetLoader.getTrapAnimation(skinId))
     local newShape = {
       20,

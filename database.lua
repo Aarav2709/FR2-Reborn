@@ -530,18 +530,46 @@ end
 M.setItems = setItems
 
 function M.changePowerupSkin(skinId)
-    if composer.databaseData.powerupSkin then
-        composer.databaseData.powerupSkin[1] = skinId
-    else
-        composer.databaseData.powerupSkin = { skinId }
+    local category = composer.storeConfig.getItemCategory(tonumber(skinId))
+
+    if not composer.databaseData.powerupSkin then
+        composer.databaseData.powerupSkin = {}
     end
+
+    -- Remove existing skin from same category
+    for i = #composer.databaseData.powerupSkin, 1, -1 do
+        local existingId = tonumber(composer.databaseData.powerupSkin[i])
+
+        if existingId then
+            local existingCategory =
+                composer.storeConfig.getItemCategory(existingId)
+
+            if existingCategory == category then
+                table.remove(composer.databaseData.powerupSkin, i)
+            end
+        end
+    end
+
+    -- Add new skin
+    table.insert(composer.databaseData.powerupSkin, skinId)
+
+    print("POWERUP SKINS:")
+    for i,v in ipairs(composer.databaseData.powerupSkin) do
+        print(i, v)
+    end
+
     return true
-end
+  end
 
 function M.getPowerupSkin()
+    print("GET POWERUP SKIN CALLED")
+
     if composer.databaseData.powerupSkin then
+        print("CURRENT POWERUP SKIN =", composer.databaseData.powerupSkin[1])
         return composer.databaseData.powerupSkin
     end
+
+    print("NO POWERUP SKIN SAVED")
     return {}
 end
 

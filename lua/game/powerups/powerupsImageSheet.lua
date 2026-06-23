@@ -1,181 +1,1169 @@
--- powerupsImageSheet.lua
--- Frame atlas for images/game/powerups/powerups.png (1024x1024)
--- 114 frames matching original FR2 layout
-local SheetInfo = {}
-SheetInfo.sheet = {
-  frames = {
-    { x=932, y=226, width=90, height=90 }, -- 1: 1201 (default sawblade)
-    { x=152, y=624, width=90, height=90 }, -- 2: 1202
-    { x=152, y=718, width=90, height=90 }, -- 3: 1203
-    { x=152, y=812, width=90, height=90 }, -- 4: 1204
-    { x=924, y=320, width=90, height=90 }, -- 5: 1205
-    { x=246, y=656, width=82, height=90, sourceX=4, sourceY=0, sourceWidth=90, sourceHeight=90 }, -- 6: 1206
-    { x=152, y=906, width=90, height=90 }, -- 7: 1207
-    { x=332, y=618, width=90, height=90 }, -- 8: 1208
-    { x=426, y=618, width=90, height=90 }, -- 9: 1209
-    { x=246, y=750, width=90, height=90 }, -- 10: 1210
-    { x=246, y=844, width=90, height=90 }, -- 11: 1211
-    { x=520, y=618, width=90, height=90 }, -- 12: 1212
-    { x=614, y=614, width=90, height=90 }, -- 13: 1212_2
-    { x=802, y=614, width=86, height=90, sourceX=2, sourceY=0, sourceWidth=90, sourceHeight=90 }, -- 14: 1213
-    { x=340, y=806, width=86, height=90, sourceX=2, sourceY=0, sourceWidth=90, sourceHeight=90 }, -- 15: 1213_2
-    { x=708, y=614, width=90, height=90 }, -- 16: 1214
-    { x=340, y=712, width=90, height=90 }, -- 17: 1215
-    { x=924, y=414, width=96, height=28, sourceX=0, sourceY=52, sourceWidth=96, sourceHeight=80 }, -- 18: 1301
-    { x=836, y=820, width=76, height=48, sourceX=10, sourceY=32, sourceWidth=96, sourceHeight=80 }, -- 19: 1301_2
-    { x=868, y=554, width=44, height=56, sourceX=26, sourceY=24, sourceWidth=96, sourceHeight=80 }, -- 20: 1301_3
-    { x=482, y=904, width=32, height=52, sourceX=32, sourceY=28, sourceWidth=96, sourceHeight=80 }, -- 21: 1301_4
-    { x=904, y=478, width=96, height=24, sourceX=0, sourceY=56, sourceWidth=96, sourceHeight=80 }, -- 22: 1302
-    { x=736, y=768, width=80, height=48, sourceX=6, sourceY=32, sourceWidth=96, sourceHeight=80 }, -- 23: 1302_2
-    { x=916, y=686, width=44, height=52, sourceX=26, sourceY=28, sourceWidth=96, sourceHeight=80 }, -- 24: 1302_3
-    { x=786, y=908, width=32, height=52, sourceX=32, sourceY=28, sourceWidth=96, sourceHeight=80 }, -- 25: 1302_4
-    { x=736, y=820, width=96, height=24, sourceX=0, sourceY=56, sourceWidth=96, sourceHeight=80 }, -- 26: 1303
-    { x=642, y=828, width=76, height=48, sourceX=10, sourceY=32, sourceWidth=96, sourceHeight=80 }, -- 27: 1303_2
-    { x=626, y=932, width=44, height=52, sourceX=26, sourceY=28, sourceWidth=96, sourceHeight=80 }, -- 28: 1303_3
-    { x=986, y=834, width=36, height=52, sourceX=28, sourceY=28, sourceWidth=96, sourceHeight=80 }, -- 29: 1303_4
-    { x=904, y=446, width=96, height=28, sourceX=0, sourceY=52, sourceWidth=96, sourceHeight=80 }, -- 30: 1304
-    { x=820, y=768, width=80, height=48, sourceX=8, sourceY=32, sourceWidth=96, sourceHeight=80 }, -- 31: 1304_2
-    { x=822, y=932, width=44, height=52, sourceX=26, sourceY=28, sourceWidth=96, sourceHeight=80 }, -- 32: 1304_3
-    { x=986, y=890, width=36, height=52, sourceX=30, sourceY=28, sourceWidth=96, sourceHeight=80 }, -- 33: 1304_4
-    { x=904, y=506, width=96, height=28, sourceX=0, sourceY=52, sourceWidth=96, sourceHeight=80 }, -- 34: 1305
-    { x=722, y=848, width=76, height=48, sourceX=10, sourceY=32, sourceWidth=96, sourceHeight=80 }, -- 35: 1305_2
-    { x=674, y=952, width=44, height=52, sourceX=26, sourceY=28, sourceWidth=96, sourceHeight=80 }, -- 36: 1305_3
-    { x=770, y=964, width=32, height=52, sourceX=32, sourceY=28, sourceWidth=96, sourceHeight=80 }, -- 37: 1305_4
-    { x=916, y=590, width=96, height=28, sourceX=0, sourceY=52, sourceWidth=96, sourceHeight=80 }, -- 38: 1306
-    { x=916, y=538, width=80, height=48, sourceX=6, sourceY=32, sourceWidth=96, sourceHeight=80 }, -- 39: 1306_2
-    { x=370, y=900, width=44, height=56, sourceX=26, sourceY=24, sourceWidth=96, sourceHeight=80 }, -- 40: 1306_3
-    { x=872, y=494, width=28, height=56, sourceX=34, sourceY=24, sourceWidth=96, sourceHeight=80 }, -- 41: 1306_4
-    { x=526, y=900, width=96, height=24, sourceX=0, sourceY=56, sourceWidth=96, sourceHeight=80 }, -- 42: 1307
-    { x=626, y=880, width=76, height=48, sourceX=10, sourceY=32, sourceWidth=96, sourceHeight=80 }, -- 43: 1307_2
-    { x=722, y=952, width=44, height=52, sourceX=26, sourceY=28, sourceWidth=96, sourceHeight=80 }, -- 44: 1307_3
-    { x=152, y=370, width=28, height=52, sourceX=34, sourceY=28, sourceWidth=96, sourceHeight=80 }, -- 45: 1307_4
-    { x=906, y=742, width=96, height=28, sourceX=0, sourceY=52, sourceWidth=96, sourceHeight=80 }, -- 46: 1308
-    { x=706, y=900, width=76, height=48, sourceX=10, sourceY=32, sourceWidth=96, sourceHeight=80 }, -- 47: 1308_2
-    { x=986, y=774, width=36, height=56, sourceX=30, sourceY=24, sourceWidth=96, sourceHeight=80 }, -- 48: 1308_3
-    { x=802, y=848, width=24, height=56, sourceX=36, sourceY=24, sourceWidth=96, sourceHeight=80 }, -- 49: 1308_4
-    { x=2, y=370, width=146, height=140, sourceX=0, sourceY=0, sourceWidth=150, sourceHeight=140 }, -- 50: 1501 (default shield)
-    { x=186, y=184, width=142, height=140, sourceX=4, sourceY=0, sourceWidth=150, sourceHeight=140 }, -- 51: 1501_2
-    { x=330, y=2, width=146, height=140, sourceX=0, sourceY=0, sourceWidth=150, sourceHeight=140 }, -- 52: 1502
-    { x=186, y=328, width=142, height=140, sourceX=4, sourceY=0, sourceWidth=150, sourceHeight=140 }, -- 53: 1502_2
-    { x=2, y=514, width=146, height=140, sourceX=0, sourceY=0, sourceWidth=150, sourceHeight=140 }, -- 54: 1503
-    { x=480, y=2, width=146, height=140, sourceX=0, sourceY=0, sourceWidth=150, sourceHeight=140 }, -- 55: 1503_2
-    { x=2, y=658, width=146, height=140, sourceX=0, sourceY=0, sourceWidth=150, sourceHeight=140 }, -- 56: 1504
-    { x=630, y=2, width=146, height=140, sourceX=0, sourceY=0, sourceWidth=150, sourceHeight=140 }, -- 57: 1504_2
-    { x=2, y=802, width=146, height=140, sourceX=0, sourceY=0, sourceWidth=150, sourceHeight=140 }, -- 58: 1505
-    { x=780, y=2, width=146, height=140, sourceX=0, sourceY=0, sourceWidth=150, sourceHeight=140 }, -- 59: 1505_2
-    { x=332, y=146, width=146, height=140, sourceX=2, sourceY=0, sourceWidth=150, sourceHeight=140 }, -- 60: 1506
-    { x=632, y=290, width=142, height=140, sourceX=4, sourceY=0, sourceWidth=150, sourceHeight=140 }, -- 61: 1506_2
-    { x=482, y=146, width=146, height=140, sourceX=0, sourceY=0, sourceWidth=150, sourceHeight=140 }, -- 62: 1507
-    { x=632, y=146, width=146, height=140, sourceX=0, sourceY=0, sourceWidth=150, sourceHeight=140 }, -- 63: 1507_2
-    { x=782, y=146, width=146, height=140, sourceX=0, sourceY=0, sourceWidth=150, sourceHeight=140 }, -- 64: 1508
-    { x=778, y=290, width=142, height=140, sourceX=2, sourceY=0, sourceWidth=150, sourceHeight=140 }, -- 65: 1508_2
-    { x=332, y=290, width=146, height=140, sourceX=0, sourceY=0, sourceWidth=150, sourceHeight=140 }, -- 66: 1509
-    { x=482, y=290, width=146, height=140, sourceX=0, sourceY=0, sourceWidth=150, sourceHeight=140 }, -- 67: 1509_2
-    { x=964, y=622, width=58, height=56, sourceX=80, sourceY=0, sourceWidth=138, sourceHeight=56 }, -- 68: 2001
-    { x=262, y=536, width=66, height=56, sourceX=72, sourceY=0, sourceWidth=138, sourceHeight=56 }, -- 69: 2001_2
-    { x=624, y=708, width=90, height=56, sourceX=48, sourceY=0, sourceWidth=138, sourceHeight=56 }, -- 70: 2001_3
-    { x=474, y=558, width=122, height=56, sourceX=16, sourceY=0, sourceWidth=138, sourceHeight=56 }, -- 71: 2001_4
-    { x=620, y=434, width=138, height=56 }, -- 72: 2001_5
-    { x=964, y=682, width=58, height=56, sourceX=80, sourceY=0, sourceWidth=138, sourceHeight=56 }, -- 73: 2002
-    { x=262, y=596, width=66, height=56, sourceX=72, sourceY=0, sourceWidth=138, sourceHeight=56 }, -- 74: 2002_2
-    { x=718, y=708, width=90, height=56, sourceX=48, sourceY=0, sourceWidth=138, sourceHeight=56 }, -- 75: 2002_3
-    { x=620, y=494, width=122, height=56, sourceX=16, sourceY=0, sourceWidth=138, sourceHeight=56 }, -- 76: 2002_4
-    { x=762, y=434, width=138, height=56 }, -- 77: 2002_5
-    { x=370, y=966, width=58, height=56, sourceX=80, sourceY=0, sourceWidth=138, sourceHeight=56 }, -- 78: 2003
-    { x=916, y=774, width=66, height=56, sourceX=72, sourceY=0, sourceWidth=138, sourceHeight=56 }, -- 79: 2003_2
-    { x=812, y=708, width=90, height=56, sourceX=48, sourceY=0, sourceWidth=138, sourceHeight=56 }, -- 80: 2003_3
-    { x=746, y=494, width=122, height=56, sourceX=16, sourceY=0, sourceWidth=138, sourceHeight=56 }, -- 81: 2003_4
-    { x=332, y=498, width=138, height=56 }, -- 82: 2003_5
-    { x=432, y=966, width=58, height=56, sourceX=80, sourceY=0, sourceWidth=138, sourceHeight=56 }, -- 83: 2004
-    { x=916, y=834, width=66, height=56, sourceX=72, sourceY=0, sourceWidth=138, sourceHeight=56 }, -- 84: 2004_2
-    { x=526, y=840, width=90, height=56, sourceX=48, sourceY=0, sourceWidth=138, sourceHeight=56 }, -- 85: 2004_3
-    { x=616, y=554, width=122, height=56, sourceX=16, sourceY=0, sourceWidth=138, sourceHeight=56 }, -- 86: 2004_4
-    { x=474, y=498, width=138, height=56 }, -- 87: 2004_5
-    { x=518, y=928, width=58, height=56, sourceX=80, sourceY=0, sourceWidth=138, sourceHeight=56 }, -- 88: 2005
-    { x=830, y=872, width=66, height=56, sourceX=72, sourceY=0, sourceWidth=138, sourceHeight=56 }, -- 89: 2005_2
-    { x=642, y=768, width=90, height=56, sourceX=48, sourceY=0, sourceWidth=138, sourceHeight=56 }, -- 90: 2005_3
-    { x=742, y=554, width=122, height=56, sourceX=16, sourceY=0, sourceWidth=138, sourceHeight=56 }, -- 91: 2005_4
-    { x=332, y=558, width=138, height=56 }, -- 92: 2005_5
-    { x=558, y=712, width=62, height=60, sourceX=78, sourceY=0, sourceWidth=140, sourceHeight=59 }, -- 93: 2006
-    { x=558, y=776, width=80, height=60, sourceX=60, sourceY=0, sourceWidth=140, sourceHeight=59 }, -- 94: 2006_2
-    { x=930, y=2, width=92, height=60, sourceX=48, sourceY=0, sourceWidth=140, sourceHeight=59 }, -- 95: 2006_3
-    { x=246, y=938, width=120, height=60, sourceX=20, sourceY=0, sourceWidth=140, sourceHeight=59 }, -- 96: 2006_4
-    { x=2, y=946, width=140, height=60, sourceX=0, sourceY=0, sourceWidth=140, sourceHeight=59 }, -- 97: 2006_5
-    { x=900, y=894, width=62, height=60, sourceX=78, sourceY=0, sourceWidth=140, sourceHeight=59 }, -- 98: 2007
-    { x=892, y=622, width=68, height=60, sourceX=72, sourceY=0, sourceWidth=140, sourceHeight=59 }, -- 99: 2007_2
-    { x=930, y=66, width=92, height=60, sourceX=48, sourceY=0, sourceWidth=140, sourceHeight=59 }, -- 100: 2007_3
-    { x=434, y=712, width=120, height=60, sourceX=20, sourceY=0, sourceWidth=140, sourceHeight=59 }, -- 101: 2007_4
-    { x=332, y=434, width=140, height=60, sourceX=0, sourceY=0, sourceWidth=140, sourceHeight=59 }, -- 102: 2007_5
-    { x=418, y=904, width=60, height=58, sourceX=80, sourceY=0, sourceWidth=140, sourceHeight=59 }, -- 103: 2008
-    { x=262, y=472, width=66, height=60, sourceX=74, sourceY=0, sourceWidth=140, sourceHeight=59 }, -- 104: 2008_2
-    { x=430, y=840, width=92, height=60, sourceX=48, sourceY=0, sourceWidth=140, sourceHeight=59 }, -- 105: 2008_3
-    { x=434, y=776, width=120, height=60, sourceX=20, sourceY=0, sourceWidth=140, sourceHeight=59 }, -- 106: 2008_4
-    { x=476, y=434, width=140, height=60, sourceX=0, sourceY=0, sourceWidth=140, sourceHeight=59 }, -- 107: 2008_5
-    { x=186, y=2, width=140, height=178, sourceX=20, sourceY=12, sourceWidth=186, sourceHeight=197 }, -- 108: tp1
-    { x=2, y=2, width=180, height=182, sourceX=2, sourceY=6, sourceWidth=186, sourceHeight=197 }, -- 109: tp2
-    { x=2, y=188, width=180, height=178, sourceX=2, sourceY=0, sourceWidth=186, sourceHeight=197 }, -- 110: tp3
-    { x=620, y=840, width=18, height=20, sourceX=82, sourceY=96, sourceWidth=186, sourceHeight=197 }, -- 111: tp4
-    { x=152, y=472, width=106, height=148, sourceX=40, sourceY=36, sourceWidth=186, sourceHeight=197 }, -- 112: tp5
-    { x=932, y=130, width=90, height=92, sourceX=52, sourceY=62, sourceWidth=186, sourceHeight=197 }, -- 113: tp6
-    { x=580, y=928, width=42, height=46, sourceX=72, sourceY=84, sourceWidth=186, sourceHeight=197 }, -- 114: tp7
-  },
-  sheetContentWidth = 1024,
-  sheetContentHeight = 1024
-}
+local L0_1, L1_1, L2_1, L3_1, L4_1, L5_1, L6_1, L7_1, L8_1, L9_1, L10_1, L11_1, L12_1, L13_1, L14_1, L15_1, L16_1, L17_1, L18_1, L19_1, L20_1, L21_1, L22_1, L23_1, L24_1, L25_1, L26_1, L27_1, L28_1, L29_1, L30_1, L31_1, L32_1, L33_1, L34_1, L35_1, L36_1, L37_1, L38_1, L39_1, L40_1, L41_1, L42_1, L43_1, L44_1, L45_1, L46_1, L47_1, L48_1, L49_1, L50_1, L51_1, L52_1
+L0_1 = {}
+L1_1 = {}
+L2_1 = {}
+L3_1 = {}
+L3_1.x = 186
+L3_1.y = 98
+L3_1.width = 90
+L3_1.height = 90
+L4_1 = {}
+L4_1.x = 186
+L4_1.y = 192
+L4_1.width = 90
+L4_1.height = 90
+L5_1 = {}
+L5_1.x = 294
+L5_1.y = 346
+L5_1.width = 90
+L5_1.height = 90
+L6_1 = {}
+L6_1.x = 346
+L6_1.y = 440
+L6_1.width = 90
+L6_1.height = 90
+L7_1 = {}
+L7_1.x = 408
+L7_1.y = 534
+L7_1.width = 90
+L7_1.height = 90
+L8_1 = {}
+L8_1.x = 446
+L8_1.y = 688
+L8_1.width = 90
+L8_1.height = 90
+L9_1 = {}
+L9_1.x = 540
+L9_1.y = 688
+L9_1.width = 90
+L9_1.height = 90
+L10_1 = {}
+L10_1.x = 590
+L10_1.y = 834
+L10_1.width = 90
+L10_1.height = 90
+L11_1 = {}
+L11_1.x = 636
+L11_1.y = 928
+L11_1.width = 90
+L11_1.height = 90
+L12_1 = {}
+L12_1.x = 684
+L12_1.y = 834
+L12_1.width = 90
+L12_1.height = 90
+L13_1 = {}
+L13_1.x = 658
+L13_1.y = 228
+L13_1.width = 82
+L13_1.height = 90
+L13_1.sourceX = 4
+L13_1.sourceY = 0
+L13_1.sourceWidth = 90
+L13_1.sourceHeight = 90
+L14_1 = {}
+L14_1.x = 822
+L14_1.y = 62
+L14_1.width = 82
+L14_1.height = 90
+L14_1.sourceX = 4
+L14_1.sourceY = 0
+L14_1.sourceWidth = 90
+L14_1.sourceHeight = 90
+L15_1 = {}
+L15_1.x = 730
+L15_1.y = 928
+L15_1.width = 90
+L15_1.height = 90
+L16_1 = {}
+L16_1.x = 280
+L16_1.y = 174
+L16_1.width = 90
+L16_1.height = 90
+L17_1 = {}
+L17_1.x = 388
+L17_1.y = 328
+L17_1.width = 90
+L17_1.height = 90
+L18_1 = {}
+L18_1.x = 470
+L18_1.y = 230
+L18_1.width = 90
+L18_1.height = 90
+L19_1 = {}
+L19_1.x = 440
+L19_1.y = 422
+L19_1.width = 90
+L19_1.height = 90
+L20_1 = {}
+L20_1.x = 482
+L20_1.y = 324
+L20_1.width = 90
+L20_1.height = 90
+L21_1 = {}
+L21_1.x = 564
+L21_1.y = 230
+L21_1.width = 90
+L21_1.height = 90
+L22_1 = {}
+L22_1.x = 502
+L22_1.y = 516
+L22_1.width = 90
+L22_1.height = 90
+L23_1 = {}
+L23_1.x = 534
+L23_1.y = 418
+L23_1.width = 90
+L23_1.height = 90
+L24_1 = {}
+L24_1.x = 576
+L24_1.y = 324
+L24_1.width = 90
+L24_1.height = 90
+L25_1 = {}
+L25_1.x = 202
+L25_1.y = 984
+L25_1.width = 96
+L25_1.height = 26
+L25_1.sourceX = 0
+L25_1.sourceY = 54
+L25_1.sourceWidth = 96
+L25_1.sourceHeight = 80
+L26_1 = {}
+L26_1.x = 550
+L26_1.y = 56
+L26_1.width = 76
+L26_1.height = 48
+L26_1.sourceX = 10
+L26_1.sourceY = 32
+L26_1.sourceWidth = 96
+L26_1.sourceHeight = 80
+L27_1 = {}
+L27_1.x = 294
+L27_1.y = 440
+L27_1.width = 44
+L27_1.height = 54
+L27_1.sourceX = 26
+L27_1.sourceY = 26
+L27_1.sourceWidth = 96
+L27_1.sourceHeight = 80
+L28_1 = {}
+L28_1.x = 970
+L28_1.y = 302
+L28_1.width = 32
+L28_1.height = 52
+L28_1.sourceX = 32
+L28_1.sourceY = 28
+L28_1.sourceWidth = 96
+L28_1.sourceHeight = 80
+L29_1 = {}
+L29_1.x = 302
+L29_1.y = 978
+L29_1.width = 96
+L29_1.height = 26
+L29_1.sourceX = 0
+L29_1.sourceY = 54
+L29_1.sourceWidth = 96
+L29_1.sourceHeight = 80
+L30_1 = {}
+L30_1.x = 550
+L30_1.y = 2
+L30_1.width = 76
+L30_1.height = 50
+L30_1.sourceX = 10
+L30_1.sourceY = 30
+L30_1.sourceWidth = 96
+L30_1.sourceHeight = 80
+L31_1 = {}
+L31_1.x = 502
+L31_1.y = 2
+L31_1.width = 44
+L31_1.height = 54
+L31_1.sourceX = 26
+L31_1.sourceY = 26
+L31_1.sourceWidth = 96
+L31_1.sourceHeight = 80
+L32_1 = {}
+L32_1.x = 778
+L32_1.y = 220
+L32_1.width = 32
+L32_1.height = 54
+L32_1.sourceX = 32
+L32_1.sourceY = 26
+L32_1.sourceWidth = 96
+L32_1.sourceHeight = 80
+L33_1 = {}
+L33_1.x = 388
+L33_1.y = 114
+L33_1.width = 96
+L33_1.height = 24
+L33_1.sourceX = 0
+L33_1.sourceY = 56
+L33_1.sourceWidth = 96
+L33_1.sourceHeight = 80
+L34_1 = {}
+L34_1.x = 530
+L34_1.y = 782
+L34_1.width = 78
+L34_1.height = 48
+L34_1.sourceX = 8
+L34_1.sourceY = 32
+L34_1.sourceWidth = 96
+L34_1.sourceHeight = 80
+L35_1 = {}
+L35_1.x = 388
+L35_1.y = 2
+L35_1.width = 44
+L35_1.height = 52
+L35_1.sourceX = 26
+L35_1.sourceY = 28
+L35_1.sourceWidth = 96
+L35_1.sourceHeight = 80
+L36_1 = {}
+L36_1.x = 970
+L36_1.y = 358
+L36_1.width = 32
+L36_1.height = 52
+L36_1.sourceX = 32
+L36_1.sourceY = 28
+L36_1.sourceWidth = 96
+L36_1.sourceHeight = 80
+L37_1 = {}
+L37_1.x = 402
+L37_1.y = 978
+L37_1.width = 96
+L37_1.height = 26
+L37_1.sourceX = 0
+L37_1.sourceY = 54
+L37_1.sourceWidth = 96
+L37_1.sourceHeight = 80
+L38_1 = {}
+L38_1.x = 612
+L38_1.y = 782
+L38_1.width = 78
+L38_1.height = 48
+L38_1.sourceX = 8
+L38_1.sourceY = 32
+L38_1.sourceWidth = 96
+L38_1.sourceHeight = 80
+L39_1 = {}
+L39_1.x = 280
+L39_1.y = 2
+L39_1.width = 44
+L39_1.height = 52
+L39_1.sourceX = 26
+L39_1.sourceY = 28
+L39_1.sourceWidth = 96
+L39_1.sourceHeight = 80
+L40_1 = {}
+L40_1.x = 824
+L40_1.y = 338
+L40_1.width = 32
+L40_1.height = 52
+L40_1.sourceX = 32
+L40_1.sourceY = 28
+L40_1.sourceWidth = 96
+L40_1.sourceHeight = 80
+L41_1 = {}
+L41_1.x = 388
+L41_1.y = 142
+L41_1.width = 96
+L41_1.height = 24
+L41_1.sourceX = 0
+L41_1.sourceY = 56
+L41_1.sourceWidth = 96
+L41_1.sourceHeight = 80
+L42_1 = {}
+L42_1.x = 694
+L42_1.y = 56
+L42_1.width = 76
+L42_1.height = 48
+L42_1.sourceX = 10
+L42_1.sourceY = 32
+L42_1.sourceWidth = 96
+L42_1.sourceHeight = 80
+L43_1 = {}
+L43_1.x = 280
+L43_1.y = 58
+L43_1.width = 44
+L43_1.height = 52
+L43_1.sourceX = 26
+L43_1.sourceY = 28
+L43_1.sourceWidth = 96
+L43_1.sourceHeight = 80
+L44_1 = {}
+L44_1.x = 538
+L44_1.y = 174
+L44_1.width = 34
+L44_1.height = 52
+L44_1.sourceX = 30
+L44_1.sourceY = 28
+L44_1.sourceWidth = 96
+L44_1.sourceHeight = 80
+L45_1 = {}
+L45_1.x = 502
+L45_1.y = 978
+L45_1.width = 96
+L45_1.height = 26
+L45_1.sourceX = 0
+L45_1.sourceY = 54
+L45_1.sourceWidth = 96
+L45_1.sourceHeight = 80
+L46_1 = {}
+L46_1.x = 694
+L46_1.y = 108
+L46_1.width = 76
+L46_1.height = 48
+L46_1.sourceX = 10
+L46_1.sourceY = 32
+L46_1.sourceWidth = 96
+L46_1.sourceHeight = 80
+L47_1 = {}
+L47_1.x = 388
+L47_1.y = 58
+L47_1.width = 44
+L47_1.height = 52
+L47_1.sourceX = 26
+L47_1.sourceY = 28
+L47_1.sourceWidth = 96
+L47_1.sourceHeight = 80
+L48_1 = {}
+L48_1.x = 860
+L48_1.y = 338
+L48_1.width = 32
+L48_1.height = 52
+L48_1.sourceX = 32
+L48_1.sourceY = 28
+L48_1.sourceWidth = 96
+L48_1.sourceHeight = 80
+L49_1 = {}
+L49_1.x = 2
+L49_1.y = 992
+L49_1.width = 96
+L49_1.height = 28
+L49_1.sourceX = 0
+L49_1.sourceY = 52
+L49_1.sourceWidth = 96
+L49_1.sourceHeight = 80
+L50_1 = {}
+L50_1.x = 446
+L50_1.y = 782
+L50_1.width = 80
+L50_1.height = 48
+L50_1.sourceX = 8
+L50_1.sourceY = 32
+L50_1.sourceWidth = 96
+L50_1.sourceHeight = 80
+L51_1 = {}
+L51_1.x = 280
+L51_1.y = 114
+L51_1.width = 44
+L51_1.height = 52
+L51_1.sourceX = 26
+L51_1.sourceY = 28
+L51_1.sourceWidth = 96
+L51_1.sourceHeight = 80
+L52_1 = {}
+L52_1.x = 498
+L52_1.y = 174
+L52_1.width = 36
+L52_1.height = 52
+L52_1.sourceX = 30
+L52_1.sourceY = 28
+L52_1.sourceWidth = 96
+L52_1.sourceHeight = 80
+L2_1[1] = L3_1
+L2_1[2] = L4_1
+L2_1[3] = L5_1
+L2_1[4] = L6_1
+L2_1[5] = L7_1
+L2_1[6] = L8_1
+L2_1[7] = L9_1
+L2_1[8] = L10_1
+L2_1[9] = L11_1
+L2_1[10] = L12_1
+L2_1[11] = L13_1
+L2_1[12] = L14_1
+L2_1[13] = L15_1
+L2_1[14] = L16_1
+L2_1[15] = L17_1
+L2_1[16] = L18_1
+L2_1[17] = L19_1
+L2_1[18] = L20_1
+L2_1[19] = L21_1
+L2_1[20] = L22_1
+L2_1[21] = L23_1
+L2_1[22] = L24_1
+L2_1[23] = L25_1
+L2_1[24] = L26_1
+L2_1[25] = L27_1
+L2_1[26] = L28_1
+L2_1[27] = L29_1
+L2_1[28] = L30_1
+L2_1[29] = L31_1
+L2_1[30] = L32_1
+L2_1[31] = L33_1
+L2_1[32] = L34_1
+L2_1[33] = L35_1
+L2_1[34] = L36_1
+L2_1[35] = L37_1
+L2_1[36] = L38_1
+L2_1[37] = L39_1
+L2_1[38] = L40_1
+L2_1[39] = L41_1
+L2_1[40] = L42_1
+L2_1[41] = L43_1
+L2_1[42] = L44_1
+L2_1[43] = L45_1
+L2_1[44] = L46_1
+L2_1[45] = L47_1
+L2_1[46] = L48_1
+L2_1[47] = L49_1
+L2_1[48] = L50_1
+L2_1[49] = L51_1
+L2_1[50] = L52_1
+L3_1 = {}
+L3_1.x = 102
+L3_1.y = 992
+L3_1.width = 96
+L3_1.height = 28
+L3_1.sourceX = 0
+L3_1.sourceY = 52
+L3_1.sourceWidth = 96
+L3_1.sourceHeight = 80
+L4_1 = {}
+L4_1.x = 694
+L4_1.y = 2
+L4_1.width = 80
+L4_1.height = 50
+L4_1.sourceX = 8
+L4_1.sourceY = 30
+L4_1.sourceWidth = 96
+L4_1.sourceHeight = 80
+L5_1 = {}
+L5_1.x = 778
+L5_1.y = 2
+L5_1.width = 42
+L5_1.height = 54
+L5_1.sourceX = 28
+L5_1.sourceY = 26
+L5_1.sourceWidth = 96
+L5_1.sourceHeight = 80
+L6_1 = {}
+L6_1.x = 502
+L6_1.y = 116
+L6_1.width = 36
+L6_1.height = 54
+L6_1.sourceX = 30
+L6_1.sourceY = 26
+L6_1.sourceWidth = 96
+L6_1.sourceHeight = 80
+L7_1 = {}
+L7_1.x = 146
+L7_1.y = 514
+L7_1.width = 96
+L7_1.height = 28
+L7_1.sourceX = 0
+L7_1.sourceY = 52
+L7_1.sourceWidth = 96
+L7_1.sourceHeight = 80
+L8_1 = {}
+L8_1.x = 824
+L8_1.y = 156
+L8_1.width = 76
+L8_1.height = 48
+L8_1.sourceX = 10
+L8_1.sourceY = 32
+L8_1.sourceWidth = 96
+L8_1.sourceHeight = 80
+L9_1 = {}
+L9_1.x = 502
+L9_1.y = 60
+L9_1.width = 44
+L9_1.height = 52
+L9_1.sourceX = 26
+L9_1.sourceY = 28
+L9_1.sourceWidth = 96
+L9_1.sourceHeight = 80
+L10_1 = {}
+L10_1.x = 778
+L10_1.y = 338
+L10_1.width = 32
+L10_1.height = 52
+L10_1.sourceX = 32
+L10_1.sourceY = 28
+L10_1.sourceWidth = 96
+L10_1.sourceHeight = 80
+L11_1 = {}
+L11_1.x = 246
+L11_1.y = 514
+L11_1.width = 96
+L11_1.height = 28
+L11_1.sourceX = 0
+L11_1.sourceY = 52
+L11_1.sourceWidth = 96
+L11_1.sourceHeight = 80
+L12_1 = {}
+L12_1.x = 824
+L12_1.y = 208
+L12_1.width = 76
+L12_1.height = 48
+L12_1.sourceX = 10
+L12_1.sourceY = 32
+L12_1.sourceWidth = 96
+L12_1.sourceHeight = 80
+L13_1 = {}
+L13_1.x = 774
+L13_1.y = 60
+L13_1.width = 44
+L13_1.height = 52
+L13_1.sourceX = 26
+L13_1.sourceY = 28
+L13_1.sourceWidth = 96
+L13_1.sourceHeight = 80
+L14_1 = {}
+L14_1.x = 896
+L14_1.y = 362
+L14_1.width = 32
+L14_1.height = 52
+L14_1.sourceX = 32
+L14_1.sourceY = 28
+L14_1.sourceWidth = 96
+L14_1.sourceHeight = 80
+L15_1 = {}
+L15_1.x = 2
+L15_1.y = 704
+L15_1.width = 144
+L15_1.height = 140
+L15_1.sourceX = 2
+L15_1.sourceY = 0
+L15_1.sourceWidth = 150
+L15_1.sourceHeight = 140
+L16_1 = {}
+L16_1.x = 298
+L16_1.y = 834
+L16_1.width = 142
+L16_1.height = 140
+L16_1.sourceX = 4
+L16_1.sourceY = 0
+L16_1.sourceWidth = 150
+L16_1.sourceHeight = 140
+L17_1 = {}
+L17_1.x = 112
+L17_1.y = 552
+L17_1.width = 144
+L17_1.height = 140
+L17_1.sourceX = 2
+L17_1.sourceY = 0
+L17_1.sourceWidth = 150
+L17_1.sourceHeight = 140
+L18_1 = {}
+L18_1.x = 444
+L18_1.y = 834
+L18_1.width = 142
+L18_1.height = 140
+L18_1.sourceX = 4
+L18_1.sourceY = 0
+L18_1.sourceWidth = 150
+L18_1.sourceHeight = 140
+L19_1 = {}
+L19_1.x = 2
+L19_1.y = 848
+L19_1.width = 144
+L19_1.height = 140
+L19_1.sourceX = 2
+L19_1.sourceY = 0
+L19_1.sourceWidth = 150
+L19_1.sourceHeight = 140
+L20_1 = {}
+L20_1.x = 146
+L20_1.y = 370
+L20_1.width = 144
+L20_1.height = 140
+L20_1.sourceX = 2
+L20_1.sourceY = 0
+L20_1.sourceWidth = 150
+L20_1.sourceHeight = 140
+L21_1 = {}
+L21_1.x = 150
+L21_1.y = 696
+L21_1.width = 144
+L21_1.height = 140
+L21_1.sourceX = 2
+L21_1.sourceY = 0
+L21_1.sourceWidth = 150
+L21_1.sourceHeight = 140
+L22_1 = {}
+L22_1.x = 260
+L22_1.y = 546
+L22_1.width = 144
+L22_1.height = 140
+L22_1.sourceX = 2
+L22_1.sourceY = 0
+L22_1.sourceWidth = 150
+L22_1.sourceHeight = 140
+L23_1 = {}
+L23_1.x = 150
+L23_1.y = 840
+L23_1.width = 144
+L23_1.height = 140
+L23_1.sourceX = 2
+L23_1.sourceY = 0
+L23_1.sourceWidth = 150
+L23_1.sourceHeight = 140
+L24_1 = {}
+L24_1.x = 298
+L24_1.y = 690
+L24_1.width = 144
+L24_1.height = 140
+L24_1.sourceX = 2
+L24_1.sourceY = 0
+L24_1.sourceWidth = 150
+L24_1.sourceHeight = 140
+L25_1 = {}
+L25_1.x = 634
+L25_1.y = 2
+L25_1.width = 56
+L25_1.height = 56
+L25_1.sourceX = 82
+L25_1.sourceY = 0
+L25_1.sourceWidth = 138
+L25_1.sourceHeight = 56
+L26_1 = {}
+L26_1.x = 596
+L26_1.y = 512
+L26_1.width = 64
+L26_1.height = 56
+L26_1.sourceX = 74
+L26_1.sourceY = 0
+L26_1.sourceWidth = 138
+L26_1.sourceHeight = 56
+L27_1 = {}
+L27_1.x = 908
+L27_1.y = 122
+L27_1.width = 88
+L27_1.height = 56
+L27_1.sourceX = 50
+L27_1.sourceY = 0
+L27_1.sourceWidth = 138
+L27_1.sourceHeight = 56
+L28_1 = {}
+L28_1.x = 374
+L28_1.y = 170
+L28_1.width = 120
+L28_1.height = 56
+L28_1.sourceX = 18
+L28_1.sourceY = 0
+L28_1.sourceWidth = 138
+L28_1.sourceHeight = 56
+L29_1 = {}
+L29_1.x = 186
+L29_1.y = 286
+L29_1.width = 138
+L29_1.height = 56
+L30_1 = {}
+L30_1.x = 966
+L30_1.y = 2
+L30_1.width = 56
+L30_1.height = 56
+L30_1.sourceX = 82
+L30_1.sourceY = 0
+L30_1.sourceWidth = 138
+L30_1.sourceHeight = 56
+L31_1 = {}
+L31_1.x = 628
+L31_1.y = 418
+L31_1.width = 64
+L31_1.height = 56
+L31_1.sourceX = 74
+L31_1.sourceY = 0
+L31_1.sourceWidth = 138
+L31_1.sourceHeight = 56
+L32_1 = {}
+L32_1.x = 904
+L32_1.y = 182
+L32_1.width = 88
+L32_1.height = 56
+L32_1.sourceX = 50
+L32_1.sourceY = 0
+L32_1.sourceWidth = 138
+L32_1.sourceHeight = 56
+L33_1 = {}
+L33_1.x = 576
+L33_1.y = 168
+L33_1.width = 120
+L33_1.height = 56
+L33_1.sourceX = 18
+L33_1.sourceY = 0
+L33_1.sourceWidth = 138
+L33_1.sourceHeight = 56
+L34_1 = {}
+L34_1.x = 408
+L34_1.y = 628
+L34_1.width = 138
+L34_1.height = 56
+L35_1 = {}
+L35_1.x = 328
+L35_1.y = 2
+L35_1.width = 56
+L35_1.height = 56
+L35_1.sourceX = 82
+L35_1.sourceY = 0
+L35_1.sourceWidth = 138
+L35_1.sourceHeight = 56
+L36_1 = {}
+L36_1.x = 634
+L36_1.y = 670
+L36_1.width = 64
+L36_1.height = 56
+L36_1.sourceX = 74
+L36_1.sourceY = 0
+L36_1.sourceWidth = 138
+L36_1.sourceHeight = 56
+L37_1 = {}
+L37_1.x = 904
+L37_1.y = 242
+L37_1.width = 88
+L37_1.height = 56
+L37_1.sourceX = 50
+L37_1.sourceY = 0
+L37_1.sourceWidth = 138
+L37_1.sourceHeight = 56
+L38_1 = {}
+L38_1.x = 700
+L38_1.y = 160
+L38_1.width = 120
+L38_1.height = 56
+L38_1.sourceX = 18
+L38_1.sourceY = 0
+L38_1.sourceWidth = 138
+L38_1.sourceHeight = 56
+L39_1 = {}
+L39_1.x = 824
+L39_1.y = 2
+L39_1.width = 138
+L39_1.height = 56
+L40_1 = {}
+L40_1.x = 328
+L40_1.y = 62
+L40_1.width = 56
+L40_1.height = 56
+L40_1.sourceX = 82
+L40_1.sourceY = 0
+L40_1.sourceWidth = 138
+L40_1.sourceHeight = 56
+L41_1 = {}
+L41_1.x = 694
+L41_1.y = 730
+L41_1.width = 64
+L41_1.height = 56
+L41_1.sourceX = 74
+L41_1.sourceY = 0
+L41_1.sourceWidth = 138
+L41_1.sourceHeight = 56
+L42_1 = {}
+L42_1.x = 674
+L42_1.y = 322
+L42_1.width = 88
+L42_1.height = 56
+L42_1.sourceX = 50
+L42_1.sourceY = 0
+L42_1.sourceWidth = 138
+L42_1.sourceHeight = 56
+L43_1 = {}
+L43_1.x = 550
+L43_1.y = 610
+L43_1.width = 120
+L43_1.height = 56
+L43_1.sourceX = 18
+L43_1.sourceY = 0
+L43_1.sourceWidth = 138
+L43_1.sourceHeight = 56
+L44_1 = {}
+L44_1.x = 550
+L44_1.y = 108
+L44_1.width = 138
+L44_1.height = 56
+L45_1 = {}
+L45_1.x = 440
+L45_1.y = 2
+L45_1.width = 58
+L45_1.height = 56
+L45_1.sourceX = 80
+L45_1.sourceY = 0
+L45_1.sourceWidth = 138
+L45_1.sourceHeight = 56
+L46_1 = {}
+L46_1.x = 902
+L46_1.y = 302
+L46_1.width = 64
+L46_1.height = 56
+L46_1.sourceX = 74
+L46_1.sourceY = 0
+L46_1.sourceWidth = 138
+L46_1.sourceHeight = 56
+L47_1 = {}
+L47_1.x = 908
+L47_1.y = 62
+L47_1.width = 90
+L47_1.height = 56
+L47_1.sourceX = 48
+L47_1.sourceY = 0
+L47_1.sourceWidth = 138
+L47_1.sourceHeight = 56
+L48_1 = {}
+L48_1.x = 778
+L48_1.y = 278
+L48_1.width = 120
+L48_1.height = 56
+L48_1.sourceX = 18
+L48_1.sourceY = 0
+L48_1.sourceWidth = 138
+L48_1.sourceHeight = 56
+L49_1 = {}
+L49_1.x = 328
+L49_1.y = 268
+L49_1.width = 138
+L49_1.height = 56
+L50_1 = {}
+L50_1.x = 2
+L50_1.y = 370
+L50_1.width = 140
+L50_1.height = 178
+L50_1.sourceX = 20
+L50_1.sourceY = 12
+L50_1.sourceWidth = 186
+L50_1.sourceHeight = 197
+L51_1 = {}
+L51_1.x = 2
+L51_1.y = 2
+L51_1.width = 180
+L51_1.height = 182
+L51_1.sourceX = 2
+L51_1.sourceY = 6
+L51_1.sourceWidth = 186
+L51_1.sourceHeight = 197
+L52_1 = {}
+L52_1.x = 2
+L52_1.y = 188
+L52_1.width = 180
+L52_1.height = 178
+L52_1.sourceX = 2
+L52_1.sourceY = 0
+L52_1.sourceWidth = 186
+L52_1.sourceHeight = 197
+L2_1[51] = L3_1
+L2_1[52] = L4_1
+L2_1[53] = L5_1
+L2_1[54] = L6_1
+L2_1[55] = L7_1
+L2_1[56] = L8_1
+L2_1[57] = L9_1
+L2_1[58] = L10_1
+L2_1[59] = L11_1
+L2_1[60] = L12_1
+L2_1[61] = L13_1
+L2_1[62] = L14_1
+L2_1[63] = L15_1
+L2_1[64] = L16_1
+L2_1[65] = L17_1
+L2_1[66] = L18_1
+L2_1[67] = L19_1
+L2_1[68] = L20_1
+L2_1[69] = L21_1
+L2_1[70] = L22_1
+L2_1[71] = L23_1
+L2_1[72] = L24_1
+L2_1[73] = L25_1
+L2_1[74] = L26_1
+L2_1[75] = L27_1
+L2_1[76] = L28_1
+L2_1[77] = L29_1
+L2_1[78] = L30_1
+L2_1[79] = L31_1
+L2_1[80] = L32_1
+L2_1[81] = L33_1
+L2_1[82] = L34_1
+L2_1[83] = L35_1
+L2_1[84] = L36_1
+L2_1[85] = L37_1
+L2_1[86] = L38_1
+L2_1[87] = L39_1
+L2_1[88] = L40_1
+L2_1[89] = L41_1
+L2_1[90] = L42_1
+L2_1[91] = L43_1
+L2_1[92] = L44_1
+L2_1[93] = L45_1
+L2_1[94] = L46_1
+L2_1[95] = L47_1
+L2_1[96] = L48_1
+L2_1[97] = L49_1
+L2_1[98] = L50_1
+L2_1[99] = L51_1
+L2_1[100] = L52_1
+L3_1 = {}
+L3_1.x = 186
+L3_1.y = 346
+L3_1.width = 18
+L3_1.height = 20
+L3_1.sourceX = 82
+L3_1.sourceY = 96
+L3_1.sourceWidth = 186
+L3_1.sourceHeight = 197
+L4_1 = {}
+L4_1.x = 2
+L4_1.y = 552
+L4_1.width = 106
+L4_1.height = 148
+L4_1.sourceX = 40
+L4_1.sourceY = 36
+L4_1.sourceWidth = 186
+L4_1.sourceHeight = 197
+L5_1 = {}
+L5_1.x = 186
+L5_1.y = 2
+L5_1.width = 90
+L5_1.height = 92
+L5_1.sourceX = 52
+L5_1.sourceY = 62
+L5_1.sourceWidth = 186
+L5_1.sourceHeight = 197
+L6_1 = {}
+L6_1.x = 590
+L6_1.y = 928
+L6_1.width = 42
+L6_1.height = 46
+L6_1.sourceX = 72
+L6_1.sourceY = 84
+L6_1.sourceWidth = 186
+L6_1.sourceHeight = 197
+L2_1[101] = L3_1
+L2_1[102] = L4_1
+L2_1[103] = L5_1
+L2_1[104] = L6_1
+L1_1.frames = L2_1
+L1_1.sheetContentWidth = 1024
+L1_1.sheetContentHeight = 1024
+L0_1.sheet = L1_1
+L1_1 = {}
+L1_1["1201"] = 1
+L1_1["1201_2"] = 2
+L1_1["1202"] = 3
+L1_1["1202_2"] = 4
+L1_1["1203"] = 5
+L1_1["1203_2"] = 6
+L1_1["1204"] = 7
+L1_1["1204_2"] = 8
+L1_1["1205"] = 9
+L1_1["1205_2"] = 10
+L1_1["1206"] = 11
+L1_1["1206_2"] = 12
+L1_1["1207"] = 13
+L1_1["1207_2"] = 14
+L1_1["1208"] = 15
+L1_1["1208_2"] = 16
+L1_1["1209"] = 17
+L1_1["1209_2"] = 18
+L1_1["1210"] = 19
+L1_1["1210_2"] = 20
+L1_1["1211"] = 21
+L1_1["1211_2"] = 22
+L1_1["1301"] = 23
+L1_1["1301_2"] = 24
+L1_1["1301_3"] = 25
+L1_1["1301_4"] = 26
+L1_1["1301_b"] = 27
+L1_1["1301_b_2"] = 28
+L1_1["1301_b_3"] = 29
+L1_1["1301_b_4"] = 30
+L1_1["1302"] = 31
+L1_1["1302_2"] = 32
+L1_1["1302_3"] = 33
+L1_1["1302_4"] = 34
+L1_1["1302_b"] = 35
+L1_1["1302_b_2"] = 36
+L1_1["1302_b_3"] = 37
+L1_1["1302_b_4"] = 38
+L1_1["1303"] = 39
+L1_1["1303_2"] = 40
+L1_1["1303_3"] = 41
+L1_1["1303_4"] = 42
+L1_1["1303_b"] = 43
+L1_1["1303_b_2"] = 44
+L1_1["1303_b_3"] = 45
+L1_1["1303_b_4"] = 46
+L1_1["1304"] = 47
+L1_1["1304_2"] = 48
+L1_1["1304_3"] = 49
+L1_1["1304_4"] = 50
+L1_1["1304_b"] = 51
+L1_1["1304_b_2"] = 52
+L1_1["1304_b_3"] = 53
+L1_1["1304_b_4"] = 54
+L1_1["1305"] = 55
+L1_1["1305_2"] = 56
+L2_1 = 57
+L1_1["1305_3"] = L2_1
+L2_1 = "1305_4"
+L3_1 = 58
+L1_1[L2_1] = L3_1
+L2_1 = "1305_b"
+L3_1 = 59
+L1_1[L2_1] = L3_1
+L2_1 = "1305_b_2"
+L3_1 = 60
+L1_1[L2_1] = L3_1
+L2_1 = "1305_b_3"
+L3_1 = 61
+L1_1[L2_1] = L3_1
+L2_1 = "1305_b_4"
+L3_1 = 62
+L1_1[L2_1] = L3_1
+L2_1 = "1501"
+L3_1 = 63
+L1_1[L2_1] = L3_1
+L2_1 = "1501_2"
+L3_1 = 64
+L1_1[L2_1] = L3_1
+L2_1 = "1502"
+L3_1 = 65
+L1_1[L2_1] = L3_1
+L2_1 = "1502_2"
+L3_1 = 66
+L1_1[L2_1] = L3_1
+L2_1 = "1503"
+L3_1 = 67
+L1_1[L2_1] = L3_1
+L2_1 = "1503_2"
+L3_1 = 68
+L1_1[L2_1] = L3_1
+L2_1 = "1504"
+L3_1 = 69
+L1_1[L2_1] = L3_1
+L2_1 = "1504_2"
+L3_1 = 70
+L1_1[L2_1] = L3_1
+L2_1 = "1505"
+L3_1 = 71
+L1_1[L2_1] = L3_1
+L2_1 = "1505_2"
+L3_1 = 72
+L1_1[L2_1] = L3_1
+L2_1 = "2001"
+L3_1 = 73
+L1_1[L2_1] = L3_1
+L2_1 = "2001_2"
+L3_1 = 74
+L1_1[L2_1] = L3_1
+L2_1 = "2001_3"
+L3_1 = 75
+L1_1[L2_1] = L3_1
+L2_1 = "2001_4"
+L3_1 = 76
+L1_1[L2_1] = L3_1
+L2_1 = "2001_5"
+L3_1 = 77
+L1_1[L2_1] = L3_1
+L2_1 = "2002"
+L3_1 = 78
+L1_1[L2_1] = L3_1
+L2_1 = "2002_2"
+L3_1 = 79
+L1_1[L2_1] = L3_1
+L2_1 = "2002_3"
+L3_1 = 80
+L1_1[L2_1] = L3_1
+L2_1 = "2002_4"
+L3_1 = 81
+L1_1[L2_1] = L3_1
+L2_1 = "2002_5"
+L3_1 = 82
+L1_1[L2_1] = L3_1
+L2_1 = "2003"
+L3_1 = 83
+L1_1[L2_1] = L3_1
+L2_1 = "2003_2"
+L3_1 = 84
+L1_1[L2_1] = L3_1
+L2_1 = "2003_3"
+L3_1 = 85
+L1_1[L2_1] = L3_1
+L2_1 = "2003_4"
+L3_1 = 86
+L1_1[L2_1] = L3_1
+L2_1 = "2003_5"
+L3_1 = 87
+L1_1[L2_1] = L3_1
+L2_1 = "2004"
+L3_1 = 88
+L1_1[L2_1] = L3_1
+L2_1 = "2004_2"
+L3_1 = 89
+L1_1[L2_1] = L3_1
+L2_1 = "2004_3"
+L3_1 = 90
+L1_1[L2_1] = L3_1
+L2_1 = "2004_4"
+L3_1 = 91
+L1_1[L2_1] = L3_1
+L2_1 = "2004_5"
+L3_1 = 92
+L1_1[L2_1] = L3_1
+L2_1 = "2005"
+L3_1 = 93
+L1_1[L2_1] = L3_1
+L2_1 = "2005_2"
+L3_1 = 94
+L1_1[L2_1] = L3_1
+L2_1 = "2005_3"
+L3_1 = 95
+L1_1[L2_1] = L3_1
+L2_1 = "2005_4"
+L3_1 = 96
+L1_1[L2_1] = L3_1
+L2_1 = "2005_5"
+L3_1 = 97
+L1_1[L2_1] = L3_1
+L2_1 = "tp1"
+L3_1 = 98
+L1_1[L2_1] = L3_1
+L2_1 = "tp2"
+L3_1 = 99
+L1_1[L2_1] = L3_1
+L2_1 = "tp3"
+L3_1 = 100
+L1_1[L2_1] = L3_1
+L2_1 = "tp4"
+L3_1 = 101
+L1_1[L2_1] = L3_1
+L2_1 = "tp5"
+L3_1 = 102
+L1_1[L2_1] = L3_1
+L2_1 = "tp6"
+L3_1 = 103
+L1_1[L2_1] = L3_1
+L2_1 = "tp7"
+L3_1 = 104
+L1_1[L2_1] = L3_1
+L0_1.frameIndex = L1_1
+L1_1 = "getSheet"
 
-SheetInfo.frameIndex = {
-  -- Sawblades (1 frame each)
-  ["1201"] = 1,  ["1202"] = 2,  ["1203"] = 3,  ["1204"] = 4,
-  ["1205"] = 5,  ["1206"] = 6,  ["1207"] = 7,  ["1208"] = 8,
-  ["1209"] = 9,  ["1210"] = 10, ["1211"] = 11, ["1212"] = 12,
-  ["1212_2"] = 13, ["1213"] = 14, ["1213_2"] = 15,
-  ["1214"] = 16, ["1215"] = 17,
-
-  -- Beartraps (4 frames each: open → close)
-  ["1301"] = 18, ["1301_2"] = 19, ["1301_3"] = 20, ["1301_4"] = 21,
-  ["1302"] = 22, ["1302_2"] = 23, ["1302_3"] = 24, ["1302_4"] = 25,
-  ["1303"] = 26, ["1303_2"] = 27, ["1303_3"] = 28, ["1303_4"] = 29,
-  ["1304"] = 30, ["1304_2"] = 31, ["1304_3"] = 32, ["1304_4"] = 33,
-  ["1305"] = 34, ["1305_2"] = 35, ["1305_3"] = 36, ["1305_4"] = 37,
-  ["1306"] = 38, ["1306_2"] = 39, ["1306_3"] = 40, ["1306_4"] = 41,
-  ["1307"] = 42, ["1307_2"] = 43, ["1307_3"] = 44, ["1307_4"] = 45,
-  ["1308"] = 46, ["1308_2"] = 47, ["1308_3"] = 48, ["1308_4"] = 49,
-
-  -- Shields (2 frames each: normal, absorb)
-  ["1501"] = 50, ["1501_2"] = 51,
-  ["1502"] = 52, ["1502_2"] = 53,
-  ["1503"] = 54, ["1503_2"] = 55,
-  ["1504"] = 56, ["1504_2"] = 57,
-  ["1505"] = 58, ["1505_2"] = 59,
-  ["1506"] = 60, ["1506_2"] = 61,
-  ["1507"] = 62, ["1507_2"] = 63,
-  ["1508"] = 64, ["1508_2"] = 65,
-  ["1509"] = 66, ["1509_2"] = 67,
-
-  -- Punchboxes (5 frames each: retracted → extended)
-  ["2001"] = 68, ["2001_2"] = 69, ["2001_3"] = 70, ["2001_4"] = 71, ["2001_5"] = 72,
-  ["2002"] = 73, ["2002_2"] = 74, ["2002_3"] = 75, ["2002_4"] = 76, ["2002_5"] = 77,
-  ["2003"] = 78, ["2003_2"] = 79, ["2003_3"] = 80, ["2003_4"] = 81, ["2003_5"] = 82,
-  ["2004"] = 83, ["2004_2"] = 84, ["2004_3"] = 85, ["2004_4"] = 86, ["2004_5"] = 87,
-  ["2005"] = 88, ["2005_2"] = 89, ["2005_3"] = 90, ["2005_4"] = 91, ["2005_5"] = 92,
-  ["2006"] = 93, ["2006_2"] = 94, ["2006_3"] = 95, ["2006_4"] = 96, ["2006_5"] = 97,
-  ["2007"] = 98, ["2007_2"] = 99, ["2007_3"] = 100, ["2007_4"] = 101, ["2007_5"] = 102,
-  ["2008"] = 103, ["2008_2"] = 104, ["2008_3"] = 105, ["2008_4"] = 106, ["2008_5"] = 107,
-
-  -- Teleport (7 frames)
-  ["tp1"] = 108, ["tp2"] = 109, ["tp3"] = 110, ["tp4"] = 111,
-  ["tp5"] = 112, ["tp6"] = 113, ["tp7"] = 114,
-
-  -- Legacy aliases
-  ["sawblade"] = 1,
-}
-
-function SheetInfo:getSheet()
-  return self.sheet
+function L2_1(A0_2)
+  local L1_2
+  L1_2 = A0_2.sheet
+  return L1_2
 end
 
-function SheetInfo:getFrameIndex(name)
-  return self.frameIndex[name]
+L0_1[L1_1] = L2_1
+L1_1 = "getFrameIndex"
+
+function L2_1(A0_2, A1_2)
+  local L2_2
+  L2_2 = A0_2.frameIndex
+  L2_2 = L2_2[A1_2]
+  return L2_2
 end
 
-return SheetInfo
+L0_1[L1_1] = L2_1
+return L0_1

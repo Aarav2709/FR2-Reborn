@@ -1,496 +1,697 @@
-local unpack = unpack
-local pairs = pairs
-local ipairs = ipairs
-local M = {}
+local L0_1, L1_1, L2_1, L3_1, L4_1
+L0_1 = unpack
+L1_1 = pairs
+L2_1 = ipairs
+L3_1 = {}
 
-function M.physicsData(scale)
-  local physics = {
-    data = {
-      sawbladeLeft = {
-        {
-          pe_fixture_id = "",
-          density = 2.5,
-          friction = 1,
-          bounce = 0.2,
-          filter = {
-            categoryBits = 1,
-            maskBits = 65535,
-            groupIndex = 0
-          },
-          shape = {
-            15,
-            44,
-            -19,
-            47,
-            -28,
-            -34,
-            31,
-            -46
-          }
-        }
-      },
-      sawbladeRight = {
-        {
-          pe_fixture_id = "",
-          density = 2.5,
-          friction = 1,
-          bounce = 0.2,
-          filter = {
-            categoryBits = 1,
-            maskBits = 65535,
-            groupIndex = 0
-          },
-          shape = {
-            15,
-            -45,
-            14,
-            44,
-            -10,
-            41,
-            -28,
-            -39
-          }
-        }
-      },
-      eye = {
-        {
-          pe_fixture_id = "",
-          density = 2,
-          friction = 0,
-          bounce = 0,
-          filter = {
-            categoryBits = 1,
-            maskBits = 65535,
-            groupIndex = 0
-          },
-          shape = {
-            -4,
-            16,
-            -17,
-            4,
-            -14,
-            -4,
-            3,
-            -18,
-            20,
-            -12,
-            22,
-            2,
-            14,
-            16
-          }
-        }
-      },
-      heart = {
-        {
-          pe_fixture_id = "",
-          density = 2,
-          friction = 0,
-          bounce = 0,
-          filter = {
-            categoryBits = 1,
-            maskBits = 65535,
-            groupIndex = 0
-          },
-          shape = {
-            16.5,
-            7,
-            4.5,
-            21,
-            -11.5,
-            12,
-            -8.5,
-            -14,
-            13.5,
-            -17
-          }
-        }
-      },
-      intestine1 = {
-        {
-          pe_fixture_id = "",
-          density = 2,
-          friction = 0,
-          bounce = 0,
-          filter = {
-            categoryBits = 1,
-            maskBits = 65535,
-            groupIndex = 0
-          },
-          shape = {
-            9.25,
-            6,
-            -1,
-            9.75,
-            -16,
-            0,
-            4,
-            -1,
-            12,
-            -1
-          }
-        },
-        {
-          pe_fixture_id = "",
-          density = 2,
-          friction = 0,
-          bounce = 0,
-          filter = {
-            categoryBits = 1,
-            maskBits = 65535,
-            groupIndex = 0
-          },
-          shape = {
-            -16,
-            0,
-            -12,
-            -10,
-            4,
-            -1
-          }
-        }
-      },
-      intestine2 = {
-        {
-          pe_fixture_id = "",
-          density = 2,
-          friction = 0,
-          bounce = 0,
-          filter = {
-            categoryBits = 1,
-            maskBits = 65535,
-            groupIndex = 0
-          },
-          shape = {
-            8.5,
-            6,
-            -8.5,
-            -1,
-            4.5,
-            -8,
-            14.5,
-            -3,
-            15.5,
-            7
-          }
-        },
-        {
-          pe_fixture_id = "",
-          density = 2,
-          friction = 0,
-          bounce = 0,
-          filter = {
-            categoryBits = 1,
-            maskBits = 65535,
-            groupIndex = 0
-          },
-          shape = {
-            -8.5,
-            -1,
-            8.5,
-            6,
-            -13.5,
-            7
-          }
-        }
-      },
-      lung = {
-        {
-          pe_fixture_id = "",
-          density = 2,
-          friction = 0,
-          bounce = 0,
-          filter = {
-            categoryBits = 1,
-            maskBits = 65535,
-            groupIndex = 0
-          },
-          shape = {
-            11,
-            -8.5,
-            14,
-            19.5,
-            6,
-            27.5,
-            -15,
-            24.5,
-            -4,
-            -20.5,
-            8,
-            -27.5
-          }
-        }
-      },
-      piece1 = {
-        {
-          pe_fixture_id = "",
-          density = 2,
-          friction = 0,
-          bounce = 0,
-          filter = {
-            categoryBits = 1,
-            maskBits = 65535,
-            groupIndex = 0
-          },
-          shape = {
-            14.5,
-            -17.5,
-            32.5,
-            1.5,
-            28.25,
-            20,
-            5.5,
-            21.5,
-            -33.5,
-            16.5
-          }
-        }
-      },
-      piece2 = {
-        {
-          pe_fixture_id = "",
-          density = 2,
-          friction = 0,
-          bounce = 0,
-          filter = {
-            categoryBits = 1,
-            maskBits = 65535,
-            groupIndex = 0
-          },
-          shape = {
-            -23,
-            -10,
-            30,
-            -6,
-            31.25,
-            7.5,
-            -31,
-            9
-          }
-        }
-      },
-      piece3 = {
-        {
-          pe_fixture_id = "",
-          density = 2,
-          friction = 0,
-          bounce = 0,
-          filter = {
-            categoryBits = 1,
-            maskBits = 65535,
-            groupIndex = 0
-          },
-          shape = {
-            6,
-            4.5,
-            -11,
-            1.5,
-            -10,
-            -5.5,
-            11,
-            -6.5
-          }
-        }
-      },
-      stomach = {
-        {
-          pe_fixture_id = "",
-          density = 2,
-          friction = 0,
-          bounce = 0,
-          filter = {
-            categoryBits = 1,
-            maskBits = 65535,
-            groupIndex = 0
-          },
-          shape = {
-            -20.75,
-            -8.75,
-            -2,
-            -2.5,
-            -18,
-            10.5,
-            -31,
-            7.5
-          }
-        },
-        {
-          pe_fixture_id = "",
-          density = 2,
-          friction = 0,
-          bounce = 0,
-          filter = {
-            categoryBits = 1,
-            maskBits = 65535,
-            groupIndex = 0
-          },
-          shape = {
-            -2,
-            -2.5,
-            27,
-            -21.5,
-            32,
-            -12.5,
-            26,
-            12.5,
-            -2,
-            20.5,
-            -18,
-            10.5
-          }
-        }
-      },
-      bone1 = {
-        {
-          pe_fixture_id = "",
-          density = 2,
-          friction = 0,
-          bounce = 0,
-          filter = {
-            categoryBits = 1,
-            maskBits = 65535,
-            groupIndex = 0
-          },
-          shape = {
-            22,
-            -26,
-            29,
-            -14,
-            -12,
-            27,
-            -32,
-            13
-          }
-        }
-      },
-      bone2 = {
-        {
-          pe_fixture_id = "",
-          density = 2,
-          friction = 0,
-          bounce = 0,
-          filter = {
-            categoryBits = 1,
-            maskBits = 65535,
-            groupIndex = 0
-          },
-          shape = {
-            32,
-            -23,
-            42,
-            -1,
-            -30,
-            23,
-            -42,
-            0
-          }
-        }
-      },
-      brain1 = {
-        {
-          pe_fixture_id = "",
-          density = 2,
-          friction = 0,
-          bounce = 0,
-          filter = {
-            categoryBits = 1,
-            maskBits = 65535,
-            groupIndex = 0
-          },
-          shape = {
-            -10,
-            -17,
-            9,
-            -20,
-            17,
-            12,
-            4,
-            22,
-            -16,
-            9
-          }
-        }
-      },
-      brain2 = {
-        {
-          pe_fixture_id = "",
-          density = 2,
-          friction = 0,
-          bounce = 0,
-          filter = {
-            categoryBits = 1,
-            maskBits = 65535,
-            groupIndex = 0
-          },
-          shape = {
-            6.5,
-            -16,
-            22.5,
-            -7,
-            11.5,
-            15,
-            -11.5,
-            13,
-            -21.5,
-            -11
-          }
-        }
-      },
-      brain3 = {
-        {
-          pe_fixture_id = "",
-          density = 2,
-          friction = 0,
-          bounce = 0,
-          filter = {
-            categoryBits = 1,
-            maskBits = 65535,
-            groupIndex = 0
-          },
-          shape = {
-            -15.5,
-            -4.5,
-            23.5,
-            -10.5,
-            18.5,
-            7.5,
-            -10.5,
-            10.5,
-            -22.5,
-            4.5
-          }
-        }
-      }
-    }
-  }
-  local s = scale or 1
-  for bi, body in pairs(physics.data) do
-    for fi, fixture in ipairs(body) do
-      if fixture.shape then
-        for ci, coordinate in ipairs(fixture.shape) do
-          fixture.shape[ci] = s * coordinate
+function L4_1(A0_2)
+  local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2, L19_2
+  L1_2 = {}
+  L2_2 = {}
+  L3_2 = {}
+  L4_2 = {}
+  L4_2.pe_fixture_id = ""
+  L4_2.density = 2.5
+  L4_2.friction = 1
+  L4_2.bounce = 0.2
+  L5_2 = {}
+  L5_2.categoryBits = 1
+  L5_2.maskBits = 65535
+  L5_2.groupIndex = 0
+  L4_2.filter = L5_2
+  L5_2 = {}
+  L6_2 = 15
+  L7_2 = 44
+  L8_2 = -19
+  L9_2 = 47
+  L10_2 = -28
+  L11_2 = -34
+  L12_2 = 31
+  L13_2 = -46
+  L5_2[1] = L6_2
+  L5_2[2] = L7_2
+  L5_2[3] = L8_2
+  L5_2[4] = L9_2
+  L5_2[5] = L10_2
+  L5_2[6] = L11_2
+  L5_2[7] = L12_2
+  L5_2[8] = L13_2
+  L4_2.shape = L5_2
+  L3_2[1] = L4_2
+  L2_2.sawbladeLeft = L3_2
+  L3_2 = {}
+  L4_2 = {}
+  L4_2.pe_fixture_id = ""
+  L4_2.density = 2.5
+  L4_2.friction = 1
+  L4_2.bounce = 0.2
+  L5_2 = {}
+  L5_2.categoryBits = 1
+  L5_2.maskBits = 65535
+  L5_2.groupIndex = 0
+  L4_2.filter = L5_2
+  L5_2 = {}
+  L6_2 = 15
+  L7_2 = -45
+  L8_2 = 14
+  L9_2 = 44
+  L10_2 = -10
+  L11_2 = 41
+  L12_2 = -28
+  L13_2 = -39
+  L5_2[1] = L6_2
+  L5_2[2] = L7_2
+  L5_2[3] = L8_2
+  L5_2[4] = L9_2
+  L5_2[5] = L10_2
+  L5_2[6] = L11_2
+  L5_2[7] = L12_2
+  L5_2[8] = L13_2
+  L4_2.shape = L5_2
+  L3_2[1] = L4_2
+  L2_2.sawbladeRight = L3_2
+  L3_2 = {}
+  L4_2 = {}
+  L4_2.pe_fixture_id = ""
+  L4_2.density = 2
+  L4_2.friction = 0
+  L4_2.bounce = 0
+  L5_2 = {}
+  L5_2.categoryBits = 1
+  L5_2.maskBits = 65535
+  L5_2.groupIndex = 0
+  L4_2.filter = L5_2
+  L5_2 = {}
+  L6_2 = -4
+  L7_2 = 16
+  L8_2 = -17
+  L9_2 = 4
+  L10_2 = -14
+  L11_2 = -4
+  L12_2 = 3
+  L13_2 = -18
+  L14_2 = 20
+  L15_2 = -12
+  L16_2 = 22
+  L17_2 = 2
+  L18_2 = 14
+  L19_2 = 16
+  L5_2[1] = L6_2
+  L5_2[2] = L7_2
+  L5_2[3] = L8_2
+  L5_2[4] = L9_2
+  L5_2[5] = L10_2
+  L5_2[6] = L11_2
+  L5_2[7] = L12_2
+  L5_2[8] = L13_2
+  L5_2[9] = L14_2
+  L5_2[10] = L15_2
+  L5_2[11] = L16_2
+  L5_2[12] = L17_2
+  L5_2[13] = L18_2
+  L5_2[14] = L19_2
+  L4_2.shape = L5_2
+  L3_2[1] = L4_2
+  L2_2.eye = L3_2
+  L3_2 = {}
+  L4_2 = {}
+  L4_2.pe_fixture_id = ""
+  L4_2.density = 2
+  L4_2.friction = 0
+  L4_2.bounce = 0
+  L5_2 = {}
+  L5_2.categoryBits = 1
+  L5_2.maskBits = 65535
+  L5_2.groupIndex = 0
+  L4_2.filter = L5_2
+  L5_2 = {}
+  L6_2 = 16.5
+  L7_2 = 7
+  L8_2 = 4.5
+  L9_2 = 21
+  L10_2 = -11.5
+  L11_2 = 12
+  L12_2 = -8.5
+  L13_2 = -14
+  L14_2 = 13.5
+  L15_2 = -17
+  L5_2[1] = L6_2
+  L5_2[2] = L7_2
+  L5_2[3] = L8_2
+  L5_2[4] = L9_2
+  L5_2[5] = L10_2
+  L5_2[6] = L11_2
+  L5_2[7] = L12_2
+  L5_2[8] = L13_2
+  L5_2[9] = L14_2
+  L5_2[10] = L15_2
+  L4_2.shape = L5_2
+  L3_2[1] = L4_2
+  L2_2.heart = L3_2
+  L3_2 = {}
+  L4_2 = {}
+  L4_2.pe_fixture_id = ""
+  L4_2.density = 2
+  L4_2.friction = 0
+  L4_2.bounce = 0
+  L5_2 = {}
+  L5_2.categoryBits = 1
+  L5_2.maskBits = 65535
+  L5_2.groupIndex = 0
+  L4_2.filter = L5_2
+  L5_2 = {}
+  L6_2 = 9.25
+  L7_2 = 6
+  L8_2 = -1
+  L9_2 = 9.75
+  L10_2 = -16
+  L11_2 = 0
+  L12_2 = 4
+  L13_2 = -1
+  L14_2 = 12
+  L15_2 = -1
+  L5_2[1] = L6_2
+  L5_2[2] = L7_2
+  L5_2[3] = L8_2
+  L5_2[4] = L9_2
+  L5_2[5] = L10_2
+  L5_2[6] = L11_2
+  L5_2[7] = L12_2
+  L5_2[8] = L13_2
+  L5_2[9] = L14_2
+  L5_2[10] = L15_2
+  L4_2.shape = L5_2
+  L5_2 = {}
+  L5_2.pe_fixture_id = ""
+  L5_2.density = 2
+  L5_2.friction = 0
+  L5_2.bounce = 0
+  L6_2 = {}
+  L6_2.categoryBits = 1
+  L6_2.maskBits = 65535
+  L6_2.groupIndex = 0
+  L5_2.filter = L6_2
+  L6_2 = {}
+  L7_2 = -16
+  L8_2 = 0
+  L9_2 = -12
+  L10_2 = -10
+  L11_2 = 4
+  L12_2 = -1
+  L6_2[1] = L7_2
+  L6_2[2] = L8_2
+  L6_2[3] = L9_2
+  L6_2[4] = L10_2
+  L6_2[5] = L11_2
+  L6_2[6] = L12_2
+  L5_2.shape = L6_2
+  L3_2[1] = L4_2
+  L3_2[2] = L5_2
+  L2_2.intestine1 = L3_2
+  L3_2 = {}
+  L4_2 = {}
+  L4_2.pe_fixture_id = ""
+  L4_2.density = 2
+  L4_2.friction = 0
+  L4_2.bounce = 0
+  L5_2 = {}
+  L5_2.categoryBits = 1
+  L5_2.maskBits = 65535
+  L5_2.groupIndex = 0
+  L4_2.filter = L5_2
+  L5_2 = {}
+  L6_2 = 8.5
+  L7_2 = 6
+  L8_2 = -8.5
+  L9_2 = -1
+  L10_2 = 4.5
+  L11_2 = -8
+  L12_2 = 14.5
+  L13_2 = -3
+  L14_2 = 15.5
+  L15_2 = 7
+  L5_2[1] = L6_2
+  L5_2[2] = L7_2
+  L5_2[3] = L8_2
+  L5_2[4] = L9_2
+  L5_2[5] = L10_2
+  L5_2[6] = L11_2
+  L5_2[7] = L12_2
+  L5_2[8] = L13_2
+  L5_2[9] = L14_2
+  L5_2[10] = L15_2
+  L4_2.shape = L5_2
+  L5_2 = {}
+  L5_2.pe_fixture_id = ""
+  L5_2.density = 2
+  L5_2.friction = 0
+  L5_2.bounce = 0
+  L6_2 = {}
+  L6_2.categoryBits = 1
+  L6_2.maskBits = 65535
+  L6_2.groupIndex = 0
+  L5_2.filter = L6_2
+  L6_2 = {}
+  L7_2 = -8.5
+  L8_2 = -1
+  L9_2 = 8.5
+  L10_2 = 6
+  L11_2 = -13.5
+  L12_2 = 7
+  L6_2[1] = L7_2
+  L6_2[2] = L8_2
+  L6_2[3] = L9_2
+  L6_2[4] = L10_2
+  L6_2[5] = L11_2
+  L6_2[6] = L12_2
+  L5_2.shape = L6_2
+  L3_2[1] = L4_2
+  L3_2[2] = L5_2
+  L2_2.intestine2 = L3_2
+  L3_2 = {}
+  L4_2 = {}
+  L4_2.pe_fixture_id = ""
+  L4_2.density = 2
+  L4_2.friction = 0
+  L4_2.bounce = 0
+  L5_2 = {}
+  L5_2.categoryBits = 1
+  L5_2.maskBits = 65535
+  L5_2.groupIndex = 0
+  L4_2.filter = L5_2
+  L5_2 = {}
+  L6_2 = 11
+  L7_2 = -8.5
+  L8_2 = 14
+  L9_2 = 19.5
+  L10_2 = 6
+  L11_2 = 27.5
+  L12_2 = -15
+  L13_2 = 24.5
+  L14_2 = -4
+  L15_2 = -20.5
+  L16_2 = 8
+  L17_2 = -27.5
+  L5_2[1] = L6_2
+  L5_2[2] = L7_2
+  L5_2[3] = L8_2
+  L5_2[4] = L9_2
+  L5_2[5] = L10_2
+  L5_2[6] = L11_2
+  L5_2[7] = L12_2
+  L5_2[8] = L13_2
+  L5_2[9] = L14_2
+  L5_2[10] = L15_2
+  L5_2[11] = L16_2
+  L5_2[12] = L17_2
+  L4_2.shape = L5_2
+  L3_2[1] = L4_2
+  L2_2.lung = L3_2
+  L3_2 = {}
+  L4_2 = {}
+  L4_2.pe_fixture_id = ""
+  L4_2.density = 2
+  L4_2.friction = 0
+  L4_2.bounce = 0
+  L5_2 = {}
+  L5_2.categoryBits = 1
+  L5_2.maskBits = 65535
+  L5_2.groupIndex = 0
+  L4_2.filter = L5_2
+  L5_2 = {}
+  L6_2 = 14.5
+  L7_2 = -17.5
+  L8_2 = 32.5
+  L9_2 = 1.5
+  L10_2 = 28.25
+  L11_2 = 20
+  L12_2 = 5.5
+  L13_2 = 21.5
+  L14_2 = -33.5
+  L15_2 = 16.5
+  L5_2[1] = L6_2
+  L5_2[2] = L7_2
+  L5_2[3] = L8_2
+  L5_2[4] = L9_2
+  L5_2[5] = L10_2
+  L5_2[6] = L11_2
+  L5_2[7] = L12_2
+  L5_2[8] = L13_2
+  L5_2[9] = L14_2
+  L5_2[10] = L15_2
+  L4_2.shape = L5_2
+  L3_2[1] = L4_2
+  L2_2.piece1 = L3_2
+  L3_2 = {}
+  L4_2 = {}
+  L4_2.pe_fixture_id = ""
+  L4_2.density = 2
+  L4_2.friction = 0
+  L4_2.bounce = 0
+  L5_2 = {}
+  L5_2.categoryBits = 1
+  L5_2.maskBits = 65535
+  L5_2.groupIndex = 0
+  L4_2.filter = L5_2
+  L5_2 = {}
+  L6_2 = -23
+  L7_2 = -10
+  L8_2 = 30
+  L9_2 = -6
+  L10_2 = 31.25
+  L11_2 = 7.5
+  L12_2 = -31
+  L13_2 = 9
+  L5_2[1] = L6_2
+  L5_2[2] = L7_2
+  L5_2[3] = L8_2
+  L5_2[4] = L9_2
+  L5_2[5] = L10_2
+  L5_2[6] = L11_2
+  L5_2[7] = L12_2
+  L5_2[8] = L13_2
+  L4_2.shape = L5_2
+  L3_2[1] = L4_2
+  L2_2.piece2 = L3_2
+  L3_2 = {}
+  L4_2 = {}
+  L4_2.pe_fixture_id = ""
+  L4_2.density = 2
+  L4_2.friction = 0
+  L4_2.bounce = 0
+  L5_2 = {}
+  L5_2.categoryBits = 1
+  L5_2.maskBits = 65535
+  L5_2.groupIndex = 0
+  L4_2.filter = L5_2
+  L5_2 = {}
+  L6_2 = 6
+  L7_2 = 4.5
+  L8_2 = -11
+  L9_2 = 1.5
+  L10_2 = -10
+  L11_2 = -5.5
+  L12_2 = 11
+  L13_2 = -6.5
+  L5_2[1] = L6_2
+  L5_2[2] = L7_2
+  L5_2[3] = L8_2
+  L5_2[4] = L9_2
+  L5_2[5] = L10_2
+  L5_2[6] = L11_2
+  L5_2[7] = L12_2
+  L5_2[8] = L13_2
+  L4_2.shape = L5_2
+  L3_2[1] = L4_2
+  L2_2.piece3 = L3_2
+  L3_2 = {}
+  L4_2 = {}
+  L4_2.pe_fixture_id = ""
+  L4_2.density = 2
+  L4_2.friction = 0
+  L4_2.bounce = 0
+  L5_2 = {}
+  L5_2.categoryBits = 1
+  L5_2.maskBits = 65535
+  L5_2.groupIndex = 0
+  L4_2.filter = L5_2
+  L5_2 = {}
+  L6_2 = -20.75
+  L7_2 = -8.75
+  L8_2 = -2
+  L9_2 = -2.5
+  L10_2 = -18
+  L11_2 = 10.5
+  L12_2 = -31
+  L13_2 = 7.5
+  L5_2[1] = L6_2
+  L5_2[2] = L7_2
+  L5_2[3] = L8_2
+  L5_2[4] = L9_2
+  L5_2[5] = L10_2
+  L5_2[6] = L11_2
+  L5_2[7] = L12_2
+  L5_2[8] = L13_2
+  L4_2.shape = L5_2
+  L5_2 = {}
+  L5_2.pe_fixture_id = ""
+  L5_2.density = 2
+  L5_2.friction = 0
+  L5_2.bounce = 0
+  L6_2 = {}
+  L6_2.categoryBits = 1
+  L6_2.maskBits = 65535
+  L6_2.groupIndex = 0
+  L5_2.filter = L6_2
+  L6_2 = {}
+  L7_2 = -2
+  L8_2 = -2.5
+  L9_2 = 27
+  L10_2 = -21.5
+  L11_2 = 32
+  L12_2 = -12.5
+  L13_2 = 26
+  L14_2 = 12.5
+  L15_2 = -2
+  L16_2 = 20.5
+  L17_2 = -18
+  L18_2 = 10.5
+  L6_2[1] = L7_2
+  L6_2[2] = L8_2
+  L6_2[3] = L9_2
+  L6_2[4] = L10_2
+  L6_2[5] = L11_2
+  L6_2[6] = L12_2
+  L6_2[7] = L13_2
+  L6_2[8] = L14_2
+  L6_2[9] = L15_2
+  L6_2[10] = L16_2
+  L6_2[11] = L17_2
+  L6_2[12] = L18_2
+  L5_2.shape = L6_2
+  L3_2[1] = L4_2
+  L3_2[2] = L5_2
+  L2_2.stomach = L3_2
+  L3_2 = {}
+  L4_2 = {}
+  L4_2.pe_fixture_id = ""
+  L4_2.density = 2
+  L4_2.friction = 0
+  L4_2.bounce = 0
+  L5_2 = {}
+  L5_2.categoryBits = 1
+  L5_2.maskBits = 65535
+  L5_2.groupIndex = 0
+  L4_2.filter = L5_2
+  L5_2 = {}
+  L6_2 = 22
+  L7_2 = -26
+  L8_2 = 29
+  L9_2 = -14
+  L10_2 = -12
+  L11_2 = 27
+  L12_2 = -32
+  L13_2 = 13
+  L5_2[1] = L6_2
+  L5_2[2] = L7_2
+  L5_2[3] = L8_2
+  L5_2[4] = L9_2
+  L5_2[5] = L10_2
+  L5_2[6] = L11_2
+  L5_2[7] = L12_2
+  L5_2[8] = L13_2
+  L4_2.shape = L5_2
+  L3_2[1] = L4_2
+  L2_2.bone1 = L3_2
+  L3_2 = {}
+  L4_2 = {}
+  L4_2.pe_fixture_id = ""
+  L4_2.density = 2
+  L4_2.friction = 0
+  L4_2.bounce = 0
+  L5_2 = {}
+  L5_2.categoryBits = 1
+  L5_2.maskBits = 65535
+  L5_2.groupIndex = 0
+  L4_2.filter = L5_2
+  L5_2 = {}
+  L6_2 = 32
+  L7_2 = -23
+  L8_2 = 42
+  L9_2 = -1
+  L10_2 = -30
+  L11_2 = 23
+  L12_2 = -42
+  L13_2 = 0
+  L5_2[1] = L6_2
+  L5_2[2] = L7_2
+  L5_2[3] = L8_2
+  L5_2[4] = L9_2
+  L5_2[5] = L10_2
+  L5_2[6] = L11_2
+  L5_2[7] = L12_2
+  L5_2[8] = L13_2
+  L4_2.shape = L5_2
+  L3_2[1] = L4_2
+  L2_2.bone2 = L3_2
+  L3_2 = {}
+  L4_2 = {}
+  L4_2.pe_fixture_id = ""
+  L4_2.density = 2
+  L4_2.friction = 0
+  L4_2.bounce = 0
+  L5_2 = {}
+  L5_2.categoryBits = 1
+  L5_2.maskBits = 65535
+  L5_2.groupIndex = 0
+  L4_2.filter = L5_2
+  L5_2 = {}
+  L6_2 = -10
+  L7_2 = -17
+  L8_2 = 9
+  L9_2 = -20
+  L10_2 = 17
+  L11_2 = 12
+  L12_2 = 4
+  L13_2 = 22
+  L14_2 = -16
+  L15_2 = 9
+  L5_2[1] = L6_2
+  L5_2[2] = L7_2
+  L5_2[3] = L8_2
+  L5_2[4] = L9_2
+  L5_2[5] = L10_2
+  L5_2[6] = L11_2
+  L5_2[7] = L12_2
+  L5_2[8] = L13_2
+  L5_2[9] = L14_2
+  L5_2[10] = L15_2
+  L4_2.shape = L5_2
+  L3_2[1] = L4_2
+  L2_2.brain1 = L3_2
+  L3_2 = {}
+  L4_2 = {}
+  L4_2.pe_fixture_id = ""
+  L4_2.density = 2
+  L4_2.friction = 0
+  L4_2.bounce = 0
+  L5_2 = {}
+  L5_2.categoryBits = 1
+  L5_2.maskBits = 65535
+  L5_2.groupIndex = 0
+  L4_2.filter = L5_2
+  L5_2 = {}
+  L6_2 = 6.5
+  L7_2 = -16
+  L8_2 = 22.5
+  L9_2 = -7
+  L10_2 = 11.5
+  L11_2 = 15
+  L12_2 = -11.5
+  L13_2 = 13
+  L14_2 = -21.5
+  L15_2 = -11
+  L5_2[1] = L6_2
+  L5_2[2] = L7_2
+  L5_2[3] = L8_2
+  L5_2[4] = L9_2
+  L5_2[5] = L10_2
+  L5_2[6] = L11_2
+  L5_2[7] = L12_2
+  L5_2[8] = L13_2
+  L5_2[9] = L14_2
+  L5_2[10] = L15_2
+  L4_2.shape = L5_2
+  L3_2[1] = L4_2
+  L2_2.brain2 = L3_2
+  L3_2 = {}
+  L4_2 = {}
+  L4_2.pe_fixture_id = ""
+  L4_2.density = 2
+  L4_2.friction = 0
+  L4_2.bounce = 0
+  L5_2 = {}
+  L5_2.categoryBits = 1
+  L5_2.maskBits = 65535
+  L5_2.groupIndex = 0
+  L4_2.filter = L5_2
+  L5_2 = {}
+  L6_2 = -15.5
+  L7_2 = -4.5
+  L8_2 = 23.5
+  L9_2 = -10.5
+  L10_2 = 18.5
+  L11_2 = 7.5
+  L12_2 = -10.5
+  L13_2 = 10.5
+  L14_2 = -22.5
+  L15_2 = 4.5
+  L5_2[1] = L6_2
+  L5_2[2] = L7_2
+  L5_2[3] = L8_2
+  L5_2[4] = L9_2
+  L5_2[5] = L10_2
+  L5_2[6] = L11_2
+  L5_2[7] = L12_2
+  L5_2[8] = L13_2
+  L5_2[9] = L14_2
+  L5_2[10] = L15_2
+  L4_2.shape = L5_2
+  L3_2[1] = L4_2
+  L2_2.brain3 = L3_2
+  L1_2.data = L2_2
+  L2_2 = A0_2 or L2_2
+  if not A0_2 then
+    L2_2 = 1
+  end
+  L3_2 = L1_1
+  L4_2 = L1_2.data
+  L3_2, L4_2, L5_2 = L3_2(L4_2)
+  for L6_2, L7_2 in L3_2, L4_2, L5_2 do
+    L8_2 = L2_1
+    L9_2 = L7_2
+    L8_2, L9_2, L10_2 = L8_2(L9_2)
+    for L11_2, L12_2 in L8_2, L9_2, L10_2 do
+      L13_2 = L12_2.shape
+      if L13_2 then
+        L13_2 = L2_1
+        L14_2 = L12_2.shape
+        L13_2, L14_2, L15_2 = L13_2(L14_2)
+        for L16_2, L17_2 in L13_2, L14_2, L15_2 do
+          L18_2 = L12_2.shape
+          L19_2 = L2_2 * L17_2
+          L18_2[L16_2] = L19_2
         end
       else
-        fixture.radius = s * fixture.radius
+        L13_2 = L12_2.radius
+        L13_2 = L2_2 * L13_2
+        L12_2.radius = L13_2
       end
     end
   end
-
-  function physics:get(name)
-    -- Safe unpack with nil check
-    if self.data[name] and type(self.data[name]) == "table" then
-      return unpack(self.data[name])
-    else
-      print("WARNING: Physics data not found for: " .. tostring(name))
-      return nil
-    end
+  
+  function L3_2(A0_3, A1_3)
+    local L2_3, L3_3
+    L2_3 = L0_1
+    L3_3 = A0_3.data
+    L3_3 = L3_3[A1_3]
+    return L2_3(L3_3)
   end
-
-  function physics:getFixtureId(name, index)
-    return self.data[name][index].pe_fixture_id
+  
+  L1_2.get = L3_2
+  
+  function L3_2(A0_3, A1_3, A2_3)
+    local L3_3
+    L3_3 = A0_3.data
+    L3_3 = L3_3[A1_3]
+    L3_3 = L3_3[A2_3]
+    L3_3 = L3_3.pe_fixture_id
+    return L3_3
   end
-
-  return physics
+  
+  L1_2.getFixtureId = L3_2
+  return L1_2
 end
 
-return M
+L3_1.physicsData = L4_1
+return L3_1

@@ -20,6 +20,7 @@ function scene:create(event)
   local tableView = require("lua.modules.tableViewHorizontal")
   local inApp = require("lua.iap.inAppPurchase")
   local powerUpPreviewer = require("lua.gameLogic.powerUpPreviewer")
+  local marketplaceIndex = require("lua.modules.marketplaceIndex")
   local leftBarDisplayGroup = display.newGroup()
   local title, moneyLabel
   local itemSelected = 1
@@ -246,47 +247,12 @@ function scene:create(event)
       playItemEffect()
     end
   end
--- debugging.
   local function findIndexOnKey(key)
-    print("Looking for key:", key)
-    print("currentMarketData size:", #currentMarketData)
-
-    for i = 1, #currentMarketData do
-        if tonumber(currentMarketData[i].key) == tonumber(key) then
-            print("FOUND at index", i)
-            return i
-        end
-    end
-
-    print("FAILED TO FIND KEY:", key)
-
-    local startIdx = math.max(1, #currentMarketData - 10)
-    for i = startIdx, #currentMarketData do
-        print(i, currentMarketData[i].key)
-    end
+    return marketplaceIndex.findIndexOnKey(currentMarketData, key)
   end
 
   local function findIndexOnId(key)
-    key = tonumber(key)
-    if key < 200 then
-      return 1
-    elseif key < 300 then
-      return 2
-    elseif key < 400 then
-      return 3
-    elseif key < 500 then
-      return 4
-    elseif key < 600 then
-      return 5
-    elseif key < 700 then
-      return 6
-    elseif key < 800 then
-      return 7
-    elseif 1000 < key and key < 1100 then
-      return 10
-    elseif key >= 1200 and key < 2100 then
-      return 9
-    end
+    return marketplaceIndex.findIndexOnId(key)
   end
 
   local function isItemBought(itemData)
@@ -544,26 +510,7 @@ function scene:create(event)
 
   function updateMarketplace(spriteType, newIndex)
     composer.debugger.debugTable("network", "currentMarketData :", currentMarketData)
-    local index = tonumber(newIndex)
-    local slotToChange = spriteType
-    if index == 0 then
-      index = 1
-    elseif spriteType == 9 or spriteType == 10 then
-      -- Powerup tabs: index is simple array position, no id conversion needed
-      if not index or index < 1 then index = 1 end
-      if index > #currentMarketData then index = #currentMarketData end
-    elseif spriteType == 8 then
-      if 100 < index then
-        index = findIndexOnId(index)
-      end
-      slotToChange = findIndexOnId(currentMarketData[index].key)
-    elseif 100 < index and index > #currentMarketData then -- attempt to fix.
-      index = findIndexOnKey(index)
-    end
-    -- debugging again.
-    print("updateMarketplace spriteType =", spriteType)
-    print("updateMarketplace newIndex =", newIndex)
-    print("updateMarketplace final index =", index)
+    local index, slotToChange = marketplaceIndex.normalizeSelection(spriteType, newIndex, currentMarketData)
     itemSelected = index
     updateItemTitle(index)
     updateTextInfo(index)
@@ -651,22 +598,13 @@ function scene:create(event)
       itemSelected = 1
       return
     end
-    local equippedMonsterData = composer.database.getAvatarData() or monsterData
-    local inedxToSearchFor = tonumber(equippedMonsterData[tabSelected])
-    if currentMonster then
-      if tabSelected == 1 then
-        inedxToSearchFor = currentMonster
-      else
-        inedxToSearchFor = composer.database.getDefaultSkinForAvatar(currentMonster)
-      end
-    end
-    for i = 1, #currentMarketData do
-      if tonumber(currentMarketData[i].key) == tonumber(inedxToSearchFor) then
-        itemSelected = i
-        return
-      end
-    end
-    itemSelected = 1
+    itemSelected = marketplaceIndex.findItemSelectedForSpriteType(
+      tabSelected,
+      currentMarketData,
+      composer.database.getAvatarData() or monsterData,
+      currentMonster,
+      composer.database.getDefaultSkinForAvatar
+    )
   end
 
   local function btnBackRelease(event)

@@ -124,7 +124,7 @@ local onSystem = function(event)
 end
 Runtime:addEventListener("system", onSystem)
 if isAndroid then
-    androidLogic = require("lua.modules.androidBackButton")
+    local androidLogic = require("lua.modules.androidBackButton")
     androidLogic.startAndroidBackButton()
 end
 

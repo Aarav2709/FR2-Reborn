@@ -2,6 +2,7 @@ local M = {}
 local composer = require("composer")
 local jsonParser = require("lua.modules.jsonParser")
 local crypto = require("crypto")
+local animationSequenceBuilder = require("lua.modules.animationSequenceBuilder")
 local soundsLoaded = false
 local baseSoundsLoaded = false
 local storeLoaded = false
@@ -142,33 +143,33 @@ function M.loadAnimations3()
     loopCount = 3
   }
   animations.bloodSquirt = bloodSquirtSequenceData
-  local bloodScreeenEffectStartIndex1 = composer.powerUpEffectImageSheetInfo:getFrameIndex("bloodLL1")
-  local bloodScreeenEffectSequenceData1 = {
+  local bloodScreenEffectStartIndex1 = composer.powerUpEffectImageSheetInfo:getFrameIndex("bloodLL1")
+  local bloodScreenEffectSequenceData1 = {
     name = "normal",
-    start = bloodScreeenEffectStartIndex1,
+    start = bloodScreenEffectStartIndex1,
     count = 3,
     time = 100,
     loopCount = 1
   }
-  animations.llBloodEffect = bloodScreeenEffectSequenceData1
-  local bloodScreeenEffectStartIndex2 = composer.powerUpEffectImageSheetInfo:getFrameIndex("bloodTL1")
-  local bloodScreeenEffectSequenceData2 = {
+  animations.llBloodEffect = bloodScreenEffectSequenceData1
+  local bloodScreenEffectStartIndex2 = composer.powerUpEffectImageSheetInfo:getFrameIndex("bloodTL1")
+  local bloodScreenEffectSequenceData2 = {
     name = "normal",
-    start = bloodScreeenEffectStartIndex2,
+    start = bloodScreenEffectStartIndex2,
     count = 3,
     time = 100,
     loopCount = 1
   }
-  animations.tlBloodEffect = bloodScreeenEffectSequenceData2
-  local bloodScreeenEffectStartIndex3 = composer.powerUpEffectImageSheetInfo:getFrameIndex("bloodTR1")
-  local bloodScreeenEffectSequenceData3 = {
+  animations.tlBloodEffect = bloodScreenEffectSequenceData2
+  local bloodScreenEffectStartIndex3 = composer.powerUpEffectImageSheetInfo:getFrameIndex("bloodTR1")
+  local bloodScreenEffectSequenceData3 = {
     name = "normal",
-    start = bloodScreeenEffectStartIndex3,
+    start = bloodScreenEffectStartIndex3,
     count = 3,
     time = 100,
     loopCount = 1
   }
-  animations.trBloodEffect = bloodScreeenEffectSequenceData3
+  animations.trBloodEffect = bloodScreenEffectSequenceData3
   local jumpEffectStartIndex = composer.powerUpEffectImageSheetInfo:getFrameIndex("jump_cloud1")
   local jumpEffectSequenceData = {
     name = "normal",
@@ -466,17 +467,8 @@ function M.getTrapAnimation(skinId)
   if animations[key] then
     return animations[key]
   end
-  local startFrame = composer.powerUpImageSheetInfo:getFrameIndex("" .. skinId)
-  local endFrame = composer.powerUpImageSheetInfo:getFrameIndex("" .. skinId .. "_4")
-  if not startFrame or not endFrame then
-    startFrame = composer.powerUpImageSheetInfo:getFrameIndex("1301")
-    endFrame = composer.powerUpImageSheetInfo:getFrameIndex("1301_4")
-    key = "1301"
-  end
-  local sequenceData = {
-    { name = "close", start = startFrame, count = 4, time = 70, loopCount = 1 },
-    { name = "open", frames = { endFrame, endFrame - 1, endFrame - 2, endFrame - 3 }, time = 1000, loopCount = 1 }
-  }
+  local sequenceData
+  key, sequenceData = animationSequenceBuilder.buildTrapAnimation(composer.powerUpImageSheetInfo, skinId)
   animations[key] = sequenceData
   return animations[key]
 end
@@ -488,17 +480,8 @@ function M.getBounceTrapAnimation(skinId)
   if animations[key] then
     return animations[key]
   end
-  local startFrame = composer.powerUpImageSheetInfo:getFrameIndex("" .. skinId)
-  local endFrame = composer.powerUpImageSheetInfo:getFrameIndex("" .. skinId .. "_5")
-  if not startFrame or not endFrame then
-    startFrame = composer.powerUpImageSheetInfo:getFrameIndex("2001")
-    endFrame = composer.powerUpImageSheetInfo:getFrameIndex("2001_5")
-    key = "2001"
-  end
-  local sequenceData = {
-    { name = "play", start = startFrame, count = 5, time = 70, loopCount = 1 },
-    { name = "reset", frames = { endFrame, endFrame - 1, endFrame - 2, endFrame - 3, endFrame - 4 }, time = 800, loopCount = 1 }
-  }
+  local sequenceData
+  key, sequenceData = animationSequenceBuilder.buildBounceTrapAnimation(composer.powerUpImageSheetInfo, skinId)
   animations[key] = sequenceData
   return animations[key]
 end

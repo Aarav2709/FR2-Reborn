@@ -1,12 +1,13 @@
 local M = {}
 local composer = require("composer")
+local videoSelection = require("lua.ads.videoSelection")
 local vungleModule, admobModule, chartboostModule, nativeXModule, adrallyModule
 local vungleChance = 0
 local admobChance = 0
 local chartboostChance = 0
 local videoChance = 0
 local nativeXChance = 0
-local adrallyChacne = 0
+local adrallyChance = 0
 local isLoaded = false
 local haveSetChance = false
 local haveSentMessage = false
@@ -33,35 +34,37 @@ local function callback(data)
   end
 end
 
-local function setChance(newVungleChance, newAdmobChance, newChartboostChance, newNativeXChacne, newAdrallyChance)
+local function setChance(newVungleChance, newAdmobChance, newChartboostChance, newNativeXChance, newAdrallyChance)
   if composer.config.platform == "z" or haveSetChance then
     return
   end
   haveSetChance = true
-  videoChance = 0
+  local chanceState = videoSelection.buildChanceState({
+    vungle = newVungleChance,
+    admob = newAdmobChance,
+    chartboost = newChartboostChance,
+    nativeX = newNativeXChance,
+    adrally = newAdrallyChance
+  })
+  videoChance = chanceState.total
   if newVungleChance then
-    vungleChance = newVungleChance * 10
-    videoChance = videoChance + vungleChance
+    vungleChance = chanceState.vungle
     vungleModule = require("lua.ads.vungleModule")
   end
   if newAdmobChance then
-    admobChance = newAdmobChance * 10
-    videoChance = videoChance + admobChance
+    admobChance = chanceState.admob
     admobModule = require("lua.ads.admobModule")
   end
   if newChartboostChance then
-    chartboostChance = newChartboostChance * 10
-    videoChance = videoChance + chartboostChance
+    chartboostChance = chanceState.chartboost
     chartboostModule = require("lua.ads.chartboostModule")
   end
-  if newNativeXChacne then
-    nativeXChance = newNativeXChacne * 10
-    videoChance = videoChance + nativeXChance
+  if newNativeXChance then
+    nativeXChance = chanceState.nativeX
     nativeXModule = require("lua.ads.nativeXModule")
   end
   if newAdrallyChance then
-    adrallyChacne = newAdrallyChance * 10
-    videoChance = videoChance + adrallyChacne
+    adrallyChance = chanceState.adrally
     adrallyModule = require("lua.ads.adrallyModule")
   end
 end
@@ -101,39 +104,34 @@ local function isVideoReady()
   if composer.videosLeft < 1 then
     return false
   end
-  if admobModule and 0 < admobChance and admobModule.isVideoReady() then
+  if videoSelection.appendReadyVideo(readyVideos, admobModule, admobChance, function(module)
+    return module.isVideoReady()
+  end) then
     videoReady = true
-    readyVideos[#readyVideos + 1] = {}
-    readyVideos[#readyVideos].chance = admobChance
-    readyVideos[#readyVideos].ad = admobModule
     print("Admob video ready")
   end
-  if vungleModule and 0 < vungleChance and vungleModule.isAdReady() then
+  if videoSelection.appendReadyVideo(readyVideos, vungleModule, vungleChance, function(module)
+    return module.isAdReady()
+  end) then
     videoReady = true
-    readyVideos[#readyVideos + 1] = {}
-    readyVideos[#readyVideos].chance = vungleChance
-    readyVideos[#readyVideos].ad = vungleModule
     print("Vungle video ready")
   end
-  if chartboostModule and 0 < chartboostChance and chartboostModule.isVideoReady() then
+  if videoSelection.appendReadyVideo(readyVideos, chartboostModule, chartboostChance, function(module)
+    return module.isVideoReady()
+  end) then
     videoReady = true
-    readyVideos[#readyVideos + 1] = {}
-    readyVideos[#readyVideos].chance = chartboostChance
-    readyVideos[#readyVideos].ad = chartboostModule
     print("Chartboost video ready")
   end
-  if nativeXModule and 0 < nativeXChance and nativeXModule.isVideoReady() then
+  if videoSelection.appendReadyVideo(readyVideos, nativeXModule, nativeXChance, function(module)
+    return module.isVideoReady()
+  end) then
     videoReady = true
-    readyVideos[#readyVideos + 1] = {}
-    readyVideos[#readyVideos].chance = nativeXChance
-    readyVideos[#readyVideos].ad = nativeXModule
     print("NativeX video ready")
   end
-  if adrallyModule and 0 < adrallyChacne and adrallyModule.isVideoReady() then
+  if videoSelection.appendReadyVideo(readyVideos, adrallyModule, adrallyChance, function(module)
+    return module.isVideoReady()
+  end) then
     videoReady = true
-    readyVideos[#readyVideos + 1] = {}
-    readyVideos[#readyVideos].chance = adrallyChacne
-    readyVideos[#readyVideos].ad = adrallyModule
     print("Adrally video ready")
   end
   if videoReady == false then
@@ -153,7 +151,7 @@ local function showAd()
   print("admobChance ", admobChance)
   print("chartboostChance ", chartboostChance)
   print("nativeXChance ", nativeXChance)
-  print("adrallyChacne ", adrallyChacne)
+  print("adrallyChance ", adrallyChance)
   print("videoChance ", videoChance)
   if not (0 < videoChance) then
     return
@@ -165,15 +163,11 @@ local function showAd()
       listOfSuppliers[1].ad.showVideo()
       return
     else
-      local counter = 0
-      for i = 1, #listOfSuppliers do
-        if randomNumber < listOfSuppliers[i].chance + counter then
-          listOfSuppliers[i].ad.showVideo()
-          composer.videosLeft = composer.videosLeft - 1
-          return
-        else
-          counter = counter + listOfSuppliers[i].chance
-        end
+      local selectedSupplier = videoSelection.selectReadyVideo(listOfSuppliers, randomNumber)
+      if selectedSupplier then
+        selectedSupplier.ad.showVideo()
+        composer.videosLeft = composer.videosLeft - 1
+        return
       end
     end
     print("WARNING: failed to show video")
@@ -198,7 +192,7 @@ local function loadAd()
     if nativeXModule and 0 < nativeXChance then
       nativeXModule.preloadVideo()
     end
-    if adrallyModule and 0 < adrallyChacne then
+    if adrallyModule and 0 < adrallyChance then
       adrallyModule.preloadVideo()
     end
   end

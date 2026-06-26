@@ -331,7 +331,6 @@ local function newList(params)
   end
 
   function listView:startAt(itemNumber)
-    print("startAt itemNumber =", itemNumber) -- debugging stuff.
     self.x = centerScreenX - self[1].width * (itemNumber - 1)
   end
 

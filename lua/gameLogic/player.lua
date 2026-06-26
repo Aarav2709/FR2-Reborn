@@ -1536,7 +1536,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   disconnectBar.x = 1
   powerUpImages.markBarImage.alpha = 0
   powerUpImages.markBarImage.y = -20
-  local buttomShape = {
+  local bottomShape = {
     12,
     12,
     9,
@@ -1584,7 +1584,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     }, {
       density = 0,
       friction = 0,
-      shape = buttomShape,
+      shape = bottomShape,
       bounce = 0.1,
       filter = localPlayerCollisionFilter
     }, {
@@ -1604,7 +1604,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     }, {
       density = 0,
       friction = 0,
-      shape = buttomShape,
+      shape = bottomShape,
       bounce = 0.1,
       filter = remotePlayerCollisionFilter
     }, {
@@ -1624,7 +1624,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   }, {
     density = 0,
     friction = 0,
-    shape = buttomShape,
+    shape = bottomShape,
     bounce = 0.1,
     filter = remotePlayerCollisionFilter
   }, {

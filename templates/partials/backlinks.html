@@ -1,0 +1,15 @@
+{%- if page.backlinks %}
+  {%- set backlinks = page.backlinks %}
+{%- elif section.backlinks %}
+  {%- set backlinks = section.backlinks %}
+{%- endif %}
+{%- if backlinks and backlinks | length > 0 %}
+  <h2>{{ macros::translate(key="read_also", default="Read Also", language_strings=language_strings) }}</h2>
+  <ul>
+    {%- for backlink in backlinks %}
+      <li>
+        <a href="{{ backlink.permalink }}">{{ backlink.title }}</a>
+      </li>
+    {%- endfor %}
+  </ul>
+{%- endif %}

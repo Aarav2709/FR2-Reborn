@@ -1,0 +1,44 @@
+@use "../abstracts/functions" as *;
+@use "../abstracts/mixins" as *;
+
+#site-sidebar-header {
+  transform-origin: rpx(18) 50%;
+  border-radius: var(--rounded-corner);
+
+  img,
+  .icon {
+    border-radius: var(--rounded-corner-small);
+  }
+
+  img {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .icon {
+    padding: 0.375rem;
+  }
+
+  div {
+    gap: 0;
+    line-height: 1.125;
+  }
+}
+
+#sidebar-nav {
+  a {
+    transform-origin: rpx(18) 50%;
+    border-radius: var(--rounded-corner);
+    padding: 0.25rem;
+
+    &.new .icon::after {
+      inset-block-start: rpx(-2);
+      inset-inline-end: rpx(-2);
+    }
+  }
+
+  .icon {
+    border-radius: var(--rounded-corner-small);
+    padding: 0.375rem;
+  }
+}

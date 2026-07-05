@@ -1,0 +1,3 @@
+{# Everything is as this duckbass one line because Zola apparenlty has a pretty
+   complex relationship with <pre> #}
+<pre class="crt" {% if font_size %}style="font-size: {{ font_size }};"{% endif %} {% if label -%}role="img" aria-label="{{ label }}"{% else %}aria-hidden="true"{% endif %}><code aria-hidden="true"><span>{{ body | safe }}</span></code></pre>

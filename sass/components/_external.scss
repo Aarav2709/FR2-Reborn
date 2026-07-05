@@ -1,0 +1,12 @@
+@use "../abstracts/functions" as *;
+@use "../abstracts/mixins" as *;
+
+a.external:not(:has(img, svg, video, picture, figure))::after {
+  @include icon(pseudo);
+  --icon: var(--icon-arrow-square-out);
+  display: inline-block;
+  vertical-align: -0.125rem;
+  opacity: var(--dim-opacity);
+  margin-inline-start: 0.125rem;
+  font-size: max(1rem, 1em);
+}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+{%- set rel_attributes = macros::rel_attributes() | trim -%}
+{% block picture %}
+<img id="not-found" class="pixels transparent no-hover drop-shadow" alt="404" {%- if config.markdown.lazy_async_image -%}decoding="async" loading="lazy"{%- endif -%} src="{{ get_url(path='404.gif') }}">
+{% endblock picture %}
+
+<h1>Page Not Found</h1>
+
+<p>The requested page could not be found. Ensure that the requested URL is correct and does not contain any typos.{% if config.extra.issues_url %} If you feel that this behavior is unintended, please file an issue using the button below.{% endif %}</p>
+
+<div class="buttons">
+  <a href="{% include 'partials/home_url.html' %}">Go Home</a>
+  {%- if config.extra.issues_url %}
+    <a class="suggested external" href="{{ config.extra.issues_url }}" rel="{{ rel_attributes }}">File an Issue</a>
+  {%- endif %}
+</div>
+{% endblock content %}

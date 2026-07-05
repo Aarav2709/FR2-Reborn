@@ -1,0 +1,13 @@
+.full-bleed {
+  transform: translateX(-50%);
+  margin-inline-start: 50%;
+  width: calc(100vw - var(--sidebar-width));
+
+  :root[dir*="rtl"] & {
+    transform: translateX(50%);
+  }
+
+  @media only screen and (max-width: 960px) {
+    width: calc(100vw - 3.5rem);
+  }
+}

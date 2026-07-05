@@ -1,0 +1,321 @@
+{# Initialize variables #}
+{%- if config.extra.nav.icon %}
+  {%- if config.extra.nav.icon != true %}
+    {%- if config.extra.nav.icon is matching("^https?://") %}
+      {%- set nav_icon = config.extra.nav.icon | safe %}
+    {%- else %}
+      {%- set nav_icon = get_url(path=config.extra.nav.icon) %}
+    {%- endif -%}
+  {%- elif config.extra.fediverse.host and config.extra.fediverse.user %}
+    {%- set webfinger_url = "https://" ~ config.extra.fediverse.host ~ "/.well-known/webfinger?resource=acct:" ~ config.extra.fediverse.user ~ "@" ~ config.extra.fediverse.host %}
+    {%- set webfinger_json = load_data(url=webfinger_url, format="json", required=false) %}
+    {%- if webfinger_json %}
+      {%- for link in webfinger_json.links %}
+        {%- if link.rel == "http://webfinger.net/rel/avatar" %}
+          {%- set_global nav_icon = link.href %}
+          {%- break %}
+        {%- endif %}
+      {%- endfor %}
+    {%- endif %}
+  {%- elif config.extra.nav.icon == true and config.extra.meta.apple_touch_icon %}
+    {%- if config.extra.meta.apple_touch_icon != true %}
+      {%- set nav_icon = get_url(path=config.extra.meta.apple_touch_icon) %}
+    {%- else %}
+      {%- set nav_icon = get_url(path="apple-touch-icon.png") %}
+    {%- endif %}
+  {%- endif %}
+{%- endif %}
+
+{%- if config.extra.home_url -%}
+  {%- set home_url = get_url(path=config.extra.home_url, lang=lang) -%}
+{%- else -%}
+  {%- set home_url = get_url(path="@/_index.md", lang=lang) -%}
+{%- endif -%}
+
+{%- if current_url | default(value="/") == home_url -%}
+  {%- set home_active = true -%}
+  {%- set after_active = true -%}
+{%- endif -%}
+
+{%- if not home_active -%}
+  {%- set home_url = home_url ~ "#↑" -%}
+{%- endif -%}
+
+{# Nav itself #}
+<div id="site-sidebar">
+  <a id="site-sidebar-header" {% if nav_icon %}class="has-icon"{% endif %} href="#top">
+    {%- if nav_icon -%}
+      <img width="36" height="36" class="transparent no-hover" src="{{ nav_icon }}" alt="" />
+    {%- else -%}
+      {{- macros::icon(name="arrow-line-up") -}}
+    {%- endif -%}
+    <div>
+      <span>
+        {%- if current_path and current_path == "/" -%}
+          {%- set title = config.title -%}
+        {% elif title %}
+          {%- set title = title -%}
+        {% elif section.title -%}
+          {%- set title = section.title -%}
+        {% elif page.title %}
+          {%- set title = page.title -%}
+        {% elif term.name %}
+          {%- set title = term.name -%}
+        {% elif taxonomy.name %}
+          {%- set title = taxonomy.name | capitalize -%}
+        {% else %}
+          {%- set title = "404" %}
+        {%- endif -%}
+
+        {{- title -}}
+      </span>
+      <span>{{ macros::translate(key="back_to_top", default="Back to Top", language_strings=language_strings) }}</span>
+    </div>
+  </a>
+  <div id="site-sidebar-content">
+    <nav id="sidebar-nav" class="overshoot">
+      <ul>
+        {%- if lang != config.default_language -%}
+          {%- set nav_links = config.extra.nav[lang].links -%}
+        {%- else -%}
+          {%- set nav_links = config.extra.nav.links -%}
+        {%- endif -%}
+
+        <li>
+          <a href="{{ home_url }}" {% if home_active %}aria-current="page"{% endif %}>
+            {{- macros::icon(name="house") -}}
+            {{- config.title -}}
+          </a>
+        </li>
+        {%- for link in nav_links -%}
+          {%- if link.category and link.category | length > 0 -%}
+            <li>
+              <details {% if not link.closed %}open{% endif %}>
+                <summary>
+                  {{- link.name -}}
+                  <div class="line"></div>
+                </summary>
+                <ul>
+                  {%- for link in link.category -%}
+                    {# Link URL #}
+                    {%- set link_external = false -%}
+
+                    {%- if link.url is matching("^https?://") -%}
+                      {%- set link_url = link.url -%}
+                      {%- set link_external = true -%}
+                    {%- else -%}
+                      {%- set link_url = get_url(path=link.url, lang=lang) -%}
+                    {%- endif -%}
+
+                    {# Active link #}
+                    {%- set link_active = false -%}
+
+                    {%- if not link_external and current_url | default(value="/") | trim_end_matches(pat='/') | safe == link_url | trim_end_matches(pat='/') | safe -%}
+                      {%- set link_active = true -%}
+                    {%- endif -%}
+
+                    {{ macros::link(
+                      link=link,
+                      lang=lang,
+                      link_url=link_url,
+                      link_external=link_external,
+                      link_active=link_active,
+                      after_active=after_active | default(value=false)) }}
+
+                    {%- if link_active -%}
+                      {%- set_global after_active = true -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                </ul>
+              </details>
+            </li>
+          {%- else -%}
+            {# Link URL #}
+            {%- set link_external = false -%}
+
+            {%- if link.url is matching("^https?://") -%}
+              {%- set link_url = link.url -%}
+              {%- set link_external = true -%}
+            {%- else -%}
+              {%- set link_url = get_url(path=link.url, lang=lang) -%}
+            {%- endif -%}
+
+            {# Active link #}
+            {%- set link_active = false -%}
+
+            {%- if not link_external and current_url | default(value="/") | trim_end_matches(pat='/') | safe == link_url | trim_end_matches(pat='/') | safe -%}
+              {%- set link_active = true -%}
+            {%- endif -%}
+
+            {{ macros::link(
+              link=link,
+              lang=lang,
+              link_url=link_url,
+              link_external=link_external,
+              link_active=link_active,
+              after_active=after_active | default(value=false)) }}
+            {%- if link_active -%}
+              {%- set_global after_active = true -%}
+            {%- endif -%}
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+    </nav>
+    <div id="sidebar-meta" class="overshoot">
+      <div>
+        {%- if page.extra.weather -%}
+          {%- set weather = page.extra.weather -%}
+        {%- elif section.extra.weather -%}
+          {%- set weather = section.extra.weather -%}
+        {%- endif -%}
+
+        {%- if page.extra.music -%}
+          {%- set music = page.extra.music -%}
+        {%- elif section.extra.music -%}
+          {%- set music = section.extra.music -%}
+        {%- endif -%}
+
+        {%- if weather or music -%}
+          <div class="while-writing">
+            <div class="card-title">
+              <div class="line"></div>
+              <span class="title">{{ macros::translate(key="while_writing", default="While Writing", language_strings=language_strings) }}</span>
+              <div class="line"></div>
+            </div>
+            {%- if weather -%}
+              {%- set condition = weather.condition -%}
+              {%- set style = weather.style -%}
+              {%- set icon = weather.icon -%}
+              {%- set temp = weather.temp -%}
+              {%- if weather.unit and weather.unit == "F" -%}
+                {%- set unit = "°F" -%}
+              {%- else -%}
+                {%- set unit = "°C" -%}
+              {%- endif -%}
+              <div class="card weather {{ style }}">
+                <div>
+                  {{ macros::icon(name=icon) }}
+                  <strong class="title">{{ temp }}{{ unit }}</strong>
+                </div>
+                <span class="condition">{{ condition }}</span>
+              </div>
+            {%- endif -%}
+            {%- if music -%}
+              {%- set last_fm_api_key = get_env(name="LAST_FM_API_KEY") -%}
+              {%- set max_music_items = 6 -%}
+              <div class="music">
+                <ul class="carousel">
+                  {%- for item in music -%}
+                    {%- if loop.index > max_music_items -%}
+                      {%- break -%}
+                      {# {{- throw(message="A maximum of 7 music items is allowed.") -}} #}
+                    {%- endif -%}
+                    {%- set url = "https://ws.audioscrobbler.com/2.0/?method=" ~ item.type ~ ".getInfo" ~ "&api_key=" ~ last_fm_api_key -%}
+                    {%- if item.mbid -%}
+                      {%- set url = url ~ "&mbid=" ~ item.mbid -%}
+                    {%- endif -%}
+                    {%- if item.artist -%}
+                      {%- set artist_encoded = item.artist | urlencode -%}
+                      {%- set url = url ~ "&artist=" ~ artist_encoded -%}
+                    {%- endif -%}
+                    {%- if item.name -%}
+                      {%- set name_encoded = item.name | urlencode -%}
+                      {%- set url = url ~ "&" ~ item.type ~ "=" ~ name_encoded -%}
+                    {%- endif -%}
+                    {%- set url = url ~ "&autocorrect=1" ~ "&format=json" -%}
+                    {%- if get_env(name="AMETRINE_OFFLINE", default="0") != "1" -%}
+                      {%- set info = load_data(url=url, format="json") -%}
+                      {%- if item.type == "track" -%}
+                        {%- if info.track.image -%}
+                          {%- set image = info.track.image -%}
+                        {%- elif info.track.album.image -%}
+                          {%- set image = info.track.album.image -%}
+                        {%- endif -%}
+                        {%- set name = info.track.name -%}
+                        {%- set artist = info.track.artist.name -%}
+                        {%- set url = info.track.url -%}
+                        {%- set type_string = macros::translate(key="music_type_track", default="Track", language_strings=language_strings) -%}
+                      {%- elif item.type == "album" -%}
+                        {%- if info.album.image -%}
+                          {%- set image = info.album.image -%}
+                        {%- endif -%}
+                        {%- set name = info.album.name -%}
+                        {%- set artist = info.album.artist -%}
+                        {%- set url = info.album.url -%}
+                        {%- set type_string = macros::translate(key="music_type_album", default="Album", language_strings=language_strings) -%}
+                      {%- endif -%}
+                      {%- if image -%}
+                        {%- set image_small = image | filter(attribute="size", value="small") | first -%}
+                        {%- set image_medium = image | filter(attribute="size", value="medium") | first -%}
+                      {%- endif -%}
+                      <li id="music-item-{{ loop.index }}" {% if image and image_small['#text'] | length > 1 %}class="has-cover" style='--blurnail: url("{{ image_small['#text'] }}")'{% endif %}>
+                        <img class="transparent no-hover" src="{% if image and image_medium['#text'] | length > 1 %}{{ image_medium['#text'] }}{% else %}/image-missing.svg{% endif %}" alt="Cover Art" />
+                        <div>
+                          <span class="music-type">{{ type_string }}</span>
+                          <div class="marquee music-name">
+                            <strong class="title">{{ name }}</strong>
+                          </div>
+                          <div class="marquee music-artist">
+                            <span>{{ artist }}</span>
+                          </div>
+                        </div>
+                        <a href="{{ url }}" title="{{ macros::translate(key='view_last_fm', default='View on Last.fm', language_strings=language_strings) }}"></a>
+                      </li>
+                    {%- endif -%}
+                  {%- endfor -%}
+                </ul>
+                {%- if music | length > 1 -%}
+                  <ul class="music-paginator">
+                    {%- for item in music -%}
+                      {%- if loop.index > max_music_items -%}
+                        {%- break -%}
+                      {%- endif -%}
+                      <li>
+                        <a href="#music-item-{{ loop.index }}"></a>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+        {%- if page.toc -%}
+          {%- set toc = page.toc -%}
+        {%- elif section.toc -%}
+          {%- set toc = section.toc -%}
+        {%- endif -%}
+        {%- if toc and toc | length > 0 -%}
+          <div class="card toc">
+            <strong class="title">{{ macros::translate(key="contents", default="Contents", language_strings=language_strings) }}</strong>
+            <div class="overshoot">
+              <ul>
+                {%- for h1 in toc -%}
+                  <li>
+                    <a href="{{ h1.permalink | safe }}">{{ h1.title }}</a>
+                    {%- if h1.children -%}
+                      <ul>
+                        {%- for h2 in h1.children -%}
+                          <li>
+                            <a href="{{ h2.permalink | safe }}">{{ h2.title }}</a>
+                          </li>
+                        {%- endfor -%}
+                      </ul>
+                    {%- endif -%}
+                  </li>
+                {%- endfor -%}
+              </ul>
+            </div>
+          </div>
+        {%- endif -%}
+      </div>
+      <div class="status-page">
+        {{ macros::icon(name="rectangle-dashed") }}
+        <strong class="title">{{ macros::translate(key="metadata_missing", default="No Metadata Found", language_strings=language_strings) }}</strong>
+        <p>
+          {{- macros::translate(key="metadata_missing_text", default="This page doesn't have any additional metadata that could be displayed here.", language_strings=language_strings) -}}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

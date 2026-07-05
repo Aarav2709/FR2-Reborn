@@ -1,0 +1,12 @@
+<div id="search-modal">
+  <div id="search-modal-content">
+    <label for="search-input" class="visually-hidden">{{ macros::translate(key="search", default="Search", language_strings=language_strings) }}</label>
+    <div>
+      <input id="search-input" placeholder="{{ macros::translate(key='search_placeholder', default='Search for…', language_strings=language_strings) }}" autocomplete="off" type="search">
+      <div title="{{ macros::translate(key='search_shortcut', default='Press “/” to Open Search Bar', language_strings=language_strings) }}">
+        {{- macros::icon(name="keyboard") -}}
+      </div>
+    </div>
+    <div id="search-results" class="overshoot"></div>
+  </div>
+</div>

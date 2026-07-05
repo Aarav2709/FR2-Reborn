@@ -1,0 +1,153 @@
+@use "../abstracts/functions" as *;
+@use "../abstracts/mixins" as *;
+@use "../abstracts/variables" as *;
+
+[class^="markdown-alert"] {
+  display: flow-root;
+  position: relative;
+
+  &::before {
+    margin-inline-start: 1.5rem;
+    content: var(--alert-title);
+    color: var(--accent-color);
+    font-weight: var(--font-weight-semi-bold);
+  }
+
+  &::after {
+    @include icon(pseudo);
+    --icon: var(--alert-icon);
+    position: absolute;
+    margin-inline-end: 0.25rem;
+    inset-block-start: rpx(1);
+    inset-inline-start: 0.75rem;
+    color: var(--accent-color);
+    font-size: 1.25rem;
+  }
+
+  & > :first-child {
+    margin-block-start: 0.25rem;
+  }
+
+  & > :last-child {
+    margin-block-end: 0;
+  }
+}
+
+.markdown-alert {
+  // GitHub flavored alerts
+  &-note,
+	&-tip,
+	&-important,
+	&-warning,
+	&-caution,
+	// Generic colors
+	&-red,
+	&-orange,
+	&-yellow,
+	&-green,
+	&-blue,
+	&-purple {
+    @include variables-accent(("light", "common"));
+
+    @media (prefers-color-scheme: dark) {
+      @include variables-accent("dark");
+    }
+  }
+
+  &-note {
+    &::before {
+      content: var(--alert-note-title);
+    }
+
+    &::after {
+      --icon: var(--icon-info);
+    }
+  }
+
+  &-tip {
+    &::before {
+      content: var(--alert-tip-title);
+    }
+
+    &::after {
+      --icon: var(--icon-lightbulb);
+    }
+  }
+
+  &-important {
+    &::before {
+      content: var(--alert-important-title);
+    }
+
+    &::after {
+      --icon: var(--icon-warning-diamond);
+    }
+  }
+
+  &-warning {
+    &::before {
+      content: var(--alert-warning-title);
+    }
+
+    &::after {
+      --icon: var(--icon-warning);
+    }
+  }
+
+  &-caution {
+    &::before {
+      content: var(--alert-caution-title);
+    }
+
+    &::after {
+      --icon: var(--icon-warning-octagon);
+    }
+  }
+
+  &-caution,
+  &-red {
+    --accent-h: var(--red-h);
+    --accent-s: var(--red-s);
+    --accent-l: var(--red-l);
+    --accent-color: var(--red-fg);
+  }
+
+  &-orange {
+    --accent-h: var(--orange-h);
+    --accent-s: var(--orange-s);
+    --accent-l: var(--orange-l);
+    --accent-color: var(--orange-fg);
+  }
+
+  &-warning,
+  &-yellow {
+    --accent-h: var(--yellow-h);
+    --accent-s: var(--yellow-s);
+    --accent-l: var(--yellow-l);
+    --accent-color: var(--yellow-fg);
+  }
+
+  &-tip,
+  &-green {
+    --accent-h: var(--green-h);
+    --accent-s: var(--green-s);
+    --accent-l: var(--green-l);
+    --accent-color: var(--green-fg);
+  }
+
+  &-note,
+  &-blue {
+    --accent-h: var(--blue-h);
+    --accent-s: var(--blue-s);
+    --accent-l: var(--blue-l);
+    --accent-color: var(--blue-fg);
+  }
+
+  &-important,
+  &-purple {
+    --accent-h: var(--purple-h);
+    --accent-s: var(--purple-s);
+    --accent-l: var(--purple-l);
+    --accent-color: var(--purple-fg);
+  }
+}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+{%- set number_of_categories = terms | length -%}
+
+{%- if lang != config.default_language -%}
+  {%- set categories = config.extra[lang].categories | default(value=[]) -%}
+{%- else -%}
+  {%- set categories = config.extra.categories | default(value=[]) -%}
+{%- endif -%}
+
+<h1>{{ macros::translate(key="header_categories", default="Categories", language_strings=language_strings) }}</h1>
+
+<p>
+  <small>{{ macros::translate(key="categories", number=number_of_categories, default="$NUMBER categories in total", language_strings=language_strings) }}</small>
+</p>
+
+<div class="article-list categories">
+  {%- for category in terms -%}
+    {%- set matched_category = categories | filter(attribute="name", value=category.name) | first -%}
+    {%- set category_description = matched_category.description | default(value=macros::translate(key="category_no_info", default="There's no info on this category.", language_strings=language_strings)) -%}
+    {%- set number_of_posts = category.page_count | int -%}
+
+    <article {% if matched_category.color %}class="has-accent-color" style="{% include 'partials/accent_color.html' %}"{% endif %}>
+      <div>
+        <a href="{{ get_taxonomy_url(kind='categories', name=category.name, lang=lang) }}">
+          <h3>{{ category.name }}</h3>
+        </a>
+        <div class="description">
+          {{- category_description | markdown | safe -}}
+        </div>
+        <div class="article-details">
+          <div class="item">
+            {{- macros::icon(name="newspaper") -}}
+            <span>{{ macros::translate(key="posts", number=number_of_posts, default="$NUMBER posts in total", language_strings=language_strings) }}</span>
+          </div>
+        </div>
+      </div>
+      <a class="open-post" href="{{ get_taxonomy_url(kind='categories', name=category.name, lang=lang) }}">
+        {{- macros::icon(name="caret-right") -}}
+      </a>
+
+      {%- if matched_category.icon -%}
+        {{ macros::icon(name=matched_category.icon) }}
+      {%- endif -%}
+    </article>
+  {%- endfor -%}
+</div>
+{% endblock content %}

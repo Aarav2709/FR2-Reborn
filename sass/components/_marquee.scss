@@ -1,0 +1,35 @@
+.marquee {
+  margin-inline: -1rem;
+  padding-inline: 1rem;
+  overflow: hidden;
+
+  &.overshoot-row > * {
+    animation: marquee-scroll
+      calc((var(--text-width) + var(--container-width)) / 40 * 1s) linear
+      infinite;
+
+    @keyframes marquee-scroll {
+      0%,
+      10% {
+        transform: translateX(0);
+      }
+
+      45%,
+      55% {
+        transform: translateX(
+          calc((var(--container-width) - var(--text-width)) * 1px)
+        );
+      }
+
+      90%,
+      100% {
+        transform: translateX(0);
+      }
+    }
+  }
+
+  & > * {
+    display: inline-block;
+    white-space: nowrap;
+  }
+}

@@ -1,0 +1,565 @@
+@use "functions" as *;
+@use "mixins" as *;
+
+@mixin variables($modes: "light") {
+  @each $mode in $modes {
+    @if $mode == "light" {
+      // COLORS
+      --bg-overlay: linear-gradient(
+        rgba(255, 255, 255, var(--dim-opacity)),
+        rgba(255, 255, 255, var(--dim-opacity))
+      );
+      --fg-color: #29242a;
+      --fg-contrast: #fcfcfa;
+      --red-fg: hsl(342.0779, 72%, 58%);
+      --red-h: 342.0779;
+      --red-s: 72%;
+      --red-l: 58%;
+      --orange-fg: hsl(15.771428, 74%, 54%);
+      --orange-h: 15.771428;
+      --orange-s: 74%;
+      --orange-l: 54%;
+      --yellow-fg: hsl(34.639175, 91%, 42%);
+      --yellow-h: 34.639175;
+      --yellow-s: 91%;
+      --yellow-l: 42%;
+      --green-fg: hsl(153.7815, 61%, 38%);
+      --green-h: 153.7815;
+      --green-s: 61%;
+      --green-l: 38%;
+      --blue-fg: hsl(192, 71%, 38%);
+      --blue-h: 192;
+      --blue-s: 71%;
+      --blue-l: 38%;
+      --purple-fg: hsl(254.11766, 44%, 55%);
+      --purple-h: 254.11766;
+      --purple-s: 44%;
+      --purple-l: 55%;
+      --red-bg-1: hsla(
+        var(--red-h),
+        var(--red-s),
+        var(--red-l),
+        var(--color-opacity-1)
+      );
+      --red-bg-2: hsla(
+        var(--red-h),
+        var(--red-s),
+        var(--red-l),
+        var(--color-opacity-2)
+      );
+      --orange-bg-1: hsla(
+        var(--orange-h),
+        var(--orange-s),
+        var(--orange-l),
+        var(--color-opacity-1)
+      );
+      --orange-bg-2: hsla(
+        var(--orange-h),
+        var(--orange-s),
+        var(--orange-l),
+        var(--color-opacity-2)
+      );
+      --yellow-bg-1: hsla(
+        var(--yellow-h),
+        var(--yellow-s),
+        var(--yellow-l),
+        var(--color-opacity-1)
+      );
+      --yellow-bg-2: hsla(
+        var(--yellow-h),
+        var(--yellow-s),
+        var(--yellow-l),
+        var(--color-opacity-2)
+      );
+      --green-bg-1: hsla(
+        var(--green-h),
+        var(--green-s),
+        var(--green-l),
+        var(--color-opacity-1)
+      );
+      --green-bg-2: hsla(
+        var(--green-h),
+        var(--green-s),
+        var(--green-l),
+        var(--color-opacity-2)
+      );
+      --blue-bg-1: hsla(
+        var(--blue-h),
+        var(--blue-s),
+        var(--blue-l),
+        var(--color-opacity-1)
+      );
+      --blue-bg-2: hsla(
+        var(--blue-h),
+        var(--blue-s),
+        var(--blue-l),
+        var(--color-opacity-2)
+      );
+      --purple-bg-1: hsla(
+        var(--purple-h),
+        var(--purple-s),
+        var(--purple-l),
+        var(--color-opacity-1)
+      );
+      --purple-bg-2: hsla(
+        var(--purple-h),
+        var(--purple-s),
+        var(--purple-l),
+        var(--color-opacity-2)
+      );
+      --red-fg-muted-1: hsla(
+        var(--red-h),
+        var(--red-s),
+        calc(var(--red-l) - var(--red-l) * 0.85),
+        var(--fg-muted-1-opacity)
+      );
+      --red-fg-muted-2: hsla(
+        var(--red-h),
+        var(--red-s),
+        calc(var(--red-l) - var(--red-l) * 0.85),
+        var(--fg-muted-2-opacity)
+      );
+      --orange-fg-muted-1: hsla(
+        var(--orange-h),
+        var(--orange-s),
+        calc(var(--orange-l) - var(--orange-l) * 0.85),
+        var(--fg-muted-1-opacity)
+      );
+      --orange-fg-muted-2: hsla(
+        var(--orange-h),
+        var(--orange-s),
+        calc(var(--orange-l) - var(--orange-l) * 0.85),
+        var(--fg-muted-2-opacity)
+      );
+      --yellow-fg-muted-1: hsla(
+        var(--yellow-h),
+        var(--yellow-s),
+        calc(var(--yellow-l) - var(--yellow-l) * 0.85),
+        var(--fg-muted-1-opacity)
+      );
+      --yellow-fg-muted-2: hsla(
+        var(--yellow-h),
+        var(--yellow-s),
+        calc(var(--yellow-l) - var(--yellow-l) * 0.85),
+        var(--fg-muted-2-opacity)
+      );
+      --green-fg-muted-1: hsla(
+        var(--green-h),
+        var(--green-s),
+        calc(var(--green-l) - var(--green-l) * 0.85),
+        var(--fg-muted-1-opacity)
+      );
+      --green-fg-muted-2: hsla(
+        var(--green-h),
+        var(--green-s),
+        calc(var(--green-l) - var(--green-l) * 0.85),
+        var(--fg-muted-2-opacity)
+      );
+      --blue-fg-muted-1: hsla(
+        var(--blue-h),
+        var(--blue-s),
+        calc(var(--blue-l) - var(--blue-l) * 0.85),
+        var(--fg-muted-1-opacity)
+      );
+      --blue-fg-muted-2: hsla(
+        var(--blue-h),
+        var(--blue-s),
+        calc(var(--blue-l) - var(--blue-l) * 0.85),
+        var(--fg-muted-2-opacity)
+      );
+      --purple-fg-muted-1: hsla(
+        var(--purple-h),
+        var(--purple-s),
+        calc(var(--purple-l) - var(--purple-l) * 0.85),
+        var(--fg-muted-1-opacity)
+      );
+      --purple-fg-muted-2: hsla(
+        var(--purple-h),
+        var(--purple-s),
+        calc(var(--purple-l) - var(--purple-l) * 0.85),
+        var(--fg-muted-2-opacity)
+      );
+      --shade-color: rgba(0, 0, 0, 0.07);
+
+      // COLORS (NEUTRAL)
+      --bg-muted-neutral-1: rgba(0, 0, 0, var(--color-opacity-1));
+      --bg-muted-neutral-2: rgba(0, 0, 0, var(--color-opacity-2));
+      --fg-muted-neutral-1: rgba(0, 0, 0, var(--fg-muted-1-opacity));
+      --fg-muted-neutral-2: rgba(0, 0, 0, var(--fg-muted-2-opacity));
+
+      // OPACITY
+      --scanlines-opacity: 0.4;
+      --fg-muted-1-opacity: 0.5;
+      --fg-muted-2-opacity: 0.6;
+
+      // SHADOWS
+      --edge-highlight: inset
+        0
+        #{rpx(-1)}
+        0
+        rgba(0, 0, 0, var(--color-opacity-1));
+    } @else if $mode == "dark" {
+      // COLORS
+      --bg-overlay: linear-gradient(
+        rgba(0, 0, 0, var(--dim-opacity)),
+        rgba(0, 0, 0, var(--dim-opacity))
+      );
+      --fg-color: #fcfcfa;
+      --fg-contrast: #29242a;
+      --red-fg: hsl(345.18988, 100%, 69%);
+      --red-h: 345.18988;
+      --red-s: 100%;
+      --red-l: 69%;
+      --orange-fg: hsl(19.731544, 96%, 70%);
+      --orange-h: 19.731544;
+      --orange-s: 96%;
+      --orange-l: 70%;
+      --yellow-fg: hsl(44.70588, 100%, 70%);
+      --yellow-h: 44.70588;
+      --yellow-s: 100%;
+      --yellow-l: 70%;
+      --green-fg: hsl(90, 59%, 66%);
+      --green-h: 90;
+      --green-s: 59%;
+      --green-l: 66%;
+      --blue-fg: hsl(186.42857, 71%, 69%);
+      --blue-h: 186.42857;
+      --blue-s: 71%;
+      --blue-l: 69%;
+      --purple-fg: hsl(249.88234, 77%, 78%);
+      --purple-h: 249.88234;
+      --purple-s: 77%;
+      --purple-l: 78%;
+
+      --red-fg-muted-1: hsla(
+        var(--red-h),
+        var(--red-s),
+        calc(var(--red-l) + (100% - var(--red-l)) * 0.85),
+        var(--fg-muted-1-opacity)
+      );
+      --red-fg-muted-2: hsla(
+        var(--red-h),
+        var(--red-s),
+        calc(var(--red-l) + (100% - var(--red-l)) * 0.85),
+        var(--fg-muted-2-opacity)
+      );
+      --orange-fg-muted-1: hsla(
+        var(--orange-h),
+        var(--orange-s),
+        calc(var(--orange-l) + (100% - var(--orange-l)) * 0.85),
+        var(--fg-muted-1-opacity)
+      );
+      --orange-fg-muted-2: hsla(
+        var(--orange-h),
+        var(--orange-s),
+        calc(var(--orange-l) + (100% - var(--orange-l)) * 0.85),
+        var(--fg-muted-2-opacity)
+      );
+      --yellow-fg-muted-1: hsla(
+        var(--yellow-h),
+        var(--yellow-s),
+        calc(var(--yellow-l) + (100% - var(--yellow-l)) * 0.85),
+        var(--fg-muted-1-opacity)
+      );
+      --yellow-fg-muted-2: hsla(
+        var(--yellow-h),
+        var(--yellow-s),
+        calc(var(--yellow-l) + (100% - var(--yellow-l)) * 0.85),
+        var(--fg-muted-2-opacity)
+      );
+      --green-fg-muted-1: hsla(
+        var(--green-h),
+        var(--green-s),
+        calc(var(--green-l) + (100% - var(--green-l)) * 0.85),
+        var(--fg-muted-1-opacity)
+      );
+      --green-fg-muted-2: hsla(
+        var(--green-h),
+        var(--green-s),
+        calc(var(--green-l) + (100% - var(--green-l)) * 0.85),
+        var(--fg-muted-2-opacity)
+      );
+      --blue-fg-muted-1: hsla(
+        var(--blue-h),
+        var(--blue-s),
+        calc(var(--blue-l) + (100% - var(--blue-l)) * 0.85),
+        var(--fg-muted-1-opacity)
+      );
+      --blue-fg-muted-2: hsla(
+        var(--blue-h),
+        var(--blue-s),
+        calc(var(--blue-l) + (100% - var(--blue-l)) * 0.85),
+        var(--fg-muted-2-opacity)
+      );
+      --purple-fg-muted-1: hsla(
+        var(--purple-h),
+        var(--purple-s),
+        calc(var(--purple-l) + (100% - var(--purple-l)) * 0.85),
+        var(--fg-muted-1-opacity)
+      );
+      --purple-fg-muted-2: hsla(
+        var(--purple-h),
+        var(--purple-s),
+        calc(var(--purple-l) + (100% - var(--purple-l)) * 0.85),
+        var(--fg-muted-2-opacity)
+      );
+      --shade-color: rgba(0, 0, 0, 0.25);
+
+      // COLORS (NEUTRAL)
+      --bg-muted-neutral-1: rgba(255, 255, 255, var(--color-opacity-1));
+      --bg-muted-neutral-2: rgba(255, 255, 255, var(--color-opacity-2));
+      --fg-muted-neutral-1: rgba(255, 255, 255, var(--fg-muted-1-opacity));
+      --fg-muted-neutral-2: rgba(255, 255, 255, var(--fg-muted-2-opacity));
+
+      // OPACITY
+      --scanlines-opacity: 1;
+      --fg-muted-1-opacity: 0.6;
+      --fg-muted-2-opacity: 0.7;
+
+      // SHADOWS
+      --edge-highlight: inset
+        0
+        #{rpx(1)}
+        0
+        rgba(255, 255, 255, var(--color-opacity-1));
+    } @else if $mode == "common" {
+      // WIDTHS
+      --content-width: #{rpx(720)};
+      --sidebar-width: clamp(
+        calc(var(--content-width) / 3),
+        20vw,
+        calc(var(--content-width) / 2)
+      );
+
+      // CORNERS
+      --rounded-corner: 0.75rem;
+      --rounded-corner-small: 0.5rem;
+
+      // FILTERS
+      --blur: blur(0.75rem) saturate(180%);
+      --printed: contrast(2) brightness(0.75) grayscale(1);
+      --drop-shadow: drop-shadow(0 0.08rem 0.1rem rgba(0, 0, 0, 0.35))
+        drop-shadow(0 0.4rem 0.7rem rgba(0, 0, 0, 0.18));
+
+      // FONTS
+      --font-system-ui: system-ui, sans-serif;
+      --font-ui-monospace: ui-monospace, monospace;
+      --font-emoji:
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+        "Noto Color Emoji";
+
+      // FONT SIZES
+      --font-size-xx-small: 0.625rem;
+      --font-size-x-small: 0.75rem;
+      --font-size-small: 0.875rem;
+      --font-size-medium: 1rem;
+      --font-size-large: 1.25rem;
+      --font-size-x-large: 1.5rem;
+      --font-size-xx-large: 2rem;
+      --font-size-xxx-large: 3rem;
+
+      // FONT WEIGHTS
+      --font-weight-thin: 100;
+      --font-weight-extra-light: 200;
+      --font-weight-light: 300;
+      --font-weight-normal: 400;
+      --font-weight-medium: 500;
+      --font-weight-semi-bold: 600;
+      --font-weight-bold: 700;
+      --font-weight-extra-bold: 800;
+      --font-weight-black: 900;
+
+      // OPACITY
+      --color-opacity-1: 0.1;
+      --color-opacity-2: 0.2;
+      --dim-opacity: 0.8;
+      --disabled-opacity: 0.4;
+
+      // SHADOWS
+      --shadow:
+        0 0 0 #{rpx(1)} rgba(0, 0, 0, 0.03),
+        0 #{rpx(1)} #{rpx(3)} #{rpx(1)} rgba(0, 0, 0, 0.07),
+        0 #{rpx(2)} #{rpx(6)} #{rpx(2)} rgba(0, 0, 0, 0.03);
+      --shadow-inset:
+        inset 0 0 0 #{rpx(1)} rgba(0, 0, 0, 0.03),
+        inset 0 #{rpx(1)} #{rpx(3)} #{rpx(1)} rgba(0, 0, 0, 0.07),
+        inset 0 #{rpx(2)} #{rpx(6)} #{rpx(2)} rgba(0, 0, 0, 0.03);
+      --shadow-raised:
+        0 0 0 #{rpx(1)} rgba(0, 0, 0, 0.06),
+        0 #{rpx(2)} #{rpx(6)} #{rpx(2)} rgba(0, 0, 0, 0.14),
+        0 #{rpx(4)} #{rpx(12)} #{rpx(4)} rgba(0, 0, 0, 0.06);
+      --shadow-glass: 0 #{rpx(12)} #{rpx(24)} #{rpx(-16)} rgba(0, 0, 0, 0.4);
+
+      // STATES
+      --hover: scale(1.1);
+      --active: scale(0.9);
+
+      // TRANSITIONS
+      --transition: 0.2s;
+      --transition-longer: 0.4s;
+      --transition-long: 0.8s;
+      --transition-bezier: 0.35s cubic-bezier(0.17, 0.89, 0.32, 1.28);
+      --transition-bezier-longer: 0.525s cubic-bezier(0.17, 0.89, 0.32, 1.28);
+    }
+  }
+}
+
+@mixin variables-accent($modes: "light") {
+  @each $mode in $modes {
+    @if $mode == "light" {
+      --accent-color: hsl(
+        var(--accent-light-h),
+        var(--accent-light-s),
+        var(--accent-light-l)
+      );
+      --accent-h: var(--accent-light-h);
+      --accent-s: var(--accent-light-s);
+      --accent-l: var(--accent-light-l);
+
+      --bg-color: hsl(
+        var(--accent-h),
+        calc(var(--accent-s) - var(--accent-s) * 0.6),
+        calc(var(--accent-l) + (100% - var(--accent-l)) * 0.8)
+      );
+      --fg-muted-1: hsla(
+        var(--accent-h),
+        var(--accent-s),
+        calc(var(--accent-l) - var(--accent-l) * 0.85),
+        var(--fg-muted-1-opacity)
+      );
+      --fg-muted-2: hsla(
+        var(--accent-h),
+        var(--accent-s),
+        calc(var(--accent-l) - var(--accent-l) * 0.85),
+        var(--fg-muted-2-opacity)
+      );
+      --glass-bg-1: hsla(
+        var(--accent-h),
+        calc(var(--accent-s) - var(--accent-s) * 0.7),
+        calc(var(--accent-l) + (100% - var(--accent-l)) * 0.9),
+        var(--dim-opacity)
+      );
+      --glass-bg-2: hsla(
+        var(--accent-h),
+        calc(var(--accent-s) - var(--accent-s) * 0.6),
+        calc(var(--accent-l) + (100% - var(--accent-l)) * 0.8),
+        var(--dim-opacity)
+      );
+      --crt-bg: radial-gradient(
+        hsl(
+          var(--accent-h),
+          calc(var(--accent-s) - var(--accent-s) * 0.5),
+          calc(var(--accent-l) + (100% - var(--accent-l)) * 0.9)
+        ),
+        hsl(
+            var(--accent-h),
+            calc(var(--accent-s) - var(--accent-s) * 0.5),
+            calc(var(--accent-l) + (100% - var(--accent-l)) * 0.75)
+          )
+          80%,
+        hsl(
+          var(--accent-h),
+          calc(var(--accent-s) - var(--accent-s) * 0.5),
+          calc(var(--accent-l) + (100% - var(--accent-l)) * 0.65)
+        )
+      );
+    } @else if $mode == "dark" {
+      --accent-color: hsl(
+        var(--accent-dark-h),
+        var(--accent-dark-s),
+        var(--accent-dark-l)
+      );
+      --accent-h: var(--accent-dark-h);
+      --accent-s: var(--accent-dark-s);
+      --accent-l: var(--accent-dark-l);
+
+      --bg-color: hsl(
+        var(--accent-h),
+        calc(var(--accent-s) - var(--accent-s) * 0.7),
+        calc(var(--accent-l) - var(--accent-l) * 0.9)
+      );
+      --fg-muted-1: hsla(
+        var(--accent-h),
+        var(--accent-s),
+        calc(var(--accent-l) + (100% - var(--accent-l)) * 0.85),
+        var(--fg-muted-1-opacity)
+      );
+      --fg-muted-2: hsla(
+        var(--accent-h),
+        var(--accent-s),
+        calc(var(--accent-l) + (100% - var(--accent-l)) * 0.85),
+        var(--fg-muted-2-opacity)
+      );
+      --glass-bg-1: hsla(
+        var(--accent-h),
+        calc(var(--accent-s) - var(--accent-s) * 0.6),
+        calc(var(--accent-l) - var(--accent-l) * 0.8),
+        var(--dim-opacity)
+      );
+      --glass-bg-2: hsla(
+        var(--accent-h),
+        calc(var(--accent-s) - var(--accent-s) * 0.5),
+        calc(var(--accent-l) - var(--accent-l) * 0.7),
+        var(--dim-opacity)
+      );
+      --crt-bg: radial-gradient(
+        hsl(
+          var(--accent-h),
+          calc(var(--accent-s) - var(--accent-s) * 0.5),
+          calc(var(--accent-l) - var(--accent-l) * 0.7)
+        ),
+        hsl(
+            var(--accent-h),
+            calc(var(--accent-s) - var(--accent-s) * 0.5),
+            calc(var(--accent-l) - var(--accent-l) * 0.9)
+          )
+          80%,
+        hsl(
+          var(--accent-h),
+          calc(var(--accent-s) - var(--accent-s) * 0.5),
+          calc(var(--accent-l) - var(--accent-l) * 0.95)
+        )
+      );
+    } @else if $mode == "common" {
+      // COLORS
+      --accent-highlight: hsla(
+        var(--accent-h),
+        var(--accent-s),
+        var(--accent-l),
+        var(--disabled-opacity)
+      );
+
+      // TODO: put this all in sub-mixins
+      --bg-muted-1: hsla(
+        var(--accent-h),
+        var(--accent-s),
+        var(--accent-l),
+        var(--color-opacity-1)
+      );
+
+      --bg-muted-2: hsla(
+        var(--accent-h),
+        var(--accent-s),
+        var(--accent-l),
+        var(--color-opacity-2)
+      );
+
+      // CONTRAST COLOR
+      --l: clamp(0, (l / 0.623 - 1) * -infinity, 1);
+      --a: calc(var(--l) + (var(--dim-opacity) * (1 - var(--l))));
+      --contrast-color: oklch(from var(--accent-color) var(--l) 0 h / var(--a));
+
+      // SHADOWS
+      --shadow-glow:
+        0 0 0 #{rpx(1)} var(--bg-muted-2),
+        0 #{rpx(2)} #{rpx(6)} #{rpx(2)} var(--bg-muted-1),
+        0 #{rpx(4)} #{rpx(24)} #{rpx(4)} var(--bg-muted-2);
+      --shadow-glow-inset:
+        inset 0 0 0 #{rpx(1)} var(--bg-muted-2),
+        inset 0 #{rpx(2)} #{rpx(6)} #{rpx(2)} var(--bg-muted-1),
+        inset 0 #{rpx(4)} #{rpx(24)} #{rpx(4)} var(--bg-muted-2);
+      --text-shadow-glow:
+        var(--bg-muted-2) 0 0 #{rpx(4)}, var(--accent-color) 0 0 #{rpx(12)};
+    }
+  }
+}

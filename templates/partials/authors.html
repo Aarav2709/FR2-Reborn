@@ -1,0 +1,19 @@
+{#- Based on https://github.com/welpo/tabi/blob/a3ae897c8310ba6a1da72db0fc81f19ca8993d6f/templates/page.html#L120-L142 -#}
+
+{% if page.authors %}
+  {%- set author_list = page.authors -%}
+
+  {%- if author_list | length == 1 -%}
+    {%- set author_string = author_list.0 -%}
+  {%- else -%}
+    {%- set last_author = author_list | last -%}
+    {%- set other_authors = author_list | slice(end=-1) -%}
+    {%- set author_separator = macros::translate(key="author_separator", default=", ", language_strings=language_strings) -%}
+    {%- set conjunction = macros::translate(key="author_conjunction", default=" and ", language_strings=language_strings) -%}
+    {%- set author_string = other_authors | join(sep=author_separator) -%}
+    {%- set author_string = author_string ~ conjunction ~ last_author -%}
+  {%- endif -%}
+
+  {%- set by_author = macros::translate(key="by_author", default="By $AUTHOR", language_strings=language_strings) -%}
+  {{ by_author | replace(from="$AUTHOR", to=author_string) }}
+{% endif %}

@@ -1,0 +1,124 @@
+#search-modal {
+  display: flex;
+  position: fixed;
+  flex-direction: column;
+  align-items: center;
+  visibility: hidden;
+  opacity: 0;
+  z-index: 9999;
+  transition: var(--transition);
+  inset: 0;
+  background-color: var(--shade-color);
+  padding-block-start: 15vh;
+  width: 100%;
+  height: 100vh;
+
+  &.active {
+    visibility: visible;
+    opacity: 1;
+
+    #search-modal-content {
+      transform: none;
+    }
+  }
+
+  &-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transform: var(--hover);
+    -webkit-backdrop-filter: var(--blur);
+    backdrop-filter: var(--blur);
+    transition:
+      all var(--transition),
+      transform var(--transition-bezier-longer);
+    margin: -0.5rem;
+    box-shadow: var(--edge-highlight), var(--shadow-glass);
+    border-radius: 2.25rem 2.25rem 1.75rem 1.75rem;
+    background-color: var(--glass-bg-1);
+    padding: 1rem;
+    width: calc(100% - 2rem);
+    max-width: calc(var(--content-width) / 1.5);
+    overflow: hidden;
+
+    &:has(#search-results:empty) {
+      border-radius: 1.75rem;
+      padding: 0.5rem;
+      max-width: calc(var(--content-width) / 2);
+    }
+
+    & > div {
+      position: relative;
+    }
+  }
+
+  #search-input {
+    flex-shrink: 0;
+    box-shadow: var(--edge-highlight);
+    border-radius: 9999px;
+    padding: 0 1rem;
+    width: 100%;
+    height: 2.5rem;
+
+    &:placeholder-shown + div .icon {
+      transform: none;
+      opacity: var(--disabled-opacity);
+      pointer-events: all;
+    }
+
+    & + div .icon {
+      position: absolute;
+      transform: translateX(0.5rem);
+      opacity: 0;
+      transition:
+        all var(--transition),
+        transform var(--transition-bezier);
+      cursor: help;
+      inset-block-start: 0.625rem;
+      inset-inline-end: 1rem;
+      pointer-events: none;
+      color: var(--fg-muted-2);
+      font-size: 1.25rem;
+    }
+  }
+
+  #search-results {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: -1rem;
+    padding: 1rem;
+    max-height: 50vh;
+    overflow: auto;
+    scrollbar-width: thin;
+
+    .item {
+      display: inline-flex;
+      flex-direction: column;
+      box-shadow: var(--edge-highlight);
+      border-radius: var(--rounded-corner);
+      background-color: var(--bg-muted-1);
+      padding: 0.75rem 1rem;
+
+      a {
+        text-decoration: none;
+
+        &::after {
+          content: " →";
+        }
+      }
+
+      span {
+        margin-block-start: 0.25rem;
+        border-block-start: rpx(1) solid var(--bg-muted-2);
+        padding-block-start: 0.25rem;
+        color: var(--fg-muted-2);
+
+        strong {
+          color: var(--fg-color);
+        }
+      }
+    }
+  }
+}

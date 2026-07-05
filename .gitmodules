@@ -1,0 +1,4 @@
+[submodule "icons"]
+  path = icons
+  url = https://codeberg.org/daudix/ametrine-icons.git
+  shallow = true

@@ -1,0 +1,144 @@
+@use "../abstracts/functions" as *;
+@use "../abstracts/mixins" as *;
+
+#site-footer {
+  --padding: 1rem;
+  display: flex;
+  grid-area: footer;
+  gap: 1rem;
+  margin-block: 3.25rem 1rem;
+  border-block-start: rpx(1) solid var(--bg-muted-2);
+  padding: 1rem;
+  width: 100%;
+  min-width: 0;
+  max-width: calc(var(--content-width) + var(--padding) * 2);
+
+  @media only screen and (max-width: 480px) {
+    flex-direction: column-reverse;
+  }
+
+  & > div {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 1rem;
+
+    p {
+      margin: 0;
+    }
+
+    &:nth-of-type(1) {
+      color: var(--fg-muted-2);
+      font-size: var(--font-size-small);
+    }
+
+    &:nth-of-type(2) {
+      justify-content: space-between;
+      align-items: flex-end;
+      text-align: end;
+
+      @media only screen and (max-width: 480px) {
+        align-items: normal;
+        text-align: start;
+      }
+    }
+  }
+
+  a.external::after {
+    margin-inline-start: 0.25rem;
+  }
+
+  .link {
+    @include chip;
+    display: inline-block;
+    line-height: 1.5rem;
+
+    &:hover {
+      background-color: var(--bg-muted-2);
+    }
+
+    &:active {
+      transform: var(--active);
+    }
+  }
+
+  // IMO it's pretty cute
+  .webrings {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-block: 0;
+    padding-inline-start: 0;
+    list-style: none;
+  }
+
+  .webring {
+    display: flex;
+    gap: 0.25rem;
+    margin-block: 0;
+    padding-inline-start: 0;
+
+    .icon {
+      transition: var(--transition);
+    }
+
+    .random,
+    .previous,
+    .next {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 9999px;
+      padding: 0.25rem;
+      font-size: 1rem;
+    }
+  }
+
+  .timestamp {
+    color: var(--fg-muted-1);
+    font-size: var(--font-size-xx-small);
+    font-family: var(--font-monospace);
+    text-transform: uppercase;
+  }
+
+  .socials {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin: 0;
+    padding-inline-start: 0;
+    list-style: none;
+
+    @media only screen and (max-width: 480px) {
+      justify-content: normal;
+    }
+
+    li {
+      margin-block: 0;
+      padding-inline-start: 0;
+    }
+
+    a {
+      display: flex;
+      transition:
+        all var(--transition),
+        transform var(--transition-bezier);
+      height: fit-content;
+      color: var(--fg-muted-1);
+
+      &:hover {
+        color: var(--fg-muted-2);
+      }
+
+      &:active {
+        transform: var(--active);
+      }
+    }
+
+    svg {
+      fill: currentColor;
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+  }
+}

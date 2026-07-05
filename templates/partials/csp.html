@@ -1,0 +1,76 @@
+{# Based on https://github.com/welpo/tabi/blob/36adac03a499194081cd4e6868d7e15400714eba/templates/partials/content_security_policy.html #}
+
+<meta http-equiv="Content-Security-Policy"
+content="default-src 'self'
+{%- if config.extra.csp -%}
+;
+  {#- Initialise a base script-src directive -#}
+  {%- set script_src = "script-src 'self'" -%}
+
+  {#- Initialise a base connect-src directive -#}
+  {%- set connect_src = "connect-src 'self'" -%}
+
+  {#- Initialise a base style-src directive -#}
+  {%- set style_src = "style-src 'self' 'unsafe-inline'" -%}
+
+  {# Base logic for appending analytics domains #}
+  {%- set analytics_url = config.extra.analytics.self_hosted_url | default(value="") %}
+  {%- if analytics_url -%}
+    {%- set script_src = script_src ~ " " ~ analytics_url -%}
+    {%- set connect_src = connect_src ~ " " ~ analytics_url -%}
+  {%- else -%}
+    {%- if config.extra.analytics.service -%}
+      {%- if config.extra.analytics.service == "goatcounter" -%}
+        {%- set script_src = script_src ~ " gc.zgo.at" -%}
+        {%- set connect_src = connect_src ~ " " ~ config.extra.analytics.id ~ ".goatcounter.com/count" -%}
+      {%- elif config.extra.analytics.service == "umami" -%}
+        {%- set script_src = script_src ~ " cloud.umami.is" -%}
+        {%- set connect_src = connect_src ~ " *.umami.dev" ~ " cloud.umami.is" -%}
+      {%- elif config.extra.analytics.service == "plausible" -%}
+        {%- set script_src = script_src ~ " plausible.io" -%}
+        {%- set connect_src = connect_src ~ " plausible.io" -%}
+      {%- endif -%}
+    {%- endif -%}
+  {%- endif -%}
+
+  {%- if page.extra.fediverse.host -%}
+    {%- set connect_src = connect_src ~ " " ~ "https://" ~ page.extra.fediverse.host -%}
+  {%- elif section.extra.fediverse.host -%}
+    {%- set connect_src = connect_src ~ " " ~ "https://" ~ section.extra.fediverse.host -%}
+  {%- elif config.extra.fediverse.host -%}
+    {%- set connect_src = connect_src ~ " " ~ "https://" ~ config.extra.fediverse.host -%}
+  {%- endif -%}
+
+  {#- Append WebSocket for Zola serve mode -#}
+  {%- if config.mode == "serve" -%}
+    {%- set connect_src = connect_src ~ " ws:" -%}
+  {%- endif -%}
+
+  {%- for domain in config.extra.csp -%}
+    {%- if domain.directive == "connect-src" -%}
+      {%- set configured_connect_src = domain.domains | join(sep=' ') -%}
+      {%- set_global connect_src = connect_src ~ " " ~ configured_connect_src  -%}
+      {%- continue -%}
+    {%- endif -%}
+
+    {%- if domain.directive == "script-src" -%}
+      {%- set configured_script_src = domain.domains | join(sep=' ') -%}
+      {%- set_global script_src = script_src ~ " " ~ configured_script_src  -%}
+      {%- continue -%}
+    {%- endif -%}
+
+    {#- Handle directives that are not connect-src -#}
+    {{ domain.directive }} {{ domain.domains | join(sep=' ') -}}
+
+    {%- if not loop.last -%}
+    ;
+    {%- endif -%}
+  {%- endfor -%}
+
+  {#- Insert the generated connect-src -#}
+  {{ ";" ~ connect_src }}
+
+  {#- Insert the generated script-src -#}
+  {{ ";" ~ script_src }}
+
+{%- endif -%}">

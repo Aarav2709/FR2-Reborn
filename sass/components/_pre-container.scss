@@ -1,0 +1,139 @@
+@use "../abstracts/functions" as *;
+
+.pre-container {
+  position: relative;
+  margin: 1rem 0 1rem;
+  box-shadow: var(--shadow);
+  border-radius: var(--rounded-corner);
+
+  &::after {
+    position: absolute;
+    inset: 0;
+    box-shadow: var(--edge-highlight);
+    border-radius: inherit;
+    pointer-events: none;
+    content: "";
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: var(--transition);
+    border-radius: var(--rounded-corner) var(--rounded-corner) 0 0;
+    border-block-end: rpx(1) solid transparent;
+    background-image: linear-gradient(
+      to right,
+      transparent 50%,
+      var(--bg-muted-neutral-1) 75%,
+      transparent 100%
+    );
+    background-size: 200%;
+    padding: 0.25rem;
+
+    &:not(.z-code) {
+      background-color: var(--bg-muted-1);
+      color: var(--accent-color);
+
+      button:hover {
+        background-color: var(--bg-muted-1);
+      }
+
+      &.active {
+        border-block-end-color: var(--bg-muted-1);
+
+        button {
+          background-color: var(--bg-muted-1);
+        }
+      }
+    }
+
+    span {
+      margin-inline-start: 0.75rem;
+      font-weight: var(--font-weight-semi-bold);
+    }
+
+    button {
+      position: relative;
+      transition:
+        all var(--transition),
+        transform var(--transition-bezier);
+      cursor: pointer;
+      box-shadow: none;
+      border-radius: var(--rounded-corner-small);
+      background-color: transparent;
+      padding: 0.5rem;
+      color: inherit;
+      line-height: 0;
+
+      &:hover {
+        box-shadow: var(--edge-highlight);
+        background-color: var(--bg-muted-neutral-1);
+      }
+
+      &:active {
+        transform: var(--active);
+      }
+
+      &:disabled {
+        cursor: not-allowed;
+
+        &:active {
+          transform: none;
+        }
+      }
+
+      .icon {
+        transition:
+          all var(--transition-longer),
+          transform var(--transition-bezier-longer);
+        font-size: 1rem;
+
+        &.copy {
+          --icon: var(--icon-copy);
+          transform-origin: bottom left;
+        }
+
+        &.check {
+          --icon: var(--icon-check-square-offset);
+          position: absolute;
+          transform: scale(0.5);
+          transform-origin: top right;
+          opacity: 0;
+          inset: 0.5rem;
+        }
+      }
+    }
+
+    &.active {
+      animation: active-shimmer var(--transition-long);
+      border-block-end-color: var(--bg-muted-neutral-1);
+
+      button {
+        opacity: 1;
+
+        .icon.copy {
+          transform: scale(0.5);
+          opacity: 0;
+        }
+
+        .icon.check {
+          transform: none;
+          opacity: 1;
+        }
+      }
+
+      @keyframes active-shimmer {
+        to {
+          background-position-x: -200%;
+        }
+      }
+    }
+  }
+
+  pre {
+    margin: 0;
+    box-shadow: none;
+    border-radius: 0 0 var(--rounded-corner) var(--rounded-corner);
+  }
+}

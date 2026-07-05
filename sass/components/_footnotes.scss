@@ -1,0 +1,44 @@
+@use "../abstracts/functions" as *;
+
+.footnotes-list p {
+  margin-block: 0;
+}
+
+.footnote-reference {
+  display: inline-flex;
+  vertical-align: baseline;
+  transition:
+    all var(--transition),
+    outline-offset calc(var(--transition-long) * 3),
+    transform var(--transition-bezier);
+  margin-inline-start: 0.25rem;
+  outline-offset: calc(var(--content-width) / 2) !important;
+  border-radius: 50%;
+  background-color: var(--fg-muted-1);
+  width: 1.375em;
+  line-height: 1.375em;
+
+  &:hover {
+    background-color: var(--accent-color);
+  }
+
+  &:active {
+    transform: var(--active);
+  }
+
+  &:target {
+    animation: none !important;
+    outline-offset: rpx(-3) !important;
+    background-color: var(--accent-color);
+  }
+
+  a {
+    flex: 1;
+    border-radius: inherit;
+    color: var(--bg-color);
+    font-size: var(--font-size-small);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    text-decoration: none;
+  }
+}

@@ -1,0 +1,55 @@
+{%- if page.extra.fediverse.host -%}
+  {%- set host = page.extra.fediverse.host -%}
+{%- else -%}
+  {%- set host = config.extra.fediverse.host -%}
+{%- endif -%}
+
+{%- if page.extra.fediverse.user -%}
+  {%- set user = page.extra.fediverse.user -%}
+{%- else %}
+  {%- set user = config.extra.fediverse.user -%}
+{%- endif -%}
+
+{%- set id = page.extra.fediverse.id -%}
+
+{%- set date_locale = macros::translate(key="date_locale", default="en_US", language_strings=language_strings) | replace(from="_", to="-") -%}
+
+<section id="comments">
+  <span id="rel-attributes" hidden>{{ rel_attributes }}</span>
+  <span id="date-locale" hidden>{{ date_locale }}</span>
+  <span id="host" hidden>{{ host }}</span>
+  <span id="user" hidden>{{ user }}</span>
+  <span id="id" hidden>{{ id }}</span>
+  
+  <span id="article-author-text" hidden>{{ macros::translate(key="article_author", default="Article author", language_strings=language_strings) }}</span>
+  <span id="loading-text" hidden>{{ macros::translate(key="loading", default="Loading", language_strings=language_strings) }}</span>
+  <span id="no-comments-text" hidden>{{ macros::translate(key="no_comments", default="No Comments yet :/", language_strings=language_strings) }}</span>
+  <span id="reload-text" hidden>{{ macros::translate(key="reload", default="Reload", language_strings=language_strings) }}</span>
+  <span id="sensitive-text" hidden>{{ macros::translate(key="sensitive", default="Sensitive Content", language_strings=language_strings) }}</span>
+  
+  {%- if config.markdown.lazy_async_image -%}
+    <span id="lazy-async-image" hidden>true</span>
+  {%- else -%}
+    <span id="lazy-async-image" hidden>false</span>
+  {%- endif -%}
+
+  {%- if config.extra.show_comments_qr -%}
+    {%- if get_env(name="AMETRINE_OFFLINE", default="0") != "1" -%}
+      {%- set qrcode = load_data(url="https://api.qrserver.com/v1/create-qr-code/?data=https://" ~ host ~ "/@" ~ user ~ "/" ~ id ~ "&format=svg&size=116x116") %}
+      <div id="qrcode" title="{{ macros::translate(key='comments_qr', default='QR code to a Mastodon post', language_strings=language_strings) }}">
+        {{- qrcode | safe -}}
+      </div>
+    {%- endif -%}
+  {%- endif -%}
+  <h2>{{ macros::translate(key="comments", default="Comments", language_strings=language_strings) }}</h2>
+  <p>{{ macros::translate(key="comments_description", default="You can comment on this blog post by publicly replying to this post using a Mastodon or other ActivityPub/Fediverse account. Known non-private replies are displayed below.", language_strings=language_strings) }}</p>
+  <div class="buttons start">
+    <button id="load-comments">{{ macros::translate(key="load_comments", default="Load Comments", language_strings=language_strings) }}</button>
+    <a class="suggested external" href="https://{{ host }}/@{{ user }}/{{ id }}" rel="{{ rel_attributes }}">{{ macros::translate(key="open_post", default="Open Post", language_strings=language_strings) }}</a>
+  </div>
+  <div id="comments-wrapper">
+    <noscript>
+      <p>{{ macros::translate(key="comments_noscript", default="Loading comments relies on JavaScript. Try enabling JavaScript and reloading, or visit the original post on Mastodon.", language_strings=language_strings) }}</p>
+    </noscript>
+  </div>
+</section>

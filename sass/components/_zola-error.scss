@@ -1,0 +1,55 @@
+// Based on https://github.com/welpo/tabi/blob/68c35b02f8c09e21ecff48f61bad6da3d96ce337/sass/parts/_zola-error.scss
+
+body > div:last-child:has(div:last-child[style]:not([class]):not([id])) {
+  z-index: 9999 !important;
+  background-color: var(--shade-color) !important;
+}
+
+body > div:last-child > div:last-child[style]:not([class]):not([id]) {
+  box-shadow: var(--edge-highlight), var(--shadow-glass);
+  border-radius: calc(var(--rounded-corner) + 1rem) !important;
+  background-color: hsla(
+    var(--red-h),
+    calc(var(--red-s) - var(--red-s) * 0.7),
+    calc(var(--red-l) + (100% - var(--red-l)) * 0.9),
+    var(--dim-opacity)
+  ) !important;
+  padding: 1rem !important;
+  width: fit-content;
+  max-width: calc(100% - 2rem);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  filter: none !important;
+
+  @media (prefers-color-scheme: dark) {
+    & {
+      background-color: hsla(
+        var(--red-h),
+        calc(var(--red-s) - var(--red-s) * 0.6),
+        calc(var(--red-l) - var(--red-l) * 0.8),
+        var(--dim-opacity)
+      ) !important;
+    }
+  }
+}
+
+body
+  > div:last-child
+  > div:last-child[style]:not([class]):not([id])
+  > p[style]:first-child {
+  margin-block-end: 1rem !important;
+  color: var(--red-fg) !important;
+  font-weight: var(--font-weight-semi-bold) !important;
+  font-size: var(--font-size-large) !important;
+}
+
+body
+  > div:last-child
+  > div:last-child[style]:not([class]):not([id])
+  > pre[style]:last-child {
+  border-radius: var(--rounded-corner) !important;
+  background-color: var(--red-bg-1) !important;
+  padding: 0.75rem 1rem !important;
+  color: var(--red-fg) !important;
+  font-weight: var(--font-weight-normal) !important;
+}

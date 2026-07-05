@@ -1,0 +1,7 @@
+{%- if config.extra.home_url -%}
+  {%- set home_url = get_url(path=config.extra.home_url, lang=lang) -%}
+{%- else -%}
+  {%- set home_url = get_url(path="@/_index.md", lang=lang) -%}
+{%- endif -%}
+
+{{- home_url -}}

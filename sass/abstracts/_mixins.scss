@@ -1,0 +1,113 @@
+@mixin icon($mode: normal) {
+  @if $mode == normal {
+    font-style: normal;
+    font-variant: normal;
+    font-weight: normal;
+    line-height: 1;
+    user-select: none;
+    text-transform: none;
+    -webkit-user-select: none;
+    display: inline-block;
+    box-sizing: content-box;
+  } @else if $mode == pseudo {
+    -webkit-mask-image: var(--icon);
+    -webkit-mask-size: cover;
+    display: block;
+    mask-image: var(--icon);
+    mask-size: cover;
+    background-color: currentColor;
+    width: 1em;
+    height: 1em;
+    content: "";
+  }
+}
+
+@mixin gradient-fill($mode: normal) {
+  @if $mode == normal {
+    box-shadow: var(--edge-highlight), var(--shadow-glow);
+    background-image: linear-gradient(
+      to bottom right,
+      var(--accent-color),
+      var(--accent-highlight)
+    );
+    color: var(--contrast-color);
+    text-shadow: var(--text-shadow-glow);
+  } @else if $mode == hover {
+    box-shadow: var(--edge-highlight);
+    background-color: var(--accent-color);
+    color: var(--contrast-color);
+  }
+}
+
+@mixin card {
+  box-shadow: var(--edge-highlight), var(--shadow);
+  border-radius: var(--rounded-corner);
+  background-color: var(--bg-muted-1);
+  padding: 1rem;
+}
+
+@mixin chip {
+  transition:
+    all var(--transition),
+    transform var(--transition-bezier);
+  box-shadow: var(--edge-highlight);
+  border-radius: var(--rounded-corner-small);
+  background-color: var(--bg-muted-1);
+  padding-inline: 0.375rem;
+  text-decoration: none;
+}
+
+@mixin easing-mask($direction: to bottom) {
+  --mask-image: linear-gradient(
+    to #{$direction},
+    hsl(0, 0%, 0%) 0%,
+    hsla(0, 0%, 0%, 0.987) 8.1%,
+    hsla(0, 0%, 0%, 0.951) 15.5%,
+    hsla(0, 0%, 0%, 0.896) 22.5%,
+    hsla(0, 0%, 0%, 0.825) 29%,
+    hsla(0, 0%, 0%, 0.741) 35.3%,
+    hsla(0, 0%, 0%, 0.648) 41.2%,
+    hsla(0, 0%, 0%, 0.55) 47.1%,
+    hsla(0, 0%, 0%, 0.45) 52.9%,
+    hsla(0, 0%, 0%, 0.352) 58.8%,
+    hsla(0, 0%, 0%, 0.259) 64.7%,
+    hsla(0, 0%, 0%, 0.175) 71%,
+    hsla(0, 0%, 0%, 0.104) 77.5%,
+    hsla(0, 0%, 0%, 0.049) 84.5%,
+    hsla(0, 0%, 0%, 0.013) 91.9%,
+    hsla(0, 0%, 0%, 0) 100%
+  );
+  mask-image: var(--mask-image);
+  -webkit-mask-image: var(--mask-image);
+}
+
+@mixin mix-hsla($color1, $color2, $weight: 0.5, $result-name: "mixed-color") {
+  $alpha1: if(map-has-key($color1, a), map-get($color1, a), 1);
+  $alpha2: if(map-has-key($color2, a), map-get($color2, a), 1);
+
+  --#{$result-name}-mix-weight: #{$weight};
+
+  --#{$result-name}-h: calc(
+    (#{map-get($color1, h)} * (1 - var(--#{$result-name}-mix-weight))) +
+      (#{map-get($color2, h)} * var(--#{$result-name}-mix-weight))
+  );
+  --#{$result-name}-s: calc(
+    (#{map-get($color1, s)} * (1 - var(--#{$result-name}-mix-weight))) +
+      (#{map-get($color2, s)} * var(--#{$result-name}-mix-weight))
+  );
+  --#{$result-name}-l: calc(
+    (#{map-get($color1, l)} * (1 - var(--#{$result-name}-mix-weight))) +
+      (#{map-get($color2, l)} * var(--#{$result-name}-mix-weight))
+  );
+  --#{$result-name}-a: calc(
+    (#{$alpha1} * (1 - var(--#{$result-name}-mix-weight))) +
+      (#{$alpha2} * var(--#{$result-name}-mix-weight))
+  );
+
+  --#{$result-name}: hsl(
+    var(--#{$result-name}-h),
+    var(--#{$result-name}-s),
+    var(--#{$result-name}-l),
+    var(--#{$result-name}-a)
+  );
+}

@@ -1,0 +1,59 @@
+#range-h::-webkit-slider-runnable-track {
+	background: linear-gradient(to right,
+			hsl(0, 100%, 50%),
+			hsl(30, 100%, 50%),
+			hsl(60, 100%, 50%),
+			hsl(90, 100%, 50%),
+			hsl(120, 100%, 50%),
+			hsl(150, 100%, 50%),
+			hsl(180, 100%, 50%),
+			hsl(210, 100%, 50%),
+			hsl(240, 100%, 50%),
+			hsl(270, 100%, 50%),
+			hsl(300, 100%, 50%),
+			hsl(330, 100%, 50%),
+			hsl(360, 100%, 50%));
+}
+
+#range-h::-moz-range-track {
+	background: linear-gradient(to right,
+			hsl(0, 100%, 50%),
+			hsl(30, 100%, 50%),
+			hsl(60, 100%, 50%),
+			hsl(90, 100%, 50%),
+			hsl(120, 100%, 50%),
+			hsl(150, 100%, 50%),
+			hsl(180, 100%, 50%),
+			hsl(210, 100%, 50%),
+			hsl(240, 100%, 50%),
+			hsl(270, 100%, 50%),
+			hsl(300, 100%, 50%),
+			hsl(330, 100%, 50%),
+			hsl(360, 100%, 50%));
+}
+
+#range-s::-webkit-slider-runnable-track {
+	background: linear-gradient(to right,
+			hsl(var(--accent-h), 0%, var(--accent-l)),
+			hsl(var(--accent-h), 100%, var(--accent-l)));
+}
+
+#range-s::-moz-range-track {
+	background: linear-gradient(to right,
+			hsl(var(--accent-h), 0%, var(--accent-l)),
+			hsl(var(--accent-h), 100%, var(--accent-l)));
+}
+
+#range-l::-webkit-slider-runnable-track {
+	background: linear-gradient(to right,
+			hsl(var(--accent-h), var(--accent-s), 0%),
+			hsl(var(--accent-h), var(--accent-s), 50%),
+			hsl(var(--accent-h), var(--accent-s), 100%));
+}
+
+#range-l::-moz-range-track {
+	background: linear-gradient(to right,
+			hsl(var(--accent-h), var(--accent-s), 0%),
+			hsl(var(--accent-h), var(--accent-s), 50%),
+			hsl(var(--accent-h), var(--accent-s), 100%));
+}

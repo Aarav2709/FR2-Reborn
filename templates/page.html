@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+{%- if not page.extra.no_header -%}
+  {{- "# " ~ page.title | markdown | safe -}}
+{%- endif -%}
+{%- include "partials/statements.html" -%}
+{{ page.content | safe }}
+{%- if page.extra.backlinks -%}
+  {%- include "partials/backlinks.html" -%}
+{%- endif -%}
+{% endblock content %}

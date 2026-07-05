@@ -1,0 +1,87 @@
+@use "../abstracts/mixins" as *;
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.25rem;
+  margin-block-start: 2rem;
+
+  &.centered {
+    justify-content: center;
+  }
+
+  &.start {
+    justify-content: flex-start;
+  }
+
+  &.end {
+    justify-content: flex-end;
+  }
+
+  &.big {
+    gap: 0.5rem;
+  }
+}
+
+.buttons a,
+a.button,
+button {
+  display: inline-block;
+  transition:
+    all var(--transition),
+    transform var(--transition-bezier);
+  box-shadow: var(--edge-highlight);
+  border-radius: var(--rounded-corner);
+  background-color: var(--bg-muted-1);
+  padding: 0.5rem 1rem;
+  color: var(--fg-muted-1);
+  font-weight: var(--font-weight-semi-bold);
+  font-size: var(--font-size-small);
+  line-height: 1.5rem;
+  text-decoration: none;
+
+  &:not(:disabled, [aria-disabled="true"]):hover {
+    background-color: var(--bg-muted-2);
+    color: var(--fg-muted-2);
+  }
+
+  &:not(:disabled, [aria-disabled="true"]):active {
+    transform: var(--active);
+  }
+
+  &.suggested {
+    @include gradient-fill;
+
+    &:not(:disabled, [aria-disabled="true"]):hover {
+      @include gradient-fill(hover);
+    }
+  }
+
+  &.progress {
+    animation: progress-shimmer var(--transition-long) ease-in-out alternate
+      infinite;
+    background-image: linear-gradient(
+      to right,
+      transparent 50%,
+      var(--bg-muted-1) 75%,
+      transparent 100%
+    );
+    background-size: 200%;
+
+    @keyframes progress-shimmer {
+      to {
+        background-position-x: -200%;
+      }
+    }
+  }
+}
+
+.buttons.big a,
+.buttons.big button,
+a.button.big,
+button.big {
+  border-radius: 9999px;
+  padding: 0.625rem 1.25rem;
+}

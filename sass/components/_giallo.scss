@@ -1,0 +1,16 @@
+.giallo:has(.giallo-ln) {
+  padding-inline: 0;
+}
+
+.giallo-l {
+  display: inline-block;
+  width: 100%;
+}
+
+.giallo-ln {
+  display: inline-block;
+  margin-right: 1ch;
+  min-width: 3ch;
+  user-select: none;
+  text-align: right;
+}

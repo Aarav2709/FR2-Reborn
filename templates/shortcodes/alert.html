@@ -1,0 +1,13 @@
+{%- set alert_icon = load_data(path="icons/phosphor/" ~ icon ~ ".svg", required=false) -%}
+{%- if not alert_icon -%}
+  {%- set alert_icon = load_data(path="themes/ametrine/icons/phosphor/" ~ icon ~ ".svg") -%}
+{%- endif -%}
+
+<blockquote
+  class="markdown-alert{% if color %}-{{ color }}{% endif %}"
+  style="
+    --alert-title: '{{ title }}';
+    --alert-icon: url('data:image/svg+xml,{{ alert_icon | urlencode | safe }}');
+  ">
+  {{ body | markdown | safe }}
+</blockquote>

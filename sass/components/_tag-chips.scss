@@ -1,0 +1,59 @@
+@use "../abstracts/functions" as *;
+
+#tag-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  transition: var(--transition);
+  margin: 0;
+  padding-inline-start: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    margin-block: 0;
+    padding-inline-start: 0;
+  }
+
+  a {
+    display: flex;
+    transition:
+      all var(--transition),
+      transform var(--transition-bezier);
+    box-shadow: var(--edge-highlight);
+    border-radius: 1rem;
+    background-color: var(--bg-muted-1);
+    padding: 0.25rem;
+    padding-inline-start: 0.75rem;
+    color: var(--fg-muted-1);
+    font-size: var(--font-size-small);
+    line-height: 1.5rem;
+    text-decoration: none;
+
+    &:hover {
+      background-color: var(--bg-muted-2);
+      color: var(--fg-muted-2);
+    }
+
+    &:active {
+      transform: var(--active);
+    }
+
+    &::before {
+      content: "#";
+    }
+
+    .counter {
+      transition: inherit;
+      margin-inline-start: 0.375rem;
+      box-shadow: var(--edge-highlight);
+      border-radius: inherit;
+      background-color: inherit;
+      aspect-ratio: 1 / 1;
+      height: 1.5rem;
+      line-height: 1.5rem;
+      font-variant-numeric: tabular-nums;
+      text-align: center;
+    }
+  }
+}

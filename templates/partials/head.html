@@ -1,0 +1,274 @@
+<head>
+  <meta charset="UTF-8" />
+
+  {%- if config.extra.csp -%}
+    {%- include "partials/csp.html" -%}
+  {%- endif -%}
+
+  <meta name="description" content="{{ config.description }}" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="base" content="{{ config.base_url | safe }}" />
+  {%- if zola_version -%}
+    <meta name="generator" content="Zola {{ zola_version }}" />
+  {%- else -%}
+    <meta name="generator" content="Zola" />
+  {%- endif -%}
+    {% if is_404 %}
+        <meta name="robots" content="noindex, follow" />
+    {% endif %}
+
+  {%- if page.extra.accent_color %}
+    {%- set theme_color = page.extra.accent_color %}
+  {%- elif section.extra.accent_color %}
+    {%- set theme_color = section.extra.accent_color %}
+  {%- elif config.extra.accent_color %}
+    {%- set theme_color = config.extra.accent_color %}
+  {%- endif %}
+
+  {%- if theme_color and theme_color is iterable %}
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="{{ theme_color[0] }}" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="{{ theme_color[1] }}" />
+  {%- elif theme_color %}
+    <meta name="theme-color" content="{{ theme_color }}" />
+  {%- endif %}
+
+  {%- if config.extra.fediverse.host and config.extra.fediverse.user %}
+    <meta name="fediverse:creator" content="@{{ config.extra.fediverse.user }}@{{ config.extra.fediverse.host }}" />
+  {%- endif %}
+
+  {%- if page.extra.meta.card %}
+    {%- set card = get_url(path=page.path ~ page.extra.meta.card, cachebust=true) %}
+  {%- elif section.extra.meta.card %}
+    {%- set card = get_url(path=section.path ~ section.extra.meta.card, cachebust=true) %}
+  {%- elif page.extra.banner %}
+    {%- set card = resize_image(path=page.colocated_path ~ page.extra.banner, width=1200, height=628, op="fill") %}
+    {%- set card = card.url %}
+  {%- elif section.extra.banner %}
+    {%- set card = resize_image(path=section.colocated_path ~ section.extra.banner, width=1200, height=628, op="fill") %}
+    {%- set card = card.url %}
+  {%- elif config.extra.meta.card %}
+    {%- if config.extra.meta.card != true %}
+      {%- set card = get_url(path=config.extra.meta.card, cachebust=true) %}
+    {%- else %}
+      {%- set card = get_url(path="card.png", cachebust=true) %}
+    {%- endif %}
+  {%- endif %}
+
+  <meta property="og:site_name" content="{{ config.title }}" />
+  <meta property="og:title" content="{% include 'partials/title.html' %}" />
+  <meta property="og:url" content="{{ current_url | default(value='/') | safe }}" />
+  <meta property="og:description" content="{% include 'partials/description.html' %}" />
+  {%- if card %}
+    <meta property="og:image" content="{{ card | safe }}" />
+  {%- endif %}
+  <meta property="og:locale" content="{{ config.extra.date_locale | default(value='en_US') }}" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="{% include 'partials/title.html' %}" />
+  <meta name="twitter:url" content="{{ current_url | default(value='/') | safe }}" />
+  <meta name="twitter:description" content="{% include 'partials/description.html' %}" />
+  {%- if card %}
+    <meta name="twitter:image" content="{{ card | safe }}" />
+  {%- endif %}
+
+  <title>{% include "partials/title.html" %}</title>
+  <link rel="canonical" href="{{ current_url | default(value='/') | safe }}" />
+
+  {%- if config.extra.fediverse.host and config.extra.fediverse.user %}
+    <link rel="me" href="https://{{ config.extra.fediverse.host }}/@{{ config.extra.fediverse.user }}" />
+  {%- endif %}
+
+  {%- if page.extra.meta.favicon %}
+    {%- set favicon = page.path ~ page.extra.meta.favicon %}
+  {%- elif section.extra.meta.favicon %}
+    {%- set favicon = section.path ~ section.extra.meta.favicon %}
+  {%- elif config.extra.meta.favicon %}
+    {%- if config.extra.meta.favicon != true %}
+      {%- set favicon = config.extra.meta.favicon %}
+    {%- else %}
+      {%- set favicon = "favicon.png" %}
+    {%- endif %}
+  {%- endif %}
+
+  {%- if favicon %}
+    {%- if favicon | split(pat=".") | length > 1 %}
+      {%- set favicon_type = favicon | split(pat=".") | last %}
+      <link rel="icon" type="image/{{ favicon_type }}" href="{{ get_url(path=favicon, cachebust=true) }}" />
+    {%- else %}
+      <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='50%25' x='50%25' dominant-baseline='central' text-anchor='middle' font-size='88'%3E{{ favicon | truncate(length=1, end='') }}%3C/text%3E%3C/svg%3E" />
+    {%- endif %}
+  {%- endif %}
+
+  {%- if page.extra.meta.apple_touch_icon %}
+    {%- set apple_touch_icon = get_url(path=page.colocated_path ~ page.extra.meta.apple_touch_icon, cachebust=true) %}
+  {%- elif section.extra.meta.apple_touch_icon %}
+    {%- set apple_touch_icon = get_url(path=section.colocated_path ~ section.extra.meta.apple_touch_icon, cachebust=true) %}
+  {%- elif config.extra.meta.apple_touch_icon %}
+    {%- if config.extra.meta.apple_touch_icon != true %}
+      {%- set apple_touch_icon = get_url(path=config.extra.meta.apple_touch_icon, cachebust=true) %}
+    {%- else %}
+      {%- set apple_touch_icon = get_url(path="apple-touch-icon.png", cachebust=true) %}
+    {%- endif %}
+  {%- endif %}
+
+  {%- if apple_touch_icon %}
+    {%- set apple_touch_icon_type = apple_touch_icon | split(pat=".") | last %}
+    <link rel="apple-touch-icon" type="image/{{ apple_touch_icon_type }}" sizes="180x180" href="{{ apple_touch_icon | safe }}" />
+  {%- endif %}
+
+  {%- if config.generate_feeds or section.generate_feeds or (taxonomy.feed and term.path) %}
+    {%- set feed_filenames = config.feed_filenames | default(value="atom.xml") %}
+    {%- if feed_filenames is iterable %}
+      {%- for feed_filename in feed_filenames %}
+        {%- set feed = feed_filename %}
+        {%- if section.generate_feeds %}
+          {%- set feed = current_path ~ feed_filename %}
+        {%- endif %}
+        {%- if taxonomy.feed and term.path %}
+          {%- set feed = term.path ~ feed_filename %}
+        {%- endif %}
+        {%- if feed_filename is containing ("atom") %}
+          <link rel="alternate" type="application/atom+xml" href="{{ get_url(path=feed, lang=lang) }}" />
+        {%- elif feed_filename is containing("rss") %}
+          <link rel="alternate" type="application/rss+xml" href="{{ get_url(path=feed, lang=lang) }}" />
+        {%- else %}
+          <link rel="alternate" href="{{ get_url(path=feed, lang=lang) }}" />
+        {%- endif %}
+      {%- endfor %}
+    {%- else %}
+      <link rel="alternate" type="application/atom+xml" href="{{ get_url(path=feed, lang=lang) }}" />
+    {%- endif %}
+  {%- endif %}
+
+  {%- if config.extra.feed_sections %}
+    {%- for feed in config.extra.feed_sections %}
+      {%- if current_url | default(value="/") | safe != get_url(path=feed.path, lang=lang) %}
+        {%- set section_path = feed.path | trim_start_matches(pat="@/") %}
+        {%- set section = get_section(path=section_path, lang=lang, metadata_only=true) %}
+        {%- set feed_filenames = config.feed_filenames | default(value="atom.xml") %}
+        {%- if section.generate_feeds == true %}
+          {%- if feed_filenames is iterable %}
+            {%- for feed_filename in feed_filenames %}
+              {%- if feed_filename is containing("atom") %}
+                <link rel="alternate" type="application/atom+xml" href="{{ get_url(path=feed.path, lang=lang) ~ feed_filename }}" />
+              {%- elif feed_filename is containing("rss") %}
+                <link rel="alternate" type="application/rss+xml" href="{{ get_url(path=feed.path, lang=lang) ~ feed_filename }}" />
+              {%- else %}
+                <link rel="alternate" href="{{ get_url(path=feed.path, lang=lang) ~ feed_filename }}" />
+              {%- endif %}
+            {%- endfor %}
+          {%- else %}
+            <link rel="alternate" type="application/atom+xml" href="{{ get_url(path=feed.path, lang=lang) ~ feed_filename }}" />
+          {%- endif %}
+        {%- endif %}
+      {%- endif %}
+    {%- endfor %}
+  {%- endif %}
+
+  {%- include "partials/fonts.html" %}
+
+  {%- set styles = ["style.css", "fonts.css"] %}
+
+  {%- if config.extra.styles %}
+    {%- set styles = styles | concat(with=config.extra.styles) %}
+  {%- endif %}
+
+  {%- if page.extra.styles %}
+    {%- set styles = styles | concat(with=page.extra.styles) %}
+  {%- elif section.extra.styles %}
+    {%- set styles = styles | concat(with=section.extra.styles) %}
+  {%- endif %}
+
+  {%- if not config.extra.debug.no_styles %}
+    {%- for style in styles %}
+      <link type="text/css" rel="stylesheet" href="{{ get_url(path=style, cachebust=true) | safe }}" />
+    {%- endfor %}
+
+    {%- if config.markdown.highlighting and config.markdown.highlighting.style == "class" %}
+      {%- if config.markdown.highlighting.light_theme and config.markdown.highlighting.dark_theme %}
+        <link type="text/css" rel="stylesheet" href="{{ get_url(path='giallo-light.css') }}" media="(prefers-color-scheme: light)" />
+        <link type="text/css" rel="stylesheet" href="{{ get_url(path='giallo-dark.css') }}" media="(prefers-color-scheme: dark)" />
+      {%- elif config.markdown.highlighting.theme %}
+        <link type="text/css" rel="stylesheet" href="{{ get_url(path='giallo.css') }}" />
+      {%- endif %}
+    {%- endif %}
+  {%- endif %}
+
+  {%- if config.extra.debug.layout -%}
+    <style type="text/css">
+      *,
+      *::before,
+      *::after {
+        outline: solid 1px var(--accent-color);
+      }
+    </style>
+  {%- endif -%}
+
+  {%- set scripts = ["closable.js", "deanchor.js", "marquee.js"] %}
+
+  {%- if config.build_search_index %}
+    {%- if config.search.index_format and config.search.index_format == "elasticlunr_javascript" %}
+      {%- set search_index = "search_index." ~ lang ~ ".js" %}
+      {%- set scripts = scripts | concat(with=[search_index, "elasticlunr.min.js", "search.js"]) %}
+    {%- else %}
+      {%- set scripts = scripts | concat(with=["elasticlunr.min.js", "search.js"]) %}
+    {%- endif %}
+  {%- endif %}
+
+  {%- if page.extra.copy_button
+    or section.extra.copy_button
+    or config.extra.copy_button %}
+    {%- set scripts = scripts | concat(with=["copy-button.js"]) %}
+  {%- endif %}
+
+  {%- if page.extra.audio_button
+    or section.extra.audio_button
+    or config.extra.audio_button %}
+    {%- set scripts = scripts | concat(with=["audio-button.js"]) %}
+  {%- endif %}
+
+  {%- if page.extra.music and page.extra.music | length > 1
+    or section.extra.music and section.extra.music | length > 1 %}
+    {%- set scripts = scripts | concat(with=["paginator.js"]) %}
+  {%- endif %}
+
+  {%- if page.extra.fediverse.id %}
+    {%- set scripts = scripts | concat(with=["comments.js"]) %}
+  {%- endif %}
+
+  {%- if config.extra.scripts %}
+    {%- set scripts = scripts | concat(with=config.extra.scripts) %}
+  {%- endif %}
+
+  {%- if page.extra.scripts %}
+    {%- set scripts = scripts | concat(with=page.extra.scripts) %}
+  {%- elif section.extra.scripts %}
+    {%- set scripts = scripts | concat(with=section.extra.scripts) %}
+  {%- endif %}
+
+  {%- if config.mode != "serve" and config.extra.vercel.analytics %}
+    {%- if config.extra.vercel.rewrites_source -%}
+      {%- set insights_url = get_url(path=config.extra.vercel.rewrites_source ~  "/insights/script.js") -%}
+    {%- else -%}
+      {%- set insights_url = get_url(path="_vercel/insights/script.js") -%}
+    {%- endif -%}
+    <script type="text/javascript" async src="{{ insights_url | safe }}" {% if config.extra.vercel.rewrites_source %}data-endpoint="/{{ config.extra.vercel.rewrites_source }}/insights"{% endif %}></script>
+  {%- endif %}
+
+  {%- if config.mode != "serve" and config.extra.vercel.speed_insights %}
+    {%- if config.extra.vercel.rewrites_source -%}
+      {%- set speed_insights_url = get_url(path=config.extra.vercel.rewrites_source ~  "/speed-insights/script.js") -%}
+    {%- else -%}
+      {%- set speed_insights_url = get_url(path="_vercel/speed-insights/script.js") -%}
+    {%- endif -%}
+    <script type="text/javascript" async src="{{ speed_insights_url | safe }}" {% if config.extra.vercel.rewrites_source %}data-endpoint="/{{ config.extra.vercel.rewrites_source }}/speed-insights/vitals"{% endif %}></script>
+  {%- endif %}
+
+  {%- for script in scripts %}
+    <script type="text/javascript" defer src="{{ get_url(path=script, cachebust=true) | safe }}"></script>
+  {%- endfor %}
+
+  {%- if config.mode != "serve" and config.extra.analytics.service -%}
+    {%- include "partials/analytics.html" -%}
+  {%- endif -%}
+</head>

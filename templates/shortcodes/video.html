@@ -1,0 +1,50 @@
+{# Video classes #}
+{%- set video_classes = [] -%}
+{%- if full -%}
+  {%- set video_classes = video_classes | concat(with="full") -%}
+{%- endif -%}
+{%- if start -%}
+  {%- set video_classes = video_classes | concat(with="start") -%}
+{%- endif -%}
+{%- if end -%}
+  {%- set video_classes = video_classes | concat(with="end") -%}
+{%- endif -%}
+{%- if pixels -%}
+  {%- set video_classes = video_classes | concat(with="pixels") -%}
+{%- endif -%}
+{%- if transparent -%}
+  {%- set video_classes = video_classes | concat(with="transparent") -%}
+{%- endif -%}
+{%- if drop_shadow -%}
+  {%- set video_classes = video_classes | concat(with="drop-shadow") -%}
+{%- endif -%}
+{%- if spoiler -%}
+  {%- set video_classes = video_classes | concat(with="spoiler") -%}
+{%- endif -%}
+{%- if spoiler and solid -%}
+  {%- set video_classes = video_classes | concat(with="solid") -%}
+{%- endif -%}
+
+{%- set video_classes = video_classes | join(sep=" ") -%}
+
+{# Video attributes #}
+{%- set video_attributes = [] -%}
+{%- if autoplay -%}
+  {%- set video_attributes = video_attributes | concat(with="autoplay") -%}
+{%- endif -%}
+{%- if controls -%}
+  {%- set video_attributes = video_attributes | concat(with="controls") -%}
+{%- endif -%}
+{%- if loop -%}
+  {%- set video_attributes = video_attributes | concat(with="loop") -%}
+{%- endif -%}
+{%- if muted -%}
+  {%- set video_attributes = video_attributes | concat(with="muted") -%}
+{%- endif -%}
+{%- if playsinline -%}
+  {%- set video_attributes = video_attributes | concat(with="playsinline") -%}
+{%- endif -%}
+
+{%- set video_attributes = video_attributes | join(sep=" ") -%}
+
+<video class="{{ video_classes }}" src="{{ url }}" {%- if alt -%}aria-title="{{ alt }}"{%- endif -%} {{ video_attributes }}></video>

@@ -1,0 +1,17 @@
+textarea {
+  appearance: none;
+  box-shadow: var(--edge-highlight);
+  border: none;
+  border-radius: var(--rounded-corner);
+  background-color: var(--bg-muted-1);
+  padding: 1rem;
+  resize: none;
+  font-size: inherit;
+  line-height: inherit;
+  font-family: inherit;
+
+  &::placeholder {
+    opacity: 1;
+    color: var(--fg-muted-1);
+  }
+}

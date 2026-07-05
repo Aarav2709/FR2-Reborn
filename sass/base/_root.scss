@@ -1,0 +1,17 @@
+@use "../abstracts/variables" as *;
+
+:root {
+  @include variables(("light", "common"));
+  @include variables-accent(("light", "common"));
+  scroll-behavior: smooth;
+  scrollbar-color: var(--accent-color) transparent;
+  accent-color: var(--accent-color);
+
+  @media (prefers-color-scheme: dark) {
+    & {
+      @include variables("dark");
+      @include variables-accent(("dark"));
+      color-scheme: dark;
+    }
+  }
+}

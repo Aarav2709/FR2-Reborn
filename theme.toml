@@ -1,0 +1,10 @@
+name = "Ametrine"
+description = "Elegant, pretty, and snappy Zola theme."
+license = "MIT"
+homepage = "https://codeberg.org/daudix/ametrine"
+min_version = "0.22.1"
+demo = "https://ametrine.daudix.one"
+
+[author]
+name = "David Lapshin"
+homepage = "https://daudix.one"

@@ -1,0 +1,38 @@
+{%- set image_classes = [] -%}
+{%- if full -%}
+  {%- set image_classes = image_classes | concat(with="full") -%}
+{%- endif -%}
+{%- if start -%}
+  {%- set image_classes = image_classes | concat(with="start") -%}
+{%- endif -%}
+{%- if end -%}
+  {%- set image_classes = image_classes | concat(with="end") -%}
+{%- endif -%}
+{%- if pixels -%}
+  {%- set image_classes = image_classes | concat(with="pixels") -%}
+{%- endif -%}
+{%- if transparent -%}
+  {%- set image_classes = image_classes | concat(with="transparent") -%}
+{%- endif -%}
+{%- if drop_shadow -%}
+  {%- set image_classes = image_classes | concat(with="drop-shadow") -%}
+{%- endif -%}
+{%- if no_hover -%}
+  {%- set image_classes = image_classes | concat(with="no-hover") -%}
+{%- endif -%}
+{%- if spoiler -%}
+  {%- set image_classes = image_classes | concat(with="spoiler") -%}
+{%- endif -%}
+{%- if spoiler and solid -%}
+  {%- set image_classes = image_classes | concat(with="solid") -%}
+{%- endif -%}
+
+{%- set image_classes = image_classes | join(sep=" ") -%}
+
+{%- if url_min -%}
+  <a href="{{ url }}">
+    <img class="{{ image_classes }}" {%- if alt -%}alt="{{ alt }}"{%- endif -%} src="{{ url_min }}" {%- if config.markdown.lazy_async_image -%}decoding="async" loading="lazy"{%- endif -%} />
+  </a>
+{%- else -%}
+  <img class="{{ image_classes }}" {%- if alt -%}alt="{{ alt }}"{%- endif -%} src="{{ url }}" {%- if config.markdown.lazy_async_image -%}decoding="async" loading="lazy"{%- endif -%} />
+{%- endif -%}

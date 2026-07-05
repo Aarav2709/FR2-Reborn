@@ -1,0 +1,93 @@
+{# Default accent color (gray) #}
+{%- set accent_color = ["hsl(324, 2%, 43%)", "hsl(0, 1%, 75%)"] -%}
+
+{%- set presets = load_data(path="data/accent_presets.toml", required=false) -%}
+{% if not presets %}
+  {%- set presets = load_data(path="themes/ametrine/data/accent_presets.toml") -%}
+{% endif %}
+
+{%- if page.extra.accent_color -%}
+  {%- set accent_color = page.extra.accent_color -%}
+{%- elif section.extra.accent_color -%}
+  {%- set accent_color = section.extra.accent_color -%}
+{%- elif matched_category.color -%}
+  {%- set accent_color = matched_category.color -%}
+{%- elif config.extra.accent_color -%}
+  {%- set accent_color = config.extra.accent_color -%}
+{%- endif -%}
+
+{# Process accent_color based on its type #}
+{%- if accent_color is iterable -%}
+  {%- set light_input = accent_color[0] -%}
+  {%- set dark_input = accent_color[1] -%}
+  
+  {%- if light_input is starting_with("hsl") -%}
+    {%- set accent_color_light = light_input -%}
+  {%- elif presets[light_input] -%}
+    {%- set accent_color_light = presets[light_input].light -%}
+  {%- else -%}
+    {{- throw(message="Unknown accent color preset: " ~ light_input) -}}
+  {%- endif -%}
+  
+  {%- if dark_input is starting_with("hsl") -%}
+    {%- set accent_color_dark = dark_input -%}
+  {%- elif presets[dark_input] -%}
+    {%- set accent_color_dark = presets[dark_input].dark -%}
+  {%- else -%}
+    {{- throw(message="Unknown accent color preset: " ~ dark_input) -}}
+  {%- endif -%}
+{%- elif accent_color is string -%}
+  {%- if accent_color is starting_with("hsl") -%}
+    {%- set accent_color_light = accent_color -%}
+    {%- set accent_color_dark = accent_color -%}
+  {%- elif presets[accent_color] -%}
+    {%- set accent_color_light = presets[accent_color].light -%}
+    {%- set accent_color_dark = presets[accent_color].dark -%}
+  {%- else -%}
+    {{- throw(message="Unknown accent color preset: " ~ accent_color) -}}
+  {%- endif -%}
+{%- endif -%}
+
+{# Throw error if accent color is not in HSL format #}
+{%- if accent_color_light is starting_with("#") -%}
+  {{- throw(message="Light accent color seems to use hex color code instead of HSL: " ~ accent_color_light) -}}
+{%- endif -%}
+
+{%- if accent_color_dark is starting_with("#") -%}
+  {{- throw(message="Dark accent color seems to use hex color code instead of HSL: " ~ accent_color_dark) -}}
+{%- endif -%}
+
+{%- if accent_color_light is starting_with("rgb") -%}
+  {{- throw(message="Light accent color seems to use RGB color instead of HSL: " ~ accent_color_light) -}}
+{%- endif -%}
+
+{%- if accent_color_dark is starting_with("rgb") -%}
+  {{- throw(message="Dark accent color seems to use RGB color instead of HSL: " ~ accent_color_dark) -}}
+{%- endif -%}
+
+{# Throw error if dark accent color is set using legacy method #}
+{%- if page.extra.accent_color_dark
+  or section.extra.accent_color_dark
+  or config.extra.accent_color_dark -%}
+  {{- throw(message='Dark accent color seems to be set using legacy method: accent_color_dark = "#000000". Please convert it to the new syntax: accent_color = ["hsl(360, 100%, 100%)", "hsl(0, 0%, 0%)"].') -}}
+{%- endif -%}
+
+{%- if accent_color_light is matching(", ") -%}
+  {%- set accent_array_light = accent_color_light | trim_start_matches(pat="hsl(") | trim_end_matches(pat=")") | split(pat=", ") -%}
+{%- else -%}
+  {%- set accent_array_light = accent_color_light | trim_start_matches(pat="hsl(") | trim_end_matches(pat=")") | split(pat=" ") -%}
+{%- endif -%}
+
+{%- if accent_color_dark is matching(", ") -%}
+  {%- set accent_array_dark = accent_color_dark | trim_start_matches(pat="hsl(") | trim_end_matches(pat=")") | split(pat=", ") -%}
+{%- else -%}
+  {%- set accent_array_dark = accent_color_dark | trim_start_matches(pat="hsl(") | trim_end_matches(pat=")") | split(pat=" ") -%}
+{%- endif -%}
+
+--accent-light-h: {{ accent_array_light[0] | safe }};
+--accent-light-s: {{ accent_array_light[1] | safe }};
+--accent-light-l: {{ accent_array_light[2] | safe }};
+
+--accent-dark-h: {{ accent_array_dark[0] | safe }};
+--accent-dark-s: {{ accent_array_dark[1] | safe }};
+--accent-dark-l: {{ accent_array_dark[2] | safe }};

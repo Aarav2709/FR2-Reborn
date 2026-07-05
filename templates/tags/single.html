@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+{%- set number_of_posts = term.pages | length -%}
+<h1>{{ term.name }}</h1>
+
+<p>
+  <small>
+    <a href="{{ get_url(path='tags', lang=lang) }}">{{ macros::translate(key="all_tags", default="See all tags", language_strings=language_strings) }}</a>
+    <br />
+    {{ macros::translate(key="posts", number=number_of_posts, default="$NUMBER posts in total", language_strings=language_strings) }}
+  </small>
+</p>
+
+{% include "partials/article_list.html" %}
+{% include "partials/paginator.html" %}
+{% endblock content %}

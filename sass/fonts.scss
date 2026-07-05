@@ -1,0 +1,52 @@
+$commissioner-version: "1.012.1";
+$commit-mono-version: "1.143";
+
+:root {
+  --font-sans-serif: "Commissioner";
+  --font-monospace: "Commit Mono";
+}
+
+// Commissioner
+@font-face {
+  font-style: normal;
+  font-weight: 100 900;
+  src: url("/fonts/commissioner.woff2?v=#{$commissioner-version}")
+    format("woff2");
+  font-family: "Commissioner";
+  font-display: swap;
+  // Fix vertical alignment,
+  // See https://github.com/kosbarts/Commissioner/issues/55
+  ascent-override: 96.3%;
+  descent-override: 25%;
+}
+
+@font-face {
+  font-style: italic;
+  font-weight: 100 900;
+  src: url("/fonts/commissioner.woff2?v=#{$commissioner-version}")
+    format("woff2");
+  font-family: "Commissioner";
+  font-display: swap;
+  font-variation-settings: "slnt" -12;
+  // Ditto
+  ascent-override: 96.3%;
+  descent-override: 25%;
+}
+
+// Commit Mono
+@font-face {
+  font-style: normal;
+  font-weight: 100 900;
+  src: url("/fonts/commit-mono.woff2?v=#{$commit-mono-version}") format("woff2");
+  font-family: "Commit Mono";
+  font-display: swap;
+}
+
+@font-face {
+  font-style: italic;
+  font-weight: 100 900;
+  src: url("/fonts/commit-mono.woff2?v=#{$commit-mono-version}") format("woff2");
+  font-family: "Commit Mono";
+  font-display: swap;
+  font-variation-settings: "ital" 1;
+}

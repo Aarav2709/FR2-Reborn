@@ -1,0 +1,16 @@
+body {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  grid-template-columns: var(--sidebar-width) 1fr;
+  grid-template-areas:
+    "sidebar header"
+    "sidebar banner"
+    "sidebar main  "
+    "sidebar footer";
+  justify-items: center;
+  transition: grid-template-columns var(--transition);
+
+  @media only screen and (max-width: 960px) {
+    grid-template-columns: 0 1fr;
+  }
+}

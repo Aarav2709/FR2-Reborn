@@ -1,0 +1,45 @@
+{%- if paginator and paginator.number_pagers > 1 -%}
+  <nav class="paginator">
+    {%- if paginator.first != current_url -%}
+      <a class="paginator-item first" href="{{ paginator.first }}" title="{{ macros::translate(key='first', default='First', language_strings=language_strings) }}">
+        {{- macros::icon(name="caret-line-left") -}}
+      </a>
+    {% else %}
+      <span class="paginator-item first" aria-disabled="true" title="{{ macros::translate(key='first', default='First', language_strings=language_strings) }}">
+        {{- macros::icon(name="caret-line-left") -}}
+      </span>
+    {%- endif -%}
+
+    {%- if paginator.previous -%}
+      <a class="paginator-item previous" href="{{ paginator.previous }}" title="{{ macros::translate(key='previous', default='Previous', language_strings=language_strings) }}">
+        {{- macros::icon(name="caret-left") -}}
+      </a>
+    {% else %}
+      <span class="paginator-item previous" aria-disabled="true" title="{{ macros::translate(key='previous', default='Previous', language_strings=language_strings) }}">
+        {{- macros::icon(name="caret-left") -}}
+      </span>
+    {%- endif -%}
+
+    <span class="paginator-counter">{{ paginator.current_index }}/{{ paginator.number_pagers }}</span>
+
+    {%- if paginator.next -%}
+      <a class="paginator-item next" href="{{ paginator.next }}" title="{{ macros::translate(key='next', default='Next', language_strings=language_strings) }}">
+        {{- macros::icon(name="caret-right") -}}
+      </a>
+    {%- else -%}
+      <span class="paginator-item next" aria-disabled="true" title="{{ macros::translate(key='next', default='Next', language_strings=language_strings) }}">
+        {{- macros::icon(name="caret-right") -}}
+      </span>
+    {%- endif -%}
+
+    {%- if paginator.last != current_url -%}
+      <a class="paginator-item last" href="{{ paginator.last }}" title="{{ macros::translate(key='last', default='Last', language_strings=language_strings) }}">
+        {{- macros::icon(name="caret-line-right") -}}
+      </a>
+    {% else %}
+      <span class="paginator-item last" aria-disabled="true" title="{{ macros::translate(key='last', default='Last', language_strings=language_strings) }}">
+        {{- macros::icon(name="caret-line-right") -}}
+      </span>
+    {%- endif -%}
+  </nav>
+{%- endif -%}

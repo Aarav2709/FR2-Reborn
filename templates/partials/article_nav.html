@@ -1,0 +1,14 @@
+<nav class="article-nav">
+  {%- if page.higher -%}
+    <a class="article-nav-item prev" href="{{ page.higher.permalink }}#←">
+      <div class="nav-arrow">{{ macros::translate(key="previous", default="Previous", language_strings=language_strings) }}</div>
+      <span class="article-title">{{ page.higher.title }}</span>
+    </a>
+  {%- endif -%}
+  {%- if page.lower -%}
+    <a class="article-nav-item next" href="{{ page.lower.permalink }}#→">
+      <div class="nav-arrow">{{ macros::translate(key="next", default="Next", language_strings=language_strings) }}</div>
+      <span class="article-title">{{ page.lower.title }}</span>
+    </a>
+  {%- endif -%}
+</nav>

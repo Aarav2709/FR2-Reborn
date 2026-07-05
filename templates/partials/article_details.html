@@ -1,0 +1,50 @@
+<div class="article-details">
+  {%- if page.date -%}
+    <div class="tooltip" title="{{ page.date | date(format=date_format_long, timezone=config.extra.timezone | default(value='UTC'), locale=date_locale) }}">
+      {{- macros::icon(name="calendar") -}}
+      <time datetime="{{ page.date | date(format='%+') }}" pubdate>
+        {{- page.date | date(format=date_format, timezone=config.extra.timezone | default(value="UTC"), locale=date_locale) -}}
+      </time>
+    </div>
+  {%- endif -%}
+
+  {%- if page.updated -%}
+    <div class="tooltip" title="{{ page.updated | date(format=date_format_long, timezone=config.extra.timezone | default(value='UTC'), locale=date_locale) }}">
+      {{- macros::icon(name="clock-clockwise") -}}
+      <time datetime="{{ page.updated | date(format='%+') }}" pubdate>
+        {{- page.updated | date(format=date_format, timezone=config.extra.timezone | default(value="UTC"), locale=date_locale) -}}
+      </time>
+    </div>
+  {%- endif -%}
+
+  {%- if page.authors -%}
+    <div>
+      {{- macros::icon(name="users") -}}
+      <span>{% include "partials/authors.html" %}</span>
+    </div>
+  {%- endif -%}
+
+  {%- if config.extra.show_reading_time -%}
+    <div class="tooltip" title="{{ macros::translate(key='words', number=page.word_count, default='$NUMBER Words', language_strings=language_strings) }}">
+      {{- macros::icon(name="clock-countdown") -}}
+      <span>{{ macros::translate(key="minutes", number=page.reading_time, default="$NUMBER minutes", language_strings=language_strings) }}</span>
+    </div>
+  {%- endif -%}
+
+  {%- if page.taxonomies.categories -%}
+    <div>
+      {{- macros::icon(name="book-bookmark") -}}
+      {%- for category in page.taxonomies.categories %}
+        <a href="{{ get_taxonomy_url(kind='categories', name=category, lang=lang) }}">{{ category }}</a>
+      {%- endfor -%}
+    </div>
+  {%- endif %}
+
+  {%- if page.taxonomies.tags -%}
+    <ul class="tags">
+      {%- for tag in page.taxonomies.tags %}
+        <li><a href="{{ get_taxonomy_url(kind='tags', name=tag, lang=lang) }}">{{ tag }}</a></li>
+      {%- endfor -%}
+    </ul>
+  {%- endif %}
+</div>

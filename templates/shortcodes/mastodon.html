@@ -1,0 +1,16 @@
+{%- if host -%}
+  {%- set host = host -%}
+{%- else -%}
+  {%- set host = config.extra.fediverse.host -%}
+{%- endif -%}
+
+{%- if user -%}
+  {%- set user = user -%}
+{%- else -%}
+  {%- set user = config.extra.fediverse.user -%}
+{%- endif -%}
+
+<iframe
+  class="mastodon-embed"
+  src="https://{{ host }}/@{{ user }}/{{ id }}/embed">
+</iframe>

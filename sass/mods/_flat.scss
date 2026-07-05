@@ -1,0 +1,27 @@
+@use "../abstracts/functions" as *;
+
+:root {
+  --color-opacity-1: 0.15;
+  --color-opacity-2: 0.25;
+  --edge-highlight: 0 0 0 transparent;
+  --shadow: 0 0 0 transparent;
+  --shadow-raised: 0 0 0 transparent;
+  --shadow-glass: 0 0 0 transparent;
+  --shadow-glow: 0 0 0 transparent;
+}
+
+.buttons .suggested,
+#site-nav a.active .icon {
+  box-shadow: none;
+  background-image: none;
+  background-color: var(--accent-color);
+  text-shadow: none;
+}
+
+.buttons .suggested:hover {
+  opacity: var(--dim-opacity);
+}
+
+.crt {
+  outline: rpx(1) solid var(--bg-muted-2);
+}

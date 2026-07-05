@@ -1,0 +1,5 @@
+@use "../abstracts/mixins" as *;
+
+.card {
+  @include card;
+}

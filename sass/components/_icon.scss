@@ -1,0 +1,9 @@
+@use "../abstracts/mixins" as *;
+
+.icon {
+  @include icon;
+
+  &::before {
+    @include icon(pseudo);
+  }
+}

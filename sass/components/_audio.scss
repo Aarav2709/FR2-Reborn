@@ -1,0 +1,41 @@
+@use "../abstracts/functions" as *;
+@use "../abstracts/mixins" as *;
+
+// Who doesn't like a party popper mid article?
+.audio {
+  @include chip;
+  padding-block: 0;
+  color: var(--accent-color);
+  font-size: var(--font-size-medium);
+
+  &:hover {
+    color: var(--accent-color) !important;
+
+    .icon {
+      animation: speaker var(--transition-long) ease-out infinite;
+
+      @keyframes speaker {
+        from {
+          --icon: var(--icon-speaker-none);
+        }
+
+        50% {
+          --icon: var(--icon-speaker-low);
+        }
+
+        to {
+          --icon: var(--icon-speaker-high);
+        }
+      }
+    }
+  }
+
+  &:active {
+    transform: var(--active);
+  }
+
+  .icon {
+    vertical-align: rpx(-3);
+    margin-inline-start: 0.25rem;
+  }
+}

@@ -1,0 +1,49 @@
+{%- if paginator.pages -%}
+    {%- set pages = paginator.pages -%}
+{%- elif section.pages -%}
+    {%- set pages = section.pages -%}
+{%- else -%}
+    {%- set pages = term.pages -%}
+{%- endif -%}
+
+<div class="article-list">
+  {%- for page in pages %}
+    <article class="
+      {% if page.draft %}draft{% endif %}
+      {% if page.extra.banner %}has-banner{% endif %}
+      {% if page.extra.accent_color %}has-accent-color{% endif %}"
+      {% if page.extra.banner or page.extra.accent_color %}
+        style="
+        {%- if page.extra.banner -%}
+          {%- set blurnail = resize_image(path=page.colocated_path ~ page.extra.banner, width=4, height=2, op='fill', format='webp') -%}
+          --blurnail: url('{{ blurnail.url }}');
+        {%- endif -%}
+        {%- if page.extra.banner_position -%}
+          --banner-position: {{ page.extra.banner_position }};
+        {%- endif -%}
+        {%- if page.extra.accent_color -%}
+          {% include 'partials/accent_color.html' %}
+        {%- endif -%}
+        "
+      {% endif %}>
+      <div>
+        <a href="{{ page.permalink | safe }}">
+          <h3>{{ page.title }}</h3>
+        </a>
+        {%- if page.description -%}
+          <div class="description">
+            {{ page.description | markdown | safe }}
+          </div>
+        {%- endif -%}
+        {%- include "partials/article_details.html" -%}
+      </div>
+      <a class="open-post" href="{{ page.permalink | safe }}" aria-label="{{ page.title }}">
+        {%- if page.extra.banner -%}
+          {%- set thumbnail = resize_image(path=page.colocated_path ~ page.extra.banner, width=480, height=240, op="fill", format="webp") -%}
+          <img class="transparent no-hover{% if page.extra.banner_position %} banner-position{% endif %}" src="{{ thumbnail.url | safe }}" />
+        {%- endif -%}
+        {{- macros::icon(name="caret-right") -}}
+      </a>
+    </article>
+  {%- endfor %}
+</div>

@@ -1,0 +1,40 @@
+// attr() hack from https://cyrneko.eu/css-tricks.html
+@media (pointer: coarse), (hover: none) {
+  .tooltip,
+  abbr[title] {
+    display: inline-flex;
+    position: relative;
+    justify-content: center;
+
+    &::after {
+      position: absolute;
+      top: calc(100% + 0.25rem);
+      z-index: 9999;
+      backdrop-filter: var(--blur);
+      transition:
+        all var(--transition),
+        transform var(--transition-bezier);
+      box-shadow: var(--edge-highlight), var(--shadow);
+      border-radius: var(--rounded-corner-small);
+      background-color: var(--glass-bg-1);
+      padding: 0.125rem 0.375rem;
+      width: max-content;
+      content: attr(title);
+      -webkit-backdrop-filter: var(--blur);
+      transform: translateY(-0.5rem) scale(0.5);
+      transform-origin: top;
+      visibility: hidden;
+      opacity: 0;
+      max-width: calc(var(--content-width) / 3);
+      color: var(--fg-muted-2);
+      font-size: var(--font-size-small);
+    }
+
+    &:focus::after,
+    &:hover::after {
+      transform: none;
+      visibility: visible;
+      opacity: 1;
+    }
+  }
+}

@@ -1,0 +1,92 @@
+<header id="site-header" class="firefox-unblur">
+  <ul id="site-sidebar-controls">
+    <li id="expand-sidebar-li">
+      <input class="visually-hidden" id="expand-sidebar" type="checkbox" name="expand-sidebar" autocomplete="off" />
+      <label for="expand-sidebar" title="{{ macros::translate(key='toggle_sidebar', default='Toggle Sidebar', language_strings=language_strings) }}">
+        {{- macros::icon(name="sidebar") -}}
+      </label>
+    </li>
+    <ul id="site-sidebar-modes" role="radiogroup">
+      <li>
+        <input class="visually-hidden" id="mode-nav" type="radio" name="mode" checked />
+        <label for="mode-nav" title="{{ macros::translate(key='sidebar_mode_nav', default='Toggle Navigation', language_strings=language_strings) }}">
+          {{- macros::icon(name="compass") -}}
+        </label>
+      </li>
+      <li>
+        <input class="visually-hidden" id="mode-meta" type="radio" name="mode" />
+        <label for="mode-meta" title="{{ macros::translate(key='sidebar_mode_meta', default='Toggle Metadata', language_strings=language_strings) }}">
+          {{- macros::icon(name="info") -}}
+        </label>
+      </li>
+    </ul>
+  </ul>
+  <span class="title">
+    {%- if current_path and current_path == "/" -%}
+      {%- set title = config.title -%}
+    {% elif title %}
+      {%- set title = title -%}
+    {% elif section.title -%}
+      {%- set title = section.title -%}
+    {% elif page.title %}
+      {%- set title = page.title -%}
+    {% elif term.name %}
+      {%- set title = term.name -%}
+    {% elif taxonomy.name %}
+      {%- set title = taxonomy.name | capitalize -%}
+    {% else %}
+      {%- set title = "404" %}
+    {%- endif -%}
+
+    {{- title -}}
+  </span>
+  <ul class="buttons">
+    {%- if config.generate_feeds or section.generate_feeds or (taxonomy.feed and term.path) -%}
+      <li>
+        <details class="closable">
+          <summary title="{{ macros::translate(key='feed', default='Feed', language_strings=language_strings) }}">
+            {{- macros::icon(name="rss-simple") -}}
+          </summary>
+          <ul class="dropdown">
+            {%- for feed_filename in config.feed_filenames -%}
+              {%- if section.generate_feeds -%}
+                {%- set feed_filename = current_path ~ feed_filename -%}
+              {%- endif -%}
+              {%- if taxonomy.feed and term.path -%}
+                {%- set feed_filename = term.path ~ feed_filename -%}
+              {%- endif -%}
+              <li>
+                <a href="{{ get_url(path=feed_filename, lang=lang) }}">
+                  {%- if feed_filename is containing("atom") -%}
+                    Atom
+                  {%- elif feed_filename is containing("rss") -%}
+                    RSS
+                  {%- else -%}
+                    {{ macros::translate(key="feed", default="Feed", language_strings=language_strings) }}
+                  {%- endif -%}
+                </a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </details>
+      </li>
+    {%- endif %}
+    {%- if config.build_search_index -%}
+      <li>
+        <button id="search" title="{{ macros::translate(key='search', default='Search', language_strings=language_strings) }}">
+          {{- macros::icon(name="magnifying-glass") -}}
+        </button>
+      </li>
+    {%- endif -%}
+    {%- if config.languages | length > 0 -%}
+      <li>
+        <details class="closable">
+          <summary title="{{ macros::translate(key='change_language', default='Change Language', language_strings=language_strings) }}">
+            {{- macros::icon(name="translate") -}}
+          </summary>
+          {%- include "partials/language_switcher.html" -%}
+        </details>
+      </li>
+    {%- endif -%}
+  </ul>
+</header>

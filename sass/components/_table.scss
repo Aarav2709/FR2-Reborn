@@ -1,0 +1,31 @@
+table {
+  display: block;
+  margin-inline: auto;
+  box-shadow: var(--edge-highlight), var(--shadow);
+  border-radius: var(--rounded-corner);
+  background-color: var(--bg-muted-1);
+  width: fit-content;
+  max-width: 100%;
+  overflow: auto;
+
+  @media only screen and (max-width: 720px) {
+    table-layout: fixed;
+  }
+
+  tr {
+    &:nth-child(even) {
+      background-color: var(--bg-muted-1);
+    }
+
+    th,
+    td {
+      padding: 0.5rem 1rem;
+    }
+
+    th {
+      background-color: var(--bg-muted-2);
+      color: var(--fg-muted-2);
+      font-weight: var(--font-weight-semi-bold);
+    }
+  }
+}

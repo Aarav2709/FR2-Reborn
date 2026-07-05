@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+{%- set categories = config.extra.categories | default(value=[]) -%}
+{%- set number_of_posts = term.pages | length -%}
+
+<h1>{{ term.name }}</h1>
+
+{%- set matched_category = categories | filter(attribute="name", value=term.name) | first -%}
+{%- set category_description = matched_category.description | default(value=macros::translate(key="categories", default="There's no info on this category.", language_strings=language_strings)) -%}
+{{ category_description | markdown | safe }}
+
+<p>
+  <small>
+    <a href="{{ get_url(path='categories', lang=lang) }}">{{ macros::translate(key="all_categories", default="See all categories", language_strings=language_strings) }}</a>
+    <br />
+    {{ macros::translate(key="posts", number=number_of_posts, default="$NUMBER posts in total", language_strings=language_strings) }}
+  </small>
+</p>
+
+{% include "partials/article_list.html" %}
+{% endblock content %}

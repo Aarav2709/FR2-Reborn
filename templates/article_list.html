@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{%- if paginator.pages -%}
+  {%- set number_of_posts = paginator.total_pages -%}
+{%- elif section.pages -%}
+  {%- set number_of_posts = section.pages | length -%}
+{%- endif -%}
+
+{%- if not section.extra.no_header -%}
+  {{- "# " ~ section.title | markdown | safe -}}
+{%- endif -%}
+
+{{ section.content | safe }}
+
+<p>
+  <small>
+    {%- for taxonomy in config.taxonomies %}
+      {%- if taxonomy.name == "tags" %}
+        <a href="{{ get_url(path='tags', lang=lang) }}">{{ macros::translate(key="filter_tag", default="Filter by tag", language_strings=language_strings) }}</a>
+        <br />
+      {%- endif %}
+      {%- if taxonomy.name == "categories" %}
+        <a href="{{ get_url(path='categories', lang=lang) }}">{{ macros::translate(key="filter_category", default="Filter by category", language_strings=language_strings) }}</a>
+        <br />
+      {%- endif %}
+    {%- endfor %}
+    {{ macros::translate(key="posts", number=number_of_posts, default="$NUMBER posts in total", language_strings=language_strings) }}
+  </small>
+</p>
+
+{% include "partials/article_list.html" %}
+{% include "partials/paginator.html" %}
+{% endblock content %}

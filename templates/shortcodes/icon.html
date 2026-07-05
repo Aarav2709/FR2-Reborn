@@ -1,0 +1,16 @@
+{%- if not name -%}
+  {{- throw(message="Icon name is not specified.") -}}
+{%- endif -%}
+
+{%- set icon = load_data(path="icons/phosphor/" ~ name ~ ".svg", required=false) -%}
+{%- if not icon -%}
+  {%- set icon = load_data(path="themes/ametrine/icons/phosphor/" ~ name ~ ".svg") -%}
+{%- endif -%}
+
+{%- if raw -%}
+  {{ icon | safe }}
+{%- elif inline -%}
+  url('data:image/svg+xml,{{ icon | urlencode | safe }}');
+{%- else -%}
+  <i class="icon {{ name }}" style="--icon: url('data:image/svg+xml,{{ icon | urlencode }}');"></i>
+{%- endif -%}

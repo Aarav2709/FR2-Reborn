@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+{%- set rel_attributes = macros::rel_attributes() | trim -%}
+
+<article>
+  {{- "# " ~ page.title | markdown | safe -}}
+  {%- include "partials/article_details.html" -%}
+  {%- include "partials/statements.html" -%}
+  {{ page.content | safe }}
+  {%- include "partials/backlinks.html" -%}
+</article>
+
+{%- if page.extra.fediverse.id -%}
+  {%- include "partials/comments.html" -%}
+{%- endif -%}
+
+{%- if page.lower or page.higher -%}
+  <hr />
+  {%- include "partials/article_nav.html" -%}
+{%- endif -%}
+{% endblock content %}

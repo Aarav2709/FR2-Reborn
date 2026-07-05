@@ -1,0 +1,43 @@
+{%- if not name and not path -%}
+  {{- throw(message="Emoji name/path not specified.") -}}
+{%- endif -%}
+
+{%- if name -%}
+  {%- if page.extra.fediverse.host -%}
+    {%- set host = page.extra.fediverse.host -%}
+  {%- elif section.extra.fediverse.host -%}
+    {%- set host = section.extra.fediverse.host -%}
+  {%- elif config.extra.fediverse.host -%}
+    {%- set host = config.extra.fediverse.host -%}
+  {%- else -%}
+    {% set host = "mastodon.social" %}
+  {%- endif -%}
+
+  {%- if get_env(name="AMETRINE_OFFLINE", default="0") != "1" -%}
+    {%- set data = load_data(url="https://" ~ host ~ "/api/v1/custom_emojis", format="json") -%}
+    {%- for item in data -%}
+      {%- if item.shortcode == name -%}
+        {%- set_global emoji = item -%}
+        {%- break -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+{%- endif -%}
+
+{%- if name and data -%}
+  {%- set emoji_src = emoji.url -%}
+  {%- set emoji_title = name -%}
+{%- elif path -%}
+  {%- set emoji_src = get_url(path=page.path ~ path) -%}
+  {%- set emoji_title = path | split(pat='.', limit=2) | first -%}
+{%- endif -%}
+
+{%- if emoji_src and emoji_title -%}
+  <img
+    class="emoji{% if big %} big{% endif %}"
+    src="{{ emoji_src | safe }}"
+    title="{{ emoji_title }}"
+    width="24"
+    height="24"
+  />
+{%- endif -%}

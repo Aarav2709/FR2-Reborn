@@ -1,0 +1,94 @@
+<footer id="site-footer">
+  <div>
+    {%- if config.extra.footer.copyright %}
+      {%- set current_year = now(utc=true) | date(format="%Y") -%}
+      <p class="copyright">
+        {%- if lang != config.default_language -%}
+          {%- set footer_copyright = config.extra.footer[lang].copyright -%}
+        {%- else -%}
+          {%- set footer_copyright = config.extra.footer.copyright -%}
+        {%- endif -%}
+
+        {%- if footer_copyright != true %}
+          {{- footer_copyright | markdown(inline=true) | replace(from="$YEAR", to=current_year) | safe -}}
+        {%- else %}
+          &copy; {{ config.title }}, {{ current_year }}
+        {%- endif %}
+      </p>
+    {%- endif %}
+
+    {%- if config.extra.footer.show_powered_by %}
+      <p>
+        {%- set zola_link = '<a class="link external" href="https://www.getzola.org" rel="' ~ rel_attributes ~ '">Zola</a>' -%}
+        {%- set ametrine_link = '<a class="link external" href="https://ametrine.daudix.one" rel="' ~ rel_attributes ~ '">Ametrine</a>' -%}
+        {{ macros::translate(key="powered_by", default="Powered by $ZOLA and $AMETRINE", language_strings=language_strings) | replace(from="$ZOLA", to=zola_link) | replace(from="$AMETRINE", to=ametrine_link) | safe }}
+      </p>
+    {%- endif %}
+
+    {%- if config.extra.source_url and config.extra.footer.show_source %}
+      <p>
+        <a class="link external" href="{{ config.extra.source_url }}" rel="{{ rel_attributes }}">
+          {{- macros::translate(key="source", default="Website Source", language_strings=language_strings) -}}
+        </a>
+      </p>
+    {%- endif %}
+
+    {%- if config.extra.footer.webrings %}
+      <ul class="webrings">
+        {%- for webring in config.extra.footer.webrings %}
+          <li class="webring">
+            <a class="link external" href="{{ webring.url }}">
+              {{- webring.name -}}
+            </a>
+            <a class="link previous" href="{{ webring.previous | replace(from='$HOST', to=config.base_url | replace(from='https://', to='')) }}" title="{{ macros::translate(key='previous', default='Previous', language_strings=language_strings) }}">
+              {{- macros::icon(name="arrow-left") -}}
+            </a>
+            {%- if webring.random %}
+              <a class="link random" href="{{ webring.random }}" title="{{ macros::translate(key='random', default='Random', language_strings=language_strings) }}">
+                {{- macros::icon(name="dice-three") -}}
+              </a>
+            {%- endif %}
+            <a class="link next" href="{{ webring.next | replace(from='$HOST', to=config.base_url | replace(from='https://', to='')) }}" title="{{ macros::translate(key='next', default='Next', language_strings=language_strings) }}">
+              {{- macros::icon(name="arrow-right") -}}
+            </a>
+          </li>
+        {%- endfor %}  
+      </ul>
+    {%- endif -%}
+
+    {%- if config.extra.footer.show_timestamp %}
+      {%- set build_timestamp = now(utc=true) | date(format=date_format_long, timezone=config.extra.timezone | default(value='UTC'), locale=date_locale) -%}
+      {%- set build_commit = load_data(path=".git/ORIG_HEAD", required=false) -%}
+      <p class="timestamp">
+        {{- build_timestamp }}{% if build_commit %}, {{ build_commit | as_str | truncate(length=7, end="") }}{% endif -%}
+      </p>
+    {%- endif %}
+  </div>
+
+  <div>
+    {%- if config.extra.footer.socials -%}
+      <ul class="socials">
+        {%- for link in config.extra.footer.socials %}
+          {%- if link.icon is containing("%3Csvg") -%}
+            {{- throw(message="Footer social '" ~ link.url ~ "' is using SVG as an icon, which is deprecated. Use icon name from https://simpleicons.org instead.") -}}
+          {%- endif -%}
+          <li>
+            <a href="{{ link.url }}" rel="{{ rel_attributes }} me">
+              {%- set icon = load_data(path="icons/simple/" ~ link.icon ~ ".svg", required=false) -%}
+                {% if not icon %}
+                  {%- set icon = load_data(path="themes/ametrine/icons/simple/" ~ link.icon ~ ".svg") -%}
+                {% endif %}
+              {{- icon | safe -}}
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+
+    {%- if config.extra.footer.note -%}
+      <div class="note">
+        {{ config.extra.footer.note | markdown | safe }}
+      </div>
+    {%- endif -%}
+  </div>
+</footer>

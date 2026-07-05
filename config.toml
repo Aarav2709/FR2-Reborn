@@ -1,0 +1,323 @@
+title = "Ametrine"
+base_url = "https://ametrine.daudix.one"
+description = "Elegant, pretty, and snappy Zola theme."
+
+compile_sass = true
+minify_html = true
+build_search_index = true
+author = "Daudix"
+generate_feeds = true
+feed_filenames = ["atom.xml", "rss.xml"]
+
+# Based on https://github.com/welpo/tabi
+#
+# To translate the entire theme, there must be a file with the same ISO 639-1
+# or BCP 47 language code in the "i18n" directory of your site or the Ametrine
+# theme, for example, "i18n/fr.toml" for French or "i18n/zh-Hans.toml" for
+# Simplified Chinese, otherwise the theme will be in English.
+#
+# ISO 639-1: https://localizely.com/iso-639-1-list/
+# BCP 47: https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry
+default_language = "en"
+
+taxonomies = [
+  { name = "tags", feed = true, paginate_by = 10 },
+  { name = "categories", feed = true },
+]
+
+[markdown]
+smart_punctuation = true
+bottom_footnotes = true
+external_links_class = "external"
+github_alerts = true
+
+[markdown.highlighting]
+style = "class"
+light_theme = "monokai-pro-light"
+dark_theme = "monokai-pro"
+extra_themes = [
+  "giallo/themes/monokai-pro-light.json",
+  "giallo/themes/monokai-pro.json",
+]
+
+[search]
+# Accepted values are "elasticlunr_javascript" and "elasticlunr_json"
+index_format = "elasticlunr_json"
+
+[languages.ru]
+title = "Ametrine"
+description = "Современная, симпатичная и чистая тема."
+generate_feeds = true
+
+taxonomies = [
+  { name = "tags", feed = true, paginate_by = 10 },
+  { name = "categories", feed = true },
+]
+
+[extra]
+# Usage of an icon is heavily adviced. In case if none is provided, a question
+# mark icon will be used instead.
+# Any icon name from https://phosphoricons.com can be used.
+# Color attribute accepts the same values as extra.accent_color, which can be
+# found below.
+categories = [
+  { name = "Archived", description = "Posts that have been archived due to their age.", color = "purple", icon = "box-arrow-down" },
+  { name = "Featured", description = "Posts that are somewhat decently written.", color = "yellow", icon = "star" },
+  { name = "Hot", description = "Posts that did numbers compared to others.", color = "red", icon = "fire" },
+  { name = "Test", description = "Categories can be set and customized entirely from config, woo-hoo!", color = "green", icon = "feather" },
+]
+
+# Accent color used by Ametrine.
+#
+# Has several modes:
+# - Use one of the presets (applies to both light and dark modes):
+#   accent_color = "<red, orange, yellow, green, blue, purple>"
+# - Use a single HSL color for both light and dark modes:
+#   accent_color = "hsl(270, 50%, 60%)"
+# - Use separate colors for light and dark modes (it's possible to mix both
+# presets and HSL colors):
+#   Presets:    accent_color = ["red", "blue"]
+#   Preset + HSL:   accent_color = ["red", "hsl(270, 50%, 60%)"]
+#   HSLs: accent_color = ["hsl(270, 50%, 60%)", "hsl(27.567572, 87%, 67%)"]
+#
+# Custom colors must be in HSL format. You can also define your own color
+# presets by creating an "accent_presets.toml" file under the "./data/"
+# directory with custom preset names and colors. Use the one located in Ametrine
+# as a reference.
+accent_color = ["purple", "orange"]
+
+# Additional CSS styles; expects them to be in the "./static/" directory.
+# If you are using Sass these will be generated there automatically.
+#
+# styles = [
+#   "YOUR_STYLE.css",
+#   "ALSO_YOUR_STYLE.css"
+# ]
+#
+# Additional JavaScript scripts; expects them to be in the "./static/"
+# directory.
+#
+# scripts = [
+#   "YOUR_SCRIPT.js",
+#   "ALSO_YOUR_SCRIPT.js"
+# ]
+
+# Path to the page that is being considered "Home", e.g. for the "Go Home"
+# button on 404.
+# home_url = "@/home/index.md"
+# URL to website's source code.
+source_url = "https://codeberg.org/daudix/ametrine"
+# URL to website's issue tracker.
+issues_url = "https://codeberg.org/daudix/ametrine/issues/new"
+# Whether to show estimated read time in posts.
+show_reading_time = true
+# Whether to show a copy button on code blocks with a programming lang set
+copy_button = true
+# Custom separator used throughout the theme.
+# separator = "•"
+# Custom separator used in website's title and article metadata.
+# title_separator = "-"
+date_format = "%d %B %Y"
+date_format_long = "%d %B %Y, %R (%Z)"
+date_locale = "en_IE"
+timezone = "Europe/Moscow"
+show_comments_qr = true
+# Whether to use Content Security Policy.
+# Keep in mind that although this can potentially increase security,
+# it can break some things, in which case you will need to set a custom policy.
+csp = [
+  { directive = "img-src", domains = [
+    "'self'",
+    "https:",
+    "data:",
+  ] },
+  { directive = "media-src", domains = [
+    "'self'",
+    "https:",
+  ] },
+  { directive = "script-src", domains = [
+    "cloud.umami.is",
+  ] },
+  { directive = "style-src", domains = [
+    "'self'",
+    "'unsafe-inline'",
+  ] },
+  { directive = "frame-src", domains = [
+    "https://player.vimeo.com",
+    "https://www.youtube-nocookie.com",
+    "https://vmst.io",
+  ] },
+  { directive = "connect-src", domains = [
+    "*.umami.dev",
+    "cloud.umami.is",
+  ] },
+  { directive = "base-uri", domains = [
+    "'none'",
+  ] },
+  { directive = "form-action", domains = [
+    "'none'",
+  ] },
+]
+
+[extra.ru]
+# Translations for the [extra]. Available variables are:
+# - categories
+# - date_format
+# - date_format_long
+# - date_locale
+categories = [
+  { name = "Archived", description = "Посты, которые были архивированы ввиду своего возраста.", color = "purple", icon = "box-arrow-down" },
+  { name = "Featured", description = "Посты которые написаны относительно неплохо.", color = "yellow", icon = "star" },
+  { name = "Hot", description = "Посты, в разы популарнее остальных.", color = "red", icon = "fire" },
+  { name = "Test", description = "Категории могут быть настроены полностью через файл конфигурации, ву-хуу!", color = "green", icon = "feather" },
+]
+
+date_format = "%d %B %Y г."
+date_format_long = "%d %B %Y г, %R (%Z)"
+date_locale = "ru_RU"
+
+[extra.meta]
+# Variables bellow accept either "true" or a filename.
+# Favicon can also accept an emoji instead of a filename.
+# File extension are being respected, so e.g. if favicon has .gif extension
+# it'll be treated as an animated one.
+# If set to "true" these will use the default filenames:
+# favicon          = favicon.png
+# apple_touch_icon = apple-touch-icon.png
+# card             = card.png
+favicon = true
+apple_touch_icon = true
+card = true
+
+[extra.nav]
+# When set to true and [extra.fediverse] is defined, it will use avatar from
+# said Mastodon account, otherwise it'll fallback to apple_touch_icon specified
+# in [extra.meta] or its default value.
+# Also accepts arbitrary filenames and URLs for custom images.
+icon = "apple-touch-icon.png"
+# Usage of an icon is heavily adviced. In case if none is provided, first two
+# letters of the link name will be used instead.
+# Any icon name from https://phosphoricons.com can be used.
+links = [
+  { url = "@/demo/index.md", name = "Demo", icon = "info" },
+  { url = "@/blog/_index.md", name = "Blog", icon = "newspaper" },
+  { name = "Random 🦄", category = [
+    { url = "https://example.org", name = "Eggman", icon = "egg" },
+    { url = "https://example.org", name = "Honse", icon = "horse" },
+    { url = "http://example.org", name = "Lie", icon = "cake", new = true },
+    { url = "http://example.org", name = "No Icon?" },
+  ] },
+]
+
+[extra.nav.ru]
+# Translations for the [extra.nav]. Available variables are:
+# - links
+links = [
+  { url = "@/demo/index.md", name = "Демо", icon = "info" },
+  { url = "@/blog/_index.md", name = "Блог", icon = "newspaper" },
+  { name = "Случайное 🦄", category = [
+    { url = "https://example.org", name = "Эггман", icon = "egg" },
+    { url = "https://example.org", name = "Лощдь", icon = "horse" },
+    { url = "http://example.org", name = "Ложь", icon = "cake", new = true },
+    { url = "http://example.org", name = "Нет Значка?" },
+  ] },
+]
+
+[extra.footer]
+# Set to false to disable copyright text, or set to anything else to use it as
+# the copyright text (Markdown supported).
+# $YEAR will be replaced with current year.
+copyright = "© Aperture Science ~~Innovators~~, 1972-$YEAR"
+# Whether to show "Powered by Zola and Ametrine"
+show_powered_by = true
+# Whether to show link to website's source code
+show_source = true
+# Whether to show timestamp of the last build. Uses UTC timezone unless your own
+# is set under extra.timezone. If Git repository is detected, current commit
+# hash will be appended.
+show_timestamp = true
+# Social links in the footer.
+# Any icon name from https://simpleicons.org can be used.
+socials = [
+  { url = "https://bsky.social", icon = "bluesky" },
+  { url = "https://joinmastodon.org", icon = "mastodon" },
+  { url = "https://pixelfed.org", icon = "pixelfed" },
+  { url = "https://codeberg.org", icon = "codeberg" },
+  { url = "https://signal.org", icon = "signal" },
+]
+# List of webrings. Allowed fields:
+# - name     (required)
+# - url      (required)
+# - previous (required)
+# - next     (required)
+# - random   (optional)
+# "$HOST" can be used to insert config.base_url with "https://" stripped away.
+webrings = [
+  { name = "Fakering", url = "https://example.com/fakering", previous = "https://example.com/fakering/previous?host=$HOST", next = "https://example.com/fakering/next?host=$HOST", random = "https://example.com/fakering/random" },
+]
+# An arbitrary note field. It can be some Message of the Day (MOTD), image (e.g
+# 88x31 badge), or perhaps an audio button[1]. As long as it's valid Zola
+# markup, it should work.
+# [1]: https://ametrine.daudix.one/demo/#audio
+note = "<small>Did you know? This text can be set to *anything*.</small>"
+
+[extra.footer.ru]
+# Translations for the [extra.footer]. Available variables are:
+# - copyright
+copyright = "© Лаборатория исследования природы ~~порталов~~, 1972-$YEAR"
+
+[extra.fediverse]
+# Fediverse integration.
+# Used for:
+# - Commenting
+# - Custom emoji shortcode
+# - Website verification
+# - Author attribution
+# - Avatar in sidebar (if one isn't defined)
+#
+# Mastodon-powered commenting is based on
+# https://carlschwan.eu/2020/12/29/adding-comments-to-your-static-blog-with-mastodon/
+#
+# Values can be overridden in the front-matter, e.g.
+# for multi-author blogs or guest posts.
+host = "wetdry.world"
+user = "daudix"
+
+[extra.analytics]
+# Specify which analytics service you want to use.
+# Supported options: "goatcounter", "umami", and "plausible".
+service = "umami"
+
+# Unique identifier for tracking.
+# For GoatCounter, this is the code you choose during signup.
+# For Umami, this is the website ID.
+# For Plausible, this is the domain name (e.g. "example.com").
+# Note: Leave this field empty if you're self-hosting GoatCounter.
+id = "61ac1043-f048-4aee-8eac-28a553cad810"
+
+# Optional: Specify the URL for self-hosted analytics instances.
+# For GoatCounter: Base URL like "https://stats.example.com"
+# For Umami: Base URL like "https://umami.example.com"
+# For Plausible: Base URL like "https://plausible.example.com"
+# Leave this field empty if you're using the service's default hosting.
+self_hosted_url = "https://stats.daudix.one"
+
+# Optional: For Umami, enable this option if you don't want to collect search
+# parameters from the URL.
+exclude_search = false
+
+# Optional: For Umami, enable this option if you don't want to collect the hash
+# value from the URL.
+exclude_hash = false
+
+# Optional: For Umami, enable this option to respect users' Do Not Track (DNT)
+# settings.
+do_not_track = false
+
+[extra.debug]
+# Display outlines around all elements
+layout = false
+# Don't load any styles for
+no_styles = false
+# Skip loading of Mastodon emojis used via the emoji.html shortcode
+no_emojis = false

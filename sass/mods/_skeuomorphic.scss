@@ -1,0 +1,30 @@
+// UNFINISHED, AND LIKELY WILL NEVER BE
+@use "../abstracts/functions" as *;
+
+#site-nav {
+  a,
+  label,
+  button,
+  summary {
+    outline: rpx(1) solid var(--bg-muted-2);
+    box-shadow: var(--edge-highlight), var(--shadow);
+    background-image: linear-gradient(
+      to bottom,
+      var(--bg-muted-2),
+      var(--bg-muted-1) 50%,
+      transparent 50%,
+      var(--bg-muted-2)
+    );
+
+    .icon {
+      background-image: conic-gradient(
+        var(--bg-muted-2),
+        var(--bg-muted-1) 33%,
+        transparent,
+        var(--bg-muted-2) 66%,
+        transparent,
+        var(--bg-muted-2)
+      );
+    }
+  }
+}

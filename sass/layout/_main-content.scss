@@ -1,0 +1,59 @@
+#main-content {
+  --padding: 1rem;
+  grid-area: main;
+  transform-origin: 50% 50vh;
+  animation: fade-in-zoom var(--transition-bezier-longer);
+  margin-block-start: 3.25rem;
+  padding-inline: 1rem;
+  width: 100%;
+  min-width: 0;
+  max-width: calc(var(--content-width) + var(--padding) * 2);
+
+  @supports (transform-origin: 50% 50dvh) {
+    transform-origin: 50% 50dvh;
+  }
+
+  & > :first-child {
+    margin-block-start: 0;
+  }
+
+  & > :last-child {
+    margin-block-end: 0;
+  }
+
+  @keyframes fade-in-zoom {
+    from {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+  }
+}
+
+// Don't play animation when jumping to section
+:target ~ #main-content {
+  animation-name: none;
+}
+
+// Loading animation when going up in the sidebar
+#↑:target ~ #main-content,
+#up:target ~ #main-content {
+  animation-name: slide-in-up-longer;
+}
+
+// Loading animation when going down in the sidebar
+#↓:target ~ #main-content,
+#down:target ~ #main-content {
+  animation-name: slide-in-down-longer;
+}
+
+// Loading animation when going to the previous article
+#←:target ~ #main-content,
+#left:target ~ #main-content {
+  animation-name: slide-in-left-longer;
+}
+
+// Loading animation when going to the next article
+#→:target ~ #main-content,
+#right:target ~ #main-content {
+  animation-name: slide-in-right-longer;
+}

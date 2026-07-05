@@ -1,0 +1,98 @@
+@use "../abstracts/functions" as *;
+
+body.has-banner {
+  background-image: var(--bg-overlay), var(--blurnail);
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+#banner {
+  --mask: linear-gradient(black calc(100% - 2rem), transparent);
+  -webkit-mask-image: var(--mask);
+  display: flex;
+  grid-area: banner;
+  justify-content: center;
+  mask-image: var(--mask);
+  margin-block-end: -2.5rem;
+  padding-block: 3.25rem 2.5rem;
+  width: 100%;
+
+  div {
+    position: relative;
+    margin-inline: 1rem;
+    aspect-ratio: 2 / 1;
+    width: 100%;
+    max-width: var(--content-width);
+  }
+
+  img {
+    position: absolute;
+    margin: 0;
+    inset: 0;
+    border-radius: var(--rounded-corner) var(--rounded-corner) 0 0 !important;
+    aspect-ratio: 2 / 1;
+    width: 100%;
+    object-fit: cover;
+  }
+
+  img:nth-of-type(1) {
+    opacity: var(--dim-opacity);
+    z-index: -1;
+    filter: blur(1.5rem);
+    animation: banner-glow-load calc(0.525s + var(--transition-long));
+    inset-block-start: 1rem;
+
+    @keyframes banner-glow-load {
+      from,
+      52.5% {
+        opacity: 0;
+      }
+    }
+  }
+
+  img:nth-of-type(2) {
+    transform-origin: bottom;
+    animation: banner-load calc(0.525s + var(--transition-longer));
+
+    @keyframes banner-load {
+      from,
+      52.5% {
+        transform: translateY(2rem) scale(0.95);
+        opacity: 0;
+      }
+    }
+  }
+
+  & + #main-content {
+    margin-block-start: 0;
+
+    article > h1:first-of-type,
+    h1:first-of-type {
+      margin-inline: -1rem;
+      margin-block: 0;
+      border-radius: var(--rounded-corner) var(--rounded-corner) 0 0;
+      padding: 1rem;
+      width: unset;
+      -webkit-backdrop-filter: blur(1rem);
+      backdrop-filter: blur(1rem);
+      animation: banner-heading calc(0.525s + var(--transition-longer));
+      box-shadow: inset 0 rpx(1) 0 var(--accent-highlight);
+      background-image: linear-gradient(
+        to bottom,
+        var(--bg-muted-1),
+        transparent 50%
+      );
+      background-size: auto 200%;
+      text-decoration: none;
+
+      @keyframes banner-heading {
+        from,
+        52.5% {
+          box-shadow: none;
+          background-position-y: 100%;
+        }
+      }
+    }
+  }
+}

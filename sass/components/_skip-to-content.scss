@@ -1,0 +1,22 @@
+#skip-to-content {
+  position: absolute;
+  transform: translateX(-50%) translateY(calc(-100% - 1rem));
+  z-index: 9999;
+  transition:
+    all var(--transition),
+    transform var(--transition-bezier);
+  inset-inline-start: 50vw;
+  border-radius: 9999px;
+  background-color: var(--glass-bg-1);
+  padding: 0.375rem 0.75rem;
+  width: max-content;
+  text-decoration: none;
+
+  &:focus-visible,
+  &:focus {
+    -webkit-backdrop-filter: var(--blur);
+    transform: translateX(-50%) translateY(1rem);
+    backdrop-filter: var(--blur);
+    box-shadow: var(--edge-highlight), var(--shadow);
+  }
+}

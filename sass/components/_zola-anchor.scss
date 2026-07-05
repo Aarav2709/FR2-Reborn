@@ -1,0 +1,49 @@
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  &:hover .zola-anchor {
+    transform: none;
+    opacity: 1;
+  }
+
+  &:has(.zola-anchor) {
+    position: relative;
+  }
+}
+
+.zola-anchor {
+  position: absolute;
+  transform: translateX(0.25em);
+  opacity: 0;
+  transition:
+    all var(--transition),
+    transform var(--transition-bezier);
+  inset-inline-start: -1.25em;
+  padding-inline-end: 0.25em;
+  color: var(--fg-muted-1);
+  line-height: 1;
+
+  @media only screen and (max-width: 720px) {
+    display: none;
+  }
+
+  &:hover {
+    color: var(--fg-muted-2);
+  }
+
+  &:active {
+    transform: var(--active);
+  }
+
+  &:focus-visible {
+    opacity: 1;
+  }
+}
+
+:target .zola-anchor {
+  transform: none;
+  opacity: var(--disabled-opacity);
+}

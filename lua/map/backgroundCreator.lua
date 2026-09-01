@@ -125,26 +125,34 @@ local function createImage(layerId)
   end
   image = display.newImageRect("images/map/" .. theme .. "/background/" .. layerId .. "_" .. backdrop .. ".png", dimX, dimY)
   if not image then
-    local backdrop = "blue"
-    image = display.newImageRect("images/map/" .. theme .. "/background/" .. layerId .. "_" .. backdrop .. ".png", dimX, dimY)
+    image = display.newImageRect("images/map/" .. theme .. "/background/" .. layerId .. "_blue.png", dimX, dimY)
   end
-  image.anchorX = 0
-  image.anchorY = 0
-  image.x = xOffset
-  image.y = math.floor(screenOriginY) + yOffset
-  layers[layerId]:insert(image)
-  if 1 < layerId then
+  if not image then
+    image = display.newImageRect("images/map/forest/background/" .. layerId .. "_blue.png", dimX, dimY)
+  end
+  if image then
+    image.anchorX = 0
+    image.anchorY = 0
+    image.x = xOffset
+    image.y = math.floor(screenOriginY) + yOffset
+    layers[layerId]:insert(image)
+  end
+  if 1 < layerId and image then
     for copyIndex = 1, 2 do
       local copy = display.newImageRect("images/map/" .. theme .. "/background/" .. layerId .. "_" .. backdrop .. ".png", dimX, dimY)
       if not copy then
-        local fallbackBackdrop = "blue"
-        copy = display.newImageRect("images/map/" .. theme .. "/background/" .. layerId .. "_" .. fallbackBackdrop .. ".png", dimX, dimY)
+        copy = display.newImageRect("images/map/" .. theme .. "/background/" .. layerId .. "_blue.png", dimX, dimY)
       end
-      copy.anchorX = 0
-      copy.anchorY = 0
-      copy.x = image.x + copyIndex * image.width * image.xScale - (copyIndex + 1)
-      copy.y = math.floor(screenOriginY) + yOffset
-      layers[layerId]:insert(copy)
+      if not copy then
+        copy = display.newImageRect("images/map/forest/background/" .. layerId .. "_blue.png", dimX, dimY)
+      end
+      if copy then
+        copy.anchorX = 0
+        copy.anchorY = 0
+        copy.x = image.x + copyIndex * image.width * image.xScale - (copyIndex + 1)
+        copy.y = math.floor(screenOriginY) + yOffset
+        layers[layerId]:insert(copy)
+      end
     end
   end
 end
@@ -157,11 +165,16 @@ local function createCustomImage(layerId, imageId, x, y)
     yDim = 512.8
   end
   local image = display.newImageRect("images/map/" .. theme .. "/background/" .. layerId .. "." .. imageId .. ".png", xDim, yDim)
-  image.anchorX = 0
-  image.anchorY = 0
-  image.x = x * 0.5
-  image.y = y * 0.5
-  layers[layerId]:insert(image)
+  if not image then
+    image = display.newImageRect("images/map/forest/background/" .. layerId .. "." .. imageId .. ".png", xDim, yDim)
+  end
+  if image then
+    image.anchorX = 0
+    image.anchorY = 0
+    image.x = x * 0.5
+    image.y = y * 0.5
+    layers[layerId]:insert(image)
+  end
 end
 
 local function createBackgroundProp(layerId, props, x, y)

@@ -31,6 +31,10 @@ local function generateBackground(id, cameraGroup)
 end
 
 local function addmapNameText(frontCameraGroup, x, y)
+  if mapNameText then
+    mapNameText:removeSelf()
+    mapNameText = nil
+  end
   mapNameText = composer.newText({
     string = mapName,
     size = 30,
@@ -165,6 +169,10 @@ local function getTheme()
 end
 
 local function clean()
+  if mapNameText then
+    mapNameText:removeSelf()
+    mapNameText = nil
+  end
   elements.clean()
   if mapElements then
     for i = 1, #mapElements do

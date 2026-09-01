@@ -16,16 +16,10 @@ local function addBehavior(block)
     xOffset = 0
     yOffset = -24
   elseif shroomType == 69 then
-    if not isReversed then
-      return
-    end
     startImage = "big_shroom1"
     xOffset = -42
     yOffset = -14
   elseif shroomType == 70 then
-    if isReversed then
-      return
-    end
     startImage = "big_shroom1"
     xOffset = -42
     yOffset = -14
@@ -50,6 +44,7 @@ local function addBehavior(block)
   }
   for i, body in ipairs(bodies) do
     body.filter = obstacleFilter
+    body.isSensor = false
   end
   physics.addBody(mushroomSprite, unpack(bodies))
   mushroomSprite.bodyType = "static"
@@ -76,12 +71,13 @@ local function addBehavior(block)
     end
   end
 
-  local function onCollision()
+  local function onCollision(self, event)
     play()
   end
 
   local function clean()
     if mushroomSprite and mushroomSprite.removeSelf then
+      mushroomSprite:removeEventListener("collision", mushroomSprite)
       mushroomSprite:removeSelf()
       mushroomSprite = nil
     end
@@ -89,7 +85,8 @@ local function addBehavior(block)
 
   block.behaviors.mushroom = {}
   block.behaviors.mushroom.clean = clean
-  mushroomSprite.onCollision = onCollision
+  mushroomSprite.collision = onCollision
+  mushroomSprite:addEventListener("collision", mushroomSprite)
 end
 
 M.addBehavior = addBehavior

@@ -108,6 +108,9 @@ local function addBehavior(block)
   end
 
   local function onCollision(object, startedClean)
+    if not object or not object.id then
+      return
+    end
     if objectsShot[object.id] then
       local timer = system.getTimer()
       if timer - objectsShot[object.id] < cannonCooldown then

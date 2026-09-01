@@ -14,6 +14,9 @@ local xSize = 160 * scaleFactor
 local ySize = 100 * scaleFactor
 
 local function invertShapes(shapeInvert)
+  if not shapeInvert or type(shapeInvert) ~= "table" then
+    return nil
+  end
   local function updateShapeList(input)
     local output = {}
 
@@ -73,24 +76,30 @@ local function addPhysicsToBlock(block, blockId, isReverse)
   local bodies = {
     physicsData:get(physicsIndex)
   }
-  if #bodies == 0 then
+  if #bodies == 0 or bodies[1] == nil then
     return
   end
   for i, body in ipairs(bodies) do
-    body.filter = obstacleFilter
-    if physicsIndex == "001" then
-      body.isSensor = true
-    else
-      body.friction = 0.2
+    if body then
+      body.filter = obstacleFilter
+      if physicsIndex == "001" then
+        body.isSensor = true
+      else
+        body.friction = 0.2
+      end
     end
   end
   if isReverse then
     for i, body in ipairs(bodies) do
-      body.shape = invertShapes(body.shape)
+      if body and body.shape then
+        body.shape = invertShapes(body.shape)
+      end
     end
     physics.addBody(block, unpack(bodies))
     for i, body in ipairs(bodies) do
-      body.shape = invertShapes(body.shape)
+      if body and body.shape then
+        body.shape = invertShapes(body.shape)
+      end
     end
   else
     physics.addBody(block, unpack(bodies))
@@ -202,13 +211,16 @@ local function createTile(block, tilesetIndex, tilesetTag, isReverse)
   if block.image and tilesetTag == "normal" then
     addPhysicsToBlock(block.image, tilesetIndex, isReverse)
   end
-  if blockPropertyData and blockPropertyData.properties then
+  if block.image and blockPropertyData and blockPropertyData.properties then
     for key, value in pairs(blockPropertyData.properties) do
       block.image[key] = value
     end
   end
   if blockPropertyData and blockPropertyData.behavior then
     addBehaviorToBlock(block, blockPropertyData.behavior)
+    if block.image and (block.tileId == 68 or block.tileId == 69 or block.tileId == 70 or (block.behaviors and (block.behaviors.bounceTile or block.behaviors.mushroom))) then
+      block.image.bounce = true
+    end
   end
   return block
 end
@@ -224,10 +236,10 @@ local function createElement(tileId, xPos, yPos, cameraGroup)
   block.theme = currentTheme
   block.displayGroup = cameraGroup
   local blockId, isReverse
-  if propsTileset and propsTileset:isInTileset(tileId) or propsReverseTileset and propsReverseTileset:isInTileset(tileId) then
-    blockId = findTilesetIndex(tileId, propsTileset)
+  if (propsTileset and propsTileset:isInTileset(tileId)) or (propsReverseTileset and propsReverseTileset:isInTileset(tileId)) then
+    blockId = propsTileset and findTilesetIndex(tileId, propsTileset) or 1
     isReverse = false
-    if propsReverseTileset:isInTileset(tileId) then
+    if propsReverseTileset and propsReverseTileset:isInTileset(tileId) then
       blockId = findTilesetIndex(tileId, propsReverseTileset)
       isReverse = true
     end
@@ -236,9 +248,9 @@ local function createElement(tileId, xPos, yPos, cameraGroup)
     blockId = findTilesetIndex(tileId, specialTileset)
     createTile(block, blockId, "special")
   else
-    blockId = findTilesetIndex(tileId, themeTileset)
+    blockId = themeTileset and findTilesetIndex(tileId, themeTileset) or 1
     isReverse = false
-    if themeReverseTileset:isInTileset(tileId) then
+    if themeReverseTileset and themeReverseTileset:isInTileset(tileId) then
       blockId = findTilesetIndex(tileId, themeReverseTileset)
       isReverse = true
     end
@@ -246,10 +258,12 @@ local function createElement(tileId, xPos, yPos, cameraGroup)
       isReverse = false
     end
     createTile(block, blockId, "normal", isReverse)
-    if not block.image.powerUp then
-      block.image.mapElement = true
+    if block.image then
+      if not block.image.powerUp then
+        block.image.mapElement = true
+      end
+      block.image.bodyType = "static"
     end
-    block.image.bodyType = "static"
   end
   if block.image then
     block.image.x = block.x
@@ -360,9 +374,13 @@ local function createAllElements(mapJson, cameraGroup, frontCameraGroup)
     end
   end
 
+  local columnsTimer
   local function createNewColumns(event)
     if startedClean then
-      timer.cancel(event.source)
+      if event and event.source then
+        timer.cancel(event.source)
+      end
+      return
     end
     widthEnd = widthStarter + 15
     if widthEnd > mapWidth then
@@ -377,7 +395,9 @@ local function createAllElements(mapJson, cameraGroup, frontCameraGroup)
       end
     end
     if widthEnd == mapWidth then
-      timer.cancel(event.source)
+      if event and event.source then
+        timer.cancel(event.source)
+      end
       local respawnEvent = {name = "mapDone"}
       Runtime:dispatchEvent(respawnEvent)
     end
@@ -385,12 +405,16 @@ local function createAllElements(mapJson, cameraGroup, frontCameraGroup)
   end
 
   createNewColumns()
-  timer.performWithDelay(50, createNewColumns, 0)
+  columnsTimer = timer.performWithDelay(50, createNewColumns, 0)
   return elements
 end
 
 local function clean()
   startedClean = true
+  if columnsTimer then
+    timer.cancel(columnsTimer)
+    columnsTimer = nil
+  end
 end
 
 M.createAllElements = createAllElements

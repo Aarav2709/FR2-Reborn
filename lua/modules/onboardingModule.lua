@@ -410,11 +410,14 @@ function composer.onboarding.insertArrow(reference, x, y, scaleX, scaleY, arrowP
 end
 
 function composer.onboarding.showMarketArrow()
+  if not composer.onboarding.guiReferences or not composer.onboarding.guiReferences.market_glasses then
+    return
+  end
   composer.onboarding.stepData["25"].categoryArrow = composer.onboarding.insertArrow(composer.onboarding.guiReferences.market_glasses, 45, 0, 1, 1, greenArrow)
 end
 
 function composer.onboarding.removeCategoryArrow()
-  if composer.onboarding.stepData["25"].categoryArrow then
+  if composer.onboarding.stepData["25"] and composer.onboarding.stepData["25"].categoryArrow then
     composer.onboarding.stepData["25"].categoryArrow:removeSelf()
     composer.onboarding.stepData["25"].categoryArrow = nil
   end
@@ -422,15 +425,21 @@ end
 
 function composer.onboarding.showMarketHomeArrow()
   composer.onboarding.showReferences("marketplace_back")
+  if not composer.onboarding.guiReferences or not composer.onboarding.guiReferences.marketplace_back then
+    return
+  end
   composer.onboarding.stepData["25"].homeArrow = composer.onboarding.insertArrow(composer.onboarding.guiReferences.marketplace_back, 50, 250, 1, 1, greenArrow)
 end
 
 function composer.onboarding.showGlassesArrow()
+  if not composer.onboarding.guiReferences or not composer.onboarding.guiReferences.market_glasses_icon then
+    return
+  end
   composer.onboarding.stepData["25"].iconArrow = composer.onboarding.insertArrow(composer.onboarding.guiReferences.market_glasses_icon, 45, 30, 0.45, 0.45, redArrow)
 end
 
 function composer.onboarding.removeIconArrow()
-  local arrow = composer.onboarding.stepData["25"].iconArrow
+  local arrow = composer.onboarding.stepData["25"] and composer.onboarding.stepData["25"].iconArrow
   if arrow and arrow.removeSelf then
     arrow:removeSelf()
     arrow = nil

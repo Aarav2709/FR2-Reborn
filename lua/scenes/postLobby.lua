@@ -198,17 +198,7 @@ function scene:create(event)
 
   local placeholdersEnabled = false
   local placeholderGroup = display.newGroup()
-  local placeholderMapX = display.contentWidth * 0.8
-  local placeholderMapY = backgroundTimeImage.y - backgroundTimeImage.height * 0.26
-  local mapPlaceholder = composer.newText({
-    string = "STUMPY SLOPES",
-    size = 30,
-    x = placeholderMapX,
-    y = placeholderMapY,
-    color = { 1, 1, 1 }
-  })
-  placeholderGroup:insert(mapPlaceholder)
-  placeholderGroup.isVisible = placeholdersEnabled
+  placeholderGroup.isVisible = false
   local function setPlaceholdersVisible(isVisible)
     placeholdersEnabled = not not isVisible
     placeholderGroup.isVisible = placeholdersEnabled

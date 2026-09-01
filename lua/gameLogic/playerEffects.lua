@@ -628,7 +628,7 @@ function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDi
     player:insert(magnetEffect)
     player:insert(shieldImage)
     player:insert(shieldAbsorbImage)
-    spriteDisplay:insert(bloodSquirtSprite)
+    player:insert(bloodSquirtSprite)
     bodyParts:insert(jumpEffect)
     bodyParts:insert(landEffect)
   end

@@ -219,8 +219,9 @@ local function newList(params)
   local order = params.order or {}
   local categoryBackground = params.categoryBackground
   local backgroundShadow = params.backgroundShadow
+  local fontToUse = (composer and composer.data and composer.data.font) or "Brady Bunch Remastered"
   local callback = params.callback or function(item)
-    local t = display.newText(item, 0, 0, native.systemFontBold, textSize)
+    local t = display.newText({ text = item, x = 0, y = 0, font = fontToUse, fontSize = textSize })
     t:setFillColor(1, 1, 1)
     t.x = math.floor(t.width / 2) + 20
     t.y = 24
@@ -244,12 +245,12 @@ local function newList(params)
         b:setFillColor(0, 0, 0, 0.39215686274509803)
       end
       g:insert(b)
-      local labelShadow = display.newText(h, 0, 0, native.systemFontBold, textSize)
+      local labelShadow = display.newText({ text = h, x = 0, y = 0, font = fontToUse, fontSize = textSize })
       labelShadow:setFillColor(0, 0, 0, 0.5019607843137255)
       g:insert(labelShadow, true)
       labelShadow.x = labelShadow.width * 0.5 + 1 + offset + screenOffsetW * 0.5
       labelShadow.y = textSize * 0.8 + 1
-      local t = display.newText(h, 0, 0, native.systemFontBold, textSize)
+      local t = display.newText({ text = h, x = 0, y = 0, font = fontToUse, fontSize = textSize })
       t:setFillColor(1, 1, 1)
       g:insert(t)
       t.x = t.width * 0.5 + offset + screenOffsetW * 0.5

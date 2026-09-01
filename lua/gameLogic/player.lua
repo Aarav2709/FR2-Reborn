@@ -522,22 +522,14 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
             if mainPlayer then
               playSound("bounce_tile")
             end
-            changeSpeedState = 1
             local vx, vy = player:getLinearVelocity()
-            if math.abs(vy) > 100 then
-              vx = vx * 0.7
-            end
-            local newVy = -math.abs(vy * 1.3)
-            if newVy < -700 then
-              newVy = -700
-            end
-            if -500 < newVy then
-              newVy = -500
-            end
+            local bounceVy = -580
             player.onGround = false
-            setLinearVelocityOnPlayer(vx, newVy)
+            player.y = player.y - 6
+            setLinearVelocityOnPlayer(vx, bounceVy)
+            monster.setAnimation("jump_start", true, true)
             state = 1
-            changeSpeedState = 2
+            changeSpeedState = 1
           elseif collisionEvent.other.boost then
             if mainPlayer then
               playSound("speed_tile")
@@ -612,7 +604,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
             state = 1
           end
           if collisionEvent.other.onCollision then
-            collisionEvent.other.onCollision()
+            collisionEvent.other.onCollision(player, booleanStates.startedClean)
           end
         end
       elseif collisionEvent.other.powerUp then
@@ -1006,20 +998,20 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     playSound("magnet_hit")
     local dirRight
     if playerList[playerId].x < playerList[killer].x then
-      setLinearVelocityOnPlayer(0, 0)
-      applyForceOnPlayer(500, 0)
+      setLinearVelocityOnPlayer(450, -120)
+      applyForceOnPlayer(1600, 0)
       dirRight = false
     else
-      setLinearVelocityOnPlayer(0, 0)
-      applyForceOnPlayer(-500, 0)
+      setLinearVelocityOnPlayer(-450, -120)
+      applyForceOnPlayer(-1600, 0)
       dirRight = true
     end
     playerEffects.playMagnetEffect(dirRight)
   end
 
   local function bounceTrapPowerUp()
-    setLinearVelocityOnPlayer(0, 0)
-    applyForceOnPlayer(-300, -150)
+    player.onGround = false
+    setLinearVelocityOnPlayer(-350, -700)
   end
 
   function disablePreviousPowerUp()
@@ -1257,6 +1249,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       local vx, vy = getLinearVelocityOnPlayer()
       if puType == 1 or puType == 97 or puType == 98 then
         playBloodScreen(false)
+        playerEffects.playBloodSquirt()
         if composer.database.getViolence() == 1 and isMainPlayerCloseEnough() then
           tryToSpawnBloodDecal()
           timer.performWithDelay(10, function()
@@ -1271,6 +1264,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       elseif puType == 2 then
         playerEffects.playTrapEffect()
         playBloodScreen(false)
+        playerEffects.playBloodSquirt()
         if composer.database.getViolence() == 1 and isMainPlayerCloseEnough() then
           tryToSpawnBloodDecal()
         end
@@ -1290,6 +1284,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
         setPlayerAliveTimer = timer.performWithDelay(baseDeadTime, setPlayerAlive, 1)
       elseif puType == 9 then
         playBloodScreen(false)
+        playerEffects.playBloodSquirt()
         shouldHidePlayer = false
         playerEffects.createCannonBall()
         if composer.database.getViolence() == 1 and isMainPlayerCloseEnough() then
@@ -1306,6 +1301,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
         setPlayerAliveTimer = timer.performWithDelay(baseDeadTime, setPlayerAlive, 1)
       elseif puType == 10 then
         playBloodScreen(false)
+        playerEffects.playBloodSquirt()
         if killer == playerId then
           playerEffects.playRocketDeathEffect()
           timer.performWithDelay(50, function()

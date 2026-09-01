@@ -29,13 +29,14 @@ local function toggleNetworkAlert()
     alertSymbol:removeSelf()
     alertSymbol = nil
   end
-  if composer.getSceneName("current") == "lua.scenes.gamePlay" then
-    return
-  elseif composer.getSceneName("current") == "lua.scenes.updateScene" then
-    return
-  elseif composer.getSceneName("current") == "lua.scenes.startScreen" then
-    return
-  elseif composer.getSceneName("current") == "lua.scenes.loadingScene" then
+  local currentScene = composer.getSceneName("current")
+  if currentScene == "lua.scenes.gamePlay"
+     or currentScene == "lua.scenes.updateScene"
+     or currentScene == "lua.scenes.startScreen"
+     or currentScene == "lua.scenes.loadingScene"
+     or currentScene == "lua.scenes.lobbyPractice"
+     or currentScene == "lua.scenes.difficultySelect"
+     or (composer.data and composer.data.gameInfo and composer.data.gameInfo.gameType == 0) then
     return
   end
   if not isConnected or not gotFirstPackage then

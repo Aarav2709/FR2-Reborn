@@ -39,19 +39,21 @@ function scene:create(event)
   overlayCurrentCoins.y = 2
   local function createCurrencyLabels()
     local moneyValue = composer.database.getMoney()
+    local coinX = overlayCurrentCoins.x + 28
+    local coinY = overlayCurrentCoins.y
     moneyLabel = composer.newText({
       string = moneyValue,
       size = 14,
-      x = 754,
-      y = 71,
+      x = coinX,
+      y = coinY + 69,
       ax = 0,
       color = { 1, 1, 1 }
     })
     moneyLabelRed = composer.newText({
       string = moneyValue,
       size = 14,
-      x = 754,
-      y = 71,
+      x = coinX,
+      y = coinY + 69,
       ax = 0,
       color = { 1, 0.2, 0.2 }
     })
@@ -59,16 +61,16 @@ function scene:create(event)
     gemLabel = composer.newText({
       string = composer.database.getGems(),
       size = 14,
-      x = 754,
-      y = 43,
+      x = coinX,
+      y = coinY + 41,
       ax = 0,
       color = { 1, 1, 1 }
     })
     gemLabelRed = composer.newText({
       string = composer.database.getGems(),
       size = 14,
-      x = 754,
-      y = 43,
+      x = coinX,
+      y = coinY + 41,
       ax = 0,
       color = { 1, 0.2, 0.2 }
     })
@@ -509,7 +511,7 @@ function scene:create(event)
       })
       composer.audio.play("no_powerup")
       giveCoinFeedback()
-    elseif composer.config.offlineMode or not composer.comm.isOnline() then
+    elseif composer.config.offlineMode or not (composer.comm and composer.comm.isOnline and composer.comm.isOnline()) then
       completeLocalPurchase("coins", coinPrice)
     else
       tryingToBuy = true
@@ -519,11 +521,15 @@ function scene:create(event)
         value = moneyValue,
         area = composer.config.fullVersion
       })
-      composer.comm.setCallback(commCallback)
-      if item.saleKey and item.salePrice then
-        composer.comm.purchaseItem(item.saleKey)
+      if composer.comm and composer.comm.setCallback then
+        composer.comm.setCallback(commCallback)
+        if item.saleKey and item.salePrice then
+          composer.comm.purchaseItem(item.saleKey)
+        else
+          composer.comm.purchaseItem(item.key)
+        end
       else
-        composer.comm.purchaseItem(item.key)
+        completeLocalPurchase("coins", coinPrice)
       end
     end
   end

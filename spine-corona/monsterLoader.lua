@@ -441,23 +441,24 @@ local function new(monsterData, networkFormat)
   end
 
   function monster.setBandage(isOn)
-    skeleton:setAttachment("bandage_arm_lower", nil)
-    skeleton:setAttachment("bandage_arm_upper", nil)
-    skeleton:setAttachment("bandage_head_left", nil)
-    skeleton:setAttachment("bandage_head_right", nil)
-    skeleton:setAttachment("bandage_torso_left", nil)
-    skeleton:setAttachment("bandage_torso_right", nil)
-    skeleton:setAttachment("bandage_torso_upper", nil)
-    skeleton:setAttachment("bandage_eyes", nil)
-    if isOn then
-      skeleton:setAttachment("bandage_arm_lower", "bandage_arm_lower")
-      skeleton:setAttachment("bandage_arm_upper", "bandage_arm_upper")
-      skeleton:setAttachment("bandage_head_left", "bandage_head_left")
-      skeleton:setAttachment("bandage_head_right", "bandage_head_right")
-      skeleton:setAttachment("bandage_torso_left", "bandage_torso_left")
-      skeleton:setAttachment("bandage_torso_right", "bandage_torso_right")
-      skeleton:setAttachment("bandage_torso_upper", "bandage_torso_upper")
-      skeleton:setAttachment("bandage_eyes", "bandage_eyes")
+    local bandageParts = {
+      { slot = "bandage_arm_lower", att = "misc/bandage_arm_lower" },
+      { slot = "bandage_arm_upper", att = "misc/bandage_arm_upper" },
+      { slot = "bandage_head_left", att = "misc/bandage_head_left" },
+      { slot = "bandage_head_right", att = "misc/bandage_head_right" },
+      { slot = "bandage_torso_left", att = "misc/bandage_torso_left" },
+      { slot = "bandage_torso_right", att = "misc/bandage_torso_right" },
+      { slot = "bandage_torso_upper", att = "misc/bandage_torso_upper" },
+      { slot = "bandage_eyes", att = "misc/bandage_eyes" }
+    }
+    for _, part in ipairs(bandageParts) do
+      pcall(function()
+        if isOn then
+          skeleton:setAttachment(part.slot, part.att)
+        else
+          skeleton:setAttachment(part.slot, nil)
+        end
+      end)
     end
   end
 
@@ -506,6 +507,12 @@ local function new(monsterData, networkFormat)
     local animationFactor = animationSpeedFactor
     if not paused then
       animationHandler:update(delta)
+    end
+    local useTrack = animationHandler:getCurrent(2)
+    if useTrack and not useTrack.loop then
+      if useTrack.endTime and useTrack.time >= useTrack.endTime then
+        monster.cleanUseAnimationImages()
+      end
     end
     if animationHandler:getCurrent(0) then
       animationHandler:getCurrent(0).timeScale = animationFactor
@@ -763,9 +770,9 @@ local function new(monsterData, networkFormat)
     if animationHandler:getCurrent(2) then
       animationHandler:clearTrack(2)
     end
-    skeleton:setAttachment("magnet", nil)
-    skeleton:setAttachment("rifle", nil)
-    skeleton:setAttachment("rifleEffect", nil)
+    pcall(function() skeleton:setAttachment("magnet", nil) end)
+    pcall(function() skeleton:setAttachment("rifle", nil) end)
+    pcall(function() skeleton:setAttachment("rifleEffect", nil) end)
   end
 
   function monster.playUseAnimation(newAnimation)

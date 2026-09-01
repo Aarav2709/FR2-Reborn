@@ -43,19 +43,19 @@ function scene:create(event)
   -- Difficulty button handlers
   local function btnEasyRelease(event)
     composer.data.gameInfo.difficulty = 1 -- Easy
-    composer.data.gameInfo.botSpeed = 0.7 -- 70% speed
+    composer.data.gameInfo.botSpeed = 1.0 -- 100% exact player speed
     composer.gotoScene("lua.scenes.lobbyPractice")
   end
 
   local function btnMediumRelease(event)
     composer.data.gameInfo.difficulty = 2 -- Medium
-    composer.data.gameInfo.botSpeed = 1.0 -- 100% speed
+    composer.data.gameInfo.botSpeed = 1.0 -- 100% exact player speed
     composer.gotoScene("lua.scenes.lobbyPractice")
   end
 
   local function btnHardRelease(event)
     composer.data.gameInfo.difficulty = 3 -- Hard
-    composer.data.gameInfo.botSpeed = 1.3 -- 130% speed
+    composer.data.gameInfo.botSpeed = 1.0 -- 100% exact player speed
     composer.gotoScene("lua.scenes.lobbyPractice")
   end
 

@@ -128,13 +128,45 @@ function scene:create(event)
       leftBarImage.x = contentLeft - 3
       leftBarImage.y = contentTop - 3
     end
-    if backgroundCoins then
-      backgroundCoins.x = contentLeft + 726
-      backgroundCoins.y = contentTop + 2
-    end
     if btnBack then
-      btnBack.x = contentLeft + 4
-      btnBack.y = contentTop + 341
+      btnBack.x = 65
+      btnBack.y = 315
+      btnBack.xScale = 0.8
+      btnBack.yScale = 0.8
+      leftBarDisplayGroup:insert(btnBack)
+      btnBack:toFront()
+    end
+    if backgroundCoins then
+      backgroundCoins.x = screenLeft + screenWidth - backgroundCoins.width - 5
+      backgroundCoins.y = screenTop + 2
+      if moneyLabel then
+        moneyLabel.x = backgroundCoins.x + 28
+        moneyLabel.y = backgroundCoins.y + 69
+      end
+      if gemLabel then
+        gemLabel.x = backgroundCoins.x + 28
+        gemLabel.y = backgroundCoins.y + 41
+      end
+    end
+    local buyX = 512
+    local buyY = 210
+    if btnBuy then
+      btnBuy.x = buyX
+      btnBuy.y = buyY
+      uiGroup:insert(btnBuy)
+      btnBuy:toFront()
+    end
+    if btnSkin then
+      btnSkin.x = buyX
+      btnSkin.y = buyY
+      uiGroup:insert(btnSkin)
+      btnSkin:toFront()
+    end
+    if btnSkinBack then
+      btnSkinBack.x = buyX - 55
+      btnSkinBack.y = buyY
+      uiGroup:insert(btnSkinBack)
+      btnSkinBack:toFront()
     end
   end
   itemSelected = 1
@@ -240,7 +272,7 @@ function scene:create(event)
     monsterGroup.xScale = 0.5
     monsterGroup.yScale = 0.5
     monsterGroup.x = 512
-    monsterGroup.y = 208
+    monsterGroup.y = 145
     uiGroup:insert(monsterGroup)
     if newMonsterData[6] then
       itemTrailSelected = tonumber(newMonsterData[6])
@@ -278,9 +310,9 @@ function scene:create(event)
     end
     title = composer.newText({
       string = newTitle,
-      size = 23,
-      x = 488,
-      y = 356,
+      size = 20,
+      x = 512,
+      y = 175,
       color = {
         1,
         1,
@@ -485,26 +517,65 @@ function scene:create(event)
   end
 
   local function updateBuyButtonState(index)
-    if composer.config.offlineMode then
-      if index and isItemBought(currentMarketData[index]) then
-        btnBuy.isVisible = false
-      else
-        btnBuy.isVisible = true
-      end
+    if not btnBuy then
       return
     end
-    if index and currentMarketData[index].spinningPrize then
+    if not index or not currentMarketData or not currentMarketData[index] then
       btnBuy.isVisible = false
-    elseif index and currentMarketData[index].weeklyPrice then
-      btnBuy.isVisible = false
-    elseif index and currentMarketData[index].seasonal and not currentMarketData[index].seasonalActive then
-      btnBuy.isVisible = false
-    elseif index and currentMarketData[index].achievementPrize then
-      btnBuy.isVisible = false
-    elseif index and isItemBought(currentMarketData[index]) then
-      btnBuy.isVisible = false
+      return
+    end
+    local item = currentMarketData[index]
+    local bought = isItemBought(item)
+    local buyX = 512
+    local buyY = 210
+
+    if tabSelected == 2 or tabSelected == 10 then
+      if btnSkin then btnSkin.isVisible = false end
+      if bought then
+        btnBuy.isVisible = false
+        if btnSkinBack then
+          btnSkinBack.isVisible = true
+          btnSkinBack.x = buyX
+          btnSkinBack.y = buyY
+          btnSkinBack:toFront()
+        end
+      else
+        btnBuy.isVisible = true
+        btnBuy.x = buyX + 35
+        btnBuy.y = buyY
+        btnBuy:toFront()
+        if btnSkinBack then
+          btnSkinBack.isVisible = true
+          btnSkinBack.x = buyX - 45
+          btnSkinBack.y = buyY
+          btnSkinBack:toFront()
+        end
+      end
     else
-      btnBuy.isVisible = true
+      if btnSkinBack then btnSkinBack.isVisible = false end
+      if bought then
+        btnBuy.isVisible = false
+        if tabSelected == 1 and btnSkin then
+          btnSkin.isVisible = true
+          btnSkin.x = buyX
+          btnSkin.y = buyY
+          btnSkin:toFront()
+        else
+          if btnSkin then btnSkin.isVisible = false end
+        end
+      elseif item.spinningPrize or item.weeklyPrice or item.achievementPrize then
+        btnBuy.isVisible = false
+        if btnSkin then btnSkin.isVisible = false end
+      elseif item.seasonal and not item.seasonalActive then
+        btnBuy.isVisible = false
+        if btnSkin then btnSkin.isVisible = false end
+      else
+        btnBuy.isVisible = true
+        btnBuy.x = buyX
+        btnBuy.y = buyY
+        btnBuy:toFront()
+        if btnSkin then btnSkin.isVisible = false end
+      end
     end
   end
 
@@ -531,11 +602,13 @@ function scene:create(event)
       gemLabel:removeSelf()
       gemLabel = nil
     end
+    local coinX = (backgroundCoins and backgroundCoins.x or 726) + 28
+    local coinY = (backgroundCoins and backgroundCoins.y or 2)
     moneyLabel = composer.newText({
       string = moneyValue,
       size = 14,
-      x = 754,
-      y = 71,
+      x = coinX,
+      y = coinY + 69,
       ax = 0,
       color = {
         1,
@@ -547,8 +620,8 @@ function scene:create(event)
     gemLabel = composer.newText({
       string = composer.database.getGems(),
       size = 14,
-      x = 754,
-      y = 43,
+      x = coinX,
+      y = coinY + 41,
       ax = 0,
       color = {
         1,
@@ -646,13 +719,11 @@ function scene:create(event)
     end
     local boughtItem = isItemBought(currentMarketData[itemSelected])
     if boughtItem then
-      if tabSelected == 2 and itemSelected == 1 then
-        monsterData[tabSelected] = currentMarketData[itemSelected].skinId
-      elseif tabSelected == 1 or tabSelected == 2 then
-        if tabSelected == 1 then
-          monsterData[1] = currentMarketData[itemSelected].key
-        end
-        monsterData[2] = composer.database.getDefaultSkinForAvatar(monsterData[1])
+      if tabSelected == 2 then
+        monsterData[2] = currentMarketData[itemSelected].skinId or currentMarketData[itemSelected].key or 0
+      elseif tabSelected == 1 then
+        monsterData[1] = currentMarketData[itemSelected].key
+        monsterData[2] = composer.database.getDefaultSkinForAvatar(monsterData[1]) or 0
       elseif tabSelected == 8 then
         local itemType = currentMarketData[itemSelected].itemType
         if itemType then
@@ -661,6 +732,7 @@ function scene:create(event)
       else
         monsterData[tabSelected] = currentMarketData[itemSelected].key
       end
+      composer.database.setAvatarData(monsterData)
     end
   end
 
@@ -989,8 +1061,8 @@ function scene:create(event)
     width = 130,
     height = 75,
     onRelease = btnBackRelease,
-    x = 73,
-    y = 37
+    x = 0,
+    y = 0
   })
   btnBuy = composer.newButton({
     image = "images/gui/market/buttonBuy.png",
@@ -1001,24 +1073,24 @@ function scene:create(event)
     width = 73,
     height = 44,
     onRelease = btnBuyRelease,
-    x = 715,
-    y = 362
+    x = 0,
+    y = 0
   })
   btnSkin = composer.newButton({
     image = "images/gui/market/buttonSkins.png",
     width = 49,
     height = 45,
     onRelease = btnSkinRelease,
-    x = 639,
-    y = 361
+    x = 0,
+    y = 0
   })
   btnSkinBack = composer.newButton({
     image = "images/gui/market/buttonSkinsBack.png",
     width = 49,
     height = 45,
     onRelease = btnSkinRelease,
-    x = 639,
-    y = 361
+    x = 0,
+    y = 0
   })
 
   local function getTimeLeftInText(timeLeft)
@@ -1300,6 +1372,24 @@ function scene:create(event)
     horizontalTableView:startAt(itemSelected)
     updateItemTitle(itemSelected)
     uiGroup:insert(leftBarDisplayGroup)
+    if btnBack then
+      btnBack:toFront()
+    end
+    if btnBuy then
+      uiGroup:insert(btnBuy)
+      btnBuy:toFront()
+    end
+    if btnSkin then
+      uiGroup:insert(btnSkin)
+      btnSkin:toFront()
+    end
+    if btnSkinBack then
+      uiGroup:insert(btnSkinBack)
+      btnSkinBack:toFront()
+    end
+    if itemSelected then
+      updateBuyButtonState(itemSelected)
+    end
   end
 
   local function updateDisplayGroup()
@@ -1334,7 +1424,9 @@ function scene:create(event)
     end
     if syncAvatarWithServer then
       composer.database.setAvatarData(monsterData)
-      composer.comm.setActiveCreature()
+      if composer.comm and composer.comm.setActiveCreature then
+        composer.comm.setActiveCreature()
+      end
     end
     composer.database.setMarketItemId(composer.config.serverVersion)
     itemTrailSelected = 0

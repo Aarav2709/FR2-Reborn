@@ -8,13 +8,14 @@ local function new(id, playerList)
   if player then
     player.playPowerUpJumpEffect()
     local vx, vy = player:getLinearVelocity()
+    local newVx = math.max(vx + 120, 380)
+    local newVy = -750
     if vy < -140 then
-      player:applyForce(100, -250, player.x, player.y)
-    elseif 100 < vy then
-      player:applyForce(100, -400, player.x, player.y)
-    else
-      player:applyForce(100, -300, player.x, player.y)
+      newVy = -850
     end
+    player.onGround = false
+    player.y = player.y - 4
+    player:setLinearVelocity(newVx, newVy)
   end
   return jump
 end

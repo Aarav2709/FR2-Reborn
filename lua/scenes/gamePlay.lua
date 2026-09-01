@@ -371,9 +371,11 @@ function scene:show(event)
     if 50 < puType then
       puType = puType - 50
     end
-    powerUpImage = getPuIcon(puType, 60)
-    powerUpImage.x = powerupButtonImage.x
-    powerUpImage.y = powerupButtonImage.y
+    powerUpImage = getPuIcon(puType, 54)
+    powerUpImage.anchorX = 0.5
+    powerUpImage.anchorY = 0.5
+    powerUpImage.x = powerupButtonImage.x - 4
+    powerUpImage.y = powerupButtonImage.y + 2
     powerUpButtonGroup:insert(powerUpImage)
     powerUpImageReady = true
     powerUpButtonFX:setSequence("gotPU")

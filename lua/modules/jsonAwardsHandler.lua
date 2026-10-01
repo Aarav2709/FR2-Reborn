@@ -28,6 +28,12 @@ function M.getVersion()
   return configInput.version
 end
 
+-- The whole awards config (league prizes and thresholds are read by offlineLeague).
+function M.getConfig()
+  reloadConfigIfNil()
+  return configInput
+end
+
 function M.getAwardText(awardId)
   reloadConfigIfNil()
   local text = ""

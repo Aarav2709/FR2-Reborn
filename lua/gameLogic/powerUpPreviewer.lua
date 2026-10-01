@@ -1,6 +1,17 @@
+-- Marketplace preview for powerup skins. The caller decides where previews go
+-- (setPlacement) and inserts the returned image into its own display group.
 local composer = require("composer")
 local M = {}
 local activePreview = nil
+
+-- Centre point and size multiplier for previews, in the caller's coordinates.
+local placement = { x = display.contentWidth * 0.5, y = display.contentHeight * 0.34, scale = 1 }
+
+function M.setPlacement(x, y, scale)
+  placement.x = x
+  placement.y = y
+  placement.scale = scale or 1
+end
 
 -- enterFrame listener: runs per-frame effects (e.g. sawblade rotation)
 local function onEnterFrame()
@@ -30,16 +41,25 @@ function M.init()
   Runtime:addEventListener("enterFrame", onEnterFrame)
 end
 
+-- Market icon for any powerup skin; nil when the icon file is missing.
+local function newMarketIcon(category, itemKey, width, height)
+  local path = "images/gui/market/items/" .. category .. "/" .. itemKey .. ".png"
+  return display.newImageRect(path, width * placement.scale, height * placement.scale)
+end
+
 -- Show shield preview with breathing scale animation
 function M.showShield(itemKey)
   removeCurrentPreview()
-  local frameIndex = composer.powerUpImageSheetInfo:getFrameIndex("" .. itemKey)
+  local frameIndex = composer.powerUpImageSheetInfo and composer.powerUpImageSheetInfo:getFrameIndex("" .. itemKey)
+  if not frameIndex then
+    return M.showGenericPowerup(itemKey, "shield")
+  end
   local image = display.newImage(composer.powerUpImageSheet, frameIndex)
-  local baseScale = 0.8
+  local baseScale = 0.45 * placement.scale
   image.xScale = baseScale
   image.yScale = baseScale
-  image.x = display.contentWidth * 0.5
-  image.y = display.contentHeight * 0.34
+  image.x = placement.x
+  image.y = placement.y
 
   local scaleUp, scaleDown
   function scaleUp()
@@ -53,8 +73,8 @@ function M.showShield(itemKey)
   function scaleDown()
     transition.to(image, {
       time = 200,
-      xScale = baseScale - 0.05,
-      yScale = baseScale + 0.05,
+      xScale = baseScale * 0.94,
+      yScale = baseScale * 1.06,
       onComplete = scaleUp
     })
   end
@@ -67,11 +87,12 @@ end
 -- Show sawblade preview with rotation effect
 function M.showSawblade(itemKey)
   removeCurrentPreview()
-  local image = display.newImageRect("images/gui/market/items/sawblade/" .. itemKey .. ".png", 65, 72)
-  image.anchorX = 0.5
-  image.anchorY = 0.5
-  image.x = display.contentWidth * 0.5
-  image.y = display.contentHeight * 0.36
+  local image = newMarketIcon("sawblade", itemKey, 52, 58)
+  if not image then
+    return nil
+  end
+  image.x = placement.x
+  image.y = placement.y
   activePreview = { image = image }
   activePreview.effect = function()
     if activePreview and activePreview.image then
@@ -81,41 +102,21 @@ function M.showSawblade(itemKey)
   return image
 end
 
--- Show beartrap preview (static)
-function M.showBearTrap(itemKey)
-  removeCurrentPreview()
-  local image = display.newImageRect("images/gui/market/items/beartrap/" .. itemKey .. ".png", 70, 81)
-  image.anchorX = 0
-  image.anchorY = 0
-  image.x = display.contentWidth * 0.5 - image.width * 0.5
-  image.y = display.contentHeight * 0.24
-  activePreview = { image = image }
-  return image
-end
-
--- Show punchbox preview (static)
-function M.showPunchbox(itemKey)
-  removeCurrentPreview()
-  local image = display.newImageRect("images/gui/market/items/punchbox/" .. itemKey .. ".png", 70, 81)
-  image.anchorX = 0
-  image.anchorY = 0
-  image.x = display.contentWidth * 0.5 - image.width * 0.5
-  image.y = display.contentHeight * 0.24
-  activePreview = { image = image }
-  return image
-end
-
--- Show generic powerup item preview (for rocket, balloon, magnet, gun, speed)
+-- Show generic powerup item preview (beartrap, punchbox, rocket, balloon, magnet, gun, speed)
 function M.showGenericPowerup(itemKey, category)
   removeCurrentPreview()
-  local image = display.newImageRect("images/gui/market/items/" .. category .. "/" .. itemKey .. ".png", 70, 81)
-  image.anchorX = 0.5
-  image.anchorY = 0.5
-  image.x = display.contentWidth * 0.5
-  image.y = display.contentHeight * 0.34
+  local image = newMarketIcon(category, itemKey, 56, 64)
+  if not image then
+    return nil
+  end
+  image.x = placement.x
+  image.y = placement.y
   activePreview = { image = image }
   return image
 end
+
+M.showBearTrap = function(itemKey) return M.showGenericPowerup(itemKey, "beartrap") end
+M.showPunchbox = function(itemKey) return M.showGenericPowerup(itemKey, "punchbox") end
 
 -- Remove preview but keep enterFrame listener
 function M.softClean()
@@ -132,12 +133,8 @@ end
 function M.showPreviewForCategory(category, itemKey)
   if category == "sawblade" then
     return M.showSawblade(itemKey)
-  elseif category == "beartrap" then
-    return M.showBearTrap(itemKey)
   elseif category == "shield" then
     return M.showShield(itemKey)
-  elseif category == "punchbox" then
-    return M.showPunchbox(itemKey)
   else
     return M.showGenericPowerup(itemKey, category)
   end

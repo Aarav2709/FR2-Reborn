@@ -16,9 +16,9 @@ function scene:create(event)
   UI_BASE_H = display.contentHeight
   uiGroup, updateUiGroup = layoutGroup.new(screenGroup, UI_BASE_W, UI_BASE_H)
 
-  -- Background
+  -- Background (index 1 keeps it behind the UI group created above)
   backgroundImage = display.newImageRect("images/gui/common/bgMain.png", 1920, 1080)
-  screenGroup:insert(backgroundImage)
+  screenGroup:insert(1, backgroundImage)
 
   -- Title
   headerText = composer.newText({
@@ -211,8 +211,8 @@ function scene:create(event)
       hardDesc.y = contentTop + contentHeight * 0.5 + contentHeight * (70 / 320)
     end
     if btnBack then
-      btnBack.x = 120
-      btnBack.y = 385
+      btnBack.x = display.safeScreenOriginX + 70
+      btnBack.y = screenTop + screenHeight - 26
     end
   end
 

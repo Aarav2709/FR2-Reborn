@@ -3,18 +3,21 @@ settings = {
         all = {
             "Decompiled/*",
             "FR2-ORIGINAL/*",
-            ".git/*"
+            ".git/*",
+            -- Development files that are not part of the game.
+            "frontend/*",
+            "backend/*",
+            "tests/*",
+            "scripts/*",
+            ".editor/*",
+            "*.md",
+            ".luarc.json",
+            ".gitignore"
         },
         osx = {
             "*"
         },
         win32 = {
-            "*"
-        },
-        linux = {
-            "*"
-        },
-        html5 = {
             "*"
         }
     },
@@ -40,11 +43,18 @@ settings = {
             UIViewControllerBasedStatusBarAppearance = false,
             UILaunchStoryboardName = "LaunchScreen",
             UIRequiresFullScreen = true,
-            CFBundleDisplayName = "FR2 Offline"
+            CFBundleDisplayName = "FR2: Reborn",
+            CFBundleShortVersionString = "1.0.0",
+            CFBundleVersion = "1.0.0"
         }
     },
 
     android = {
+        versionName = "1.0.0",
+        -- Name under the icon on Android (overrides the build dialog's Application Name).
+        strings = {
+            app_name = "FR2: Reborn"
+        },
         usesPermissions = {
             "android.permission.INTERNET",
             "android.permission.ACCESS_NETWORK_STATE"

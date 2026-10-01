@@ -1,525 +1,433 @@
 local composer = require("composer")
-local layoutGroup = require("lua.modules.layoutGroup")
+local screen = require("lua.modules.screen")
+local seasonal = require("lua.modules.seasonalModule")
 local scene = composer.newScene()
 local clean, cleanEnter, httpsCallback
-local background, layoutSettings, resizeListener
-local uiGroup, updateUiGroup
-local UI_BASE_W, UI_BASE_H
+local layoutSettings, resizeListener
+
+-- The settings art is one 480x320 picture: a name plank (top left), a notice board
+-- (centre left) and a wooden panel with a red banner (right). Like the original
+-- game it is stretched to fill the screen; buttons and text keep their proportions
+-- (uniform scale `art.ui`) and are placed on the art's features.
+local ART_W, ART_H = 480, 320
+local art = { sx = 1, sy = 1, ui = 1 }
+
+local function updateArt()
+  screen.update()
+  art.sx = screen.width / ART_W
+  art.sy = screen.height / ART_H
+  art.ui = math.min(art.sx, art.sy)
+end
+
+local function artX(x)
+  return screen.left + x * art.sx
+end
+
+local function artY(y)
+  return screen.top + y * art.sy
+end
+
+-- The cream face behind the board's hole (art units).
+local BOARD_FILL_X, BOARD_FILL_Y, BOARD_FILL_W, BOARD_FILL_H = 45, 85, 260, 145
+-- Board interior (art units) holding the credits (left) and notes (right) columns.
+local BOARD_LEFT, BOARD_SPLIT, BOARD_RIGHT = 50, 176, 300
+local BOARD_TOP, BOARD_BOTTOM = 92, 226
+local TEXT_ROW_H = 19
+-- Wooden panel with the settings buttons.
+local PANEL_LEFT = 352
+local BUTTON_W, BUTTON_ROW_H = 120, 38
 
 function scene:create(event)
-  local screenGroup = self.view
-  UI_BASE_W = display.contentWidth
-  UI_BASE_H = display.contentHeight
-  uiGroup, updateUiGroup = layoutGroup.new(screenGroup, UI_BASE_W, UI_BASE_H)
-    local group = uiGroup
-    local httpsFormat = require("lua.network.httpsMessageFormat")
-    local tableHelper = require("lua.modules.tableHelper")
-    local settingsTable, settingsList, creditsTable, infoTable
-    local creditsTableData = {}
-    local infoTableData = {}
-    local buttonsGroup
-    local useButtonsGroup = true
-    local startedClean = false
-    local scrollTimer
-    background = display.newImageRect("images/gui/settings/main.png", 911, 412)
-    background.anchorX = 0
-    background.anchorY = 0
-    background.x = -1
-    background.y = -2
-    layoutSettings = function()
-        if background then
-            background.xScale = 1
-            background.yScale = 1
-            background.x = -1
-            background.y = -2
-        end
-        if tableBackground then
-            tableBackground.x = 331
-            tableBackground.y = 169
-        end
+  local group = self.view
+  local httpsFormat = require("lua.network.httpsMessageFormat")
+  local tableHelper = require("lua.modules.tableHelper")
+  local settingsTable, settingsList, creditsTable
+  local creditsTableData = {}
+  local startedClean = false
+  local offline = composer.config.offlineMode
+  updateArt()
+  -- Texts are rasterised at the scale in use when the scene is built.
+  local textUi = art.ui
+
+  -- The seasonal menu scenery behind the planks (the art itself has no scenery).
+  local scenery = display.newImageRect(group, seasonal.blurredBackground(), 1920, 1080)
+  -- The board's face is a hole in the art; this cream fill shows through it.
+  local boardFill = display.newImageRect(group, "images/gui/ranking/cell.png", BOARD_FILL_W, BOARD_FILL_H)
+  boardFill.anchorX, boardFill.anchorY = 0, 0
+  local background = display.newImageRect(group, "images/gui/settings/main.png", ART_W, ART_H)
+  background.anchorX, background.anchorY = 0, 0
+
+  local username = composer.newText({ string = "", size = 25 * textUi, color = { 1, 1, 1 } })
+  username.anchorX, username.anchorY = 0, 0.5
+  group:insert(username)
+  local usernameTag = composer.newText({ string = "", size = 25 * textUi, color = { 1, 1, 1 } })
+  usernameTag.anchorX, usernameTag.anchorY = 0, 0.5
+  group:insert(usernameTag)
+  local tableTitleText = composer.newText({
+    string = composer.localized.get("Settings"),
+    size = 30 * textUi,
+    color = { 1, 1, 1 }
+  })
+  group:insert(tableTitleText)
+
+  -- Tables are rebuilt on layout; they live in their own group above the art.
+  local tablesGroup = display.newGroup()
+  group:insert(tablesGroup)
+
+  local function homeButtonEvent()
+    composer.gotoScene("lua.scenes.mainMenu")
+  end
+
+  local homeButton = composer.newButton({
+    image = "images/gui/common/buttonHome.png",
+    width = 90,
+    height = 57,
+    onRelease = homeButtonEvent,
+    x = 0,
+    y = 0
+  })
+  group:insert(homeButton)
+
+  local function editNameButtonEvent()
+    composer.showOverlay("lua.overlays.editUsername", { isModal = true })
+  end
+
+  local editNameButton = composer.newButton({
+    x = 0,
+    y = 0,
+    width = 45,
+    height = 42,
+    image = "images/gui/settings/buttonRename.png",
+    onRelease = editNameButtonEvent
+  })
+  group:insert(editNameButton)
+
+  -- Name and "#code" sit side by side, centred between the plank's left end and
+  -- the rename button, shrinking if the name is long.
+  local function layoutUsername()
+    local ui = art.ui
+    local left = artX(62)
+    local right = editNameButton.x - 26 * ui
+    local nameWidth = username.width
+    local total = nameWidth + usernameTag.width
+    local scale = ui / textUi
+    if total * scale > right - left and total > 0 then
+      scale = (right - left) / total
     end
-    local username = composer.newText({
-        string = "",
-        size = 35,
-        color = {
-            1,
-            1,
-            1
+    username.xScale, username.yScale = scale, scale
+    usernameTag.xScale, usernameTag.yScale = scale, scale
+    local startX = (left + right) * 0.5 - total * scale * 0.5
+    username.x, username.y = startX, artY(21)
+    usernameTag.x, usernameTag.y = startX + nameWidth * scale, artY(21)
+  end
+
+  local function updateUsername()
+    local playerInfo = composer.database.getPlayerInformation()
+    local name, suffix = "", ""
+    if playerInfo.usernameCode then
+      name = playerInfo.username or ""
+      suffix = "#" .. tostring(playerInfo.usernameCode)
+      if #name >= #suffix and name:sub(-#suffix) == suffix then
+        name = name:sub(1, #name - #suffix)
+        if name:sub(-1) == " " then
+          name = name:sub(1, -2)
+        end
+      end
+    end
+    username.text = name
+    usernameTag.text = suffix
+    layoutUsername()
+  end
+
+  local function tableCallback(data)
+  end
+
+  local function onTutorialClick()
+    composer.onboarding.init()
+    composer.onboarding.activate()
+    composer.onboarding.settingsOverride = true
+    composer.onboarding.setStep("1")
+    composer.onboarding.activateStep()
+  end
+
+  local function onSoundClick()
+    if composer.database.getSound() == 1 then
+      composer.database.setSound(0)
+      composer.analytics.newEvent("design", {
+        event_id = "sound:deactivate",
+        area = composer.config.fullVersion
+      })
+    else
+      composer.database.setSound(1)
+      composer.analytics.newEvent("design", {
+        event_id = "sound:activate",
+        area = composer.config.fullVersion
+      })
+    end
+    settingsTable.refreshTable()
+  end
+
+  local function onFacebookClick()
+    if not composer.database.getFacebookId() then
+      composer.analytics.newEvent("design", {
+        event_id = "facebookLogin:attempt",
+        area = composer.config.fullVersion
+      })
+      composer.facebook.login({ "user_friends" })
+    end
+    settingsTable.refreshTable()
+  end
+
+  local function onAccountClick()
+    composer.showOverlay("lua.overlays.editAccountData", { isModal = true })
+  end
+
+  local function onEmailClick()
+    composer.showOverlay("lua.overlays.editEmail", { isModal = true })
+  end
+
+  local function onPasswordClick()
+    composer.showOverlay("lua.overlays.editPassword", { isModal = true })
+  end
+
+  local function onLogoutClick()
+    composer.showOverlay("lua.overlays.logout", { isModal = true })
+  end
+
+  local function onPushClick()
+    composer.showOverlay("lua.overlays.editNotificationSettings", { isModal = true })
+  end
+
+  local function updateSettingsList()
+    if offline then
+      -- Account, social and push features need the game server.
+      settingsList = {
+        { sound = true, onClick = onSoundClick },
+        {
+          tutorial = true,
+          onClick = onTutorialClick,
+          text = composer.localized.get("Tutorial")
         }
-    })
-    username.anchorX = 0.5
-    username.anchorY = 0.5
-    username.x = 180
-    username.y = 26
-    local usernameTag = composer.newText({
-        string = "",
-        size = 35,
-        color = {
-            1,
-            1,
-            1
-        }
-    })
-    usernameTag.anchorX = 0
-    usernameTag.anchorY = 0.5
-    usernameTag.x = 220
-    usernameTag.y = 26
-    local tableTitleText = composer.newText({
-        string = composer.localized.get("Settings"),
-        size = 30,
-        color = {
-            1,
-            1,
-            1
-        }
-    })
-    tableTitleText.x = 783
-    tableTitleText.y = 16
-    local tableBackground = display.newImageRect("images/gui/ranking/cell.png", 960, 640)
-    tableBackground.x = 331
-    tableBackground.y = 169
-
-    local function updateUsername()
-        local playerInfo = composer.database.getPlayerInformation()
-        if playerInfo.usernameCode then
-            local name = playerInfo.username or ""
-            local code = tostring(playerInfo.usernameCode)
-            local suffix = "#" .. code
-            if #name >= #suffix and name:sub(-#suffix) == suffix then
-                name = name:sub(1, #name - #suffix)
-                if name:sub(-1) == " " then
-                    name = name:sub(1, -2)
-                end
-            end
-            username.text = name
-            usernameTag.text = suffix
-        else
-            username.text = ""
-            usernameTag.text = ""
+      }
+      return
+    end
+    settingsList = {
+      { sound = true, onClick = onSoundClick },
+      {
+        tutorial = true,
+        onClick = onTutorialClick,
+        text = composer.localized.get("Tutorial")
+      },
+      {
+        facebook = true,
+        onClick = onFacebookClick,
+        text = composer.localized.get("Connect")
+      }
+    }
+    if composer.data.playerInfo.email then
+      settingsList[#settingsList + 1] = { email = true, onClick = onEmailClick, text = composer.localized.get("EditEmail") }
+      settingsList[#settingsList + 1] = { password = true, onClick = onPasswordClick, text = composer.localized.get("EditPassword") }
+    else
+      settingsList[#settingsList + 1] = { account = true, onClick = onAccountClick, text = composer.localized.get("AccountInfo") }
+    end
+    settingsList[#settingsList + 1] = { push = true, onClick = onPushClick, text = composer.localized.get("Notifications") }
+    settingsList[#settingsList + 1] = { logout = true, onClick = onLogoutClick, text = composer.localized.get("Logout") }
+    if composer.database.getFacebookId() then
+      for i = #settingsList, 1, -1 do
+        if settingsList[i].facebook then
+          table.remove(settingsList, i)
         end
-        usernameTag.x = 220
+      end
     end
-
-    local function homeButtonEvent()
-        composer.gotoScene("lua.scenes.mainMenu")
-        composer.removeScene("lua.scenes.settings")
-    end
-
-    local homeButton = composer.newButton({
-        image = "images/gui/common/buttonHome.png",
-        width = 90,
-        height = 57,
-        onRelease = homeButtonEvent,
-        x = 120,
-        y = 385
-    })
-
-    local function editNameButtonEvent()
-        composer.showOverlay("lua.overlays.editUsername", { isModal = true })
-    end
-
-    local editNameButton = composer.newButton({
-        x = 350,
-        y = 26,
-        width = 45,
-        height = 42,
-        image = "images/gui/settings/buttonRename.png",
-        onRelease = editNameButtonEvent
-    })
-
-    buttonsGroup = display.newGroup()
-    buttonsGroup.x = 730
-    buttonsGroup.y = 100
-
-    local function setButtonsGrouped(isGrouped)
-        useButtonsGroup = not not isGrouped
-    end
-
-    local function updateDisplayGroup()
-        group:insert(1, tableBackground)
-        group:insert(2, background)
-        if settingsTable and settingsTable.getTable then
-            local settingsTableView = settingsTable.getTable()
-            if useButtonsGroup then
-                if settingsTableView and settingsTableView.parent ~= buttonsGroup then
-                    buttonsGroup:insert(settingsTableView)
-                end
-                group:insert(buttonsGroup)
-            else
-                group:insert(settingsTableView)
-            end
+    -- Logging out only makes sense for accounts that can be recovered.
+    if not composer.data.playerInfo.email and not composer.database.getFacebookId() and not isSimulator then
+      for i = #settingsList, 1, -1 do
+        if settingsList[i].logout then
+          table.remove(settingsList, i)
         end
-        if creditsTable and creditsTable.getTable then
-            group:insert(creditsTable.getTable())
-        end
-        if infoTable and infoTable.getTable then
-            group:insert(infoTable.getTable())
-        end
-        group:insert(username)
-        group:insert(usernameTag)
-        if useButtonsGroup then
-            group:insert(buttonsGroup)
-        end
-        group:insert(homeButton)
-        group:insert(editNameButton)
-        group:insert(tableTitleText)
-        if creditsTable and creditsTable.getTable then
-            creditsTable.getTable():toFront()
-        end
-        if infoTable and infoTable.getTable then
-            infoTable.getTable():toFront()
-        end
-        if useButtonsGroup and buttonsGroup then
-            buttonsGroup:toFront()
-        end
+      end
     end
+  end
 
-    local function tableCallback(data)
+  local headerFontSize = 16
+  local itemFontSize = 12
+
+  -- Credits scroll in the left column; roles follow the names in brown.
+  local function addToCredits(name, size, detail)
+    creditsTableData[#creditsTableData + 1] = { creditInfo = name, size = size or itemFontSize, x = 4, detail = detail }
+  end
+
+  addToCredits("FR2: Reborn", headerFontSize, "v1.0.0")
+  addToCredits("")
+  addToCredits("Developers", headerFontSize)
+  addToCredits("Aarav Gupta", itemFontSize, "Creator & Frontend")
+  addToCredits("Malik Johnson", itemFontSize, "Backend")
+  addToCredits("Rambo", itemFontSize, "Decompilation")
+  addToCredits("Rocxteady", itemFontSize, "iOS Support")
+  addToCredits("")
+  addToCredits("Testers", headerFontSize)
+  for _, tester in ipairs({ "Fop", "ProtogenX3", "Graves737", "abe", "chucho", "ElkerMage", "LionBot" }) do
+    addToCredits(tester)
+  end
+
+  -- Notes: a short text wrapped to the right column.
+  local NOTES_TITLE = "Notes"
+  local NOTES_TEXT = "Made by Fun Run 2 fans, for Fun Run 2 fans.\n\n"
+    .. "You asked for it, you got it!\n\n"
+    .. "A fan made project, not affiliated with Dirtybit."
+  local notesGroup
+
+  local function creditsTableCallback()
+  end
+
+  local function panelCenterX()
+    local right = math.min(screen.right, screen.safeRight) - 4
+    return (artX(PANEL_LEFT) + right) * 0.5
+  end
+
+  local function buildTables()
+    local ui = art.ui
+    if settingsTable then
+      settingsTable.cleanTable()
     end
-
-    local function onTutorialClick()
-        composer.onboarding.init()
-        composer.onboarding.activate()
-        composer.onboarding.settingsOverride = true
-        composer.onboarding.setStep("1")
-        composer.onboarding.activateStep()
+    if creditsTable then
+      creditsTable.cleanTable()
     end
-
-    local function onMusicClick()
-        local oldState = composer.database.getSound()
-        if oldState == 1 then
-            composer.database.setSound(0)
-            composer.analytics.newEvent("design", {
-                event_id = "music:deactivate",
-                area = composer.config.fullVersion
-            })
-        else
-            composer.database.setSound(1)
-            composer.analytics.newEvent("design", {
-                event_id = "music:activate",
-                area = composer.config.fullVersion
-            })
-        end
-        settingsTable.refreshTable()
+    display.remove(notesGroup)
+    local top = artY(BOARD_TOP)
+    local height = artY(BOARD_BOTTOM) - top
+    creditsTable = tableHelper.new(artX(BOARD_LEFT), top, artX(BOARD_SPLIT) - artX(BOARD_LEFT), height,
+      TEXT_ROW_H * ui, nil, "credits", creditsTableCallback, nil, ui)
+    creditsTable.createTable(creditsTableData, tablesGroup)
+    -- Notes: the title on the first row, then the text wrapped to the column (and
+    -- shrunk if a long translation would not fit).
+    notesGroup = display.newGroup()
+    tablesGroup:insert(notesGroup)
+    local notesLeft = artX(BOARD_SPLIT) + 4 * ui
+    local notesWidth = artX(BOARD_RIGHT) - notesLeft - 6 * ui
+    local title = composer.newText({ string = NOTES_TITLE, size = headerFontSize * ui, ax = 0, ay = 0.5 })
+    title.x, title.y = notesLeft, top + TEXT_ROW_H * ui * 0.5
+    notesGroup:insert(title)
+    local body = composer.newText({ string = NOTES_TEXT, size = itemFontSize * ui, width = notesWidth, ax = 0, ay = 0 })
+    body.x, body.y = notesLeft, top + TEXT_ROW_H * ui + 2 * ui
+    notesGroup:insert(body)
+    local room = top + height - body.y - 4 * ui
+    if body.height > room then
+      body.xScale, body.yScale = room / body.height, room / body.height
     end
+    local buttonsTop = artY(40)
+    settingsTable = tableHelper.new(panelCenterX() - BUTTON_W * 0.5 * ui, buttonsTop, (BUTTON_W + 2) * ui,
+      screen.bottom - buttonsTop, BUTTON_ROW_H * ui, nil, "settings", tableCallback, 10 * ui, ui)
+    settingsTable.createTable(settingsList, tablesGroup)
+  end
 
-    local function onSoundClick()
-        local oldState = composer.database.getSound()
-        if oldState == 1 then
-            composer.database.setSound(0)
-            composer.analytics.newEvent("design", {
-                event_id = "sound:deactivate",
-                area = composer.config.fullVersion
-            })
-        else
-            composer.database.setSound(1)
-            composer.analytics.newEvent("design", {
-                event_id = "sound:activate",
-                area = composer.config.fullVersion
-            })
-        end
-        settingsTable.refreshTable()
+  layoutSettings = function()
+    updateArt()
+    local ui = art.ui
+    screen.cover(scenery)
+    background.x, background.y = screen.left, screen.top
+    background.xScale, background.yScale = art.sx, art.sy
+    boardFill.x, boardFill.y = artX(BOARD_FILL_X), artY(BOARD_FILL_Y)
+    boardFill.xScale, boardFill.yScale = art.sx, art.sy
+    -- "Settings" on the red banner, shrunk if the translation is long.
+    local titleScale = ui / textUi
+    local bannerWidth = (ART_W - 340) * art.sx
+    if tableTitleText.width * titleScale > bannerWidth then
+      titleScale = bannerWidth / tableTitleText.width
     end
+    tableTitleText.xScale, tableTitleText.yScale = titleScale, titleScale
+    tableTitleText.x = (artX(340) + math.min(screen.right, screen.safeRight)) * 0.5
+    tableTitleText.y = artY(17)
+    editNameButton.xScale, editNameButton.yScale = ui, ui
+    editNameButton.x, editNameButton.y = artX(262) - 22 * ui, artY(22)
+    homeButton.xScale, homeButton.yScale = ui, ui
+    homeButton.x = screen.safeLeft + 50 * ui
+    homeButton.y = screen.bottom - 30 * ui
+    layoutUsername()
+    buildTables()
+  end
 
-    local function onViolenceClick()
-        local oldState = composer.database.getViolence()
-        print("Old violence state", oldState)
-        if oldState == 1 then
-            composer.database.setViolence(0)
-            composer.analytics.newEvent("design", {
-                event_id = "violence:deactivate",
-                area = composer.config.fullVersion
-            })
-        else
-            composer.database.setViolence(1)
-            composer.analytics.newEvent("design", {
-                event_id = "violence:activate",
-                area = composer.config.fullVersion
-            })
-        end
-        settingsTable.refreshTable()
-    end
-
-    local function onFacebookClick()
-        if not composer.database.getFacebookId() then
-            composer.analytics.newEvent("design", {
-                event_id = "facebookLogin:attempt",
-                area = composer.config.fullVersion
-            })
-            composer.facebook.login({
-                "user_friends"
-            })
-        end
-        settingsTable.refreshTable()
-    end
-
-    local function onAccountClick()
-        composer.showOverlay("lua.overlays.editAccountData", { isModal = true })
-    end
-
-    local function onEmailClick()
-        composer.showOverlay("lua.overlays.editEmail", { isModal = true })
-    end
-
-    local function onPasswordClick()
-        composer.showOverlay("lua.overlays.editPassword", { isModal = true })
-    end
-
-    local function onLogoutClick()
-        composer.showOverlay("lua.overlays.logout", { isModal = true })
-    end
-
-    local function onPushClick()
-        composer.showOverlay("lua.overlays.editNotificationSettings", { isModal = true })
-    end
-
-    settingsTable = tableHelper.new(0, 0, 150, 283, 38, "images/scenes/market/table.png", "settings", tableCallback)
-
-    local function updateSettingsList()
-        if composer.data.playerInfo.email then
-            settingsList = {
-                { sound = true, onClick = onSoundClick },
-                {
-                    facebook = true,
-                    onClick = onFacebookClick,
-                    text = composer.localized.get("Connect")
-                },
-                {
-                    tutorial = true,
-                    onClick = onTutorialClick,
-                    text = composer.localized.get("Tutorial")
-                },
-                {
-                    email = true,
-                    onClick = onEmailClick,
-                    text = composer.localized.get("EditEmail")
-                },
-                {
-                    password = true,
-                    onClick = onPasswordClick,
-                    text = composer.localized.get("EditPassword")
-                },
-                {
-                    push = true,
-                    onClick = onPushClick,
-                    text = composer.localized.get("Notifications")
-                },
-                {
-                    logout = true,
-                    onClick = onLogoutClick,
-                    text = composer.localized.get("Logout")
-                }
-            }
-        else
-            settingsList = {
-                { sound = true, onClick = onSoundClick },
-                {
-                    tutorial = true,
-                    onClick = onTutorialClick,
-                    text = composer.localized.get("Tutorial")
-                },
-                {
-                    facebook = true,
-                    onClick = onFacebookClick,
-                    text = composer.localized.get("Connect")
-                },
-                {
-                    account = true,
-                    onClick = onAccountClick,
-                    text = composer.localized.get("AccountInfo")
-                },
-                {
-                    push = true,
-                    onClick = onPushClick,
-                    text = composer.localized.get("Notifications")
-                },
-                {
-                    logout = true,
-                    onClick = onLogoutClick,
-                    text = composer.localized.get("Logout")
-                }
-            }
-        end
-    end
-
-    local function checkForFacebook()
-        if composer.database.getFacebookId() then
-            for i = 1, #settingsList do
-                if settingsList[i].facebook then
-                    table.remove(settingsList, i)
-                    return
-                end
-            end
-        end
-    end
-
-    local function checkForLogout()
-        if not composer.data.playerInfo.email and not composer.database.getFacebookId() and not isSimulator then
-            for i = 1, #settingsList do
-                if settingsList[i].logout then
-                    table.remove(settingsList, i)
-                    return
-                end
-            end
-        end
-    end
-
-    function scene:overlayEnded(data)
-        updateSettingsList()
-        local targetGroup = group
-        if useButtonsGroup and buttonsGroup then
-            targetGroup = buttonsGroup
-        end
-        settingsTable.refreshTable(settingsList, targetGroup, 1)
-        updateDisplayGroup()
-    end
-
-    function httpsCallback(data)
-        print(data.m)
-        if data.m == httpsFormat.changeUsername() then
-            updateUsername()
-        elseif data.m == httpsFormat.registerFacebook() then
-            updateSettingsList()
-            checkForFacebook()
-            settingsTable.refreshTable(settingsList, group, 1)
-        end
-    end
-
-    local function tcpCallback(data)
-    end
-
-    local function addToCredits(name, specialSize)
-        creditsTableData[#creditsTableData + 1] = { creditInfo = name }
-        if specialSize then
-            creditsTableData[#creditsTableData].size = specialSize
-        end
-    end
-
-    local headerFontSize = 20
-    local itemFontSize = 15
-    addToCredits("")
-    addToCredits("FR2R (v0.6.0)", headerFontSize)
-    addToCredits("")
-    addToCredits(composer.localized.get("Credits"), headerFontSize)
-    addToCredits("Malik Johnson (Backend Dev)", itemFontSize)
-    addToCredits("Aarav Gupta (Frontend Dev)", itemFontSize)
-    addToCredits("FoP (Beta Tester)", itemFontSize)
-    addToCredits("ElkerMage (Beta Tester)", itemFontSize)
-    addToCredits("Badluck737 (Beta Tester)", itemFontSize)
-    addToCredits("Abe (Beta Tester)", itemFontSize)
-    addToCredits("LionBot (Beta Tester)", itemFontSize)
-    addToCredits("Wehtogen (Beta Tester)", itemFontSize)
-    addToCredits("Chucho (Beta Tester)", itemFontSize)
-
-    local function creditsTableCallback()
-    end
-
-    local function scrollCredits()
-        if startedClean then
-            return
-        end
-    end
-
-    local function createCredits()
-        creditsTable = tableHelper.new(10, 113, 300, 174, 22, nil, "credits", creditsTableCallback)
-        creditsTable.createTable(creditsTableData, group)
-    end
-
-    local function createInfoTable()
-        infoTable = tableHelper.new(240, 135, 300, 174, 22, nil, "credits", creditsTableCallback)
-        infoTable.createTable(infoTableData, group)
-    end
-
-    function clean()
-        startedClean = true
-        display.remove(buttonsGroup)
-        display.remove(homeButton)
-        display.remove(editNameButton)
-        if scrollTimer then
-            timer.cancel(scrollTimer)
-            scrollTimer = nil
-        end
-        if creditsTable then
-            creditsTable.cleanTable()
-        end
-        if infoTable then
-            infoTable.cleanTable()
-        end
-        if settingsTable then
-            settingsTable.cleanTable()
-        end
-    end
-
+  function scene:overlayEnded(data)
     updateSettingsList()
-    checkForFacebook()
-    checkForLogout()
-    infoTableData[#infoTableData + 1] = { creditInfo = "NOTES", size = headerFontSize }
-    infoTableData[#infoTableData + 1] = { creditInfo = "" }
-    infoTableData[#infoTableData + 1] = { creditInfo = "Made for Fun Run 2 lovers" }
-    infoTableData[#infoTableData + 1] = { creditInfo = "Who wanted to feel a bit of" }
-    infoTableData[#infoTableData + 1] = { creditInfo = "nostalgia." }
-    infoTableData[#infoTableData + 1] = { creditInfo = "" }
-    infoTableData[#infoTableData + 1] = { creditInfo = "You asked for it, you got it." }
-    createCredits()
-    createInfoTable()
-    composer.comm.setCallback(tcpCallback)
-    composer.commHttps.setCallback(httpsCallback)
-    settingsTable.createTable(settingsList, group)
-    updateDisplayGroup()
     updateUsername()
-    scrollTimer = timer.performWithDelay(2000, scrollCredits, 1)
-    if layoutSettings then
-        layoutSettings()
+    buildTables()
+  end
+
+  function httpsCallback(data)
+    if data.m == httpsFormat.changeUsername() then
+      updateUsername()
+    elseif data.m == httpsFormat.registerFacebook() then
+      updateSettingsList()
+      buildTables()
     end
-    scene.setButtonsGrouped = setButtonsGrouped
+  end
+
+  local function tcpCallback(data)
+  end
+
+  function clean()
+    startedClean = true
+    display.remove(homeButton)
+    display.remove(editNameButton)
+    if creditsTable then
+      creditsTable.cleanTable()
+    end
+    display.remove(notesGroup)
+    if settingsTable then
+      settingsTable.cleanTable()
+    end
+  end
+
+  updateSettingsList()
+  composer.comm.setCallback(tcpCallback)
+  composer.commHttps.setCallback(httpsCallback)
+  layoutSettings()
+  updateUsername()
 end
 
 function scene:show(event)
-    local phase = event.phase
-    if phase == "will" then
-        return
-    end
-    local group = self.view
-    local androidLogic = require("lua.modules.androidBackButton")
-
-  resizeListener = function()
-    if updateUiGroup then
-      updateUiGroup()
-    end
-        if layoutSettings then
-            layoutSettings()
-        end
+  if event.phase == "will" then
+    return
+  end
+  local androidLogic = require("lua.modules.androidBackButton")
+  if not resizeListener then
+    resizeListener = function()
+      if layoutSettings then
+        layoutSettings()
+      end
     end
     Runtime:addEventListener("resize", resizeListener)
-    resizeListener()
+  end
 
-    function cleanEnter()
-        androidLogic.removeBackButton()
-    end
+  function cleanEnter()
+    androidLogic.removeBackButton()
+  end
 
-    androidLogic.addBackButton("lua.scenes.mainMenu", "lua.scenes.settings")
+  androidLogic.addBackButton("lua.scenes.mainMenu", "lua.scenes.settings")
 end
 
 function scene:hide(event)
-    local phase = event.phase
-    if phase == "did" then
-        return
-    end
-    local group = self.view
+  if event.phase == "will" then
     if resizeListener then
-        Runtime:removeEventListener("resize", resizeListener)
-        resizeListener = nil
+      Runtime:removeEventListener("resize", resizeListener)
+      resizeListener = nil
     end
     if cleanEnter then
-        cleanEnter()
+      cleanEnter()
     end
+  elseif event.phase == "did" then
+    composer.removeScene("lua.scenes.settings")
+  end
 end
 
 function scene:destroy(event)
-    local group = self.view
-    if clean then
-        clean()
-    end
+  if resizeListener then
+    Runtime:removeEventListener("resize", resizeListener)
+    resizeListener = nil
+  end
+  if clean then
+    clean()
+  end
 end
 
 scene:addEventListener("create", scene)

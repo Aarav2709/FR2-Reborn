@@ -1066,11 +1066,9 @@ function M.disable()
   print("DEV TOOLS DISABLED")
 end
 
+-- Simulator only (see main.lua): press D to enable.
 function M.init()
   Runtime:addEventListener("key", onKey)
-  print("")
-  print(">>> Dev Tools v6 loaded - Press D to enable <<<")
-  print("")
 end
 
 M.init()

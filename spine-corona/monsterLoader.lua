@@ -2,7 +2,7 @@ local M = {}
 local spineInterface = require("spine-corona.interface")
 local composer = require("composer")
 
-local function new(monsterData, networkFormat)
+local function new(monsterData, networkFormat, powerupSkins)
   local monster = {}
   local monsterData = monsterData
   local skeletonData, spineLoader, skeleton, animationHandler, monsterGroup, lastUpdateTime, animationSpeedFactor, runAnimation
@@ -213,12 +213,8 @@ local function new(monsterData, networkFormat)
           image:setFrame(imagePath)
           image.anchorX = 0.5
           image.anchorY = 0.5
-        else
-          -- Frame not found in character sheet - log details for debugging
-          print("WARNING: Frame '" .. restOfPath .. "' not found in character sheet for " .. (path or "N/A"))
-          print("  -> Attachment: " .. tostring(attachmentName))
-          print("  -> Available frames: " .. tostring(#imageSheetInfo:getSheet().frames))
-                end
+        end
+        -- Not in the character sheet (most neck items): the item's own PNG is used below.
 
       elseif prepath == "powerups" and restOfPath then
         local powerupPrefix, frameKey = splitPrefixAndFrame(restOfPath)
@@ -312,8 +308,6 @@ local function new(monsterData, networkFormat)
     path = "c" .. id .. "s" .. skin
     memoryIndex = path
 
-    print("=== LOADING CHARACTER: " .. path .. " (id=" .. id .. ", skin=" .. skin .. ") ===")
-
     local function safeLoad()
       composer.data.monsterInMemory[memoryIndex].sheetInfo = require("lua.monsters." .. path)
     end
@@ -327,12 +321,8 @@ local function new(monsterData, networkFormat)
         setIdAndSkinDefault()
         return
       end
-      print("SUCCESS: Loaded lua sheet: lua/monsters/" .. path .. ".lua")
       composer.data.monsterInMemory[memoryIndex].sheet = graphics.newImageSheet(
         "images/monsters/" .. path .. "/monster.png", composer.data.monsterInMemory[memoryIndex].sheetInfo:getSheet())
-      print("SUCCESS: Loaded PNG: images/monsters/" .. path .. "/monster.png")
-    else
-      print("INFO: Character " .. path .. " already in memory, reusing")
     end
     imageSheetInfo = composer.data.monsterInMemory[memoryIndex].sheetInfo
     imageSheet = composer.data.monsterInMemory[memoryIndex].sheet
@@ -394,7 +384,6 @@ local function new(monsterData, networkFormat)
     local function setSkinSafe()
       -- Each character has its own skin, e.g. "c1s0", "c2s0"
       skeleton:setSkin(path)
-      print("INFO: Skin set to '" .. path .. "'")
     end
 
     local sucess = pcall(setSkinSafe)
@@ -500,6 +489,13 @@ local function new(monsterData, networkFormat)
     if startedClean then
       return
     end
+    if not monsterGroup.insert then
+      -- Removed together with its parent (e.g. a scene) without clean() being
+      -- called: stop animating a skeleton that is no longer on screen.
+      startedClean = true
+      Runtime:removeEventListener("enterFrame", update)
+      return
+    end
     composer.debugger.profile("monsterUpdate")
     local currentTime = system.getTimer() / 1000
     local delta = currentTime - lastUpdateTime
@@ -568,7 +564,9 @@ local function new(monsterData, networkFormat)
     end
 
     local powerupSet = nil
-    if type(monsterData) == "table" and type(monsterData[8]) == "table" then
+    if type(powerupSkins) == "table" then
+      powerupSet = powerupSkins
+    elseif type(monsterData) == "table" and type(monsterData[8]) == "table" then
       powerupSet = monsterData[8]
     elseif type(rawMonsterData) == "table" then
       for _, value in pairs(rawMonsterData) do
@@ -783,12 +781,24 @@ local function new(monsterData, networkFormat)
         local resolvedAnimation = resolveAnimationName(newAnimation)
         animationToPlay = resolvedAnimation or newAnimation
       end
+      local entry
       local ok = pcall(function()
-        animationHandler:setAnimationByName(2, animationToPlay, false)
+        entry = animationHandler:setAnimationByName(2, animationToPlay, false)
       end)
       if not ok then
-        print("WARNING: Use animation '" .. newAnimation .. "' not found, skipping...")
         return
+      end
+      -- The magnet is held up only while its animation plays; when it ends the prop
+      -- would otherwise stay stuck on the runner.
+      if entry and newAnimation == "magnet_start" then
+        entry.onComplete = function()
+          timer.performWithDelay(1, function()
+            local ok2, current = pcall(function() return animationHandler:getCurrent(2) end)
+            if ok2 and current == entry then
+              pcall(monster.cleanUseAnimationImages)
+            end
+          end)
+        end
       end
     end
   end
@@ -926,7 +936,9 @@ local function new(monsterData, networkFormat)
     end
     startedClean = true
     Runtime:removeEventListener("enterFrame", update)
-    monsterGroup:removeSelf()
+    if monsterGroup.removeSelf then
+      monsterGroup:removeSelf()
+    end
     monsterGroup = nil
   end
 

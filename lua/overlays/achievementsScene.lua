@@ -6,7 +6,14 @@ function scene:create(event)
   local group = self.view
   local tableHelper = require("lua.modules.tableHelper")
   local tcpFormat = require("lua.network.tcpMessageFormat")
-  local videoModule = require("lua.ads.videoModule")
+  -- This build has no video ads, so "watch a video" rewards never show up.
+  local videoModule = {
+    isVideoReady = function()
+      return false
+    end,
+    showAd = function()
+    end
+  }
   local challangesTable, achievementsTable, earnCoinTable, closeOverlayButton
   local dailyTable = {}
   local activeTableInt = 1

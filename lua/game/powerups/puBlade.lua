@@ -54,11 +54,16 @@ local function new(id, player, x, y, displayGroup, playerList)
     cantHitOwner = false
   end
 
-  local function rotateBlades()
+  -- Spin with speed; the original turned vx * 0.05 degrees per 30 fps frame.
+  local lastRotateTime
+  local function rotateBlades(event)
     if blade and not cleaning then
+      local now = event and event.time or system.getTimer()
+      local frames = lastRotateTime and math.min((now - lastRotateTime) / (1000 / 30), 3) or 1
+      lastRotateTime = now
       local vx, vy = blade:getLinearVelocity()
-      bladeImage:rotate(vx * 0.05)
-      bladeBloodImage:rotate(vx * 0.05)
+      bladeImage:rotate(vx * 0.05 * frames)
+      bladeBloodImage:rotate(vx * 0.05 * frames)
     end
   end
 

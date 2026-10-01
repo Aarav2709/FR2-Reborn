@@ -77,6 +77,16 @@ function spine.Skeleton.new(skeletonData, group)
           images[slot] = nil
         end
       elseif attachment.type == spine.AttachmentType.region or attachment.type == spine.AttachmentType.mesh then
+        -- An image removed from outside (e.g. with its parent group) can't be moved
+        -- any more; forget it so it is recreated below.
+        if image and image ~= spine.Skeleton.failed and not image.translate then
+          if not self.reportedLostImage then
+            self.reportedLostImage = true
+            print("WARNING: spine image removed externally, recreating (slot " .. tostring(slot.data.name) .. ")")
+          end
+          images[slot] = nil
+          image = nil
+        end
         if image and image.attachment ~= attachment then
           if self:modifyImage(image, attachment) then
             image.lastR, image.lastA = nil, nil

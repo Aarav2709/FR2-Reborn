@@ -57,7 +57,8 @@ local function createCustomOverlay(infoTextId, doNotOverrideMessage, extra)
   canExitOverlay = false
   local text = ""
   if infoTextId == 1 then
-    text = composer.localized.get("Offline, try again later")
+    -- Online features (2 vs 2, friends, clans...) aren't out yet.
+    text = composer.localized.get("Stay Tuned!")
   elseif infoTextId == 2 then
     text = composer.localized.get("Facebook login failed E3")
   elseif infoTextId == 3 then
@@ -158,9 +159,9 @@ local function createCustomOverlay(infoTextId, doNotOverrideMessage, extra)
   overlayGroup = display.newGroup()
   background = display.newImageRect("images/gui/common/generalPopup.png", 248, 105)
   background.anchorX = 0.5
-  background.anchorY = 0
+  background.anchorY = 0.5
   background.x = 240
-  background.y = 150
+  background.y = 160
   alphaBackground = display.newRect(display.screenOriginX, display.screenOriginY, display.actualContentWidth, display.actualContentHeight)
   alphaBackground.anchorX = 0
   alphaBackground.anchorY = 0
@@ -177,7 +178,7 @@ local function createCustomOverlay(infoTextId, doNotOverrideMessage, extra)
     string = text,
     size = 22,
     x = 240,
-    y = 195,
+    y = 145,
     width = 220,
     height = 60,
     align = "center",
@@ -195,7 +196,7 @@ local function createCustomOverlay(infoTextId, doNotOverrideMessage, extra)
 
   contiuneButton = composer.newButton({
     x = 240,
-    y = 225,
+    y = 182,
     width = 126,
     height = 40,
     text = composer.localized.get("OK"),

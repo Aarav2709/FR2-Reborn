@@ -1,77 +1,65 @@
-local M = {}
-local composer = require("composer")
-local physics = require("physics")
+-- Boost pads: the tile itself carries the "boost" flag; this adds the looping arrows.
+local util = require("lua.map.behaviors.behaviorUtil")
 
-local function addBehavior(block)
-  local displayGroup = block.displayGroup
-  local imageSheet = block.animatedBlockSheet
-  local tileType = block.tileId
-  local isReversed = block.image.xScale < 0
-  local animationTimer
-  local isPlaying = false
+local M = {}
+
+function M.addBehavior(block)
+  if not block.image then
+    return
+  end
   local startImage = "speedFlat1"
-  local xOffset = 0
   local yOffset = -1
-  if tileType == 89 then
+  if block.tileId == 89 then
     startImage = "speedHill1"
     yOffset = 32
   end
-  sequenceData = {
+  local startFrame = util.frameIndex(block.animatedBlockSheetFile, startImage)
+  if not startFrame then
+    return
+  end
+  local sprite = display.newSprite(block.displayGroup, block.animatedBlockSheet, {
     name = "idleAnimation",
-    start = block.animatedBlockSheetFile:getFrameIndex(startImage),
+    start = startFrame,
     count = 2,
     time = 200,
     loopCount = 0,
     loopDirection = "forward"
-  }
-  local sprite = display.newSprite(imageSheet, sequenceData)
-  sprite.x = block.x + xOffset
+  })
+  sprite.x = block.x
   sprite.y = block.y + yOffset
-  sprite:scale(block.scale * (block.image.xScale / math.abs(block.image.xScale)), block.scale)
-  displayGroup:insert(sprite)
+  local direction = block.image.xScale < 0 and -1 or 1
+  sprite:scale(block.scale * direction, block.scale)
 
-  local function shouldPlay()
-    if composer.isOnScreen(block.x, block.y) then
-      return true
+  local isPlaying = false
+  local function update()
+    if not sprite then
+      return
     end
-    return false
-  end
-
-  local function stop()
-    if sprite then
-      sprite:pause()
-      isPlaying = false
-    end
-  end
-
-  local function play()
-    if sprite and shouldPlay() then
+    if util.isOnScreen(block.x, block.y) then
       if not isPlaying then
         sprite:setSequence("idleAnimation")
         sprite:play()
         isPlaying = true
       end
-    else
-      stop()
+    elseif isPlaying then
+      sprite:pause()
+      isPlaying = false
     end
   end
+
+  local animationTimer = timer.performWithDelay(1000, update, 0)
+  update()
 
   local function clean()
     if animationTimer then
       timer.cancel(animationTimer)
       animationTimer = nil
     end
-    if sprite and sprite.removeSelf then
-      sprite:removeSelf()
-      sprite = nil
-    end
+    util.removeObject(sprite)
+    sprite = nil
   end
 
-  animationTimer = timer.performWithDelay(1000, play, 0)
-  play()
-  block.behaviors.speedHamster = {}
-  block.behaviors.speedHamster.clean = clean
+  block.behaviors.speedHamster = { clean = clean }
 end
 
-M.addBehavior = addBehavior
 return M

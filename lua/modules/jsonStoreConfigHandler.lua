@@ -23,6 +23,10 @@ end
 
 local function getProductMap(item)
   reloadConfigIfNil()
+  item = tonumber(item)
+  if not item or not configInput then
+    return nil
+  end
   local hashmap
   if item < 200 then
     hashmap = configInput.characters
@@ -58,16 +62,21 @@ local function getProductMap(item)
     hashmap = configInput.speed
   elseif item >= 2000 and item < 2100 then
     hashmap = configInput.punchbox
-    elseif item >= 5000 and item < 6000 then
+  elseif item >= 2100 and item < 2200 then
+    hashmap = configInput.backwear
+  elseif item >= 5000 and item < 6000 then
     hashmap = configInput.skins
   else
-    print("ERROR: No hashmap for id", item)
     return nil
   end
   return hashmap
 end
 
 function M.getItemCategory(item)
+  item = tonumber(item)
+  if not item then
+    return nil
+  end
   if item < 300 then
     return "avatars"
   elseif item < 400 then
@@ -100,8 +109,9 @@ function M.getItemCategory(item)
     return "speed"
   elseif item >= 2000 and item < 2100 then
     return "punchbox"
+  elseif item >= 2100 and item < 2200 then
+    return "backwear"
   else
-    print("ERROR: No category for id", item)
     return nil
   end
 end
@@ -184,7 +194,9 @@ local function addBoostItem(list)
   local boostList = {}
   if configInput.boosts then
     for key, value in pairs(configInput.boosts) do
-      if shouldAddItem(value) then
+      -- The mystery box is shared with a friend, which needs the online game.
+      local needsFriends = value.mysteryBox and composer.config.offlineMode
+      if shouldAddItem(value) and not needsFriends then
         boostList[#boostList + 1] = value
         boostList[#boostList].key = key
         boostList[#boostList].imagePath = "images/gui/market/items/boosts/" .. key .. ".png"
@@ -454,30 +466,35 @@ local powerupCategories = {
   { name = "punchbox", idBase = 2000, imagePath = "punchbox" }
 }
 
+-- One entry per powerup type (its original skin), in a fixed order.
 function M.getAllPowerupsSortedOnPrice()
   reloadConfigIfNil()
   local list = {}
   for _, cat in ipairs(powerupCategories) do
     if configInput[cat.name] then
-      -- Find the first/original item for this powerup type
+      local originalKey
       for key, value in pairs(configInput[cat.name]) do
-        if value.original or value.preOwned then
-          local item = {}
-          for k, v in pairs(value) do item[k] = v end
-          item.key = key
-          item.imagePath = "images/gui/market/items/" .. cat.imagePath .. "/" .. key .. ".png"
-          item.powerupCategory = cat.name
-          addSalesInfo(item)
-          addSeasonalInfo(item)
-          list[#list + 1] = item
-          break
+        if (value.original or value.preOwned) and (not originalKey or tonumber(key) < tonumber(originalKey)) then
+          originalKey = key
         end
+      end
+      if originalKey then
+        local item = {}
+        for k, v in pairs(configInput[cat.name][originalKey]) do item[k] = v end
+        item.key = originalKey
+        item.imagePath = "images/gui/market/items/" .. cat.imagePath .. "/" .. originalKey .. ".png"
+        item.powerupCategory = cat.name
+        addSalesInfo(item)
+        addSeasonalInfo(item)
+        list[#list + 1] = item
       end
     end
   end
-  return sortOnPrice(list)
+  return list
 end
 
+-- All skins of one powerup type: the original first, then cheapest to most expensive
+-- (gem prices are compared in coins through the store's gem ratio).
 function M.getAllPowerupsOfTypeSortedOnPrice(category)
   reloadConfigIfNil()
   local list = {}
@@ -495,7 +512,21 @@ function M.getAllPowerupsOfTypeSortedOnPrice(category)
       end
     end
   end
-  return sortOnPrice(list)
+  local gemRatio = tonumber(configInput.gemRatio) or 40
+  local function sortValue(item)
+    if item.original or item.preOwned then
+      return -1
+    end
+    return tonumber(item.price) or (tonumber(item.gemPrice) or 0) * gemRatio
+  end
+  table.sort(list, function(a, b)
+    local va, vb = sortValue(a), sortValue(b)
+    if va ~= vb then
+      return va < vb
+    end
+    return tonumber(a.key) < tonumber(b.key)
+  end)
+  return list
 end
 
 function M.getPowerupCategoryFromId(itemId)
@@ -600,7 +631,6 @@ function M.isThereNewItems(itemType)
     if hashmap then
       for key, value in pairs(hashmap) do
         if value and value.minBuild and lastSeenVersion < value.minBuild then
-          print("found new item in ", itemType)
           return true
         end
       end
@@ -609,14 +639,53 @@ function M.isThereNewItems(itemType)
   return false
 end
 
+-- Whether a powerup skin has graphics in the sheet its category is drawn from:
+-- thrown/placed powerups use the powerup sheet, the others the character rig sheets.
 function M.canDrawItem(itemId)
   itemId = tonumber(itemId)
-  if not itemId then return false end
-  if composer.powerUpImageSheetInfo then
-    local frameIndex = composer.powerUpImageSheetInfo:getFrameIndex("" .. itemId)
-    return frameIndex ~= nil
+  if not itemId or not M.getItem(itemId) then
+    return false
   end
-  return false
+  local category = M.getItemCategory(itemId)
+  local sheetInfo, frameName
+  if category == "sawblade" or category == "beartrap" or category == "shield" or category == "punchbox" then
+    sheetInfo, frameName = composer.powerUpImageSheetInfo, tostring(itemId)
+  elseif category == "rocket" or category == "balloon" or category == "magnet" or category == "gun" then
+    sheetInfo, frameName = composer.characterPowerUpEffectsImageSheetInfo, tostring(itemId)
+  elseif category == "speed" then
+    sheetInfo, frameName = composer.characterPowerUpEffectsSpeedImageSheetInfo, "fire/" .. itemId
+  else
+    return true
+  end
+  return sheetInfo ~= nil and sheetInfo:getFrameIndex(frameName) ~= nil
+end
+
+-- Returns the set number when every powerup type uses a skin from the same set
+-- (e.g. all gold skins), which unlocks themed in-game buttons; false otherwise.
+function M.isThisAPowerupSet(skinList)
+  if type(skinList) ~= "table" or #skinList < #powerupCategories then
+    return false
+  end
+  local setId
+  local covered = {}
+  for i = 1, #skinList do
+    local item = M.getItem(tonumber(skinList[i]))
+    if not item or not item.set then
+      return false
+    end
+    if setId == nil then
+      setId = item.set
+    elseif setId ~= item.set then
+      return false
+    end
+    covered[M.getPowerupCategoryFromId(skinList[i]) or ""] = true
+  end
+  for _, cat in ipairs(powerupCategories) do
+    if not covered[cat.name] then
+      return false
+    end
+  end
+  return setId or false
 end
 
 function M.hasHitImage(itemId)

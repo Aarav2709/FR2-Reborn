@@ -3,6 +3,7 @@ local background = require("lua.map.backgroundCreator")
 local elements = require("lua.map.elementCreator")
 local composer = require("composer")
 local backgroundGroup, backgroundLayers, mapElements, startX, startY, height, width, goalX, goalY, mapNameText, mapName, theme, playerNames, mapJson
+local currentMapId
 local xSize = 80
 local ySize = 50
 
@@ -12,8 +13,9 @@ local function getStartPos()
   return convertedX, convertedY
 end
 
+-- Finish line position; maps only define its column (goalY may be missing).
 local function getGoal()
-  return xSize * goalX, ySize * goalY
+  return xSize * goalX, goalY and ySize * goalY or nil
 end
 
 local function isInGoal(xPos)
@@ -47,6 +49,18 @@ local function addmapNameText(frontCameraGroup, x, y)
   mapNameText.x = x + 120
   mapNameText.y = y + 85
   frontCameraGroup:insert(mapNameText)
+  -- Quick Play races also show the personal best on this map, under the name.
+  local gameInfo = composer.data.gameInfo
+  if gameInfo and gameInfo.ranked and currentMapId then
+    local bestTimes = require("lua.modules.bestTimes")
+    local best = bestTimes.get(currentMapId)
+    local line = best and (composer.localized.get("Personal Best Time:") .. " " .. bestTimes.format(best))
+      or composer.localized.get("No Personal Best Time Yet")
+    local bestTimeText = composer.newText({ string = line, size = 14, color = { 1, 1, 1 } })
+    bestTimeText.x = mapNameText.x
+    bestTimeText.y = y + 108
+    frontCameraGroup:insert(bestTimeText)
+  end
 end
 
 local function removePlayerNameText(id)
@@ -100,6 +114,7 @@ local function generateMapElements(cameraGroup, frontCameraGroup)
 end
 
 local function generateMap(id, cameraGroup, frontCameraGroup)
+  currentMapId = id
   loadMapData(id)
   generateBackground(id, cameraGroup)
   generateMapElements(cameraGroup, frontCameraGroup)

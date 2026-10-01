@@ -19,7 +19,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   if composer.data.gameInfo.gameType > 0 then
     networkGame = true
   end
-  local monster = monsterLoader.new(accessorize, networkGame)
+  local monster = monsterLoader.new(accessorize, networkGame, customPowerUpSkins)
   monster.getGroup().xScale = 0.25
   monster.getGroup().yScale = 0.25
   spriteDisplay:insert(monster.getGroup())
@@ -30,23 +30,20 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   powerUpImages.bounceTrapImage = display.newImageRect("images/game/powerups/icons/punchbox.png", 25, 25)
   powerUpImages.markPlayerImage = display.newImageRect("images/game/markIcon.png", 37, 34)
   powerUpImages.markBarImage = display.newImageRect("images/game/markIcon.png", 24, 22)
+  -- Running speeds from Fun Run 2 (world units per second / per 100 ms update).
   local speeds = {}
-  speeds.defaultTopSpeed = 450
-  speeds.defaultAcceleration = 40
-  speeds.topSpeedX = 400
-  speeds.accelerateX = 35
-  speeds.tempSpeedX = 400
-  speeds.boostMultiplier = 1.8          -- Velocity multiplier for boost pads
-  speeds.boostSlideMultiplier = 1.5     -- Velocity multiplier for slide boost pads
-  speeds.boostCapMultiplier = 2.5       -- Max speed cap multiplier for boost
-  speeds.boostSlideCapMultiplier = 2.0  -- Max speed cap multiplier for slide boost
-  speeds.slowMultiplier = 0.5           -- Velocity multiplier for slow pads
-  speeds.linearDamping = 0.015          -- Gradual slowdown rate after boosting (per frame)
-  speeds.boostDampingThreshold = 1.2    -- Start damping when above this multiplier of topSpeed
-  -- Calculated caps
-  speeds.boostMaks = speeds.topSpeedX * speeds.boostCapMultiplier
-  speeds.boostMaksSlide = speeds.topSpeedX * speeds.boostSlideCapMultiplier
-  speeds.slowMaks = speeds.topSpeedX * speeds.slowMultiplier
+  speeds.defaultTopSpeed = 350
+  speeds.defaultAcceleration = 30
+  speeds.topSpeedX = 350
+  speeds.accelerateX = 25
+  speeds.tempSpeedX = 350
+  speeds.boostMultiplier = 1.8          -- Speed pad: velocity multiplier
+  speeds.boostSlideMultiplier = 1.5     -- Slide pad: velocity multiplier
+  speeds.slowMultiplier = 0.5           -- Slow pad: velocity multiplier
+  -- Caps stay at their starting values (as in the original, powerups don't move them).
+  speeds.boostMaks = speeds.topSpeedX * 2.5
+  speeds.boostMaksSlide = speeds.topSpeedX * 2
+  speeds.slowMaks = speeds.topSpeedX * 0.4
   local gameTimes = {}
   gameTimes.groundTime = 0
   gameTimes.playerDeadtime = 3000
@@ -86,6 +83,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   booleanStates.disconnected = false
   booleanStates.startedClean = false
   booleanStates.tutorialPause = false
+  booleanStates.killedByLevel = false
   local playerCorpses = basicPlayerCorpses.newCorpsParts(bodyParts, player)
   local previousVelocity = {}
   local ninjaTimer, ninjaEffectTimer, rocketBlinkTimer, disablePreviousPowerUp, updatePowerUpImageFunction
@@ -102,12 +100,11 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   local playerEffects = basicPlayerEffects.createEffects(player, playerCorpses, monster, booleanStates, spriteDisplay,
     bodyParts, screenGroup, customPowerUpSkins)
   local disconnectBar = display.newImageRect("images/game/avatar/disconnected.png", 18, 18)
+  -- Head frame on the progress bar, themed by the local player's power-up set (if any).
   local headBarBackground
-  if mainPlayer then
-    headBarBackground = display.newImageRect("images/game/playerSelfNormal.png", 40, 40)
-  else
-    headBarBackground = display.newImageRect("images/game/playerOtherNormal.png", 40, 40)
-  end
+  local headSuffix = (composer.data.gameInfo and composer.data.gameInfo.hudSuffix) or ""
+  local headPath = (mainPlayer and "images/game/playerSelfNormal" or "images/game/playerOtherNormal") .. headSuffix .. ".png"
+  headBarBackground = display.newImageRect(headPath, 40, 40)
 
   local function radToDegree(rad)
     return rad * 180 / 3.14
@@ -121,6 +118,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   local function showPlayerSprite()
     if not booleanStates.startedClean then
       monster.setBandage(false)
+      booleanStates.killedByLevel = false
       booleanStates.playerInvulnerable = false
     end
   end
@@ -168,9 +166,19 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     playerGhost:setLinearVelocity(vx, vy)
   end
 
+  -- Continuous force, for code that pushes every frame (e.g. rocket thrust).
   local function applyForceOnPlayer(vx, vy)
     player:applyForce(vx, vy, player.x, player.y)
     playerGhost:applyForce(vx, vy, playerGhost.x, playerGhost.y)
+  end
+
+  -- One-off push (jump, knockback). Fun Run 2 used applyForce at 30 fps, where a force
+  -- acts for one 1/30 s physics step; the equivalent impulse keeps the same kick at
+  -- any frame rate.
+  local STEP = 1 / 30
+  local function applyStepForceOnPlayer(fx, fy)
+    player:applyLinearImpulse(fx * STEP, fy * STEP, player.x, player.y)
+    playerGhost:applyLinearImpulse(fx * STEP, fy * STEP, playerGhost.x, playerGhost.y)
   end
 
   local function createItemEffect()
@@ -198,9 +206,6 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       speeds.topSpeedX = speeds.defaultTopSpeed
       speeds.tempSpeedX = speeds.topSpeedX
       speeds.accelerateX = speeds.defaultAcceleration
-      speeds.boostMaks = speeds.topSpeedX * speeds.boostCapMultiplier
-      speeds.boostMaksSlide = speeds.topSpeedX * speeds.boostSlideCapMultiplier
-      speeds.slowMaks = speeds.topSpeedX * speeds.slowMultiplier
       monster.cleanBuffAnimationImages()
     end
   end
@@ -520,16 +525,28 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
         if not booleanStates.playerDead then
           if collisionEvent.other.bounce then
             if mainPlayer then
-              playSound("bounce_tile")
+              if composer.data.currentLevelTheme == "space" then
+                playSound("bounce_tile_space")
+              else
+                playSound("bounce_tile")
+              end
             end
+            changeSpeedState = 1
             local vx, vy = player:getLinearVelocity()
-            local bounceVy = -580
+            if math.abs(vy) > 100 then
+              vx = vx * 0.7
+            end
+            local bounceVy = -math.abs(vy * 1.3)
+            if bounceVy < -700 then
+              bounceVy = -700
+            elseif bounceVy > -500 then
+              bounceVy = -500
+            end
             player.onGround = false
-            player.y = player.y - 6
             setLinearVelocityOnPlayer(vx, bounceVy)
             monster.setAnimation("jump_start", true, true)
             state = 1
-            changeSpeedState = 1
+            changeSpeedState = 2
           elseif collisionEvent.other.boost then
             if mainPlayer then
               playSound("speed_tile")
@@ -651,7 +668,9 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     end
   end
 
-  local testCounter = 1
+  -- Trail items drop a particle every 6 frames of the original 30 fps game (200 ms).
+  local TRAIL_INTERVAL = 200
+  local lastTrailTime = 0
 
   local function calculateRotation()
     local vx, vy = player:getLinearVelocity()
@@ -685,11 +704,21 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       end
       spriteDisplay.rotation = degrees
     end
-    if 5 < testCounter then
-      testCounter = 0
+    local now = system.getTimer()
+    if now - lastTrailTime >= TRAIL_INTERVAL then
+      lastTrailTime = now
       createItemEffect()
     end
-    testCounter = testCounter + 1
+  end
+
+  -- Before the start the runners stand still, but their trails (butterflies, sparks...)
+  -- already fly around them, as in Fun Run 2.
+  local function updateIdleTrail()
+    local now = system.getTimer()
+    if now - lastTrailTime >= TRAIL_INTERVAL then
+      lastTrailTime = now
+      createItemEffect()
+    end
   end
 
   local lastAccelerateTime = 0
@@ -724,15 +753,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
         else
           vx = vx + acceleration * 0.4
         end
-        local dampingThreshold = speeds.topSpeedX * speeds.boostDampingThreshold
-        if vx > dampingThreshold then
-          local dampingAmount = (vx - dampingThreshold) * speeds.linearDamping * multiplier
-          vx = vx - dampingAmount
-          -- Ensure we don't overshoot below the threshold
-          if vx < dampingThreshold then
-            vx = dampingThreshold
-          end
-        end
+        -- Above top speed (after a speed pad) the runner eases back 10% per update.
         if vx > speeds.topSpeedX and vy <= 20 then
           if vx - speeds.topSpeedX < acceleration * 1.5 then
             vx = speeds.topSpeedX
@@ -747,13 +768,18 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
           end
         end
         if booleanStates.playerDead then
-          vx = 0
-          setLinearVelocityOnPlayer(vx, vy)
+          -- Killed by a level hazard, the body keeps its momentum.
+          if not booleanStates.killedByLevel then
+            vx = 0
+            setLinearVelocityOnPlayer(vx, vy)
+          end
         elseif changeSpeedState == 0 and state == 1 then
           setLinearVelocityOnPlayer(vx, vy)
         elseif changeSpeedState == 0 and state == 3 and vx < speeds.topSpeedX then
           setLinearVelocityOnPlayer(vx, vy)
         elseif changeSpeedState == 0 and startVx < speeds.topSpeedX * 0.4 then
+          setLinearVelocityOnPlayer(vx, vy)
+        elseif booleanStates.rocketActive and vx > speeds.topSpeedX then
           setLinearVelocityOnPlayer(vx, vy)
         end
       end
@@ -795,7 +821,9 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       end
     elseif player.onGround then
       return true
-    elseif castRayAgainstMapElement(player.x, player.y + 12, player.x, player.y + 30) then
+    elseif system.getTimer() - gameTimes.lastJumpTime > 75 and castRayAgainstMapElement(player.x, player.y + 12, player.x, player.y + 30) then
+      -- Just above the ground still counts, but not right after a jump (that would
+      -- let a quick double tap stack two jumps).
       return true
     else
       return false
@@ -822,9 +850,9 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     gameTimes.lastJumpTime = system.getTimer()
     changeSpeedState = 1
     local vx, vy = player:getLinearVelocity()
-    local jumpForce = -420
+    local jumpForce = -200
     if booleanStates.rocketActive then
-      jumpForce = -360
+      jumpForce = -200
       if vy < -300 then
         jumpForce = -10
       end
@@ -845,7 +873,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       end
     end
     setLinearVelocityOnPlayer(vx, vy)
-    applyForceOnPlayer(0, jumpForce)
+    applyStepForceOnPlayer(0, jumpForce)
     player.onGround = false
     state = 1
     changeSpeedState = 2
@@ -864,11 +892,13 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
         if vx <= 60 then
           pauseSprite()
           setLinearVelocityOnPlayer(0, vy)
+          spriteDisplay.rotation = 0
           monster.setAnimation("idle", true, true)
         else
           vx = vx * 0.5
           setSpriteSpeed(vx)
           setLinearVelocityOnPlayer(vx, vy)
+          spriteDisplay.rotation = spriteDisplay.rotation * 0.9
           monster.setAnimation("slide", true, true)
         end
       end
@@ -968,10 +998,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     disablePreviousPowerUp()
     speeds.topSpeedX = speeds.topSpeedX * 1.5
     speeds.accelerateX = speeds.accelerateX * 1.5
-    speeds.boostMaks = speeds.topSpeedX * speeds.boostCapMultiplier
-    speeds.boostMaksSlide = speeds.topSpeedX * speeds.boostSlideCapMultiplier
-    speeds.slowMaks = speeds.topSpeedX * speeds.slowMultiplier
-    applyForceOnPlayer(300, 0)
+    applyStepForceOnPlayer(300, 0)
     -- Safe animation playback
     pcall(function()
       monster.playBuffAnimation("speed_start", false)
@@ -994,24 +1021,26 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     rocketBlinkTimer = timer.performWithDelay(3500, startBlink, 1)
   end
 
+  -- Magnet: players ahead of the user are stopped and yanked back toward them;
+  -- players behind get a small tug forward.
   local function magnetPowerUp(killer)
     playSound("magnet_hit")
     local dirRight
     if playerList[playerId].x < playerList[killer].x then
-      setLinearVelocityOnPlayer(450, -120)
-      applyForceOnPlayer(1600, 0)
+      applyStepForceOnPlayer(100, 0)
       dirRight = false
     else
-      setLinearVelocityOnPlayer(-450, -120)
-      applyForceOnPlayer(-1600, 0)
+      setLinearVelocityOnPlayer(0, 0)
+      applyStepForceOnPlayer(-400, 0)
       dirRight = true
     end
     playerEffects.playMagnetEffect(dirRight)
   end
 
+  -- Punch box: stops the runner and knocks them back and up.
   local function bounceTrapPowerUp()
-    player.onGround = false
-    setLinearVelocityOnPlayer(-350, -700)
+    setLinearVelocityOnPlayer(0, 0)
+    applyStepForceOnPlayer(-300, -150)
   end
 
   function disablePreviousPowerUp()
@@ -1146,9 +1175,10 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     end
   end
 
+  -- Back in the race with a bandage: the runner stays invulnerable until
+  -- showPlayerSprite takes it off two seconds later (as in Fun Run 2).
   local function setPlayerAlive()
     booleanStates.playerDead = false
-    booleanStates.playerInvulnerable = false
     partlyShowPlayerSprite()
     returnToPreviousSpeed()
     if booleanStates.speedActive then
@@ -1318,6 +1348,11 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
         setPlayerAliveTimer = timer.performWithDelay(baseDeadTime, setPlayerAlive, 1)
         hideRocketEffect(true)
       end
+      -- Every death: the ghost rises and a tombstone drops (after the lightning strike
+      -- for lightning deaths), as in Fun Run 2.
+      local deathEffectDelay = puType == 3 and 200 or nil
+      playerEffects.showGhostDeath(vx, vy, deathEffectDelay)
+      playerCorpses.dropTombstone(deathEffectDelay)
       if shouldHidePlayer then
         hidePlayerSprite()
       end
@@ -1653,6 +1688,10 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
 
   local function startBot()
     bot = botModule.new(player)
+    local botTopSpeed = math.random(335, 345)
+    speeds.defaultTopSpeed = botTopSpeed
+    speeds.topSpeedX = botTopSpeed
+    speeds.tempSpeedX = botTopSpeed
   end
 
   if isSimulator and composer.config.bot and mainPlayer then
@@ -1695,6 +1734,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   player.createMagnetAnimation = createMagnetAnimation
   player.corrigateOtherPlayers = corrigateOtherPlayers
   player.calculateRotation = calculateRotation
+  player.updateIdleTrail = updateIdleTrail
   player.getPlayerGoalTime = getPlayerGoalTime
   player.setPlayerGoalTime = setPlayerGoalTime
   player.getCurrentGameTime = getCurrentGameTime
@@ -1735,6 +1775,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   player.setPlayerPositionInWorld = setPlayerPositionInWorld
   player.cannonFunction = cannonFunction
   player.applyForceOnPlayer = applyForceOnPlayer
+  player.applyStepForceOnPlayer = applyStepForceOnPlayer
   player.powerUpLinks = powerUpLinks
   player.isDead = isDead
   player.pauseAnimations = pauseAnimations
@@ -1744,6 +1785,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   playerCorpses.readyHead()
   playerCorpses.readyHeadShot()
   playerCorpses.readyBrain()
+  playerCorpses.readyTombstones()
   playerCorpses.readyHuntersMarkHead()
   playerCorpses.readyRocketParts()
   return player

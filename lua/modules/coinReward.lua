@@ -11,8 +11,12 @@ local white = {
   1
 }
 
+-- position is a podium place (1-4) or a start point { x = ..., y = ... }.
 local function createCoinReward(totalGold, gold, position, isCoins, targetX, targetY)
   local function getCoinStartPosition()
+    if type(position) == "table" then
+      return position.x, position.y
+    end
 
     local x, y
 

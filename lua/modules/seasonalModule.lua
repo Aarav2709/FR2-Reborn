@@ -1,101 +1,54 @@
-local L0_1, L1_1, L2_1, L3_1, L4_1, L5_1
-L0_1 = {}
-L1_1 = require
-L2_1 = "composer"
-L1_1 = L1_1(L2_1)
-L2_1 = os
-L2_1 = L2_1.time
-L2_1 = L2_1()
-L3_1 = {}
-L4_1 = {}
-L5_1 = {}
-L5_1.day = 1
-L5_1.month = 10
-L4_1.startDate = L5_1
-L5_1 = {}
-L5_1.day = 31
-L5_1.month = 10
-L4_1.endDate = L5_1
-L4_1.backgroundImagePath = "images/gui/common/bgMain_halloween.png"
-L4_1.blurBackgroundImagePath = "images/gui/common/bgMain_halloween_blur.png"
-L3_1.halloween = L4_1
-L4_1 = {}
-L5_1 = {}
-L5_1.day = 1
-L5_1.month = 12
-L4_1.startDate = L5_1
-L5_1 = {}
-L5_1.day = 31
-L5_1.month = 12
-L4_1.endDate = L5_1
-L4_1.backgroundImagePath = "images/gui/common/bgMain_winter.png"
-L4_1.blurBackgroundImagePath = "images/gui/common/bgMain_winter_blur.png"
-L3_1.christmas = L4_1
-L4_1 = {}
-L5_1 = {}
-L5_1.day = 7
-L5_1.month = 2
-L4_1.startDate = L5_1
-L5_1 = {}
-L5_1.day = 15
-L5_1.month = 2
-L4_1.endDate = L5_1
-L4_1.backgroundImagePath = "images/gui/common/bgMain_valentine.png"
-L4_1.blurBackgroundImagePath = "images/gui/common/bgMain_valentine_blur.png"
-L3_1.valentine = L4_1
+-- Seasonal menu art, as in Fun Run 2: around Halloween, Christmas and Valentine's
+-- Day the menus switch to themed backgrounds, picked from the device's date.
+local composer = require("composer")
+local M = {}
 
-function L4_1()
-  local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2
-  L0_2 = os
-  L0_2 = L0_2.date
-  L1_2 = "*t"
-  L0_2 = L0_2(L1_2)
-  L1_2 = L1_1
-  L1_2 = L1_2.debugger
-  L1_2 = L1_2.debugTable
-  L2_2 = "main"
-  L3_2 = "Season Current Date: "
-  L4_2 = L0_2
-  L1_2(L2_2, L3_2, L4_2)
-  L1_2 = pairs
-  L2_2 = L3_1
-  L1_2, L2_2, L3_2 = L1_2(L2_2)
-  for L4_2, L5_2 in L1_2, L2_2, L3_2 do
-    L6_2 = L1_1
-    L6_2 = L6_2.debugger
-    L6_2 = L6_2.debugTable
-    L7_2 = "main"
-    L8_2 = "Check Season Date: "
-    L9_2 = L4_2
-    L8_2 = L8_2 .. L9_2
-    L9_2 = L5_2
-    L6_2(L7_2, L8_2, L9_2)
-    L6_2 = L0_2.month
-    L7_2 = L5_2.startDate
-    L7_2 = L7_2.month
-    if L6_2 == L7_2 then
-      L6_2 = L0_2.day
-      L7_2 = L5_2.startDate
-      L7_2 = L7_2.day
-    end
-    L6_2 = L6_2 >= L7_2
-    L7_2 = L0_2.month
-    L8_2 = L5_2.endDate
-    L8_2 = L8_2.month
-    if L7_2 == L8_2 then
-      L7_2 = L0_2.day
-      L8_2 = L5_2.endDate
-      L8_2 = L8_2.day
-    end
-    L7_2 = L7_2 <= L8_2
-    L8_2 = L5_2.alwaysActive
-    if L8_2 or L6_2 and L7_2 then
-      return L5_2
+local SEASONS = {
+  {
+    name = "halloween",
+    month = 10, firstDay = 1, lastDay = 31,
+    background = "images/gui/common/bgMain_halloween.png",
+    blurredBackground = "images/gui/common/bgMain_halloween_blur.png"
+  },
+  {
+    name = "christmas",
+    month = 12, firstDay = 1, lastDay = 31,
+    background = "images/gui/common/bgMain_winter.png",
+    blurredBackground = "images/gui/common/bgMain_winter_blur.png"
+  },
+  {
+    name = "valentine",
+    month = 2, firstDay = 7, lastDay = 15,
+    background = "images/gui/common/bgMain_valentine.png",
+    blurredBackground = "images/gui/common/bgMain_valentine_blur.png"
+  }
+}
+
+local DEFAULT_BACKGROUND = "images/gui/common/bgBlur.png"
+local DEFAULT_BLURRED_BACKGROUND = "images/gui/common/bgMain_blur.png"
+
+-- The season for a date (today when omitted), or nil outside the seasons.
+function M.getActiveSeason(date)
+  date = date or os.date("*t")
+  for _, season in ipairs(SEASONS) do
+    if date.month == season.month and date.day >= season.firstDay and date.day <= season.lastDay then
+      return season
     end
   end
-  L1_2 = {}
-  return L1_2
+  return nil
 end
 
-L0_1.getActiveSeason = L4_1
-L1_1.seasonal = L0_1
+-- Landscape behind the menus.
+function M.menuBackground()
+  local season = M.getActiveSeason()
+  return season and season.background or DEFAULT_BACKGROUND
+end
+
+-- Blurred landscape behind loading screens and the shop.
+function M.blurredBackground()
+  local season = M.getActiveSeason()
+  return season and season.blurredBackground or DEFAULT_BLURRED_BACKGROUND
+end
+
+composer.seasonal = M
+return M

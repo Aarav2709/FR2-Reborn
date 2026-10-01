@@ -1,4 +1,5 @@
 local composer = require("composer")
+local seasonal = require("lua.modules.seasonalModule")
 local assetLoader = require("lua.modules.assetLoader")
 local scene = composer.newScene()
 local updateLoadbar, cleanEnter
@@ -12,11 +13,11 @@ function scene:create(event)
   backgroundSnapshot.fill.effect = "filter.blur"
   backgroundSnapshot.fill.effect.blurSize = 6
   screenGroup:insert(backgroundSnapshot)
-  backgroundSource = display.newImageRect(backgroundSnapshot.group, "images/gui/common/bgMain_blur.png", 1920, 1080)
+  backgroundSource = display.newImageRect(backgroundSnapshot.group, seasonal.blurredBackground(), 1920, 1080)
   logo = display.newImageRect("images/gui/common/logo.png", 224, 135)
   screenGroup:insert(logo)
   text1 = composer.newText({
-    string = composer.localized.get("DirtybitGame"),
+    string = composer.localized.get("Welcome once again!"),
     x = 0,
     y = 0,
     size = 22
@@ -59,8 +60,9 @@ function scene:create(event)
       logo.y = contentTop + contentHeight * 0.25
     end
     if text1 then
+      -- Under the loading bar.
       text1.x = centerX
-      text1.y = contentTop + contentHeight * 0.45
+      text1.y = contentTop + contentHeight * 0.7 + 38
     end
     if loadBarBG then
       loadBarBG.x = centerX
@@ -80,7 +82,7 @@ function scene:create(event)
     end
     if downloadText then
       downloadText.x = centerX
-      downloadText.y = contentTop + contentHeight * 0.8
+      downloadText.y = contentTop + contentHeight * 0.7 + 66
     end
   end
 
@@ -221,8 +223,6 @@ function scene:show(event)
       assetLoader.loadIAP()
       composer.comm.startSocialTCP()
       checkForFacebookLogin()
-      local cb = require("lua.ads.chartboostModule")
-      cb.initAds()
     end
 
     composer.tableHelper = require("lua.modules.tableUtil")
@@ -318,7 +318,6 @@ function scene:show(event)
     if configFilesCorruptOnFirstRead then
       return
     else
-      print("Current config files are OK. Continue download.")
       continueLoadingConfigCritical()
     end
   end

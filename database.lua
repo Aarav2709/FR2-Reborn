@@ -27,7 +27,7 @@ local path = system.pathForFile("data.sqlite3", system.DocumentsDirectory)
 local db
 local M = {}
 local STARTING_COINS = 1000000
-local STARTING_GEMS = 1500
+local STARTING_GEMS = 1000
 
 local function setupTables()
     db = sqlite3.open(path)
@@ -48,6 +48,8 @@ CREATE TABLE IF NOT EXISTS user_settings (id INTEGER PRIMARY KEY, username VARCH
                             CREATE TABLE IF NOT EXISTS onboardingIntro (id INTEGER PRIMARY KEY, done INTEGER default 0);
                             CREATE TABLE IF NOT EXISTS economy (id INTEGER PRIMARY KEY, coins INTEGER, gems INTEGER, xp INTEGER, rating INTEGER);
                             CREATE TABLE IF NOT EXISTS ownedItems (id INTEGER PRIMARY KEY, data TEXT);
+                            CREATE TABLE IF NOT EXISTS powerupSkins (id INTEGER PRIMARY KEY, data TEXT);
+                            CREATE TABLE IF NOT EXISTS keyValue (key TEXT PRIMARY KEY, value TEXT);
     ]]
     db:exec(createTables)
 
@@ -523,54 +525,96 @@ local function setItems(items)
     composer.databaseData.items = items
     composer.databaseData.itemsLoaded = true
     local avatarData = getAvatarData()
-    M.setNewDefaultSkinForAvatar(avatarData.avatar, avatarData.skin)
+    if avatarData and avatarData[1] then
+        M.setNewDefaultSkinForAvatar(avatarData[1], avatarData[2])
+    end
     saveItemsToDb()
 end
 
 M.setItems = setItems
 
-function M.changePowerupSkin(skinId)
-    local category = composer.storeConfig.getItemCategory(tonumber(skinId))
-
-    if not composer.databaseData.powerupSkin then
-        composer.databaseData.powerupSkin = {}
+-- Equipped powerup skins: one item id per powerup type, persisted as JSON.
+local function loadPowerupSkins()
+    if composer.databaseData.powerupSkin then
+        return composer.databaseData.powerupSkin
     end
-
-    -- Remove existing skin from same category
-    for i = #composer.databaseData.powerupSkin, 1, -1 do
-        local existingId = tonumber(composer.databaseData.powerupSkin[i])
-
-        if existingId then
-            local existingCategory =
-                composer.storeConfig.getItemCategory(existingId)
-
-            if existingCategory == category then
-                table.remove(composer.databaseData.powerupSkin, i)
+    local skins = {}
+    db = sqlite3.open(path)
+    for row in db:nrows("SELECT data FROM powerupSkins WHERE id = 1;") do
+        local decoded = row.data and json.decode(row.data)
+        if type(decoded) == "table" then
+            for i = 1, #decoded do
+                if tonumber(decoded[i]) then
+                    skins[#skins + 1] = tonumber(decoded[i])
+                end
             end
         end
     end
+    db:close()
+    db = nil
+    composer.databaseData.powerupSkin = skins
+    return skins
+end
 
-    -- Add new skin
-    table.insert(composer.databaseData.powerupSkin, skinId)
-
-    print("POWERUP SKINS:")
-    for i,v in ipairs(composer.databaseData.powerupSkin) do
-        print(i, v)
+local function savePowerupSkins()
+    local encoded = json.encode(composer.databaseData.powerupSkin or {})
+    db = sqlite3.open(path)
+    local statement = db:prepare("INSERT OR REPLACE INTO powerupSkins (id, data) VALUES (1, ?);")
+    if statement then
+        statement:bind_values(encoded)
+        statement:step()
+        statement:finalize()
     end
+    db:close()
+    db = nil
+end
 
+function M.changePowerupSkin(skinId)
+    skinId = tonumber(skinId)
+    local category = skinId and composer.storeConfig.getPowerupCategoryFromId(skinId)
+    if not category then
+        return false
+    end
+    local skins = loadPowerupSkins()
+    for i = #skins, 1, -1 do
+        if composer.storeConfig.getPowerupCategoryFromId(skins[i]) == category then
+            table.remove(skins, i)
+        end
+    end
+    skins[#skins + 1] = skinId
+    savePowerupSkins()
     return true
-  end
+end
+
+function M.isPowerupSkinEquipped(skinId)
+    skinId = tonumber(skinId)
+    local category = skinId and composer.storeConfig.getPowerupCategoryFromId(skinId)
+    if not category then
+        return false
+    end
+    local skins = loadPowerupSkins()
+    for i = 1, #skins do
+        if skins[i] == skinId then
+            return true
+        end
+    end
+    -- Nothing chosen for this type yet: the original skin is the one in use.
+    for i = 1, #skins do
+        if composer.storeConfig.getPowerupCategoryFromId(skins[i]) == category then
+            return false
+        end
+    end
+    local item = composer.storeConfig.getItem(skinId)
+    return type(item) == "table" and item.original == true
+end
 
 function M.getPowerupSkin()
-    print("GET POWERUP SKIN CALLED")
-
-    if composer.databaseData.powerupSkin then
-        print("CURRENT POWERUP SKIN =", composer.databaseData.powerupSkin[1])
-        return composer.databaseData.powerupSkin
+    local skins = loadPowerupSkins()
+    local copy = {}
+    for i = 1, #skins do
+        copy[i] = skins[i]
     end
-
-    print("NO POWERUP SKIN SAVED")
-    return {}
+    return copy
 end
 
 function M.setNewDefaultSkinForAvatar(avatarId, skinId)
@@ -1233,6 +1277,50 @@ function M.getPushEnableStatus()
     return pushGame, pushFriend, pushGeneral
 end
 
+-- Small saved values (daily spin timer, league progress, news read...), stored as
+-- text; getTable/setTable keep a Lua table as JSON.
+function M.getValue(key)
+    local db = sqlite3.open(path)
+    local value
+    local stmt = db:prepare("SELECT value FROM keyValue WHERE key = ?;")
+    if stmt then
+        stmt:bind_values(key)
+        for row in stmt:nrows() do
+            value = row.value
+        end
+        stmt:finalize()
+    end
+    db:close()
+    return value
+end
+
+function M.setValue(key, value)
+    local db = sqlite3.open(path)
+    local stmt = db:prepare("INSERT OR REPLACE INTO keyValue (key, value) VALUES (?, ?);")
+    if stmt then
+        stmt:bind_values(key, tostring(value))
+        stmt:step()
+        stmt:finalize()
+    end
+    db:close()
+end
+
+function M.getTable(key)
+    local text = M.getValue(key)
+    if not text then
+        return nil
+    end
+    local ok, data = pcall(json.decode, text)
+    if ok and type(data) == "table" then
+        return data
+    end
+    return nil
+end
+
+function M.setTable(key, data)
+    M.setValue(key, json.encode(data))
+end
+
 function M.introOnboardingIsActive()
     local db = sqlite3.open(path)
     local onboardingActive = true
@@ -1374,12 +1462,14 @@ local function reset()
     db:exec("DELETE FROM receipts;")
     db:exec("DELETE FROM onboarding;")
     db:exec("DELETE FROM onboardingIntro;")
+    db:exec("DELETE FROM keyValue;")
     db:exec("DELETE FROM adTime;")
     db:exec("DELETE FROM marketNotification;")
     db:exec("DELETE FROM push_enabled;")
     db:exec("DELETE FROM marketItemId;")
     db:exec("DELETE FROM economy;")
     db:exec("DELETE FROM ownedItems;")
+    db:exec("DELETE FROM powerupSkins;")
     db:close()
     db = nil
     return true
@@ -1413,6 +1503,7 @@ local function resetWithoutReceipts()
     db:exec("DELETE FROM user_avatar;")
     db:exec("DELETE FROM economy;")
     db:exec("DELETE FROM ownedItems;")
+    db:exec("DELETE FROM powerupSkins;")
     db:close()
     db = nil
 end

@@ -15,10 +15,19 @@ local function new(id, playerList, displayGroup)
   local prevY = 0
   local prevX = 0
   local isStuckNow = false
+  -- The stuck check counts frames of the original 30 fps game.
+  local lastFrameTime
 
-  local function isStuck()
+  local function frameSteps(event)
+    local now = event and event.time or system.getTimer()
+    local steps = lastFrameTime and (now - lastFrameTime) / (1000 / 30) or 1
+    lastFrameTime = now
+    return math.min(steps, 3)
+  end
+
+  local function isStuck(steps)
     if isStuckNow then
-      stuckCounter = stuckCounter - 1
+      stuckCounter = stuckCounter - steps
       if stuckCounter < -30 then
         isStuckNow = false
         stuckCounter = 0
@@ -29,7 +38,7 @@ local function new(id, playerList, displayGroup)
     local posDiffY = player.y - prevY
     local distance = math.sqrt(posDiffX * posDiffX + posDiffY * posDiffY)
     if distance < 20 then
-      stuckCounter = stuckCounter + 1
+      stuckCounter = stuckCounter + steps
     else
       prevX = player.x
       prevY = player.y
@@ -37,14 +46,14 @@ local function new(id, playerList, displayGroup)
     end
     if 10 < stuckCounter then
       isStuckNow = true
-      print("rocket stuck")
       return true
     end
     return false
   end
 
-  local function rocketAcceleration()
-    if player and player.getPlayerGoalTime() < 1 and not isStuck() then
+  local function rocketAcceleration(event)
+    local steps = frameSteps(event)
+    if player and player.getPlayerGoalTime() < 1 and not isStuck(steps) then
       local ySpeed = 10
       local xSpeed = 4
       local hitsDown = physics.rayCast(player.x + 12, player.y + 20, player.x + 90, player.y + 100, "closest")
@@ -161,7 +170,7 @@ local function new(id, playerList, displayGroup)
     if player then
       player.rocketPowerUp()
       player.booleanStates.rocketActive = true
-      player.applyForceOnPlayer(100, -150)
+      player.applyStepForceOnPlayer(100, -150)
       Runtime:addEventListener("enterFrame", rocketAcceleration)
       player.powerUpLinks.rocket = rocket
     end

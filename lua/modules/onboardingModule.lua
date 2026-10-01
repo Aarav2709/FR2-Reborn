@@ -31,7 +31,13 @@ local redArrow = "images/game/skull.png"
 
 function composer.onboarding.checkOnboardingStatus()
   local onboardingIntroActive = composer.database.introOnboardingIsActive()
-  onboardingIntroActive = false
+  -- New players start with the tutorial. Saves that already have races but never
+  -- began it (from before it was switched on) skip it; Settings can still start it.
+  if onboardingIntroActive and composer.database.getOnboardingIntroPart() == "0"
+      and (composer.database.getXp() or 0) > 0 then
+    composer.database.setOnboardingPartDone(1)
+    onboardingIntroActive = false
+  end
   if onboardingIntroActive then
     composer.onboarding.activate()
     composer.contextualOnboarding.activate()
@@ -157,14 +163,33 @@ local function usePowerUp(player, id, powerUpId)
   powerUps.usePowerUp(powerUpId, id, nil, player, 0, 0, composer.onboarding.ingameDisplayGroup, composer.onboarding.screenDisplayGroup, composer.onboarding.playerReferences)
 end
 
+-- Where the tutorial arrows point at the jump / power-up buttons. The original placed
+-- them for its 480x320 screen (jump arrow at 480,240 and power-up arrow at 70,240): the
+-- tip 17 units above the button, at the jump button's right edge or centred over the
+-- power-up button.
+local function arrowSpot(referenceName)
+  local refs = composer.onboarding.guiReferences and composer.onboarding.guiReferences[referenceName]
+  local button = refs and refs[#refs]
+  local bounds = button and button.contentBounds
+  if not bounds or bounds.xMax <= bounds.xMin then
+    if referenceName == "jump" then
+      return 480, 240
+    end
+    return 70, 240
+  end
+  if referenceName == "jump" then
+    return bounds.xMax, bounds.yMin - 17
+  end
+  return (bounds.xMin + bounds.xMax) * 0.5 + 35, bounds.yMin - 17
+end
+
 local function createArrowImage(arrowPath)
   local arrowTutorialImage = display.newImageRect(arrowPath, 140, 210)
   arrowTutorialImage.anchorX = 1
   arrowTutorialImage.anchorY = 1
   arrowTutorialImage.xScale = 0.5
   arrowTutorialImage.yScale = 0.5
-  arrowTutorialImage.x = 480
-  arrowTutorialImage.y = 240
+  arrowTutorialImage.x, arrowTutorialImage.y = arrowSpot("jump")
   arrowTutorialImage.alpha = 0
   composer.onboarding.arrowTutorialImage = arrowTutorialImage
   return arrowTutorialImage
@@ -294,12 +319,13 @@ local function showJumpArrowOnce(step, delay)
   local arrowTutorialImage = composer.onboarding.arrowTutorialImage
   arrowTutorialImage = arrowTutorialImage or createArrowImage(greenArrow)
   if arrowTutorialImage then
+    local arrowX, arrowY = arrowSpot("jump")
     arrowTutorialImage.anchorX = 1
     arrowTutorialImage.anchorY = 1
     transition.to(arrowTutorialImage, {
       tag = "tutorialTransition" .. step,
-      x = 480,
-      y = 240,
+      x = arrowX,
+      y = arrowY,
       alpha = 0,
       time = 1,
       delay = delay
@@ -312,7 +338,7 @@ local function showJumpArrowOnce(step, delay)
     })
     transition.to(arrowTutorialImage, {
       tag = "tutorialTransition" .. step,
-      y = 260,
+      y = arrowY + 20,
       transition = easing.outBounce,
       time = 350,
       delay = delay + 100
@@ -331,7 +357,7 @@ local function showJumpArrowContinuous()
   arrowTutorialImage.anchorX = 1
   arrowTutorialImage.anchorY = 1
   arrowTutorialImage.alpha = 1
-  arrowTutorialImage.x = 480
+  arrowTutorialImage.x, arrowTutorialImage.y = arrowSpot("jump")
   animateArrow(arrowTutorialImage, true, -30)
 end
 
@@ -339,12 +365,13 @@ local function showPowerUpArrowOnce(step, delay)
   local arrowTutorialImage = composer.onboarding.arrowTutorialImage
   arrowTutorialImage = arrowTutorialImage or createArrowImage(greenArrow)
   if arrowTutorialImage then
+    local arrowX, arrowY = arrowSpot("powerUp")
     arrowTutorialImage.anchorX = 1
     arrowTutorialImage.anchorY = 1
     transition.to(arrowTutorialImage, {
       tag = "tutorialTransition" .. step,
-      x = 70,
-      y = 240,
+      x = arrowX,
+      y = arrowY,
       alpha = 0,
       time = 1,
       delay = delay
@@ -357,7 +384,7 @@ local function showPowerUpArrowOnce(step, delay)
     })
     transition.to(arrowTutorialImage, {
       tag = "tutorialTransition" .. step,
-      y = 260,
+      y = arrowY + 20,
       transition = easing.outBounce,
       time = 350,
       delay = delay + 100
@@ -376,7 +403,7 @@ local function showPowerUpArrowContinuous()
   arrowTutorialImage.anchorX = 1
   arrowTutorialImage.anchorY = 1
   arrowTutorialImage.alpha = 1
-  arrowTutorialImage.x = 70
+  arrowTutorialImage.x, arrowTutorialImage.y = arrowSpot("powerUp")
   animateArrow(arrowTutorialImage, true, -30)
 end
 
@@ -2449,6 +2476,7 @@ function composer.onboarding.stepDone()
   local id = composer.onboarding.activatedPart
   local onboardingVersion = composer.config.onboardingVersion
   composer.onboarding.clean()
+  friendlyHelper.dismiss()
   composer.analytics.newEvent("design", {
     event_id = "onboarding:intro:step" .. id,
     area = onboardingVersion
@@ -2554,6 +2582,8 @@ function composer.contextualOnboarding.deactivate()
   composer.contextualOnboarding.isActive = false
 end
 
+local lastSlowdownTime
+
 function composer.onboarding.ingameUpdate()
   local id = composer.onboarding.activatedPart
   local livePlayer = composer.onboarding.playerReferences[1]
@@ -2562,10 +2592,16 @@ function composer.onboarding.ingameUpdate()
     if detachCamera then
       composer.onboarding.hideReferences("exit")
       local vx, vy = livePlayer.getLinearVelocityOnPlayer()
+      -- The runner eases off by 15% per frame of the original 30 fps game.
+      local now = system.getTimer()
+      local frames = lastSlowdownTime and math.min((now - lastSlowdownTime) / (1000 / 30), 3) or 1
+      lastSlowdownTime = now
       if 150 < vx then
-        vx = vx - vx * 0.15
+        vx = vx * 0.85 ^ frames
       end
       livePlayer.setLinearVelocityOnPlayer(vx, vy)
+    else
+      lastSlowdownTime = nil
     end
     onboardingSteps[id].onGameUpdate(livePlayer)
   end

@@ -27,10 +27,20 @@ local function allowCustomOverlay()
   composer.customOverlayActive = false
 end
 
+-- A message left open is removed together with the scene it was shown on, so
+-- its objects may already be gone here.
+local function removeObject(object)
+  if object and object.removeSelf then
+    object:removeSelf()
+  end
+end
+
 function cleanOldOverlay()
   if alphaBackground then
-    alphaBackground:removeEventListener("touch", closeOnTouchEvent)
-    alphaBackground:removeSelf()
+    if alphaBackground.removeEventListener then
+      alphaBackground:removeEventListener("touch", closeOnTouchEvent)
+    end
+    removeObject(alphaBackground)
     alphaBackground = nil
   end
   transition.cancel("helperTransition")
@@ -38,27 +48,26 @@ function cleanOldOverlay()
     monster.clean()
     monster = nil
   end
-  if bubbleGroup then
-    bubbleGroup:removeSelf()
-    bubbleGroup = nil
-  end
-  if helperTextBuble then
-    helperTextBuble:removeSelf()
-    helperTextBuble = nil
-  end
-  if closeImage then
-    closeImage:removeSelf()
-    closeImage = nil
-  end
-  if helperTextBubbleArrow then
-    helperTextBubbleArrow:removeSelf()
-    helperTextBubbleArrow = nil
-  end
-  if helperText then
-    helperText:removeSelf()
-    helperText = nil
-  end
+  removeObject(bubbleGroup)
+  bubbleGroup = nil
+  removeObject(helperTextBuble)
+  helperTextBuble = nil
+  removeObject(closeImage)
+  closeImage = nil
+  removeObject(helperTextBubbleArrow)
+  helperTextBubbleArrow = nil
+  removeObject(helperText)
+  helperText = nil
   refreshTimer = timer.performWithDelay(400, allowCustomOverlay, 1)
+end
+
+-- Closes an open message without running its close callback, for when the
+-- screen it belongs to goes away (e.g. the tutorial moves to its next step).
+local function dismiss()
+  onCloseFunction = nil
+  if alphaBackground or monster or bubbleGroup then
+    cleanOldOverlay()
+  end
 end
 
 local function addListeners()
@@ -224,4 +233,5 @@ end
 M.createMessage = createMessage
 M.setOnCloseFunction = setOnCloseFunction
 M.cleanOldOverlay = cleanOldOverlay
+M.dismiss = dismiss
 return M

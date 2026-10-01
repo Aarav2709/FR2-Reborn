@@ -5,7 +5,9 @@ local function new(id, playerId, playerList)
   local cloud = {1}
   cloud.x = 1
   cloud.y = 1
-  local hitRange = display.contentWidth
+  -- Players up to one original screen width (480 world units) behind the caster,
+  -- and everyone ahead, get struck. This is a world distance, not the screen width.
+  local hitRange = 480
 
   local function createLightning()
     for i = 1, #playerList do

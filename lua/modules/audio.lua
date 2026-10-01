@@ -3,11 +3,16 @@ local composer = require("composer")
 
 function M.play(soundNameString, options)
   if composer.database.getSound() == 1 then
+    local handle = composer.data.sounds and composer.data.sounds[soundNameString]
+    if not handle then
+      -- Not loaded yet (e.g. a button pressed before the loading scene finished).
+      return nil
+    end
     local channel
     if options then
-      channel = audio.play(composer.data.sounds[soundNameString], options)
+      channel = audio.play(handle, options)
     else
-      channel = audio.play(composer.data.sounds[soundNameString])
+      channel = audio.play(handle)
     end
     composer.debugger.debugPrint("audio", "Playing sound " .. soundNameString)
     return channel

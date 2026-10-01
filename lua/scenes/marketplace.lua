@@ -1,17 +1,84 @@
 local composer = require("composer")
-local layoutGroup = require("lua.modules.layoutGroup")
+local seasonal = require("lua.modules.seasonalModule")
+local screen = require("lua.modules.screen")
 local scene = composer.newScene()
 local clean, cleanEnter
-local marketBackground, backgroundCoins, backgroundRoof, backgroundBottom, leftBarImage, marketBackgroundBlur
+local marketBackground, backgroundCoins, backgroundBottom, leftBarImage, marketBackgroundBlur
 local layoutMarketplace, resizeListener
-local uiGroup, updateUiGroup
-local UI_BASE_W, UI_BASE_H
+
+-- The shop is laid out in the original 480x320 design units (all market art is
+-- drawn for that size at 2x). One uniform scale fits this design box to the screen;
+-- the box rests on the bottom edge, and the side panel, roof and currency board
+-- reach out to the real screen edges on wider or taller displays.
+local DESIGN_W, DESIGN_H = 480, 320
+local box = screen.designBox(DESIGN_W, DESIGN_H)
+
+local function computeBox()
+  screen.designBox(DESIGN_W, DESIGN_H, box)
+end
+
+-- Design units -> screen coordinates, for objects kept outside the scaled groups.
+local function toScreenX(x)
+  return box.left + x * box.scale
+end
+
+local function toScreenY(y)
+  return box.top + y * box.scale
+end
+
+-- Where things sit in the design box (the shop art has the grass shadow at 291,162,
+-- the counter top at y 223-245 and a small name plank centred on 280,278).
+local PREVIEW_X, PREVIEW_Y = 291, 162
+local TITLE_X, TITLE_Y = 280, 278
+-- Unlock / sale notes go on a small board under the name plank.
+local INFO_X, INFO_Y = 280, 306
+-- Left of this column the art has a ragged edge and a lighter strip under the
+-- counter, so it is replaced by a mirrored copy of the counter from here to the
+-- category panel.
+local ART_SEAM = 116
+local PANEL_VISIBLE_W = 100
+-- Item strip: the selected cell's left edge sits at SELECTED_CELL_LEFT so the cell
+-- is centred on the info plank; cells hang down from ITEM_ROW_TOP.
+local SELECTED_CELL_LEFT = 240
+local ITEM_ROW_TOP = 173
+local ITEM_CELL_W, ITEM_CELL_H = 80, 96
+local BUTTON_ROW_Y = 291
+-- Category buttons (87 wide): centred on the panel's 100 unit wide wood, first row
+-- below the roof.
+local CATEGORY_INSET = 6.5
+local CATEGORY_ROW_H = 58
+local CATEGORY_TOP_PADDING = 43
+local CATEGORY_BOTTOM = 248
+
+-- Text placed in the scaled shop groups is rasterised at its final on-screen size
+-- and scaled back down, so it stays sharp at any box scale.
+local function newShopText(params)
+  local s = box.scale
+  params.size = (params.size or 14) * s
+  if params.width then
+    params.width = params.width * s
+  end
+  local text = composer.newText(params)
+  text.baseScale = 1 / s
+  -- Long strings shrink to fit their board instead of spilling past it.
+  if params.maxWidth and text.width > 0 then
+    text.baseScale = text.baseScale * math.min(1, params.maxWidth / (text.width / s))
+  end
+  text.xScale, text.yScale = text.baseScale, text.baseScale
+  return text
+end
 
 function scene:create(event)
   local screenGroup = self.view
-  UI_BASE_W = display.contentWidth
-  UI_BASE_H = display.contentHeight
-  uiGroup, updateUiGroup = layoutGroup.new(screenGroup, UI_BASE_W, UI_BASE_H)
+  computeBox()
+  -- Layers, back to front: blurred backdrop, shop art (design units), item list
+  -- (screen units), shop UI (design units), category list (screen units), then the
+  -- roof / bottom plank that frame the category list (design units).
+  local artGroup = display.newGroup()
+  local listGroup = display.newGroup()
+  local uiGroup = display.newGroup()
+  local categoryGroup = display.newGroup()
+  local topGroup = display.newGroup()
   local tableHelper = require("lua.modules.tableHelper")
   local trailHelper = require("lua.modules.trails")
   local tcpFormat = require("lua.network.tcpMessageFormat")
@@ -21,7 +88,6 @@ function scene:create(event)
   local inApp = require("lua.iap.inAppPurchase")
   local powerUpPreviewer = require("lua.gameLogic.powerUpPreviewer")
   local marketplaceIndex = require("lua.modules.marketplaceIndex")
-  local leftBarDisplayGroup = display.newGroup()
   local title, moneyLabel
   local itemSelected = 1
   local tabSelected = 0
@@ -36,139 +102,143 @@ function scene:create(event)
   local moneyValue = composer.database.getMoney()
   local boughtItems = composer.database.getItems()
   local startedClean = false
-  local marketBackgroundOffsetX = -2
-  local marketBackgroundOffsetY = 0
-  marketBackgroundBlur = display.newImageRect("images/gui/common/bgMain_blur.png", 1920, 1080)
-  marketBackgroundBlur.anchorX = 1
-  marketBackgroundBlur.anchorY = 1
-  marketBackgroundBlur.x = marketBackgroundOffsetX
-  marketBackgroundBlur.y = marketBackgroundOffsetY
-  marketBackground = display.newImageRect("images/gui/market/bg.png", 2450, 992)
-  marketBackground.anchorX = 1
-  marketBackground.anchorY = 1
-  marketBackground.x = marketBackgroundOffsetX
-  marketBackground.y = marketBackgroundOffsetY
-  backgroundCoins = display.newImageRect("images/gui/market/currentCoins.png", 86, 82)
-  backgroundCoins.anchorX = 0
-  backgroundCoins.anchorY = 0
-  backgroundCoins.x = 726
-  backgroundCoins.y = 2
-  local backgroundRoofGroup = display.newGroup()
-  local backgroundRoof0 = display.newImageRect(backgroundRoofGroup, "images/gui/market/roof.png", display.actualContentWidth, 30)
-  backgroundRoof = display.newImageRect(backgroundRoofGroup, "images/gui/market/roof.png", display.actualContentWidth, 30)
-  local backgroundRoof2 = display.newImageRect(backgroundRoofGroup, "images/gui/market/roof.png", display.actualContentWidth, 30)
-  backgroundRoof.anchorX = 0
-  backgroundRoof.anchorY = 0
-  backgroundRoof.x = 39
-  backgroundRoof.y = -2
-  backgroundRoof0.anchorX = 0
-  backgroundRoof0.anchorY = 0
-  backgroundRoof0.x = backgroundRoof.x - backgroundRoof.width + 4.5
-  backgroundRoof0.y = backgroundRoof.y
-  backgroundRoof2.anchorX = 0
-  backgroundRoof2.anchorY = 0
-  backgroundRoof2.x = backgroundRoof.x + backgroundRoof.width - 8
-  backgroundRoof2.y = -2.05
-  backgroundBottom = display.newImageRect("images/gui/market/categoryCover.png", 163, 80)
-  backgroundBottom.anchorX = 0
-  backgroundBottom.anchorY = 0
-  backgroundBottom.x = 0
-  backgroundBottom.y = 331
-  leftBarImage = display.newImageRect("images/gui/market/categoryPanel.png", 130, 351)
+
+  marketBackgroundBlur = display.newImageRect(screenGroup, seasonal.blurredBackground(), 960, 640)
+  screenGroup:insert(artGroup)
+  screenGroup:insert(listGroup)
+  screenGroup:insert(uiGroup)
+  screenGroup:insert(categoryGroup)
+  screenGroup:insert(topGroup)
+  -- Shop art, clipped to the columns right of its ragged left edge. On screens wider
+  -- than the design box, mirrored copies continue the grass and counter to the left
+  -- (up to the category panel) and to the right edge.
+  local artClip = display.newContainer(artGroup, DESIGN_W - ART_SEAM, DESIGN_H)
+  artClip.x = (ART_SEAM + DESIGN_W) * 0.5
+  artClip.y = DESIGN_H * 0.5
+  marketBackground = display.newImageRect(artClip, "images/gui/market/bg.png", DESIGN_W, DESIGN_H)
+  marketBackground.x = DESIGN_W * 0.5 - artClip.x
+  marketBackground.y = 0
+  -- Everything left of the seam; the copy is reflected about the seam column.
+  -- (It reaches one unit past the seam so no hairline shows between the two copies.)
+  local leftArtClip = display.newContainer(artGroup, 1001, DESIGN_H)
+  leftArtClip.x = ART_SEAM - 499.5
+  leftArtClip.y = DESIGN_H * 0.5
+  local leftArtMirror = display.newImageRect(leftArtClip, "images/gui/market/bg.png", DESIGN_W, DESIGN_H)
+  leftArtMirror.xScale = -1
+  leftArtMirror.x = (2 * ART_SEAM - DESIGN_W * 0.5) - leftArtClip.x
+  leftArtMirror.y = 0
+  local marketBackgroundMirror = display.newImageRect(artGroup, "images/gui/market/bg.png", DESIGN_W, DESIGN_H)
+  marketBackgroundMirror.anchorX = 1
+  marketBackgroundMirror.anchorY = 0
+  marketBackgroundMirror.xScale = -1
+  leftBarImage = display.newImageRect(uiGroup, "images/gui/market/categoryPanel.png", 117, 261)
   leftBarImage.anchorX = 0
   leftBarImage.anchorY = 0
-  leftBarImage.x = -3
-  leftBarImage.y = -3
-  leftBarImage.height = leftBarImage.height + 0
-  leftBarDisplayGroup:insert(leftBarImage)
-  layoutMarketplace = function()
-    local screenLeft = display.screenOriginX
-    local screenTop = display.screenOriginY
-    local screenWidth = display.actualContentWidth
-    local screenHeight = display.actualContentHeight
+  backgroundCoins = display.newImageRect(uiGroup, "images/gui/market/currentCoins.png", 70, 81)
+  backgroundCoins.anchorX = 0
+  backgroundCoins.anchorY = 0
+  backgroundBottom = display.newImageRect(topGroup, "images/gui/market/categoryCover.png", 119, 80)
+  backgroundBottom.anchorX = 0
+  backgroundBottom.anchorY = 1
+  local roofTiles = {}
+  local categoryTableGeometry
+  local itemStripGeometry
 
-    local contentLeft = 0
-    local contentTop = 0
-    local contentWidth = UI_BASE_W
-    local contentHeight = UI_BASE_H
+  local function boxGeometry()
+    return string.format("%.4f:%.2f:%.2f:%.2f", box.scale, box.left, box.top, box.SL)
+  end
 
-    if marketBackgroundBlur then
-      marketBackgroundBlur.x = screenLeft + screenWidth + marketBackgroundOffsetX
-      marketBackgroundBlur.y = screenTop + screenHeight + marketBackgroundOffsetY
-      marketBackgroundBlur.xScale = 1
-      marketBackgroundBlur.yScale = 1
-      local scale = math.max(screenWidth / marketBackgroundBlur.width, screenHeight / marketBackgroundBlur.height)
-      marketBackgroundBlur.xScale = scale
-      marketBackgroundBlur.yScale = scale
-    end
-     if marketBackground then
-      marketBackground.x = screenLeft + screenWidth + marketBackgroundOffsetX
-      marketBackground.y = screenTop + screenHeight + marketBackgroundOffsetY
-      marketBackground.xScale = 1
-      marketBackground.yScale = 1
-      local scale = math.max(screenWidth / marketBackground.width, screenHeight / marketBackground.height)
-      marketBackground.xScale = scale
-      marketBackground.yScale = scale
-    end
-    if backgroundRoof then
-      backgroundRoofGroup.x = contentLeft + 39
-      backgroundRoofGroup.y = contentTop - 2
-      backgroundRoof.x = 0
-      backgroundRoof.y = 0
-      backgroundRoof0.x = -backgroundRoof.width + 4.5
-      backgroundRoof0.y = 0
-      backgroundRoof2.x = backgroundRoof.width - 8
-      backgroundRoof2.y = -0.05
-    end
-    if backgroundBottom then
-      backgroundBottom.x = contentLeft + 0
-      backgroundBottom.y = contentTop + contentHeight - backgroundBottom.height
-    end
-    if leftBarImage then
-      leftBarImage.x = contentLeft - 3
-      leftBarImage.y = contentTop - 3
-    end
-    if btnBack then
-      btnBack.x = 65
-      btnBack.y = 315
-      btnBack.xScale = 0.8
-      btnBack.yScale = 0.8
-      leftBarDisplayGroup:insert(btnBack)
-      btnBack:toFront()
-    end
-    if backgroundCoins then
-      backgroundCoins.x = screenLeft + screenWidth - backgroundCoins.width - 5
-      backgroundCoins.y = screenTop + 2
-      if moneyLabel then
-        moneyLabel.x = backgroundCoins.x + 28
-        moneyLabel.y = backgroundCoins.y + 69
-      end
-      if gemLabel then
-        gemLabel.x = backgroundCoins.x + 28
-        gemLabel.y = backgroundCoins.y + 41
-      end
-    end
-    local buyX = 512
-    local buyY = 210
+  -- Buy sits in the bottom-right corner with the skins button beside it.
+  local function placeActionButtons()
     if btnBuy then
-      btnBuy.x = buyX
-      btnBuy.y = buyY
-      uiGroup:insert(btnBuy)
-      btnBuy:toFront()
+      btnBuy.x, btnBuy.y = box.SR - 43, BUTTON_ROW_Y
     end
     if btnSkin then
-      btnSkin.x = buyX
-      btnSkin.y = buyY
-      uiGroup:insert(btnSkin)
-      btnSkin:toFront()
+      btnSkin.x, btnSkin.y = box.SR - 115, BUTTON_ROW_Y
     end
     if btnSkinBack then
-      btnSkinBack.x = buyX - 55
-      btnSkinBack.y = buyY
-      uiGroup:insert(btnSkinBack)
-      btnSkinBack:toFront()
+      btnSkinBack.x, btnSkinBack.y = box.SR - 115, BUTTON_ROW_Y
     end
   end
+
+  -- The category list is a scrolling widget, so it lives in screen units (touch
+  -- tracking stays 1:1) and is rebuilt whenever the box moves or changes scale.
+  local function buildCategoryTable()
+    if not marketTableList then
+      return
+    end
+    local s = box.scale
+    local left = toScreenX(box.SL + CATEGORY_INSET)
+    local top = screen.top
+    local geometry = string.format("%.4f:%.2f:%.2f", s, left, top)
+    if marketTable and marketTable.getTable() and geometry == categoryTableGeometry then
+      return
+    end
+    if marketTable then
+      marketTable.cleanTable()
+    end
+    categoryTableGeometry = geometry
+    marketTable = tableHelper.new(left, top, 100 * s, (CATEGORY_BOTTOM - box.T) * s, CATEGORY_ROW_H * s, nil, "market", function()
+    end, CATEGORY_TOP_PADDING * s, s)
+    marketTable.createTable(marketTableList, categoryGroup)
+  end
+
+  layoutMarketplace = function()
+    computeBox()
+    local s = box.scale
+    for _, group in ipairs({ artGroup, uiGroup, topGroup }) do
+      group.xScale, group.yScale = s, s
+      group.x, group.y = box.left, box.top
+    end
+    screen.cover(marketBackgroundBlur)
+    marketBackgroundMirror.x = DESIGN_W
+    marketBackgroundMirror.y = 0
+    marketBackgroundMirror.isVisible = box.R > DESIGN_W
+    -- Category column from the screen's left edge to just past the buttons, full
+    -- height down to the bottom plank; it widens to cover a notch or camera cut-out.
+    local panelScale = math.max(1, (box.SL + PANEL_VISIBLE_W - box.L) / PANEL_VISIBLE_W)
+    leftBarImage.x = box.L
+    leftBarImage.xScale = panelScale
+    leftBarImage.y = box.T
+    leftBarImage.yScale = (261 - box.T) / 261
+    backgroundBottom.x = box.L
+    backgroundBottom.xScale = panelScale
+    backgroundBottom.y = DESIGN_H
+    -- Roof tiles across the whole top edge.
+    local tileWidth = DESIGN_W - 4
+    local tilesNeeded = math.ceil((box.R - box.L) / tileWidth) + 1
+    for i = 1, tilesNeeded do
+      if not roofTiles[i] then
+        roofTiles[i] = display.newImageRect(topGroup, "images/gui/market/roof.png", DESIGN_W, 30)
+        roofTiles[i].anchorX = 0
+        roofTiles[i].anchorY = 0
+      end
+      roofTiles[i].x = box.L + (i - 1) * tileWidth
+      roofTiles[i].y = box.T
+    end
+    backgroundCoins.x = box.SR - 80
+    backgroundCoins.y = box.T
+    if moneyLabel then
+      moneyLabel.x = backgroundCoins.x + 24
+      moneyLabel.y = backgroundCoins.y + 69
+    end
+    if gemLabel then
+      gemLabel.x = backgroundCoins.x + 24
+      gemLabel.y = backgroundCoins.y + 41
+    end
+    if btnBack then
+      btnBack.x = box.SL + 50
+      btnBack.y = BUTTON_ROW_Y
+    end
+    placeActionButtons()
+    buildCategoryTable()
+    powerUpPreviewer.setPlacement(PREVIEW_X, PREVIEW_Y - 45, 1)
+    -- After a window resize the screen-space item strip and the text are rebuilt.
+    if horizontalTableView and itemStripGeometry ~= boxGeometry() and scene.refreshMarketUI then
+      scene.refreshMarketUI()
+    end
+  end
+  layoutMarketplace()
   itemSelected = 1
 
   local function commCallback(data)
@@ -192,7 +262,7 @@ function scene:create(event)
         timer.cancel(itemTimer)
         itemTimer = nil
       end
-      if 1 < itemTrailSelected then
+      if (tonumber(itemTrailSelected) or 0) > 1 then
         createItemEffect()
         itemTimer = timer.performWithDelay(200, createItemEffect, 0)
       end
@@ -271,8 +341,8 @@ function scene:create(event)
     local monsterGroup = monster.getGroup()
     monsterGroup.xScale = 0.5
     monsterGroup.yScale = 0.5
-    monsterGroup.x = 512
-    monsterGroup.y = 145
+    monsterGroup.x = PREVIEW_X
+    monsterGroup.y = PREVIEW_Y
     uiGroup:insert(monsterGroup)
     if newMonsterData[6] then
       itemTrailSelected = tonumber(newMonsterData[6])
@@ -296,6 +366,38 @@ function scene:create(event)
     return false
   end
 
+  -- Powerup overview: one entry per powerup type showing the skin equipped for it.
+  local function getPowerupOverviewData()
+    local list = composer.storeConfig.getAllPowerupsSortedOnPrice()
+    local equipped = composer.database.getPowerupSkin()
+    for i = 1, #list do
+      local category = list[i].powerupCategory
+      for _, skinId in ipairs(equipped) do
+        local skin = composer.storeConfig.getItem(skinId)
+        if composer.storeConfig.getPowerupCategoryFromId(skinId) == category and type(skin) == "table" then
+          local entry = {}
+          for k, v in pairs(skin) do
+            entry[k] = v
+          end
+          entry.key = tostring(skinId)
+          entry.imagePath = "images/gui/market/items/" .. category .. "/" .. skinId .. ".png"
+          entry.powerupCategory = category
+          list[i] = entry
+        end
+      end
+    end
+    return list
+  end
+
+  local function getEquippedPowerupIndex()
+    for i = 1, #currentMarketData do
+      if composer.database.isPowerupSkinEquipped(currentMarketData[i].key) then
+        return i
+      end
+    end
+    return 1
+  end
+
   local function updateItemTitle(index)
     local newTitle = ""
     if currentMarketData[index] then
@@ -308,11 +410,12 @@ function scene:create(event)
       title:removeSelf()
       title = nil
     end
-    title = composer.newText({
+    title = newShopText({
       string = newTitle,
-      size = 20,
-      x = 512,
-      y = 175,
+      size = 14,
+      x = TITLE_X,
+      y = TITLE_Y,
+      maxWidth = 104,
       color = {
         1,
         1,
@@ -336,6 +439,7 @@ function scene:create(event)
       masterSkinText = nil
     end
     if bubbleWindow then
+      transition.cancel(bubbleWindow)
       bubbleWindow:removeSelf()
       bubbleWindow = nil
     end
@@ -346,243 +450,107 @@ function scene:create(event)
       return
     end
 
+    -- Messages about locked or special items go on the small plank under the counter.
     local function addMasterSkinBackground()
-      masterSkinBackground = display.newImageRect("images/gui/market/masterWindow.png", 112, 40)
-      masterSkinBackground.x = 280
-      masterSkinBackground.y = 359
+      masterSkinBackground = display.newImageRect("images/gui/market/masterWindow.png", 100, 32)
+      masterSkinBackground.x = INFO_X
+      masterSkinBackground.y = INFO_Y
       uiGroup:insert(masterSkinBackground)
     end
 
-    if currentMarketData[index].master then
-      local currentWins = composer.database.getWinsForAvatar(currentMarketData[index].characterId)
-      local reqWins = currentMarketData[index].winsReq
+    local function addInfoLine(text, yOffset, size)
+      local line = newShopText({
+        string = text,
+        size = size or 12,
+        x = INFO_X,
+        y = INFO_Y - 2 + (yOffset or 0),
+        maxWidth = 92,
+        color = { 1, 1, 1 }
+      })
+      uiGroup:insert(line)
+      return line
+    end
+
+    local item = currentMarketData[index]
+    if item.master then
+      local currentWins = composer.database.getWinsForAvatar(item.characterId)
+      local reqWins = item.winsReq or 0
       addMasterSkinBackground()
       if currentWins < reqWins then
-        masterSkinInfo = composer.newText({
-          string = composer.localized.get("WinsUnlock"),
-          size = 14,
-          x = 280,
-          y = 365,
-          color = {
-            1,
-            1,
-            1
-          }
-        })
-        local infoText = currentWins .. "/" .. reqWins
-        masterSkinText = composer.newText({
-          string = infoText,
-          size = 14,
-          x = 280,
-          y = 351,
-          color = {
-            1,
-            1,
-            1
-          }
-        })
-        uiGroup:insert(masterSkinInfo)
-        uiGroup:insert(masterSkinText)
+        masterSkinText = addInfoLine(currentWins .. "/" .. reqWins, -6)
+        masterSkinInfo = addInfoLine(composer.localized.get("WinsUnlock"), 6)
       else
-        masterSkinInfo = composer.newText({
-          string = composer.localized.get("Unlocked"),
-          size = 14,
-          x = 280,
-          y = 304,
-          color = {
-            1,
-            1,
-            1
-          }
-        })
-        uiGroup:insert(masterSkinInfo)
+        masterSkinInfo = addInfoLine(composer.localized.get("Unlocked"))
       end
-    elseif currentMarketData[index].seasonal then
+    elseif item.seasonal then
       addMasterSkinBackground()
-      masterSkinInfo = composer.newText({
-        string = composer.localized.get("seasonal"),
-        size = 14,
-        x = 281,
-        y = 358,
-        color = {
-          1,
-          1,
-          1
-        }
-      })
-      uiGroup:insert(masterSkinInfo)
-    elseif currentMarketData[index].spinningPrize then
+      masterSkinInfo = addInfoLine(composer.localized.get("seasonal"))
+    elseif item.spinningPrize then
       addMasterSkinBackground()
-      masterSkinInfo = composer.newText({
-        string = composer.localized.get("SpinningPrize"),
-        size = 14,
-        x = 281,
-        y = 358,
-        color = {
-          1,
-          1,
-          1
-        }
-      })
-      uiGroup:insert(masterSkinInfo)
-    elseif currentMarketData[index].achievementPrize then
+      masterSkinInfo = addInfoLine(composer.localized.get("SpinningPrize"))
+    elseif item.achievementPrize then
       addMasterSkinBackground()
-      masterSkinInfo = composer.newText({
-        string = composer.localized.get("AchievementPrize"),
-        size = 14,
-        x = 281,
-        y = 358,
-        color = {
-          1,
-          1,
-          1
-        }
-      })
-      uiGroup:insert(masterSkinInfo)
-    elseif currentMarketData[index].weeklyPrice then
+      masterSkinInfo = addInfoLine(composer.localized.get("AchievementPrize"))
+    elseif item.weeklyPrice then
       addMasterSkinBackground()
-      masterSkinInfo = composer.newText({
-        string = composer.localized.get("WeeklyPrize"),
-        size = 14,
-        x = 281,
-        y = 358,
-        color = {
-          1,
-          1,
-          1
-        }
-      })
-      uiGroup:insert(masterSkinInfo)
-    elseif tabSelected == 8 and currentMarketData[itemSelected].characterId and not boughtItems[tostring(currentMarketData[itemSelected].characterId)] then
+      masterSkinInfo = addInfoLine(composer.localized.get("WeeklyPrize"))
+    elseif tabSelected == 8 and item.characterId and not boughtItems[tostring(item.characterId)] then
       addMasterSkinBackground()
-      local text = composer.localized.get("Buy") ..
-          " " ..
-          composer.storeConfig.getItem(currentMarketData[itemSelected].characterId).title ..
-          " " .. composer.localized.get("First")
-      masterSkinInfo = composer.newText({
-        string = text,
-        size = 14,
-        x = 281,
-        y = 358,
-        color = {
-          1,
-          1,
-          1
-        }
-      })
-      uiGroup:insert(masterSkinInfo)
-    elseif tabSelected == 8 and findIndexOnId(currentMarketData[itemSelected].key) == 10 then
+      local character = composer.storeConfig.getItem(item.characterId)
+      local characterTitle = type(character) == "table" and character.title or ""
+      masterSkinInfo = addInfoLine(composer.localized.get("Buy") .. " " .. characterTitle .. " " .. composer.localized.get("First"))
+    elseif tabSelected == 8 and findIndexOnId(item.key) == 10 then
       addMasterSkinBackground()
       local text = composer.localized.get("Forever")
-      if currentMarketData[itemSelected].mysteryBox then
+      if item.mysteryBox then
         text = composer.localized.get("youandfriends")
       end
-      masterSkinInfo = composer.newText({
-        string = text,
-        size = 18,
-        x = 282,
-        y = 354,
-        color = {
-          1,
-          1,
-          1
-        }
-      })
-      uiGroup:insert(masterSkinInfo)
-      if masterSkinBackground then
-        masterSkinBackground.y = 355
+      masterSkinInfo = addInfoLine(text, 0, 14)
+      -- Speech bubble explaining the boost pops up beside the preview.
+      bubbleWindow = display.newImageRect("images/gui/market/items/boosts/" .. item.key .. "_2.png", 100, 69)
+      if bubbleWindow then
+        bubbleWindow.anchorX = 1
+        bubbleWindow.x = PREVIEW_X - 30
+        bubbleWindow.y = 50
+        bubbleWindow.xScale, bubbleWindow.yScale = 0.2, 0.2
+        uiGroup:insert(bubbleWindow)
+        transition.to(bubbleWindow, { time = 250, xScale = 1, yScale = 1, transition = easing.outBack })
       end
-      bubbleWindow = display.newImageRect(
-        "images/gui/market/items/boosts/" .. currentMarketData[itemSelected].key .. "_2.png", 100, 69)
-      bubbleWindow.x = 420
-      bubbleWindow.y = 92
-      uiGroup:insert(bubbleWindow)
     elseif not isItemBought(currentMarketData[1]) and tabSelected == 2 and itemSelected ~= 1 then
       addMasterSkinBackground()
-      local text = composer.localized.get("Buy") ..
-          " " .. currentMarketData[1].title .. " " .. composer.localized.get("First")
-      masterSkinInfo = composer.newText({
-        string = text,
-        size = 14,
-        x = 281,
-        y = 358,
-        color = {
-          1,
-          1,
-          1
-        }
-      })
-      uiGroup:insert(masterSkinInfo)
+      masterSkinInfo = addInfoLine(composer.localized.get("Buy") .. " " .. currentMarketData[1].title .. " " .. composer.localized.get("First"))
     end
   end
 
+  -- The skins button opens the selected avatar's skins (tab 1) or powerup's skins
+  -- (tab 9); the "back" variant returns from those lists (tabs 2 and 10).
   local function updateBuyButtonState(index)
     if not btnBuy then
       return
     end
-    if not index or not currentMarketData or not currentMarketData[index] then
+    placeActionButtons()
+    local item = index and currentMarketData and currentMarketData[index]
+    if btnSkin then
+      btnSkin.isVisible = item ~= nil and (tabSelected == 1 or tabSelected == 9)
+    end
+    if btnSkinBack then
+      btnSkinBack.isVisible = tabSelected == 2 or tabSelected == 10
+    end
+    if not item then
       btnBuy.isVisible = false
       return
     end
-    local item = currentMarketData[index]
-    local bought = isItemBought(item)
-    local buyX = 512
-    local buyY = 210
-
-    if tabSelected == 2 or tabSelected == 10 then
-      if btnSkin then btnSkin.isVisible = false end
-      if bought then
-        btnBuy.isVisible = false
-        if btnSkinBack then
-          btnSkinBack.isVisible = true
-          btnSkinBack.x = buyX
-          btnSkinBack.y = buyY
-          btnSkinBack:toFront()
-        end
-      else
-        btnBuy.isVisible = true
-        btnBuy.x = buyX + 35
-        btnBuy.y = buyY
-        btnBuy:toFront()
-        if btnSkinBack then
-          btnSkinBack.isVisible = true
-          btnSkinBack.x = buyX - 45
-          btnSkinBack.y = buyY
-          btnSkinBack:toFront()
-        end
-      end
-    else
-      if btnSkinBack then btnSkinBack.isVisible = false end
-      if bought then
-        btnBuy.isVisible = false
-        if tabSelected == 1 and btnSkin then
-          btnSkin.isVisible = true
-          btnSkin.x = buyX
-          btnSkin.y = buyY
-          btnSkin:toFront()
-        else
-          if btnSkin then btnSkin.isVisible = false end
-        end
-      elseif item.spinningPrize or item.weeklyPrice or item.achievementPrize then
-        btnBuy.isVisible = false
-        if btnSkin then btnSkin.isVisible = false end
-      elseif item.seasonal and not item.seasonalActive then
-        btnBuy.isVisible = false
-        if btnSkin then btnSkin.isVisible = false end
-      else
-        btnBuy.isVisible = true
-        btnBuy.x = buyX
-        btnBuy.y = buyY
-        btnBuy:toFront()
-        if btnSkin then btnSkin.isVisible = false end
-      end
-    end
+    local notForSale = item.spinningPrize or item.weeklyPrice or item.achievementPrize or (item.seasonal and not item.seasonalActive)
+    btnBuy.isVisible = not notForSale and not isItemBought(item)
   end
 
   function updateMarketplace(spriteType, newIndex)
     composer.debugger.debugTable("network", "currentMarketData :", currentMarketData)
     local index, slotToChange = marketplaceIndex.normalizeSelection(spriteType, newIndex, currentMarketData)
     itemSelected = index
+    if tabSelected == 10 and currentMarketData[index] and isItemBought(currentMarketData[index]) then
+      composer.database.changePowerupSkin(currentMarketData[index].key)
+    end
     updateItemTitle(index)
     updateTextInfo(index)
     changeAvatar(slotToChange, index)
@@ -602,14 +570,15 @@ function scene:create(event)
       gemLabel:removeSelf()
       gemLabel = nil
     end
-    local coinX = (backgroundCoins and backgroundCoins.x or 726) + 28
-    local coinY = (backgroundCoins and backgroundCoins.y or 2)
-    moneyLabel = composer.newText({
+    local coinX = backgroundCoins.x + 24
+    local coinY = backgroundCoins.y
+    moneyLabel = newShopText({
       string = moneyValue,
       size = 14,
       x = coinX,
       y = coinY + 69,
       ax = 0,
+      maxWidth = 42,
       color = {
         1,
         1,
@@ -617,12 +586,13 @@ function scene:create(event)
       }
     })
     uiGroup:insert(moneyLabel)
-    gemLabel = composer.newText({
+    gemLabel = newShopText({
       string = composer.database.getGems(),
       size = 14,
       x = coinX,
       y = coinY + 41,
       ax = 0,
+      maxWidth = 42,
       color = {
         1,
         1,
@@ -633,18 +603,19 @@ function scene:create(event)
   end
 
   local function flashLabel(label)
-    if not label then
+    if not label or not label.removeSelf then
       return
     end
+    local baseScale = label.baseScale or 1
     label:setFillColor(1, 0.2, 0.2)
-    transition.to(label, { time = 150, xScale = 1.1, yScale = 1.1 })
+    transition.to(label, { time = 150, xScale = baseScale * 1.1, yScale = baseScale * 1.1 })
     transition.to(label, {
       time = 150,
       delay = 150,
-      xScale = 1,
-      yScale = 1,
+      xScale = baseScale,
+      yScale = baseScale,
       onComplete = function()
-        if label then
+        if label and label.removeSelf then
           label:setFillColor(1, 1, 1)
         end
       end
@@ -685,7 +656,6 @@ function scene:create(event)
       composer.onboarding.stepDone()
     else
       composer.gotoScene("lua.scenes.mainMenu")
-      composer.removeScene("lua.scenes.marketplace")
     end
   end
 
@@ -704,15 +674,14 @@ function scene:create(event)
     if not currentMarketData then
       return
     end
-    -- Powerup tabs don't affect monster/avatar data
+    -- Powerup skins live outside the avatar data; only owned skins can be equipped.
     if tabSelected == 9 or tabSelected == 10 then
-      if currentMarketData[itemSelected] then
-        composer.database.changePowerupSkin(
-            currentMarketData[itemSelected].key
-        )
+      local item = currentMarketData[itemSelected]
+      if tabSelected == 10 and item and isItemBought(item) then
+        composer.database.changePowerupSkin(item.key)
       end
-    return
-  end
+      return
+    end
 
     if tabSelected == 2 then
       giveNoticeOfSkinChanges()
@@ -764,8 +733,16 @@ function scene:create(event)
     end
     findItemSelectedForSpriteType(currentMonster)
     if tabSelected == 9 or tabSelected == 10 then
-      -- Powerup tabs: use index 1 as default, no monster data mapping
-      updateMarketplace(tabSelected, 1)
+      -- Powerup overview returns to the type that was open; a type's skin list
+      -- opens on the skin currently equipped.
+      local startIndex = 1
+      if tabSelected == 10 then
+        startIndex = getEquippedPowerupIndex()
+      elseif savedPowerupIndex and currentMarketData[savedPowerupIndex] then
+        startIndex = savedPowerupIndex
+      end
+      itemSelected = startIndex
+      updateMarketplace(tabSelected, startIndex)
       if marketTable.getTable():getRowAtIndex(selectIndex) then
         marketTable.getTable():getRowAtIndex(selectIndex).setActiveState(true)
       end
@@ -796,11 +773,18 @@ function scene:create(event)
   local function setUpForAvatar(oldMonster)
     storeTempMonsterChanges()
     currentMarketData = composer.storeConfig.getAllCharactersSortedOnPrice()
-    local bearIndex = findIndexOnKey(101)
-    if bearIndex then
-      itemSelected = bearIndex
+    -- Opens on the animal being worn (or the one whose skins were open), not the bear.
+    local equipped = composer.database.getAvatarData() or monsterData
+    local animal = oldMonster or (equipped and equipped[1]) or 101
+    local animalIndex = findIndexOnKey(animal)
+    if not animalIndex then
+      animal = 101
+      animalIndex = findIndexOnKey(101)
     end
-    updateMarketTabSelected(1, 101)
+    if animalIndex then
+      itemSelected = animalIndex
+    end
+    updateMarketTabSelected(1, animal)
   end
 
   local function btnAvatarRelease()
@@ -839,8 +823,7 @@ function scene:create(event)
     elseif tabSelected == 10 then
       -- Back to all powerups
       storeTempMonsterChanges()
-      currentMarketData = composer.storeConfig.getAllPowerupsSortedOnPrice()
-      itemSelected = savedPowerupIndex
+      currentMarketData = getPowerupOverviewData()
       updateMarketTabSelected(9)
     end
   end
@@ -915,13 +898,11 @@ function scene:create(event)
       storeTempMonsterChanges()
       powerUpPreviewer.clean()
       powerUpPreviewer.init()
-      currentMarketData = composer.storeConfig.getAllPowerupsSortedOnPrice()
+      savedPowerupIndex = 1
+      currentMarketData = getPowerupOverviewData()
       updateMarketTabSelected(9)
     end
   end
-
-  marketTable = tableHelper.new(3, 44, 120, 300, 58, nil, "market", function()
-  end, 32)
 
   local function createMarketButtonTable()
     marketTableList = {
@@ -987,14 +968,14 @@ function scene:create(event)
     if not marketTableList[1].active then
       marketTableList[2].active = true
     end
-    marketTable.createTable(marketTableList, leftBarDisplayGroup)
+    buildCategoryTable()
   end
 
   local function tableViewCellButtonRelease()
   end
 
   local function isLocked()
-    if horizontalTableView.dataTable and horizontalTableView.dataTable[itemSelected] then
+    if horizontalTableView and horizontalTableView.dataTable and horizontalTableView.dataTable[itemSelected] then
       local cell = horizontalTableView.dataTable[itemSelected].group
       if cell and cell.isLocked() then
         cell.bounceLock()
@@ -1056,42 +1037,47 @@ function scene:create(event)
       end
   end
 
+  -- Button sizes are the original design sizes; the groups they live in scale them.
   btnBack = composer.newButton({
     image = "images/gui/common/buttonHome.png",
-    width = 130,
-    height = 75,
+    width = 90,
+    height = 57,
     onRelease = btnBackRelease,
     x = 0,
     y = 0
   })
+  topGroup:insert(btnBack)
   btnBuy = composer.newButton({
     image = "images/gui/market/buttonBuy.png",
     text = {
       string = composer.localized.get("Buy"),
       size = 32
     },
-    width = 73,
-    height = 44,
+    width = 83,
+    height = 54,
     onRelease = btnBuyRelease,
     x = 0,
     y = 0
   })
+  uiGroup:insert(btnBuy)
   btnSkin = composer.newButton({
     image = "images/gui/market/buttonSkins.png",
-    width = 49,
-    height = 45,
+    width = 57,
+    height = 53,
     onRelease = btnSkinRelease,
     x = 0,
     y = 0
   })
+  uiGroup:insert(btnSkin)
   btnSkinBack = composer.newButton({
     image = "images/gui/market/buttonSkinsBack.png",
-    width = 49,
-    height = 45,
+    width = 57,
+    height = 53,
     onRelease = btnSkinRelease,
     x = 0,
     y = 0
   })
+  uiGroup:insert(btnSkinBack)
 
   local function getTimeLeftInText(timeLeft)
     if timeLeft then
@@ -1155,24 +1141,32 @@ function scene:create(event)
         minBuild = currentMarketData[i].minBuild,
         tier = currentMarketData[i].tier,
         bought = isBought,
+        equipped = tabSelected == 10 and isBought and composer.database.isPowerupSkinEquipped(currentMarketData[i].key),
         index = i,
         plateIndex = plate,
         key = currentMarketData[i].key,
         characterId = currentMarketData[i].characterId
       }
     end
+    -- The strip scrolls in screen units; each cell is drawn in design units and scaled.
+    local s = box.scale
+    local cellWidth = ITEM_CELL_W * s
+    local selectedLeft = toScreenX(SELECTED_CELL_LEFT)
     horizontalTableView = tableView.newList({
       data = tableViewData,
       onRelease = tableViewCellButtonRelease,
       onScrollEnd = onTableViewScrollEnd,
-      left = 250,
-      right = 120,
+      -- Scrolling stops with the first or the last item in the selected slot.
+      left = selectedLeft,
+      right = display.contentWidth - (selectedLeft + cellWidth),
       screenWidth = display.contentWidth,
-      centerX = display.contentWidth * 0.5,
-      width = 80,
-      height = 80,
+      centerX = selectedLeft,
+      minTouchX = toScreenX(box.SL + PANEL_VISIBLE_W),
+      width = cellWidth,
+      height = ITEM_CELL_H * s,
       callback = function(data)
         local group = display.newGroup()
+        group.xScale, group.yScale = s, s
         local masterLocked = false
         local haveLock = false
         local locked, priceText
@@ -1187,6 +1181,14 @@ function scene:create(event)
         elseif data.gemPrice then
           priceText = data.gemPrice
           local priceBackground = display.newImageRect("images/gui/market/pricetagGems.png", 60, 18)
+          priceBackground.x = 40
+          priceBackground.y = 82
+          group:insert(priceBackground)
+        elseif data.tier and composer.config.offlineMode then
+          -- There is no store offline: real-money items are claimed for 0 coins
+          -- (see marketBuy), so don't show a dollar price.
+          priceText = "0"
+          local priceBackground = display.newImageRect("images/gui/market/pricetag.png", 60, 18)
           priceBackground.x = 40
           priceBackground.y = 82
           group:insert(priceBackground)
@@ -1209,7 +1211,13 @@ function scene:create(event)
           plate.y = 64
           group:insert(plate)
         end
-        if data.bought then
+        if data.equipped then
+          -- Powerup skin currently in use.
+          local equippedIcon = display.newImageRect("images/gui/market/preOwned.png", 23, 20)
+          equippedIcon.x = 40
+          equippedIcon.y = 78
+          group:insert(equippedIcon)
+        elseif data.bought then
           local checkIcon = display.newImageRect("images/gui/market/check.png", 23, 20)
           checkIcon.x = 40
           checkIcon.y = 78
@@ -1363,50 +1371,12 @@ function scene:create(event)
         return group
       end
     })
-    horizontalTableView.anchorX = 0
-    horizontalTableView.anchorY = 1
-    horizontalTableView.anchorChildren = true
-    horizontalTableView.x = 0
-    horizontalTableView.y = 332
-    uiGroup:insert(horizontalTableView)
+    horizontalTableView.y = toScreenY(ITEM_ROW_TOP)
+    listGroup:insert(horizontalTableView)
     horizontalTableView:startAt(itemSelected)
+    itemStripGeometry = boxGeometry()
     updateItemTitle(itemSelected)
-    uiGroup:insert(leftBarDisplayGroup)
-    if btnBack then
-      btnBack:toFront()
-    end
-    if btnBuy then
-      uiGroup:insert(btnBuy)
-      btnBuy:toFront()
-    end
-    if btnSkin then
-      uiGroup:insert(btnSkin)
-      btnSkin:toFront()
-    end
-    if btnSkinBack then
-      uiGroup:insert(btnSkinBack)
-      btnSkinBack:toFront()
-    end
-    if itemSelected then
-      updateBuyButtonState(itemSelected)
-    end
-  end
-
-  local function updateDisplayGroup()
-    screenGroup:insert(1, marketBackgroundBlur)
-    screenGroup:insert(2, marketBackground)
-    uiGroup:insert(leftBarDisplayGroup)
-    leftBarDisplayGroup:insert(marketTable.getTable())
-    leftBarDisplayGroup:insert(backgroundBottom)
-    uiGroup:insert(backgroundCoins)
-    leftBarDisplayGroup:insert(backgroundRoofGroup)
-    leftBarDisplayGroup:insert(btnBack)
-    uiGroup:insert(btnBuy)
-    uiGroup:insert(btnSkin)
-    uiGroup:insert(btnSkinBack)
-    if layoutMarketplace then
-      layoutMarketplace()
-    end
+    updateBuyButtonState(itemSelected)
   end
 
   function clean()
@@ -1456,7 +1426,14 @@ function scene:create(event)
 
   function scene:overlayEnded(data)
     composer.comm.setCallback(commCallback)
-    if data and type(data) == "table" then
+    if type(data) == "table" and data.localPurchase then
+      -- Bought offline: show the item as owned (and equip it if it's a powerup skin).
+      boughtItems = composer.database.getItems()
+      updateMoneyLabel()
+      updateMarketplace(tabSelected, itemSelected)
+      updateTableView()
+      return
+    elseif type(data) == "table" then
       commCallback(data)
     end
     updateMoneyLabel()
@@ -1466,7 +1443,6 @@ function scene:create(event)
   end
 
   createMarketButtonTable()
-  updateDisplayGroup()
   if marketTableList[1].active then
     btnSaleRelease(nil, nil, true)
   else
@@ -1494,15 +1470,14 @@ function scene:show(event)
   local androidLogic = require("lua.modules.androidBackButton")
   androidLogic.addBackButton("lua.scenes.mainMenu", "lua.scenes.marketplace")
   composer.database.resetMarketNotification()
-  resizeListener = function()
-    if updateUiGroup then
-      updateUiGroup()
+  if not resizeListener then
+    resizeListener = function()
+      if layoutMarketplace then
+        layoutMarketplace()
+      end
     end
-    if layoutMarketplace then
-      layoutMarketplace()
-    end
+    Runtime:addEventListener("resize", resizeListener)
   end
-  Runtime:addEventListener("resize", resizeListener)
   resizeListener()
 
   function cleanEnter()
@@ -1513,18 +1488,27 @@ end
 function scene:hide(event)
   local phase = event.phase
   if phase == "did" then
+    -- Everything was torn down in "will"; drop the scene so the next visit
+    -- builds a fresh shop.
+    composer.removeScene("lua.scenes.marketplace")
     return
   end
   if resizeListener then
     Runtime:removeEventListener("resize", resizeListener)
     resizeListener = nil
   end
-  local syncAvatarWithServer = false
   clean()
 end
 
 function scene:destroy(event)
-  cleanEnter()
+  if resizeListener then
+    Runtime:removeEventListener("resize", resizeListener)
+    resizeListener = nil
+  end
+  if cleanEnter then
+    cleanEnter()
+    cleanEnter = nil
+  end
 end
 
 scene:addEventListener("create", scene)

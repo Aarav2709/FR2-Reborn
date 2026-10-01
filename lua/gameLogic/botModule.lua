@@ -16,8 +16,8 @@ local function new(player)
         end
       end
       if stuck then
-        print("stuck")
-        botPlayer:applyForce(-400, -200, botPlayer.x, botPlayer.y)
+        -- Back off and hop (a one-step push of the original 30 fps game).
+        botPlayer:applyLinearImpulse(-400 / 30, -200 / 30, botPlayer.x, botPlayer.y)
       end
     end
   end
@@ -29,9 +29,10 @@ local function new(player)
 
   local function jump(wall)
     if botPlayer.canJump() then
-      if botPlayer.y > prevY - 8 then
+      -- A wall jump that didn't gain height means a roof is overhead: wait a bit.
+      if botPlayer.y > prevY - 20 then
         roofDontJump = true
-        timer.performWithDelay(500, jumpAgain, 1)
+        timer.performWithDelay(1800, jumpAgain, 1)
       else
         botPlayer.jump()
         if wall then
@@ -84,28 +85,20 @@ local function new(player)
     end
     if botPlayer then
       local vx, vy = botPlayer:getLinearVelocity()
-
-      local targetSpeed = 0
-      if botPlayer.getTopSpeedX then
-        targetSpeed = botPlayer.getTopSpeedX()
-      end
-      if targetSpeed <= 0 then
-        targetSpeed = 400
-      end
-
-      -- Keep the bot moving at the same pace as the player.
-      if gameState == 1 and vx < targetSpeed then
-        botPlayer:setLinearVelocity(math.min(vx + 100, targetSpeed), vy)
-      end
       if 0 < vx and gameState == 0 then
         gameState = 1
       end
-      if vx < 200 and gameState == 1 and not roofDontJump then
-        jump(true)
-        noJumpTimer = 0
-      elseif math.random() > 0.92 and gameState == 1 and not roofDontJump then
-        jump()
-        noJumpTimer = 0
+      -- Blocked (almost stopped): jump the obstacle. Otherwise hop now and then.
+      if vx < 80 then
+        if gameState == 1 and not roofDontJump then
+          jump(true)
+          noJumpTimer = 0
+        end
+      elseif math.random() > 0.95 then
+        if gameState == 1 and not roofDontJump then
+          jump()
+          noJumpTimer = 0
+        end
       else
         noJumpTimer = noJumpTimer + 1
       end
@@ -138,7 +131,7 @@ local function new(player)
       noJumpTimer = 0
       gameState = 0
       counter = 0
-      botTimer = timer.performWithDelay(120, updateBot, 0)
+      botTimer = timer.performWithDelay(200, updateBot, 0)
     end
   end
 

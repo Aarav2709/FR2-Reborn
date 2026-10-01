@@ -783,7 +783,6 @@ end
 function M.getNumberOfCharacters()
   reloadConfigIfNil()
   local num = 0
-  print("getNumberOfCharacters ", configInput)
   for key, value in pairs(configInput.characters) do
     num = num + 1
   end

@@ -6,7 +6,7 @@ local M = {}
 function M.physicsData(scale)
   local physics = {
     data = {
-      big_shroom1 = {
+      big_bounce1 = {
         {
           pe_fixture_id = "",
           density = 2,
@@ -32,7 +32,7 @@ function M.physicsData(scale)
           }
         }
       },
-      small_shroom1 = {
+      small_bounce1 = {
         {
           pe_fixture_id = "",
           density = 2,
@@ -59,7 +59,7 @@ function M.physicsData(scale)
           }
         }
       },
-      groundThorns1 = {
+      groundSlow1 = {
         {
           pe_fixture_id = "",
           density = 2,
@@ -82,7 +82,7 @@ function M.physicsData(scale)
           }
         }
       },
-      roofThorns1 = {
+      roofSlow1 = {
         {
           pe_fixture_id = "",
           density = 2,
@@ -121,7 +121,10 @@ function M.physicsData(scale)
   end
   
   function physics:get(name)
-    return unpack(self.data[name])
+    local fixtures = self.data[name]
+    if fixtures then
+      return unpack(fixtures)
+    end
   end
   
   function physics:getFixtureId(name, index)

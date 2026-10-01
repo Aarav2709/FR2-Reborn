@@ -1,985 +1,645 @@
 local composer = require("composer")
+local screen = require("lua.modules.screen")
 local dropDownModule = require("lua.modules.dropdownHelper")
 local coinRewardModule = require("lua.modules.coinReward")
+local offlineLeague = require("lua.modules.offlineLeague")
 local scene = composer.newScene()
 local cointickloopChannel = 25
 local clean, cleanEnter, addChatBubble
-local backgroundImage, layoutPostLobby, resizeListener
+
+-- The results screen, laid out like Fun Run 2's (original 480x320 design units): the
+-- racers on the podium painted into the background, the times on the board in the top
+-- right, the coins, league rating and gems on the plank at the bottom.
+local DESIGN_W, DESIGN_H = 480, 320
+local THEME_BACKGROUNDS = {
+  forest = "images/gui/postgame/postBG_forest.png",
+  space = "images/gui/postgame/postBG_space.png",
+  town = "images/gui/postgame/postBG_town.png",
+  tropical = "images/gui/postgame/postBG_tropical.png",
+  winter = "images/gui/postgame/postBG_winter.png"
+}
+-- Where the racers stand (their feet), in the 480x320 background art: the 1, 2 and 3
+-- blocks of the podium and the grass next to it.
+local PODIUM_FEET = { { 130, 168 }, { 46, 205 }, { 220, 212 }, { 310, 252 } }
+-- The league shield on the podium next to each racer (its top right corner).
+local PODIUM_BADGES = { { 170, 175 }, { 86, 210 }, { 256, 217 }, { 350, 234 } }
+-- The phrase list sits a little above the chat button; the bubbles are a bit smaller
+-- than the art.
+local CHAT_LIST_Y = 166
+-- The phrases sit evenly inside the list's frame (centred a little above the art's
+-- middle, as its lower edge carries the post).
+local CHAT_ROWS_DY, CHAT_ROW_SPACING = -7, 29
+local CHAT_BUBBLE_SCALE = 0.8
+local CHAT_TEXT = { "Well played", "Add me.. if you dare!", "Yaay!", "#&!?@*!", "So unlucky!" }
+-- The plank at the bottom: the coins icon sits in its first light patch and the
+-- league shield in the second, each with its total just left of it and the gain
+-- above the total.
+local PLANK_X, PLANK_Y, PLANK_W, PLANK_H = 220, 294, 170, 51
+local PLANK_LEFT = PLANK_X - PLANK_W * 0.5
+-- (The light patches, measured on the art: centres at 40.5% and 86.1% across, 65% down.)
+local STATS_Y = PLANK_Y - PLANK_H * 0.5 + PLANK_H * 0.65
+local STATS_GAIN_Y = STATS_Y - 14
+local STATS_SLOTS = {
+  { iconX = PLANK_LEFT + PLANK_W * 0.405, left = PLANK_LEFT + 10 },
+  { iconX = PLANK_LEFT + PLANK_W * 0.861, left = PLANK_LEFT + PLANK_W * 0.465 + 4 },
+}
+-- Gap between a patch's icon and the numbers left of it.
+local STATS_TEXT_GAP = PLANK_W * 0.06 + 4
+-- Times board: rows sized to fill it.
+local ROW_TEXT_SIZE, ROW_SPACING, ROW_TOP = 17, 21, 35
 
 function scene:create(event)
   local screenGroup = self.view
-  local effectGroup = display.newGroup()
-  local newStatsGroup = display.newGroup()
-  local newTotalStatsGroup = display.newGroup()
-  local chatBubbleGroup = display.newGroup()
+  local gameInfo = composer.data.gameInfo or {}
+  composer.data.gameInfo = gameInfo
+  gameInfo.players = gameInfo.players or {}
+  if gameInfo.map == nil then
+    gameInfo.map = 1
+  end
+  local isOnlineGame = gameInfo.gameType ~= nil and gameInfo.gameType ~= 0
   local monsterLoader = require("spine-corona.monsterLoader")
-  local basicBoostAdModule = require("lua.ads.postGameVideoAds")
-  local chest
-  local avatarDisplayGroupList = {}
-  local rankingEarned
-  local rankingTextGroup = display.newGroup()
   local monsters = {}
-  local friends = composer.database.getFriends()
-  local sendFriendRequestTable = {}
-  local addFriendButtonList = {}
-  local startMoneyTimer, moneyTimer, startRatingTimer, ratingTimer, addFriendsButton
+  local timers = {}
+  local buttons = {}
+  local friends = composer.database.getFriends() or {}
+  local otherPlayersId = {}
+  local addFriendButtons = {}
   local chatButtons = {}
   local startedClean = false
-  local chatText = {
-    "Well played",
-    "Add me.. if you dare!",
-    "Yaay!",
-    "#&!?@*!",
-    "So unlucky!"
-  }
-  local imagePath = "images/gui/postgame/postBG_forest.png"
-  local themeToImage = {
-    forest = "images/gui/postgame/postBG_forest.png",
-    space = "images/gui/postgame/postBG_space.png",
-    town = "images/gui/postgame/postBG_town.png",
-    tropical = "images/gui/postgame/postBG_tropical.png",
-    winter = "images/gui/postgame/postBG_winter.png"
-  }
-  local otherPlayersId = {}
-  local coinEffect, chestCoinEffect, updateStats
-  composer.data.gameInfo = composer.data.gameInfo or {}
-  composer.data.gameInfo.players = composer.data.gameInfo.players or {}
-  composer.data.gameInfo.stats = composer.data.gameInfo.stats
-  if composer.data.gameInfo.map == nil then
-    composer.data.gameInfo.map = 1
+  local coinEffect
+
+  screen.update()
+  local box = screen.designBox(DESIGN_W, DESIGN_H)
+  local s = box.scale
+  local T, L, R = box.T, box.L, box.R
+
+  local function newText(textParams)
+    textParams.size = textParams.size * s
+    local text = composer.newText(textParams)
+    text.xScale, text.yScale = 1 / s, 1 / s
+    return text
   end
-  local mapId = tonumber(composer.data.gameInfo.map)
+
+  local function sharpenLabel(button)
+    local label = button[button.numChildren]
+    if label and label.size and label ~= button[1] then
+      label.size = label.size * s
+      label.xScale, label.yScale = 1 / s, 1 / s
+    end
+  end
+
+  -- Measured in the parent's units, so it works before or after the text is inserted.
+  local function fitWidth(text, maxWidth)
+    local width = text.width * math.abs(text.xScale)
+    if width > maxWidth then
+      local fit = maxWidth / width
+      text.xScale, text.yScale = text.xScale * fit, text.yScale * fit
+    end
+  end
+
+  local function later(delay, listener, iterations)
+    local handle = timer.performWithDelay(delay, listener, iterations or 1)
+    timers[#timers + 1] = handle
+    return handle
+  end
+
+  -- Background: stretched to the screen's shape like the original, but only between
+  -- 4:3 and 16:9; beyond that it covers the screen (and gets cropped).
+  local backgroundPath = THEME_BACKGROUNDS.forest
+  local mapId = tonumber(gameInfo.map)
   if mapId and mapId < 1000 then
     local mapData = composer.data.getMapInfo(mapId)
-    if mapData then
-      local mapTheme = mapData.theme
-      if mapTheme and themeToImage[mapTheme] then
-        imagePath = themeToImage[mapTheme]
-      end
+    if mapData and mapData.theme and THEME_BACKGROUNDS[mapData.theme] then
+      backgroundPath = THEME_BACKGROUNDS[mapData.theme]
     end
   end
-  backgroundImage = display.newImageRect(imagePath, 1920, 1080)
-  screenGroup:insert(backgroundImage)
-  layoutPostLobby = function()
-    local contentLeft = display.screenOriginX
-    local contentTop = display.screenOriginY
-    local contentWidth = display.actualContentWidth
-    local contentHeight = display.actualContentHeight
-    local centerX = contentLeft + contentWidth * 0.5
-    local centerY = contentTop + contentHeight * 0.5
-
-    screenGroup.x = 0
-    screenGroup.y = 0
-    if backgroundImage then
-      backgroundImage.x = centerX
-      backgroundImage.y = centerY
-      backgroundImage.xScale = 1
-      backgroundImage.yScale = 1
-      local scale = math.max(contentWidth / backgroundImage.width, contentHeight / backgroundImage.height)
-      backgroundImage.xScale = scale
-      backgroundImage.yScale = scale
-    end
+  local W, H = screen.width, screen.height
+  local bgAspect = math.min(16 / 9, math.max(4 / 3, W / H))
+  local bgWidth, bgHeight = W, W / bgAspect
+  if bgHeight < H then
+    bgWidth, bgHeight = H * bgAspect, H
   end
-  local backgroundTimeImage = display.newImageRect("images/gui/postgame/windowTimes.png", 300, 170)
-  backgroundTimeImage.x = display.contentWidth * 0.8
-  backgroundTimeImage.y = display.contentHeight * 0.2
-  local photoIcon = display.newImageRect("images/gui/postgame/photo.png", 40, 40)
-  photoIcon.xScale = 1
-  photoIcon.yScale = 1
-  photoIcon.x = backgroundTimeImage.x + backgroundTimeImage.width * 0.42
-  photoIcon.y = backgroundTimeImage.y + backgroundTimeImage.height * 0.5
-  screenGroup:insert(photoIcon)
-  -- Screenshot Functionality - Work In Progress - Coming Soon
-  -- local function copyFile(sourcePath, destPath)
-  --   local inFile = io.open(sourcePath, "rb")
-  --   if not inFile then
-  --     return false
-  --   end
-  --   local data = inFile:read("*a")
-  --   inFile:close()
-  --   local outFile = io.open(destPath, "wb")
-  --   if not outFile then
-  --     return false
-  --   end
-  --   outFile:write(data)
-  --   outFile:close()
-  --   return true
-  -- end
+  local bgLeft, bgTop = screen.centerX - bgWidth * 0.5, screen.centerY - bgHeight * 0.5
+  local background = display.newImageRect(screenGroup, backgroundPath, bgWidth, bgHeight)
+  background.x, background.y = screen.centerX, screen.centerY
+  -- A point of the 480x320 background art on the screen, and the art's scale.
+  local function onBackground(x, y)
+    return bgLeft + x / DESIGN_W * bgWidth, bgTop + y / DESIGN_H * bgHeight
+  end
+  local podiumScale = bgHeight / DESIGN_H
 
-  -- local function savePostLobbyScreenshot()
-  --   local capture = display.captureScreen(true)
-  --   if not capture then
-  --     return
-  --   end
-  --   local filename = "postLobby_" .. os.time() .. ".png"
-  --   local platform = system.getInfo("platform")
-  --   local saveToGallery = platform == "android" or platform == "ios"
-  --   local saveDir = system.DocumentsDirectory
-  --   if not saveToGallery and system.DownloadsDirectory then
-  --     saveDir = system.DownloadsDirectory
-  --   end
-  --   display.save(capture, { filename = filename, baseDir = saveDir, isFullResolution = true })
-  --   if saveToGallery and media and media.save then
-  --     media.save(filename, saveDir)
-  --   end
+  -- Racers, their league shields, coin bursts and chat bubbles live on the background.
+  local podiumGroup = display.newGroup()
+  screenGroup:insert(podiumGroup)
 
-  --   local flash = display.newRect(screenGroup, 0, 0, display.contentWidth, display.contentHeight)
-  --   flash.anchorX = 0
-  --   flash.anchorY = 0
-  --   flash:setFillColor(1, 1, 1)
-  --   flash.alpha = 0.8
-  --   transition.to(flash, { time = 120, alpha = 0, onComplete = function()
-  --     display.remove(flash)
-  --   end })
+  -- The UI on the design box.
+  local ui = display.newGroup()
+  ui.xScale, ui.yScale = s, s
+  ui.x, ui.y = box.left, box.top
+  screenGroup:insert(ui)
+  local effectGroup = display.newGroup()
+  screenGroup:insert(effectGroup)
+  local chatBubbleGroup = display.newGroup()
+  screenGroup:insert(chatBubbleGroup)
 
-  --   screenGroup:insert(capture)
-  --   capture.anchorX = 0.5
-  --   capture.anchorY = 0.5
-  --   capture.x = display.contentWidth * 0.5
-  --   capture.y = display.contentHeight * 0.5
-  --   capture.xScale = 0.35
-  --   capture.yScale = 0.35
-  --   transition.to(capture, {
-  --     time = 600,
-  --     x = 80,
-  --     y = display.contentHeight - 80,
-  --     xScale = 0.22,
-  --     yScale = 0.22,
-  --     transition = easing.outQuad
-  --   })
-  --   transition.to(capture, {
-  --     time = 400,
-  --     delay = 3000,
-  --     x = -200,
-  --     transition = easing.inQuad,
-  --     onComplete = function()
-  --       display.remove(capture)
-  --     end
-  --   })
-  -- end
-  -- photoIcon:addEventListener("tap", savePostLobbyScreenshot)
-  local chatButtonOverlay = display.newImageRect("images/gui/postgame/buttonToggle.png", 65, 65)
-  chatButtonOverlay.x = display.contentWidth * 0.0625
-  chatButtonOverlay.y = display.contentHeight * 0.919
-  chatButtonOverlay.isVisible = false
-  local friendButtonOverlay = display.newImageRect("images/gui/postgame/buttonToggle.png", 65, 65)
-  friendButtonOverlay.x = display.contentWidth * 0.1875
-  friendButtonOverlay.y = display.contentHeight * 0.919
-  friendButtonOverlay.isVisible = false
-  local marketButtonOverlay = display.newImageRect("images/gui/postgame/buttonToggle.png", 65, 65)
-  marketButtonOverlay.x = display.contentWidth * 0.73
-  marketButtonOverlay.y = display.contentHeight * 0.919
-  marketButtonOverlay.isVisible = false
-  local chatButtonDropdown = display.newImageRect("images/gui/postgame/bubbleList.png", 175, 179)
-  chatButtonDropdown.x = display.contentWidth * 0.19
-  chatButtonDropdown.y = display.contentHeight * 0.56
-  chatButtonDropdown.isVisible = false
-  local name = ""
+  local function designToScreen(x, y)
+    return box.left + x * s, box.top + y * s
+  end
+
+  -- The board with the map name and the times.
+  local board = display.newImageRect(ui, "images/gui/postgame/windowTimes.png", 182, 131)
+  board.x, board.y = R - 96, T + 64
+  local mapNameString = ""
   if composer.onboarding.isActive == true then
-    name = composer.onboarding.getMapName()
+    mapNameString = composer.onboarding.getMapName()
   else
     if mapId then
-      name = composer.data.getMapName(mapId)
+      mapNameString = composer.data.getMapName(mapId) or ""
     end
     composer.gamesPlayed = composer.gamesPlayed + 1
   end
-  local mapName = composer.newText({
-    string = name,
-    size = 30,
-    z = 7,
-    x = display.contentWidth * 0.8,
-    y = backgroundTimeImage.y - backgroundTimeImage.height * 0.26,
-    color = {
-      1,
-      1,
-      1
-    }
-  })
+  local mapName = newText({ string = mapNameString, size = 22, color = { 1, 1, 1 } })
+  mapName.x, mapName.y = board.x, board.y - 44
+  fitWidth(mapName, 150)
+  ui:insert(mapName)
+  local rowsGroup = display.newGroup()
+  ui:insert(rowsGroup)
 
-  local placeholdersEnabled = false
-  local placeholderGroup = display.newGroup()
-  placeholderGroup.isVisible = false
-  local function setPlaceholdersVisible(isVisible)
-    placeholdersEnabled = not not isVisible
-    placeholderGroup.isVisible = placeholdersEnabled
-  end
+  -- The plank with coins, league rating and gems (Quick Play and the tutorial; a
+  -- practice race has no rewards).
+  local isPractice = gameInfo.stats and gameInfo.stats.practice
+  local plank = display.newImageRect(ui, "images/gui/postgame/windowCurrency.png", PLANK_W, PLANK_H)
+  plank.x, plank.y = PLANK_X, PLANK_Y
+  plank.isVisible = not isPractice
+  local statsGroup = display.newGroup()
+  statsGroup.isVisible = not isPractice
+  ui:insert(statsGroup)
 
-
-  function addChatBubble(playerId, chatId)
-    local playerIndex = 1
-    local text, chatBubble
-    for i = 1, #composer.data.gameInfo.players do
-      if playerId == composer.data.gameInfo.players[i].playerId then
-        playerIndex = i
-      end
-    end
-
-    local function cleanBubble()
-      if startedClean then
-        return
-      end
-      if chatBubble then
-        chatBubble:removeSelf()
-        chatBubble = nil
-      end
-      if text then
-        text:removeSelf()
-        text = nil
-      end
-    end
-
-    if composer.data.gameInfo.players[playerIndex].pos == 1 then
-      chatBubble = display.newImageRect("images/gui/postgame/bubbleTalk.png", 159, 47)
-      chatBubble.x = composer.data.gameInfo.players[playerIndex].x + 30
-      chatBubble.y = composer.data.gameInfo.players[playerIndex].y - 76
-      text = composer.newText({
-        string = composer.localized.get(chatText[chatId]),
-        size = 14,
-        x = chatBubble.x,
-        y = chatBubble.y - 8
-      })
-    elseif composer.data.gameInfo.players[playerIndex].pos == 2 then
-      chatBubble = display.newImageRect("images/gui/postgame/bubbleTalk3.png", 159, 47)
-      chatBubble.x = composer.data.gameInfo.players[playerIndex].x + 42
-      chatBubble.y = composer.data.gameInfo.players[playerIndex].y + 10
-      text = composer.newText({
-        string = composer.localized.get(chatText[chatId]),
-        size = 14,
-        x = chatBubble.x,
-        y = chatBubble.y + 6
-      })
-    elseif composer.data.gameInfo.players[playerIndex].pos == 3 then
-      chatBubble = display.newImageRect("images/gui/postgame/bubbleTalk.png", 159, 47)
-      chatBubble.x = composer.data.gameInfo.players[playerIndex].x + 30
-      chatBubble.y = composer.data.gameInfo.players[playerIndex].y - 76
-      text = composer.newText({
-        string = composer.localized.get(chatText[chatId]),
-        size = 14,
-        x = chatBubble.x,
-        y = chatBubble.y - 8
-      })
-    elseif composer.data.gameInfo.players[playerIndex].pos == 4 then
-      chatBubble = display.newImageRect("images/gui/postgame/bubbleTalk2.png", 159, 47)
-      chatBubble.x = composer.data.gameInfo.players[playerIndex].x + 38
-      chatBubble.y = composer.data.gameInfo.players[playerIndex].y + 10
-      text = composer.newText({
-        string = composer.localized.get(chatText[chatId]),
-        size = 14,
-        x = chatBubble.x,
-        y = chatBubble.y + 6
-      })
-    end
-    if chatBubble and text then
-      chatBubbleGroup:insert(chatBubble)
-      chatBubbleGroup:insert(text)
-    end
-    timer.performWithDelay(4000, cleanBubble)
-  end
-
-  local function chatButtonRelease()
-    if chatButtonOverlay.isVisible then
-      chatButtonOverlay.isVisible = false
-      chatButtonDropdown.isVisible = false
-      for i = 1, #chatButtons do
-        chatButtons[i].isVisible = false
-      end
-    else
-      chatButtonOverlay.isVisible = true
-      chatButtonDropdown.isVisible = true
-      for i = 1, #chatButtons do
-        chatButtons[i].isVisible = true
-      end
-    end
-  end
-
-  local function addChatButtons()
-    local basePath = "images/gui/postgame/"
-    for i = 1, 5 do
-      local function sendChatMessage()
-        composer.comm.postGameChat(i, otherPlayersId)
-
-        addChatBubble(composer.database.getPlayerInformation().playerId, i)
-        chatButtonRelease()
-      end
-
-      local path
-      if i % 2 == 0 then
-        path = basePath .. "bubbleListRow1.png"
-      else
-        path = basePath .. "bubbleListRow2.png"
-      end
-      chatButtons[i] = composer.newButton({
-        image = path,
-        text = {
-          string = composer.localized.get(chatText[i]),
-          x = 0,
-          y = -4
-        },
-        width = 156,
-        height = 30,
-        onRelease = sendChatMessage,
-        x = display.contentWidth * 0.19,
-        y = display.contentHeight * 0.56 + (-60 + i * 30)
-      })
-      chatButtons[i].isVisible = false
-      screenGroup:insert(chatButtons[i])
-    end
-  end
-
-  local function returnToMenuButtonRelease()
+  -- Buttons: back to the menu in the top left corner, race again in the bottom right.
+  local function returnToMenu()
     composer.tcpClient.stopTCPClient()
     composer.gotoScene("lua.scenes.mainMenu")
     composer.removeScene("lua.scenes.postLobby")
   end
 
-  local function stopOnboardingComplete(event)
-    if "clicked" == event.action then
-      local i = event.index
-      if 1 == i then
-        if startedClean then
-          return
-        end
-        composer.onboarding.deactivate()
-        composer.gotoScene("lua.scenes.mainMenu")
-        composer.removeScene("lua.scenes.postLobby")
-      elseif 2 == i then
-      end
+  local function stopOnboardingComplete(alertEvent)
+    if alertEvent.action == "clicked" and alertEvent.index == 1 and not startedClean then
+      composer.onboarding.deactivate()
+      composer.gotoScene("lua.scenes.mainMenu")
+      composer.removeScene("lua.scenes.postLobby")
     end
   end
 
   local function stopOnboarding()
-    local message = composer.localized.get("QuitOnboarding")
-    quitAlert = native.showAlert(composer.localized.get("Quit"), message, {
+    native.showAlert(composer.localized.get("Quit"), composer.localized.get("QuitOnboarding"), {
       composer.localized.get("Yes"),
       composer.localized.get("No")
     }, stopOnboardingComplete)
   end
 
-  local function rematchButtonRelease()
+  local function raceAgain()
     if composer.onboarding.isActive == true then
       composer.onboarding.stepDone()
       return
-    elseif composer.data.gameInfo.gameType == 0 then
-      composer.gotoScene("lua.scenes.lobbyPractice")
-    elseif composer.data.gameInfo.gameType == 1 then
+    elseif gameInfo.ranked or gameInfo.gameType == 1 then
       composer.gotoScene("lua.scenes.lobbyQuickPlay")
-    elseif composer.data.gameInfo.gameType == 3 or composer.data.gameInfo.gameType == 4 then
+    elseif gameInfo.gameType == 3 or gameInfo.gameType == 4 then
       composer.gotoScene("lua.scenes.lobbyCustomPlay")
+    else
+      composer.gotoScene("lua.scenes.lobbyPractice")
     end
     composer.removeScene("lua.scenes.postLobby")
   end
 
-  local function sendFriendRequest(pos, playerId)
-    addFriendButtonList[pos].isVisible = false
-    addFriendButtonList[pos].inviteSent = true
-    composer.comm.addFriend(playerId, false)
-  end
-
-  local function addFriendsButtonRelease()
-    if friendButtonOverlay.isVisible then
-      for i = 1, 4 do
-        if addFriendButtonList[i] then
-          addFriendButtonList[i].isVisible = false
-        end
-      end
-      friendButtonOverlay.isVisible = false
-    else
-      for i = 1, 4 do
-        if addFriendButtonList[i] and not addFriendButtonList[i].inviteSent then
-          addFriendButtonList[i].isVisible = true
-        end
-      end
-      friendButtonOverlay.isVisible = true
-    end
-  end
-
-  local function marketButtonRelease()
-    composer.tcpClient.stopTCPClient()
-    if composer.comm.isOnline() then
-      if composer.data.gameInfo.stats then
-        composer.analytics.newEvent("design", {
-          event_id = "marketButton:postLobby",
-          value = composer.data.gameInfo.stats.h,
-          area = "postLobby"
-        })
-      end
-      composer.gotoScene("lua.scenes.marketplace")
-      composer.removeScene("lua.scenes.postLobby")
-    else
-      composer.createCustomOverlay(1)
-    end
-  end
-
-  local returnToMenuButton = composer.newButton({
+  local closeButton = composer.newButton({
     image = "images/gui/common/buttonClosePopup.png",
-    width = 35,
-    height = 35,
-    onRelease = returnToMenuButtonRelease,
-    x = display.contentWidth * 0.046,
-    y = display.contentHeight * 0.069
+    width = 43,
+    height = 38,
+    x = L + 22,
+    y = T + 22,
+    onRelease = composer.onboarding.isActive == true and stopOnboarding or returnToMenu
   })
-  local rematchButton = composer.newButton({
+  ui:insert(closeButton)
+  buttons[#buttons + 1] = closeButton
+  local replayButton = composer.newButton({
     image = "images/gui/postgame/buttonReplay.png",
-    width = 115,
-    height = 61,
-    onRelease = rematchButtonRelease,
-    x = display.contentWidth * 0.896,
-    y = display.contentHeight * 0.919
+    width = 90,
+    height = 52,
+    x = R - 50,
+    y = 294,
+    onRelease = raceAgain
   })
-  addFriendsButton = composer.newButton({
-    image = "images/gui/postgame/buttonFriends.png",
-    width = 65,
-    height = 65,
-    onRelease = addFriendsButtonRelease,
-    x = friendButtonOverlay.x,
-    y = friendButtonOverlay.y
-  })
-  addFriendsButton.isVisible = true
-  local chatButton = composer.newButton({
-    image = "images/gui/postgame/buttonChat.png",
-    width = 65,
-    height = 65,
-    onRelease = chatButtonRelease,
-    x = chatButtonOverlay.x,
-    y = chatButtonOverlay.y
-  })
-  chatButton.isVisible = true
-  local marketButton = composer.newButton({
-    image = "images/gui/postgame/buttonMarket.png",
-    width = 65,
-    height = 65,
-    onRelease = marketButtonRelease,
-    x = marketButtonOverlay.x,
-    y = marketButtonOverlay.y
-  })
-  marketButton.isVisible = true
-  local exitOnboarding
-  if composer.onboarding.isActive == true then
-    exitOnboarding = composer.newButton({
-      image = "images/gui/common/buttonClosePopup.png",
-      width = 35,
-      height = 35,
-      onRelease = stopOnboarding,
-      x = 25.5,
-      y = 25.5
-    })
-  end
-  local postLobbyButtonsVisible = true
-  local function setPostLobbyButtonsVisible(isVisible)
-    postLobbyButtonsVisible = not not isVisible
-    addFriendsButton.isVisible = postLobbyButtonsVisible
-    chatButton.isVisible = postLobbyButtonsVisible
-    marketButton.isVisible = postLobbyButtonsVisible
-  end
-  for i = 1, 4 do
-    avatarDisplayGroupList[i] = display.newGroup()
-    screenGroup:insert(avatarDisplayGroupList[i])
-  end
+  ui:insert(replayButton)
+  buttons[#buttons + 1] = replayButton
 
-  local function updateAvatar(indexInList, username, pos)
-    if not composer.data.gameInfo.players or not composer.data.gameInfo.players[indexInList] then
+  -- Offline the bots chat too: what fits their place (CHAT_TEXT: 1 well played,
+  -- 2 add me, 3 yaay, 4 #&!?@*!, 5 so unlucky), one bubble per racer at a time.
+  local BOT_PHRASES = { { 3, 1, 2 }, { 1, 2, 5 }, { 1, 4, 5 }, { 4, 5, 1 } }
+  local chatBusyUntil = {}
+  -- While the player has the phrase list open the bots wait.
+  local chatListOpen = false
+  local function botSay(player)
+    local now = system.getTimer()
+    if (chatBusyUntil[player.playerId] or 0) > now then
+      return false
+    end
+    if chatListOpen then
+      later(1500, function()
+        botSay(player)
+      end)
+      return false
+    end
+    chatBusyUntil[player.playerId] = now + 4200
+    local phrases = BOT_PHRASES[player.pos] or BOT_PHRASES[4]
+    addChatBubble(player.playerId, phrases[math.random(#phrases)])
+    return true
+  end
+  local function otherRacers()
+    local myId = composer.database.getPlayerInformation().playerId
+    local others = {}
+    for _, player in ipairs(gameInfo.players or {}) do
+      if player.playerId ~= myId and player.pos then
+        others[#others + 1] = player
+      end
+    end
+    return others
+  end
+  -- Now and then one of them answers the player.
+  local lastBotAnswer = 0
+  local function botAnswer()
+    if system.getTimer() - lastBotAnswer < 3000 or math.random() > 0.6 then
       return
     end
-    local networkFormat = true
-    if composer.data.gameInfo.gameType == 0 then
-      networkFormat = false
+    lastBotAnswer = system.getTimer()
+    local others = otherRacers()
+    if #others > 0 then
+      local bot = others[math.random(#others)]
+      later(math.random(900, 2200), function()
+        botSay(bot)
+      end)
     end
-    local monsterData = composer.data.gameInfo.players[indexInList].avatar
-    monsters[indexInList] = monsterLoader.new(monsterData, networkFormat)
-    local monsterGroup = monsters[indexInList].getGroup()
-    monsterGroup.xScale = 0.5
-    monsterGroup.yScale = 0.5
-    screenGroup:insert(monsterGroup)
-    local x, y
-    if pos == 1 then
-      x = display.contentWidth * 0.271
-      y = display.contentHeight * 0.4
-    elseif pos == 2 then
-      x = display.contentWidth * 0.096
-      y = display.contentHeight * 0.516
-    elseif pos == 3 then
-      x = display.contentWidth * 0.458
-      y = display.contentHeight * 0.538
-    elseif pos == 4 then
-      x = display.contentWidth * 0.646
-      y = display.contentHeight * 0.663
+  end
+  -- In some races a few of them say something by themselves.
+  local function botsChatOnTheirOwn()
+    if math.random() > 0.55 then
+      return
     end
-    monsterGroup.y = y + 40
-    monsterGroup.x = x
-    composer.data.gameInfo.players[indexInList].pos = pos
-    composer.data.gameInfo.players[indexInList].x = x
-    composer.data.gameInfo.players[indexInList].y = y
-    local includeAddFriendButton = true
-    local playerId = composer.data.gameInfo.players[indexInList].playerId
-    if playerId == composer.database.getPlayerInformation().playerId then
-      includeAddFriendButton = false
-      if pos == 1 and networkFormat then
-        composer.database.updateWinsForAvatar()
-      end
-      updateStats(pos)
-    else
-      otherPlayersId[#otherPlayersId + 1] = playerId
-    end
-    for i = 1, #friends do
-      if playerId == friends[i].p then
-        includeAddFriendButton = false
-        break
+    for _, bot in ipairs(otherRacers()) do
+      if math.random() < 0.4 then
+        later(math.random(1500, 9000), function()
+          botSay(bot)
+        end)
       end
     end
-    if includeAddFriendButton and composer.data.gameInfo.gameType ~= 0 then
-      local function addFriendButtonRelease()
-        sendFriendRequest(pos, playerId)
-      end
+  end
 
-      addFriendButtonList[pos] = composer.newButton({
-        image = "images/gui/postgame/buttonFriendsAdd.png",
-        width = 30,
+  -- Chat phrases to the other racers (offline the bots sometimes answer); friend
+  -- requests online only.
+  local chatButton, friendsButton, chatList, chatToggle, friendsToggle
+  do
+    chatToggle = display.newImageRect(ui, "images/gui/postgame/buttonToggle.png", 55, 52)
+    chatToggle.x, chatToggle.y = L + 30, 294
+    chatToggle.isVisible = false
+    friendsToggle = display.newImageRect(ui, "images/gui/postgame/buttonToggle.png", 55, 52)
+    friendsToggle.x, friendsToggle.y = L + 90, 294
+    friendsToggle.isVisible = false
+    chatList = display.newImageRect(ui, "images/gui/postgame/bubbleList.png", 175, 179)
+    chatList.x, chatList.y = L + 91, CHAT_LIST_Y
+    chatList.isVisible = false
+
+    local function toggleChat()
+      local show = not chatList.isVisible
+      chatListOpen = show
+      chatToggle.isVisible = show
+      chatList.isVisible = show
+      for _, button in ipairs(chatButtons) do
+        button.isVisible = show
+      end
+    end
+
+    for i = 1, #CHAT_TEXT do
+      local chatButtonPhrase = composer.newButton({
+        image = i % 2 == 0 and "images/gui/postgame/bubbleListRow1.png" or "images/gui/postgame/bubbleListRow2.png",
+        text = { string = composer.localized.get(CHAT_TEXT[i]), x = 0, y = -3, size = 12 },
+        width = 156,
         height = 30,
-        onRelease = addFriendButtonRelease,
-        x = x,
-        y = y + 30
-      })
-      addFriendButtonList[pos].isVisible = false
-      addFriendsButton.isVisible = true
-      screenGroup:insert(addFriendButtonList[pos])
-    end
-  end
-
-  local function getSign(number)
-    if -1 < number then
-      return "+ "
-    else
-      return "- "
-    end
-  end
-
-  local function sign(number)
-    if number < 0 then
-      return -1
-    else
-      return 1
-    end
-  end
-
-  local function updateRank(rating, deltaRating, extraDelay)
-    if deltaRating then
-      local ratingX = display.contentWidth * 0.3125
-      local ratingY = display.contentHeight * 0.069
-      local ratingIconX = ratingX + 36
-      rankingEarned = composer.newText({
-        string = "",
-        size = 20,
-        color = {
-          1,
-          1,
-          1
-        }
-      })
-      rankingEarned.anchorX = 1
-      rankingEarned.anchorY = 1
-      rankingEarned.x = ratingX
-      rankingEarned.y = ratingY
-      newStatsGroup:insert(rankingEarned)
-      local ratingIcon = display.newImageRect("images/gui/postgame/iconRating.png", 28, 28)
-      if ratingIcon then
-        ratingIcon.anchorX = 1
-        ratingIcon.anchorY = 1
-        ratingIcon.x = ratingIconX
-        ratingIcon.y = ratingY
-        newTotalStatsGroup:insert(ratingIcon)
-      end
-      local prevRating = rating - deltaRating
-      local totalRating = composer.newText({
-        string = prevRating,
-        size = 20,
-        color = {
-          1,
-          1,
-          1
-        }
-      })
-      totalRating.anchorX = 1
-      totalRating.anchorY = 1
-      totalRating.x = ratingX
-      totalRating.y = ratingY
-      newTotalStatsGroup:insert(totalRating)
-      local counterRating = 0
-
-      local function updateRating()
-        counterRating = counterRating + 1
-        prevRating = math.floor(prevRating + sign(deltaRating))
-        rankingEarned.text = getSign(deltaRating) .. counterRating
-        if counterRating == math.abs(deltaRating) then
-          prevRating = rating
-          composer.audio.stop(cointickloopChannel)
-          composer.audio.play("rating_end", { channel = cointickloopChannel })
-          if composer.contextualOnboarding.isActive == true then
-            local gt = composer.data.gameInfo.gameType
-            local onlineGamePlayed = gt == 1 or gt == 3 or gt == 4
-            if onlineGamePlayed and composer.gamesPlayed == 1 and composer.contextualOnboarding.isPartActive(3) then
-              composer.contextualOnboarding.firstGameCompleted(screenGroup)
-              composer.contextualOnboarding.setPartDone(3)
-            end
-            if not (composer.database.getMoney() >= 250) or composer.contextualOnboarding.isPartActive(2) then
-            end
+        x = L + 91,
+        y = CHAT_LIST_Y + CHAT_ROWS_DY + (i - 3) * CHAT_ROW_SPACING,
+        onRelease = function()
+          if isOnlineGame then
+            composer.comm.postGameChat(i, otherPlayersId)
+          end
+          local myId = composer.database.getPlayerInformation().playerId
+          if (chatBusyUntil[myId] or 0) <= system.getTimer() then
+            chatBusyUntil[myId] = system.getTimer() + 4200
+            addChatBubble(myId, i)
+          end
+          toggleChat()
+          if not isOnlineGame then
+            botAnswer()
           end
         end
-        if totalRating then
-          totalRating.text = prevRating
-          newTotalStatsGroup:insert(totalRating)
-        end
-      end
-
-      local function setRating()
-        if deltaRating == 0 then
-          rankingEarned.text = "+0"
-          composer.audio.stop(cointickloopChannel)
-          composer.audio.play("rating_end", { channel = cointickloopChannel })
-        else
-          composer.audio.stop(cointickloopChannel)
-          composer.audio.play("rating", {
-            channel = cointickloopChannel,
-            loops = -1,
-            fadein = 500
-          })
-          ratingTimer = timer.performWithDelay(40, updateRating, math.abs(deltaRating))
-        end
-      end
-
-      startRatingTimer = timer.performWithDelay(2000 + extraDelay, setRating, 1)
+      })
+      chatButtonPhrase.isVisible = false
+      ui:insert(chatButtonPhrase)
+      chatButtons[i] = chatButtonPhrase
+      buttons[#buttons + 1] = chatButtonPhrase
     end
+
+    chatButton = composer.newButton({
+      image = "images/gui/postgame/buttonChat.png",
+      width = 55,
+      height = 52,
+      x = chatToggle.x,
+      y = chatToggle.y,
+      onRelease = toggleChat
+    })
+    ui:insert(chatButton)
+    buttons[#buttons + 1] = chatButton
+
+  end
+  if isOnlineGame then
+    friendsButton = composer.newButton({
+      image = "images/gui/postgame/buttonFriends.png",
+      width = 55,
+      height = 52,
+      x = friendsToggle.x,
+      y = friendsToggle.y,
+      onRelease = function()
+        local show = not friendsToggle.isVisible
+        friendsToggle.isVisible = show
+        for _, button in pairs(addFriendButtons) do
+          if not button.inviteSent then
+            button.isVisible = show
+          end
+        end
+      end
+    })
+    friendsButton.isVisible = false
+    ui:insert(friendsButton)
+    buttons[#buttons + 1] = friendsButton
   end
 
-  local function updateMoney(money, deltaMoney, indexInList)
-    if money then
+  function addChatBubble(playerId, chatId)
+    local racer
+    for _, player in ipairs(gameInfo.players) do
+      if player.playerId == playerId then
+        racer = player
+      end
+    end
+    if not racer or not racer.pos then
+      return
+    end
+    -- Bubbles pointing down for the racers up high, sideways for the lower ones.
+    -- (tipX, tipY: where the tail ends, from the bubble's centre at full size.)
+    local bubbleImage, offsetX, offsetY, textOffset, tipX, tipY = "images/gui/postgame/bubbleTalk.png", 30, -76, -8, 12, 23.5
+    if racer.pos == 2 then
+      bubbleImage, offsetX, offsetY, textOffset, tipX, tipY = "images/gui/postgame/bubbleTalk3.png", 42, 10, 6, 0, -23.5
+    elseif racer.pos == 4 then
+      bubbleImage, offsetX, offsetY, textOffset, tipX, tipY = "images/gui/postgame/bubbleTalk2.png", 38, 10, 6, 0, -23.5
+    end
+    -- Smaller than the art, shrunk around the tail's tip so it still points at the racer.
+    local k = podiumScale * CHAT_BUBBLE_SCALE
+    offsetX = offsetX + tipX * (1 - CHAT_BUBBLE_SCALE)
+    offsetY = offsetY + tipY * (1 - CHAT_BUBBLE_SCALE)
+    textOffset = textOffset * CHAT_BUBBLE_SCALE
+    local bubble = display.newImageRect(chatBubbleGroup, bubbleImage, 159 * k, 47 * k)
+    bubble.x = racer.x + offsetX * podiumScale
+    bubble.y = racer.y + offsetY * podiumScale
+    local text = composer.newText({ string = composer.localized.get(CHAT_TEXT[chatId] or ""), size = 14 * k })
+    text.x, text.y = bubble.x, bubble.y + textOffset * podiumScale
+    chatBubbleGroup:insert(text)
+    later(4000, function()
+      display.remove(bubble)
+      display.remove(text)
+    end)
+  end
+
+  -- Coins and league rating count up on the plank.
+
+  local function countUp(slotIndex, iconPath, total, delta, options)
+    options = options or {}
+    local slot = STATS_SLOTS[slotIndex]
+    local icon = display.newImageRect(statsGroup, iconPath, options.iconSize or 15, options.iconSize or 15)
+    icon.x, icon.y = slot.iconX, STATS_Y
+    local totalText = newText({ string = tostring(total - delta), size = 13, color = { 1, 1, 1 }, ax = 1 })
+    totalText.x, totalText.y = slot.iconX - STATS_TEXT_GAP, STATS_Y
+    statsGroup:insert(totalText)
+    local gainText = newText({ string = "", size = 10, color = delta < 0 and { 1, 0.45, 0.4 } or { 0.6, 1, 0.45 }, ax = 1 })
+    gainText.x, gainText.y = totalText.x, STATS_GAIN_Y
+    statsGroup:insert(gainText)
+    local function showGain(value)
+      gainText.text = (value < 0 and "- " or "+ ") .. math.abs(value)
+      gainText.xScale, gainText.yScale = 1 / s, 1 / s
+      fitWidth(gainText, gainText.x - slot.left)
+    end
+    local function showTotal(value)
+      totalText.text = tostring(value)
+      totalText.xScale, totalText.yScale = 1 / s, 1 / s
+      fitWidth(totalText, totalText.x - slot.left)
+    end
+    showTotal(total - delta)
+    if delta == 0 then
+      later(options.delay or 650, function()
+        showGain(0)
+      end)
+      return icon
+    end
+    local ticks = math.min(math.abs(delta), 30)
+    local tick = 0
+    later(options.delay or 650, function()
+      if options.sound then
+        composer.audio.play(options.sound, { channel = cointickloopChannel, loops = -1, fadein = 500 })
+      end
+      later(options.tickTime or 50, function()
+        tick = tick + 1
+        local shown = math.floor(delta * tick / ticks + 0.5)
+        showGain(shown)
+        showTotal(total - delta + shown)
+        if tick == ticks then
+          composer.audio.stop(cointickloopChannel)
+          if options.endSound then
+            composer.audio.play(options.endSound, { channel = cointickloopChannel })
+          end
+        end
+      end, ticks)
+    end)
+    return icon
+  end
+
+  local statsShown = false
+  local function showStats(podiumPlace)
+    if statsShown or isPractice then
+      return
+    end
+    statsShown = true
+    local stats = gameInfo.stats or {}
+    local coinsWon = stats.g or 0
+    local money = stats.h or composer.database.getMoney()
+    if stats.h then
       composer.database.setMoney(money)
     end
-    if deltaMoney then
-      local moneyX = display.contentWidth * 0.0625
-      local moneyY = display.contentHeight * 0.069
-      local moneyIconX = moneyX + 36
-      local moneyText = composer.newText({
-        string = "",
-        size = 20,
-        color = {
-          1,
-          1,
-          1
-        }
-      })
-      moneyText.anchorX = 1
-      moneyText.anchorY = 1
-      moneyText.x = moneyX
-      moneyText.y = moneyY
-      newStatsGroup:insert(moneyText)
-      local prevMoney = money - deltaMoney
-      local moneyIcon = display.newImageRect("images/gui/postgame/iconCoin.png", 28, 28)
-      moneyIcon.anchorX = 1
-      moneyIcon.anchorY = 1
-      moneyIcon.x = moneyIconX
-      moneyIcon.y = moneyY
-      newTotalStatsGroup:insert(moneyIcon)
-      local totalMoneyText = composer.newText({
-        string = prevMoney,
-        size = 20,
-        color = {
-          1,
-          1,
-          1
-        }
-      })
-      totalMoneyText.anchorX = 1
-      totalMoneyText.anchorY = 1
-      totalMoneyText.x = moneyX
-      totalMoneyText.y = moneyY
-      newTotalStatsGroup:insert(totalMoneyText)
-      local coinEffectDelta = deltaMoney
-      if composer.data.gameInfo.stats.fa then
-        coinEffectDelta = math.floor(coinEffectDelta / 2)
+    local coinIcon = countUp(1, "images/gui/postgame/iconCoin.png", money, coinsWon,
+      { sound = "coins", endSound = "coins_end", delay = 650, iconSize = 17 })
+    if coinsWon > 0 and podiumPlace then
+      local feet = PODIUM_FEET[podiumPlace] or PODIUM_FEET[#PODIUM_FEET]
+      local startX, startY = onBackground(feet[1], feet[2] - 40)
+      local targetX, targetY = designToScreen(coinIcon.x, coinIcon.y)
+      local burst = coinsWon
+      if stats.fa then
+        burst = math.floor(burst / 2)
       end
-      coinEffect = coinRewardModule.createCoinReward(money, coinEffectDelta, indexInList, true)
+      coinEffect = coinRewardModule.createCoinReward(money, burst, { x = startX, y = startY }, true, targetX + 7 * s, targetY - 7 * s)
       coinEffect.animateCoins()
       effectGroup:insert(coinEffect)
-      local counterMoney = 0
-      local moneyToAddPerTick = 1
-      local numberOfTicks = 30
-      if deltaMoney < 30 then
-        numberOfTicks = deltaMoney
-      end
-      if 30 < deltaMoney then
-        moneyToAddPerTick = deltaMoney / 30
-      end
-
-      local function updateMoney()
-        counterMoney = counterMoney + moneyToAddPerTick
-        prevMoney = prevMoney + moneyToAddPerTick
-        if counterMoney == deltaMoney then
-          prevMoney = money
-          composer.audio.stop(cointickloopChannel)
-          composer.audio.play("coins_end", { channel = cointickloopChannel })
-        end
-        if totalMoneyText then
-          moneyText.text = " + " .. math.round(counterMoney)
-          totalMoneyText.text = math.round(prevMoney)
-        end
-      end
-
-      local function setMoney()
-        if deltaMoney == 0 then
-          composer.audio.stop(cointickloopChannel)
-          composer.audio.play("coins_end", { channel = cointickloopChannel })
-          moneyText.text = "+0"
-        else
-          composer.audio.play("coins", {
-            channel = cointickloopChannel,
-            loops = -1,
-            fadein = 500
-          })
-          moneyTimer = timer.performWithDelay(50, updateMoney, numberOfTicks)
-        end
-      end
-
-      startMoneyTimer = timer.performWithDelay(650, setMoney, 1)
     end
+    local tier = stats.league or offlineLeague.getTier()
+    local rating = stats.a or offlineLeague.getRating()
+    local ratingDelta = stats.r or 0
+    countUp(2, "images/gui/ranking/league/tierS_" .. tier .. ".png", rating, ratingDelta,
+      { sound = "rating", endSound = "rating_end", delay = 2000 + coinsWon * 10, tickTime = 40, iconSize = 18 })
   end
 
-  function updateStats(indexInList)
-    local list = composer.data.gameInfo.stats
-    if list then
-      print("postLobby stats: a=" .. tostring(list.a) .. " r=" .. tostring(list.r) ..
-        " g=" .. tostring(list.g) .. " h=" .. tostring(list.h))
-      if list.a ~= nil then
-        local deltaRating = list.r or 0
-        local extraDelay = (list.g or 0) * 50
-        updateRank(list.a, deltaRating, extraDelay)
-      end
-      if list.h ~= nil and list.g ~= nil then
-        updateMoney(list.h, list.g, indexInList)
-      end
-      if list.xp or list.gems then
-        if updateXpAndGems then
-          updateXpAndGems(list.xpTotal, list.xp, list.gemsTotal, list.gems)
-        end
-      end
+  -- A racer on the podium, with their league shield.
+  local function placeRacer(indexInList, place)
+    local player = gameInfo.players[indexInList]
+    if not player then
+      return
     end
-  end
+    local feet = PODIUM_FEET[place] or PODIUM_FEET[#PODIUM_FEET]
+    local networkFormat = isOnlineGame
+    local monster = monsterLoader.new(player.avatar, networkFormat)
+    monsters[#monsters + 1] = monster
+    local monsterGroup = monster.getGroup()
+    monsterGroup.xScale, monsterGroup.yScale = 0.5 * podiumScale, 0.5 * podiumScale
+    monsterGroup.x, monsterGroup.y = onBackground(feet[1], feet[2])
+    podiumGroup:insert(monsterGroup)
+    local centerX, centerY = onBackground(feet[1], feet[2] - 40)
+    player.pos = place
+    player.x, player.y = centerX, centerY
 
-  local function controllString(textString)
-    textString = "" .. textString
-    local dotPosition = string.find(textString, "%.")
-    if dotPosition then
-      if dotPosition + 2 < string.len(textString) then
-        textString = "" .. textString:sub(1, dotPosition + 2)
-      elseif dotPosition + 2 == string.len(textString) then
-      elseif dotPosition + 1 == string.len(textString) then
-        textString = textString .. "0"
-      elseif dotPosition == string.len(textString) then
-        textString = textString .. "00"
+    local isSelf = player.playerId == composer.database.getPlayerInformation().playerId
+    local tier = player.league
+    if isSelf then
+      tier = (gameInfo.stats and gameInfo.stats.league) or offlineLeague.getTier()
+    elseif tier == nil then
+      tier = offlineLeague.tierForRacer(player.username)
+    end
+    local badgeCorner = PODIUM_BADGES[place] or PODIUM_BADGES[#PODIUM_BADGES]
+    local badge = display.newImageRect(podiumGroup, "images/gui/ranking/league/tierS_" .. tier .. ".png", 26 * podiumScale, 26 * podiumScale)
+    badge.anchorX, badge.anchorY = 1, 0
+    badge.x, badge.y = onBackground(badgeCorner[1], badgeCorner[2])
+    badge.isVisible = not isPractice and place < 4
+
+    if isSelf then
+      if place == 1 and networkFormat then
+        composer.database.updateWinsForAvatar()
       end
+      showStats(place)
     else
-      textString = textString .. ".00"
+      otherPlayersId[#otherPlayersId + 1] = player.playerId
+      local isFriend = false
+      for _, friend in ipairs(friends) do
+        if friend.p == player.playerId then
+          isFriend = true
+        end
+      end
+      if isOnlineGame and not isFriend then
+        local addFriend = composer.newButton({
+          image = "images/gui/postgame/buttonFriendsAdd.png",
+          width = 30 * podiumScale,
+          height = 30 * podiumScale,
+          x = centerX - 15 * podiumScale,
+          y = centerY + 30 * podiumScale,
+          onRelease = function()
+            addFriendButtons[place].isVisible = false
+            addFriendButtons[place].inviteSent = true
+            composer.comm.addFriend(player.playerId, false)
+          end
+        })
+        addFriend.isVisible = false
+        podiumGroup:insert(addFriend)
+        addFriendButtons[place] = addFriend
+        buttons[#buttons + 1] = addFriend
+        if friendsButton then
+          friendsButton.isVisible = true
+        end
+      end
     end
-    return textString
   end
 
-  local rankingTextLabels = {}
-  local timeTextLabels = {}
-  local rankingGroupScale = 1
+  -- Times with two decimals: "31.50".
+  local function formatSeconds(seconds)
+    return string.format("%.2f", seconds)
+  end
 
-  local function setUpRankingTable(rankingTableFromComposer)
-    local rankingTable = rankingTableFromComposer
+  -- The times on the board, and the racers on the podium in finishing order.
+  local function showRanking(rankingTable)
     if not rankingTable or #rankingTable == 0 then
-      rankingTable = {
-        { username = "Player 1", goalTime = 10000, index = 1 },
-        { username = "Player 2", goalTime = 12000, index = 2 },
-        { username = "Player 3", goalTime = 14000, index = 3 },
-        { username = "Player 4", goalTime = 16000, index = 4 }
-      }
+      local errorText = newText({ string = composer.localized.get("ErrorNoPlayers"), size = 18, color = { 1, 1, 1 } })
+      errorText.x, errorText.y = 240, T + 110
+      ui:insert(errorText)
+      return
     end
-    if not composer.data.gameInfo.players or #composer.data.gameInfo.players == 0 then
-      composer.data.gameInfo.players = {}
-      local defaultAvatar = composer.database.getAvatarData()
-      for i = 1, 4 do
-        composer.data.gameInfo.players[i] = {
-          username = "Player " .. i,
-          avatar = defaultAvatar,
-          playerId = i
-        }
+    table.sort(rankingTable, function(a, b)
+      return a.goalTime < b.goalTime
+    end)
+    -- Equal times still get distinct places.
+    for i = 1, #rankingTable - 1 do
+      if rankingTable[i].goalTime >= rankingTable[i + 1].goalTime then
+        rankingTable[i + 1].goalTime = rankingTable[i].goalTime + 10
       end
     end
-    if rankingTable and #rankingTable < 5 then
-      local fastestTime
-      table.sort(rankingTable, function(a, b)
-        return a.goalTime < b.goalTime
-      end)
-      local tempFastestTime = rankingTable[1].goalTime
-      tempFastestTime = math.round(tempFastestTime)
-      tempFastestTime = tempFastestTime / 1000
-      fastestTime = tempFastestTime
-      for i = 1, #rankingTable - 1 do
-        if rankingTable[i].goalTime >= rankingTable[i + 1].goalTime then
-          rankingTable[i + 1].goalTime = rankingTable[i].goalTime + 0.01
-        end
+    local fastest = math.round(rankingTable[1].goalTime) / 1000
+    for i, entry in ipairs(rankingTable) do
+      local seconds = math.round(entry.goalTime) / 1000
+      local timeString
+      if i == 1 then
+        timeString = formatSeconds(seconds) .. " s"
+      elseif seconds > 999999 then
+        timeString = composer.localized.get("PlayerDisconnected")
+      else
+        timeString = "+ " .. formatSeconds(seconds - fastest) .. " s"
       end
-      for i = 1, #rankingTable do
-        local username = rankingTable[i].username
-        local goalTime = rankingTable[i].goalTime
-        local index = rankingTable[i].index
-        if index == nil then
-          index = i
-        end
-        local nameToShow = username
-        if string.len(nameToShow) > 11 then
-          nameToShow = nameToShow:sub(1, 11) .. ".."
-        end
-        goalTime = math.round(goalTime)
-        goalTime = goalTime / 1000
-        local rankingText, timeText
-        if i == 1 then
-          goalTime = controllString(goalTime)
-          rankingText = i .. ". " .. nameToShow
-          timeText = goalTime .. " s"
-        elseif 999999 < goalTime then
-          rankingText = i .. ". " .. nameToShow
-          timeText = composer.localized.get("PlayerDisconnected")
-        else
-          local diffTime = "" .. goalTime - fastestTime
-          diffTime = controllString(diffTime)
-          rankingText = i .. ". " .. nameToShow
-          timeText = " + " .. diffTime .. " s"
-        end
-        rankingTextLabels[i] = composer.newText({
-          string = rankingText,
-          size = 23,
-          color = {
-            1,
-            1,
-            1
-          },
-          ax = 0,
-          ay = 0
-        })
-        rankingTextLabels[i].x = 0
-        rankingTextLabels[i].y = (i - 1) * 24
-        rankingTextGroup:insert(rankingTextLabels[i])
-        timeTextLabels[i] = composer.newText({
-          string = timeText,
-          size = 23,
-          color = {
-            1,
-            1,
-            1
-          },
-          ax = 1,
-          ay = 0
-        })
-        timeTextLabels[i].x = 267
-        timeTextLabels[i].y = rankingTextLabels[i].y
-        rankingTextGroup:insert(timeTextLabels[i])
-        updateAvatar(index, username, i)
-        sendFriendRequestTable[#sendFriendRequestTable + 1] = username
+      local rowY = T + ROW_TOP + (i - 1) * ROW_SPACING
+      local nameText = newText({ string = i .. ". " .. tostring(entry.username), size = ROW_TEXT_SIZE, color = { 1, 1, 1 }, ax = 0, ay = 0 })
+      nameText.x, nameText.y = board.x - 81.6, rowY
+      rowsGroup:insert(nameText)
+      local timeText = newText({ string = timeString, size = ROW_TEXT_SIZE, color = { 1, 1, 1 }, ax = 1, ay = 0 })
+      timeText.x, timeText.y = board.x + 83.5, rowY
+      rowsGroup:insert(timeText)
+      fitWidth(nameText, 165 - timeText.width * timeText.xScale - 6)
+      -- A new personal best (Quick Play): the player's row flashes "New Best Time".
+      local racer = gameInfo.players[entry.index or i]
+      local myId = (composer.database.getPlayerInformation() or {}).playerId
+      if gameInfo.stats and gameInfo.stats.newBestTime and racer and racer.playerId == myId then
+        local nameString = nameText.text
+        local bestString = i .. ". " .. composer.localized.get("New Best Time")
+        local maxWidth = 165 - timeText.width * timeText.xScale - 6
+        local showingBest = false
+        later(900, function()
+          showingBest = not showingBest
+          nameText.text = showingBest and bestString or nameString
+          nameText.xScale, nameText.yScale = 1 / s, 1 / s
+          fitWidth(nameText, maxWidth)
+          nameText:setFillColor(1, showingBest and 0.85 or 1, showingBest and 0.2 or 1)
+        end, 0)
       end
-      rankingTextGroup.anchorX = 0
-      rankingTextGroup.anchorY = 0
-      rankingTextGroup.anchorChildren = true
-      rankingTextGroup.x = display.contentWidth * 0.63
-      rankingTextGroup.y = display.contentHeight * 0.113
-      rankingTextGroup.xScale = rankingGroupScale
-      rankingTextGroup.yScale = rankingGroupScale
-      screenGroup:insert(rankingTextGroup)
-      effectGroup:toFront()
-    else
-      local errorText = composer.newText({
-        string = composer.localized.get("ErrorNoPlayers"),
-        size = 25
-      })
-      errorText.x = display.contentWidth * 0.5
-      errorText.y = display.contentHeight * 0.3
-      screenGroup:insert(errorText)
-    end
-  end
-
-  local backgroundStatsImage = display.newImageRect("images/gui/postgame/windowCurrency.png", 318, 70)
-  backgroundStatsImage.x = display.contentWidth * 0.455
-  backgroundStatsImage.y = display.contentHeight * 0.916
-  screenGroup:insert(backgroundStatsImage)
-
-  local function createOnlinePostLobby()
-    chatButton.isVisible = true
-    chatButton.isVisible = true
-  end
-
-  local function updateDisplayGroups()
-    screenGroup:insert(photoIcon)
-    screenGroup:insert(backgroundTimeImage)
-    screenGroup:insert(placeholderGroup)
-    screenGroup:insert(mapName)
-    screenGroup:insert(backgroundStatsImage)
-    screenGroup:insert(returnToMenuButton)
-    screenGroup:insert(rematchButton)
-    screenGroup:insert(addFriendsButton)
-    screenGroup:insert(friendButtonOverlay)
-    screenGroup:insert(chatButton)
-    screenGroup:insert(chatButtonOverlay)
-    screenGroup:insert(chatButtonDropdown)
-    screenGroup:insert(marketButton)
-    screenGroup:insert(marketButtonOverlay)
-    screenGroup:insert(effectGroup)
-    if exitOnboarding then
-      screenGroup:insert(exitOnboarding)
-    end
-    if placeholdersEnabled and placeholderGroup then
-      placeholderGroup:toFront()
-    end
-    if photoIcon then
-      photoIcon:toFront()
+      placeRacer(entry.index or i, i)
     end
   end
 
   function clean()
     startedClean = true
-    if startMoneyTimer then
-      timer.cancel(startMoneyTimer)
-      startMoneyTimer = nil
-    end
-    if moneyTimer then
-      timer.cancel(moneyTimer)
-      moneyTimer = nil
-    end
-    if startRatingTimer then
-      timer.cancel(startRatingTimer)
-      startRatingTimer = nil
-    end
-    if ratingTimer then
-      timer.cancel(ratingTimer)
-      ratingTimer = nil
-    end
-    if chest then
-      chest.clean()
-      chest = nil
-    end
-    if chestCoinEffect then
-      chestCoinEffect.clean()
-      chestCoinEffect = nil
-    end
-    display.remove(marketButton)
-    display.remove(returnToMenuButton)
-    display.remove(rematchButton)
-    display.remove(addFriendsButton)
-    display.remove(chatButton)
-    display.remove(photoIcon)
-    display.remove(placeholderGroup)
-    if exitOnboarding then
-      display.remove(exitOnboarding)
+    for _, handle in ipairs(timers) do
+      timer.cancel(handle)
     end
     composer.audio.stop(cointickloopChannel)
-    for i = 1, #chatButtons do
-      display.remove(chatButtons[i])
+    for _, button in ipairs(buttons) do
+      display.remove(button)
     end
-    if monsters then
-      for i = 1, #monsters do
-        monsters[i].clean()
-      end
+    for _, monster in ipairs(monsters) do
+      monster.clean()
     end
     if coinEffect and coinEffect.clean then
       coinEffect.clean()
@@ -987,167 +647,123 @@ function scene:create(event)
   end
 
   if composer.config.showPostLobby then
-    composer.data.gameInfo.quickPlayerRankingTable = {
-      { username = "gunnar", goalTime = 10000 },
-      { username = "per",    goalTime = 13000 },
-      { username = "arne",   goalTime = 40000 },
-      { username = "ole",    goalTime = 20000 }
+    gameInfo.quickPlayerRankingTable = {
+      { username = "gunnar", goalTime = 10000, index = 1 },
+      { username = "per", goalTime = 13000, index = 2 },
+      { username = "arne", goalTime = 40000, index = 3 },
+      { username = "ole", goalTime = 20000, index = 4 }
     }
-    composer.data.gameInfo.stats = {}
-    composer.data.gameInfo.stats.a = 15
-    composer.data.gameInfo.stats.h = 26
-    composer.data.gameInfo.stats.b = 0
-    composer.data.gameInfo.stats.d = 0
-    composer.data.gameInfo.stats.g = 30
-    composer.data.gameInfo.stats.r = 5
-    composer.data.gameInfo.stats.fa = nil
+    gameInfo.stats = { a = 15, h = 26, g = 30, r = 5 }
   end
 
-  local function createChest()
-    chest = basicBoostAdModule.init(composer.data.gameInfo.stats.fa, screenGroup, composer.gamesPlayed)
-    if composer.data.gameInfo.stats.fa then
-      chestCoinEffect = coinRewardModule.createCoinReward(composer.data.gameInfo.stats.h,
-        math.floor(composer.data.gameInfo.stats.g / 2), 5, true)
-      chestCoinEffect.animateCoins()
-      effectGroup:insert(chestCoinEffect)
+  if #gameInfo.players == 0 then
+    local avatar = composer.database.getAvatarData()
+    for i = 1, 4 do
+      gameInfo.players[i] = { username = "Player " .. i, avatar = avatar, playerId = i }
     end
+  end
+  showRanking(gameInfo.quickPlayerRankingTable)
+  -- In case the player wasn't among the racers, still count up the rewards.
+  showStats(nil)
+
+  if not isOnlineGame and composer.onboarding.isActive ~= true then
+    botsChatOnTheirOwn()
   end
 
-  if composer.data.gameInfo.gameType ~= 0 then
-    createChest()
-  else
-  end
-  updateDisplayGroups()
-  if composer.data.gameInfo.gameType ~= 0 then
-    createOnlinePostLobby()
-  end
-  newStatsGroup.x = display.contentWidth * 0.455 - 130
-  newStatsGroup.y = display.contentHeight * 0.916 - 20
-  screenGroup:insert(newStatsGroup)
-  newTotalStatsGroup.x = display.contentWidth * 0.455 - 130
-  newTotalStatsGroup.y = display.contentHeight * 0.916 + 2
-  screenGroup:insert(newTotalStatsGroup)
-  if composer.data.gameInfo.stats and next(composer.data.gameInfo.stats) then
-    updateStats(1)
-  else
-    updateRank(1000, 0, 0)
-    updateMoney(1000, 0, 1)
-    if updateXpAndGems then
-      updateXpAndGems(0, 0, 0, 0)
-    end
-  end
-  setUpRankingTable(composer.data.gameInfo.quickPlayerRankingTable)
-  screenGroup:insert(chatBubbleGroup)
-  screenGroup:insert(chatButtonDropdown)
-  addChatButtons()
   if composer.onboarding.isActive == true then
-    composer.onboarding.addGuiReference("postlobby_exit", returnToMenuButton)
-    composer.onboarding.addGuiReference("postlobby_addFriends", addFriendsButton)
-    composer.onboarding.addGuiReference("postlobby_chat", chatButton)
-    composer.onboarding.addGuiReference("postlobby_times", backgroundTimeImage)
+    composer.onboarding.addGuiReference("postlobby_exit", closeButton)
+    composer.onboarding.addGuiReference("postlobby_times", board)
+    composer.onboarding.addGuiReference("postlobby_times", rowsGroup)
     composer.onboarding.addGuiReference("postlobby_mapName", mapName)
-    composer.onboarding.addGuiReference("postlobby_market", marketButton)
+    if friendsButton then
+      composer.onboarding.addGuiReference("postlobby_addFriends", friendsButton)
+    end
+    if chatButton then
+      composer.onboarding.addGuiReference("postlobby_chat", chatButton)
+    end
     composer.onboarding.updateDisplayGroups(nil, screenGroup)
   end
-  scene.setPostLobbyButtonsVisible = setPostLobbyButtonsVisible
-  scene.setPostLobbyPlaceholdersVisible = setPlaceholdersVisible
+
+  scene.setPostLobbyButtonsVisible = function(isVisible)
+    if chatButton then
+      chatButton.isVisible = isVisible
+    end
+    if friendsButton then
+      friendsButton.isVisible = isVisible and next(addFriendButtons) ~= nil
+    end
+  end
+  scene.setPostLobbyPlaceholdersVisible = function()
+  end
 end
 
 function scene:show(event)
-  local phase = event.phase
-  if phase == "will" then
+  if event.phase == "will" then
     return
   end
-  local screenGroup = self.view
   local startedClean = false
   local tcpFormat = require("lua.network.tcpMessageFormat")
   local androidLogic = require("lua.modules.androidBackButton")
-
-  -- Offline mode: do not load the ads module
-  local adModule
-  if not composer.config.offlineMode then
-    adModule = require("lua.ads.adModule")
-  end
   androidLogic.addBackButton("lua.scenes.mainMenu", "lua.scenes.postLobby")
-  resizeListener = function()
-    if layoutPostLobby then
-      layoutPostLobby()
-    end
-  end
-  Runtime:addEventListener("resize", resizeListener)
-  resizeListener()
 
   local function receiveUpdateFromNetworkGamePlay(data)
     if startedClean then
       return
     end
-    local messageID = data[1]
-    local messageType = composer.gameConfig.getMessageTypeForID(messageID)
+    local messageType = composer.gameConfig.getMessageTypeForID(data[1])
     if messageType == "UNLOCKED_AWARD" then
-      local formatedData = {}
-      formatedData[1] = 0
-      formatedData[2] = data[2]
-      formatedData[3] = data[3]
-      formatedData[4] = data[4]
-      dropDownModule.showAchivement(formatedData)
-    else
-      print("ERROR NETWORK: Got this stuff, dunno what to do: ", data)
+      dropDownModule.showAchivement({ 0, data[2], data[3], data[4] })
     end
   end
 
   composer.tcpClient.setReceiveFunction(receiveUpdateFromNetworkGamePlay)
-
-  local function callbackFunction(data)
-    if startedClean then
-      return
-    end
-    if data and data.m == tcpFormat.postGameChat() and addChatBubble then
+  composer.comm.setCallback(function(data)
+    if not startedClean and data and data.m == tcpFormat.postGameChat() and addChatBubble then
       addChatBubble(data.a, data.b)
     end
+  end)
+
+  -- A league promotion is announced once the rewards have counted up (if the player
+  -- leaves sooner, the main menu announces it).
+  local promotionTimer
+  if composer.league then
+    promotionTimer = timer.performWithDelay(3200, function()
+      promotionTimer = nil
+      local promotion = composer.league
+      if not startedClean and promotion and not composer.getSceneName("overlay") then
+        composer.league = nil
+        composer.showOverlay("lua.overlays.leaguePromotion", { isModal = true, params = promotion })
+      end
+    end)
   end
 
-  composer.comm.setCallback(callbackFunction)
-
-  local function runBotAgain()
+  local botTimer = timer.performWithDelay(2000, function()
     if isSimulator and composer.config.bot then
       composer.gotoScene("lua.scenes.mainMenu")
       composer.removeScene("lua.scenes.postLobby")
     end
-  end
-
-  local botTimer = timer.performWithDelay(2000, runBotAgain, 1)
+  end)
 
   function cleanEnter()
     startedClean = true
     androidLogic.removeBackButton()
-    if botTimer then
-      timer.cancel(botTimer)
-      botTimer = nil
+    timer.cancel(botTimer)
+    if promotionTimer then
+      timer.cancel(promotionTimer)
+      promotionTimer = nil
     end
-    if composer.data.gameInfo.gameType == 1 or composer.data.gameInfo.gameType == 4 then
+    local gameType = composer.data.gameInfo.gameType
+    if gameType == 1 or gameType == 4 then
       composer.tcpClient.stopTCPClient()
     end
-  end
-
-  if adModule and adModule.shouldShowAds() and composer.showingDailyChallange == false then
-    adModule.showAds()
-    timer.performWithDelay(composer.adsTable.showTime, adModule.hideAds, 1)
   end
 end
 
 function scene:hide(event)
-  local sceneGroup = self.view
-  local phase = event.phase
-  if phase == "will" then
-    if resizeListener then
-      Runtime:removeEventListener("resize", resizeListener)
-      resizeListener = nil
-    end
+  if event.phase == "will" then
     if cleanEnter then
       cleanEnter()
       cleanEnter = nil
     end
-  elseif phase == "did" then
   end
 end
 

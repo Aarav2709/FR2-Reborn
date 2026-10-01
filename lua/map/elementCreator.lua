@@ -3,6 +3,8 @@ local physicsData, themeTileset, themeReverseTileset, propsTileset, propsReverse
 local scaleFactor = 0.5
 local physics = require("physics")
 local composer = require("composer")
+local tileCuller = require("lua.map.tileCuller")
+local columnsTimer
 local normalPropertyMap
 local propPropertyMap = {
   getBlock = function()
@@ -218,9 +220,6 @@ local function createTile(block, tilesetIndex, tilesetTag, isReverse)
   end
   if blockPropertyData and blockPropertyData.behavior then
     addBehaviorToBlock(block, blockPropertyData.behavior)
-    if block.image and (block.tileId == 68 or block.tileId == 69 or block.tileId == 70 or (block.behaviors and (block.behaviors.bounceTile or block.behaviors.mushroom))) then
-      block.image.bounce = true
-    end
   end
   return block
 end
@@ -263,6 +262,12 @@ local function createElement(tileId, xPos, yPos, cameraGroup)
         block.image.mapElement = true
       end
       block.image.bodyType = "static"
+      -- Tropical tile 113 is a plain black wall that closes the level just outside
+      -- the original's 480-unit view. Wider screens can see it, so it stays solid
+      -- but invisible.
+      if currentTheme == "tropical" and blockId == 113 then
+        block.image.isVisible = false
+      end
     end
   end
   if block.image then
@@ -356,6 +361,8 @@ local function createAllElements(mapJson, cameraGroup, frontCameraGroup)
   local layers = mapJson.layers
   elements = {}
   startedClean = false
+  tileCuller.reset()
+  composer.culler = tileCuller
   local widthStarter = 1
   local widthEnd
 
@@ -374,7 +381,6 @@ local function createAllElements(mapJson, cameraGroup, frontCameraGroup)
     end
   end
 
-  local columnsTimer
   local function createNewColumns(event)
     if startedClean then
       if event and event.source then
@@ -398,6 +404,7 @@ local function createAllElements(mapJson, cameraGroup, frontCameraGroup)
       if event and event.source then
         timer.cancel(event.source)
       end
+      columnsTimer = nil
       local respawnEvent = {name = "mapDone"}
       Runtime:dispatchEvent(respawnEvent)
     end
@@ -414,6 +421,10 @@ local function clean()
   if columnsTimer then
     timer.cancel(columnsTimer)
     columnsTimer = nil
+  end
+  tileCuller.reset()
+  if composer.culler == tileCuller then
+    composer.culler = nil
   end
 end
 

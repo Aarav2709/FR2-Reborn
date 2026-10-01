@@ -1,29 +1,39 @@
+-- Idle animation for animated tiles such as powerup boxes: plays the
+-- "idleAnimation" sequence periodically while the tile is on screen.
+local util = require("lua.map.behaviors.behaviorUtil")
+
 local M = {}
-local composer = require("composer")
 
-local function addBehavior(block)
-  local playing = true
-  local animateTimer
-  local animationInterval = block.image.idleAnimationInterval
-
-  local function stop()
-    if block and block.image then
-      block.image:pause()
-      playing = false
-    end
+function M.addBehavior(block)
+  local image = block.image
+  -- The tile may have fallen back to a static image when its frames are missing.
+  if not image or not image.setSequence then
+    return
   end
+  local playing = false
+  local interval = image.idleAnimationInterval
 
   local function play()
-    if block and block.image then
-      block.image:setSequence("idleAnimation")
-      block.image:play()
+    if image and image.setSequence then
+      image:setSequence("idleAnimation")
+      image:play()
       playing = true
     end
   end
 
-  local function shouldPlay()
-    if composer.isOnScreen(block.image.x, block.image.y) then
-      if not playing or animationInterval then
+  local function stop()
+    if image and image.pause then
+      image:pause()
+      playing = false
+    end
+  end
+
+  local function update()
+    if not image or not image.x then
+      return
+    end
+    if util.isOnScreen(image.x, image.y) then
+      if not playing or interval then
         play()
       end
     elseif playing then
@@ -31,24 +41,18 @@ local function addBehavior(block)
     end
   end
 
+  local animateTimer = timer.performWithDelay(interval or 1000, update, 0)
+  play()
+
   local function clean()
     if animateTimer then
       timer.cancel(animateTimer)
       animateTimer = nil
     end
+    image = nil
   end
 
-  local checkForAnimation = 1000
-  if animationInterval then
-    checkForAnimation = animationInterval
-  end
-  animateTimer = timer.performWithDelay(checkForAnimation, shouldPlay, 0)
-  play()
-  block.behaviors.idleAnimation = {}
-  block.behaviors.idleAnimation.play = play
-  block.behaviors.idleAnimation.stop = stop
-  block.behaviors.idleAnimation.clean = clean
+  block.behaviors.idleAnimation = { play = play, stop = stop, clean = clean }
 end
 
-M.addBehavior = addBehavior
 return M

@@ -1,5 +1,9 @@
 local M = {}
 
+-- Super jump: a forward and upward push, weaker while already rising and stronger
+-- while falling. Values are the original one-step (1/30 s) forces, applied as impulses.
+local STEP = 1 / 30
+
 local function new(id, playerList)
   local jump = {1}
   jump.x = 1
@@ -8,14 +12,13 @@ local function new(id, playerList)
   if player then
     player.playPowerUpJumpEffect()
     local vx, vy = player:getLinearVelocity()
-    local newVx = math.max(vx + 120, 380)
-    local newVy = -750
+    local upForce = -300
     if vy < -140 then
-      newVy = -850
+      upForce = -250
+    elseif 100 < vy then
+      upForce = -400
     end
-    player.onGround = false
-    player.y = player.y - 4
-    player:setLinearVelocity(newVx, newVy)
+    player:applyLinearImpulse(100 * STEP, upForce * STEP, player.x, player.y)
   end
   return jump
 end

@@ -1,11 +1,12 @@
 local composer = require("composer")
+local seasonal = require("lua.modules.seasonalModule")
 local scene = composer.newScene()
 local cleanEnter
 local backgroundImage, layoutBufferScene, resizeListener
 
 function scene:create(event)
   local group = self.view
-  backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 1920, 1080)
+  backgroundImage = display.newImageRect(seasonal.menuBackground(), 1920, 1080)
   group:insert(backgroundImage)
   layoutBufferScene = function()
     local contentLeft = display.screenOriginX
@@ -28,11 +29,9 @@ function scene:create(event)
   if layoutBufferScene then
     layoutBufferScene()
   end
-  print("Creating bufferscene")
 end
 
 function scene:show(event)
-  print("Enter bufferscene")
   local phase = event.phase
   if phase == "will" then
     return
@@ -61,12 +60,10 @@ function scene:show(event)
     end
   end
 
-  print("Starting timer")
   startGame()
 end
 
 function scene:hide(event)
-  print("Exit bufferscene")
   local phase = event.phase
   if phase == "did" then
     return

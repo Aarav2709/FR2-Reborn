@@ -38,6 +38,7 @@ function M.loadSounds()
   sounds.bounce_activate = audio.loadSound("sound/sfx_bounce_activate.wav")
   sounds.bounce_hit = audio.loadSound("sound/sfx_bounce_hit.wav")
   sounds.bounce_tile = audio.loadSound("sound/sfx_bounce_tile.wav")
+  sounds.bounce_tile_space = audio.loadSound("sound/sfx_bounce_tile_space.wav")
   sounds.buy_item = audio.loadSound("sound/sfx_buy_item.wav")
   sounds.cannon = audio.loadSound("sound/sfx_cannon.wav")
   sounds.collect_achievement = audio.loadSound("sound/sfx_collect_achievement.wav")
@@ -89,6 +90,23 @@ function M.loadAnimations3()
   composer.characterPowerUpEffectsImageSheet = graphics.newImageSheet("images/monsters/powerups/powerUpEffects.png", composer.characterPowerUpEffectsImageSheetInfo:getSheet())
   composer.characterPowerUpEffectsSpeedImageSheetInfo = require("lua.monsters.powerUpEffectsSpeed")
   composer.characterPowerUpEffectsSpeedImageSheet = graphics.newImageSheet("images/monsters/powerups/powerUpEffectsSpeed.png", composer.characterPowerUpEffectsSpeedImageSheetInfo:getSheet())
+  -- The blue skull ghost that floats up when a runner dies.
+  composer.ghostImageSheetInfo = require("lua.game.powerups.ghostImageSheet")
+  composer.ghostImageSheet = graphics.newImageSheet("images/game/powerups/ghost.png", composer.ghostImageSheetInfo:getSheet())
+  animations.ghost = {
+    name = "normal",
+    start = composer.ghostImageSheetInfo:getFrameIndex("skeletonGhost-white-aura_00"),
+    count = 18,
+    time = 300,
+    loopCount = 0
+  }
+  -- The puff of smoke when a power-up set is tried in the Quick Play lobby.
+  local poofStart = composer.powerUpEffectImageSheetInfo:getFrameIndex("poof1")
+  animations.poff = {
+    { name = "normal", start = poofStart, count = 6, time = 600, loopCount = 1 },
+    { name = "loop", start = poofStart + 1, count = 5, time = 500, loopCount = 0 },
+    { name = "end", start = poofStart + 6, count = 3, time = 300, loopCount = 1 }
+  }
   local lightningEffectStartIndex = composer.powerUpEffectImageSheetInfo:getFrameIndex("lightningBolt1")
   local lightningEffectSequenceData = {
     name = "normal",
@@ -256,6 +274,34 @@ function M.loadAnimations2()
   composer.debugger.debugPrint("loadingTime", "Animations2 timeToLoad  " .. timeToLoad)
 end
 
+-- The power-up button's box (opens on a pick-up, closes when used): wood (0) or the
+-- colours of a full power-up set (1 to 7), as in Fun Run 2.
+function M.getButtonAnimation(set)
+  local animations = composer.data.animations
+  set = tonumber(set) or 0
+  local key = "puButtonEffect" .. set
+  if animations[key] then
+    return animations[key]
+  end
+  local info = composer.powerUpFXImageSheetInfo
+  local closedIndex = info:getFrameIndex("activate" .. set)
+  local openIndex = info:getFrameIndex("activate" .. set .. "_6")
+  if not closedIndex or not openIndex then
+    return set ~= 0 and M.getButtonAnimation(0) or nil
+  end
+  animations[key] = {
+    { name = "click", start = closedIndex, count = 6, time = 200, loopCount = 1, loopDirection = "bounce" },
+    { name = "gotPU", start = closedIndex, count = 6, time = 100, loopCount = 1 },
+    {
+      name = "close",
+      frames = { openIndex, openIndex - 1, openIndex - 2, openIndex - 3, openIndex - 4, openIndex - 5 },
+      time = 200,
+      loopCount = 1
+    }
+  }
+  return animations[key]
+end
+
 function M.loadAnimations1()
   if Animations1Loaded then
     return
@@ -264,39 +310,7 @@ function M.loadAnimations1()
   local animations = composer.data.animations
   composer.powerUpFXImageSheetInfo = require("lua.game.powerups.powerupsFXImageSheet")
   composer.powerUpFXImageSheet = graphics.newImageSheet("images/game/powerups/powerupsFX.png", composer.powerUpFXImageSheetInfo:getSheet())
-  local closedIndex = composer.powerUpFXImageSheetInfo:getFrameIndex("activate1")
-  local openIndex = composer.powerUpFXImageSheetInfo:getFrameIndex("activate6")
-  local puButtonSequenceData = {
-    {
-      name = "click",
-      start = closedIndex,
-      count = 6,
-      time = 200,
-      loopCount = 1,
-      loopDirection = "bounce"
-    },
-    {
-      name = "gotPU",
-      start = closedIndex,
-      count = 6,
-      time = 100,
-      loopCount = 1
-    },
-    {
-      name = "close",
-      frames = {
-        openIndex,
-        openIndex - 1,
-        openIndex - 2,
-        openIndex - 3,
-        openIndex - 4,
-        openIndex - 5
-      },
-      time = 200,
-      loopCount = 1
-    }
-  }
-  animations.puButtonEffect = puButtonSequenceData
+  animations.puButtonEffect = M.getButtonAnimation(0)
   local startShineIndex = composer.powerUpFXImageSheetInfo:getFrameIndex("shine1")
   local shineSequenceData = {
     {

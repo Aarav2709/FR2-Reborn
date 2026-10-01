@@ -1,24 +1,38 @@
 local composer = require("composer")
 local dropDownModule = require("lua.modules.dropdownHelper")
+local screen = require("lua.modules.screen")
+local offlineLeague = require("lua.modules.offlineLeague")
 local scene = composer.newScene()
-local powerUpButton, powerUpButtonFX, jumpButton, homeButton, shineEffect, jumpButtonGroup, powerUpButtonGroup, UIgroup, cameraGroup, cameraGroupForeground, countdownField, countdownImg, positionNumber, positionTexts, lagIndicator, jumpButtonImage, powerupButtonImage, selfHuntersMark, selfArrowImage, clean, cleanEnter
+local powerUpButton, powerUpButtonFX, jumpButton, homeButton, shineEffect, jumpButtonGroup, powerUpButtonGroup, UIgroup, cameraGroup, cameraGroupForeground, countdownField, countdownImg, positionNumber, positionTexts, lagIndicator, jumpButtonImage, powerupButtonImage, selfHuntersMark, selfArrowImage, clean, cleanEnter, layoutHud
 local cameraAnchorX, cameraAnchorY
-local CAMERA_ANCHOR_BASE_X = 65
-local CAMERA_ANCHOR_BASE_Y = 230
-local POSITION_TOP_BASE_Y = 23
+local worldGroup, viewScale, viewWidth, viewHeight
+-- Where the local runner sits in the original 480x320 view (Fun Run 2 v4.6).
+local CAMERA_ANCHOR_BASE_X = 150
+local CAMERA_ANCHOR_BASE_Y = 204
+local POSITION_TOP_BASE_Y = 20
+-- The race is framed like the original game: the world view covers at least its
+-- 480x320 units, scaled uniformly; wider screens see further ahead and taller ones
+-- (tablets) see more sky.
+local VIEW_WIDTH, VIEW_HEIGHT = 480, 320
 
 function scene:create(event)
   local screenGroup = self.view
-  local function relativeX(value)
-    return display.contentWidth * (value / 480)
-  end
+  screen.update()
+  viewScale = math.min(screen.height / VIEW_HEIGHT, screen.width / VIEW_WIDTH)
+  viewWidth = screen.width / viewScale
+  viewHeight = screen.height / viewScale
+  composer.gameViewport = { width = viewWidth, height = viewHeight, scale = viewScale }
+  -- HUD sizes come from the original 480x320 layout, scaled like the world.
+  local hud = viewScale
 
   local function relativeY(value)
-    return display.contentHeight * (value / 320)
+    return value * viewScale
   end
 
-  cameraAnchorX = relativeX(CAMERA_ANCHOR_BASE_X)
-  cameraAnchorY = relativeY(CAMERA_ANCHOR_BASE_Y)
+  -- Camera anchor in world units: where the local player sits in the view (the same
+  -- distance from the left and bottom edges as in the original).
+  cameraAnchorX = CAMERA_ANCHOR_BASE_X
+  cameraAnchorY = viewHeight - (VIEW_HEIGHT - CAMERA_ANCHOR_BASE_Y)
   local textColor = {
     1,
     1,
@@ -26,10 +40,30 @@ function scene:create(event)
     1
   }
   composer.data.gameInfo.stats = {}
+  if composer.onboarding.isActive == true then
+    composer.data.gameInfo.ranked = false
+  end
+  -- A full power-up set (owned, or tried in Quick Play) gets its own themed buttons.
+  local hudSet = false
+  local myInfo = composer.database.getPlayerInformation() or {}
+  for _, racer in ipairs(composer.data.gameInfo.players or {}) do
+    if racer.playerId == myInfo.playerId then
+      hudSet = composer.storeConfig.isThisAPowerupSet(racer.customPowerUps)
+    end
+  end
+  -- (Sets 1 to 7 all have their own button art.)
+  local hudSetId = tonumber(hudSet)
+  local hudSuffix = (hudSetId and hudSetId >= 1 and hudSetId <= 7) and tostring(hudSetId) or ""
+  -- As in Fun Run 2 your set colours every head on the progress bar, not the others' sets.
+  composer.data.gameInfo.hudSuffix = hudSuffix
+  worldGroup = display.newGroup()
+  worldGroup.xScale, worldGroup.yScale = viewScale, viewScale
+  worldGroup.x, worldGroup.y = screen.left, screen.top
+  screenGroup:insert(worldGroup)
   cameraGroup = display.newGroup()
-  screenGroup:insert(cameraGroup)
+  worldGroup:insert(cameraGroup)
   cameraGroupForeground = display.newGroup()
-  screenGroup:insert(cameraGroupForeground)
+  worldGroup:insert(cameraGroupForeground)
   UIgroup = display.newGroup()
   screenGroup:insert(UIgroup)
   jumpButtonGroup = display.newGroup()
@@ -40,7 +74,7 @@ function scene:create(event)
     string = "",
     x = display.contentWidth * 0.5,
     y = display.contentHeight * 0.44,
-    size = 50,
+    size = 40 * hud,
     color = {
       1,
       1,
@@ -48,24 +82,19 @@ function scene:create(event)
     }
   })
   UIgroup:insert(countdownField)
-  selfArrowImage = display.newImageRect("images/game/selfArrow.png", 15, 15)
-  selfArrowImage.x = cameraAnchorX
-  selfArrowImage.y = cameraAnchorY - relativeY(44)
+  -- Marker above the local player's head (drawn in screen space over the world).
+  selfArrowImage = display.newImageRect("images/game/selfArrow.png", 15 * hud, 15 * hud)
   UIgroup:insert(selfArrowImage)
-  selfHuntersMark = display.newImageRect("images/game/markIcon.png", 37, 34)
-  selfHuntersMark.x = cameraAnchorX
-  selfHuntersMark.y = cameraAnchorY - relativeY(44)
+  selfHuntersMark = display.newImageRect("images/game/markIcon.png", 37 * hud, 34 * hud)
   selfHuntersMark.alpha = 0
   UIgroup:insert(selfHuntersMark)
-  homeButton = display.newImageRect("images/gui/common/buttonClosePopup.png", 35, 35)
-  homeButton.x = homeButton.width * 0.5 + 8
-  homeButton.y = homeButton.height * 0.5 + 8
+  homeButton = display.newImageRect("images/gui/common/buttonClosePopup.png", 35 * hud, 35 * hud)
   UIgroup:insert(homeButton)
   positionNumber = composer.newText({
     string = "22",
     x = display.contentWidth * 0.5,
     y = relativeY(POSITION_TOP_BASE_Y),
-    size = 40,
+    size = 40 * hud,
     color = {
       1,
       1,
@@ -75,47 +104,69 @@ function scene:create(event)
   positionNumber.anchorX = 0.5
   positionNumber.anchorY = 0.5
   UIgroup:insert(positionNumber)
-  jumpButton = display.newImageRect("images/transparent.png", 190, 190)
-  jumpButton.x = display.contentWidth - jumpButton.width * 0.5
-  jumpButton.y = display.contentHeight - jumpButton.height * 0.5
+  -- Jump and powerup buttons, each with a large invisible touch zone in its corner.
+  jumpButton = display.newImageRect("images/transparent.png", 150 * hud, 150 * hud)
   jumpButtonGroup:insert(jumpButton)
-  jumpButtonImage = display.newImageRect("images/game/buttonJump.png", 82, 76)
-  jumpButtonImage.x = display.contentWidth - jumpButtonImage.width * 0.5
-  jumpButtonImage.y = display.contentHeight - jumpButtonImage.height * 0.5
+  jumpButtonImage = display.newImageRect("images/game/buttonJump" .. hudSuffix .. ".png", 68 * hud, 63 * hud)
   jumpButtonGroup:insert(jumpButtonImage)
-  powerUpButton = display.newImageRect("images/transparent.png", 190, 190)
-  powerUpButton.x = powerUpButton.width * 0.5
-  powerUpButton.y = display.contentHeight - powerUpButton.height * 0.5
+  powerUpButton = display.newImageRect("images/transparent.png", 150 * hud, 150 * hud)
   powerUpButtonGroup:insert(powerUpButton)
-  powerupButtonImage = display.newImageRect("images/game/buttonPowerup.png", 82, 76)
-  powerupButtonImage.x = powerupButtonImage.width * 0.5
-  powerupButtonImage.y = display.contentHeight - powerupButtonImage.height * 0.5
+  powerupButtonImage = display.newImageRect("images/game/buttonPowerup" .. hudSuffix .. ".png", 68 * hud, 63 * hud)
   powerUpButtonGroup:insert(powerupButtonImage)
-  powerUpButtonFX = display.newSprite(composer.powerUpFXImageSheet, composer.data.animations.puButtonEffect)
-  powerUpButtonFX.xScale = 0.6
-  powerUpButtonFX.yScale = 0.6
-  powerUpButtonFX.x = powerupButtonImage.x - 5
-  powerUpButtonFX.y = powerupButtonImage.y + 3
+  -- The box on the power-up button takes the set's colours too.
+  powerUpButtonFX = display.newSprite(composer.powerUpFXImageSheet,
+    require("lua.modules.assetLoader").getButtonAnimation(hudSuffix ~= "" and hudSuffix or 0))
+  powerUpButtonFX.xScale = 0.5 * hud
+  powerUpButtonFX.yScale = 0.5 * hud
   powerUpButtonGroup:insert(powerUpButtonFX)
   shineEffect = display.newSprite(composer.powerUpFXImageSheet, composer.data.animations.shineEffect)
-  shineEffect.xScale = 0.6
-  shineEffect.yScale = 0.6
-  shineEffect.x = powerupButtonImage.x - 5
-  shineEffect.y = powerupButtonImage.y + 3
+  shineEffect.xScale = 0.5 * hud
+  shineEffect.yScale = 0.5 * hud
   shineEffect.alpha = 0
   powerUpButtonGroup:insert(shineEffect)
-  lagIndicator = display.newImageRect("images/game/networkAlert.png", 25, 25)
-  lagIndicator.x = relativeX(125)
-  lagIndicator.y = relativeY(20)
+  lagIndicator = display.newImageRect("images/game/networkAlert.png", 25 * hud, 25 * hud)
   UIgroup:insert(lagIndicator)
   lagIndicator.alpha = 0
+
+  -- HUD placement for any screen shape. The jump and power-up buttons sit in the
+  -- bottom corners of the screen, as in Fun Run 2; the home button and texts stay
+  -- inside the safe area (notches, camera cut-outs).
+  function layoutHud()
+    screen.update()
+    countdownField.x = screen.centerX
+    countdownField.y = screen.top + screen.height * 0.44
+    selfArrowImage.x = worldGroup.x + cameraAnchorX * viewScale
+    selfArrowImage.y = worldGroup.y + (cameraAnchorY - 44) * viewScale
+    selfHuntersMark.x = selfArrowImage.x
+    selfHuntersMark.y = selfArrowImage.y
+    homeButton.x = screen.safeLeft + homeButton.width * 0.5 + 8
+    homeButton.y = screen.safeTop + homeButton.height * 0.5 + 8
+    lagIndicator.x = homeButton.x + homeButton.width + 3
+    lagIndicator.y = homeButton.y
+    positionNumber.x = screen.centerX
+    positionNumber.y = screen.safeTop + relativeY(POSITION_TOP_BASE_Y)
+    jumpButton.x = screen.right - jumpButton.width * 0.5
+    jumpButton.y = screen.bottom - jumpButton.height * 0.5
+    jumpButtonImage.x = screen.right - jumpButtonImage.width * 0.5
+    jumpButtonImage.y = screen.bottom - jumpButtonImage.height * 0.5
+    powerUpButton.x = screen.left + powerUpButton.width * 0.5
+    powerUpButton.y = screen.bottom - powerUpButton.height * 0.5
+    powerupButtonImage.x = screen.left + powerupButtonImage.width * 0.5
+    powerupButtonImage.y = screen.bottom - powerupButtonImage.height * 0.5
+    powerUpButtonFX.x = powerupButtonImage.x - 5 * hud
+    powerUpButtonFX.y = powerupButtonImage.y + 3 * hud
+    shineEffect.x = powerUpButtonFX.x
+    shineEffect.y = powerUpButtonFX.y
+  end
+  layoutHud()
   positionTexts = {}
   positionTexts[1] = composer.localized.get("1st")
   positionTexts[2] = composer.localized.get("2nd")
   positionTexts[3] = composer.localized.get("3rd")
   positionTexts[4] = composer.localized.get("4th")
   audio.reserveChannels(21)
-  if composer.data.gameInfo.gameType == 0 then
+  -- Practice races are against the three animal bots (Quick Play brings its own).
+  if composer.data.gameInfo.gameType == 0 and not composer.data.gameInfo.ranked then
     if composer.onboarding.isActive == true then
       composer.onboarding.setBotCharacters()
     else
@@ -164,6 +215,9 @@ function scene:create(event)
     composer.onboarding.addGuiReference("jump", jumpButton)
     composer.onboarding.addGuiReference("jump", jumpButtonImage)
     composer.onboarding.addGuiReference("powerUp", powerUpButtonGroup)
+    -- Registered last: the tutorial arrow points at the button image itself (the
+    -- group's bounds also hold the power-up icon and its effects).
+    composer.onboarding.addGuiReference("powerUp", powerupButtonImage)
     composer.onboarding.addGuiReference("position", positionNumber)
     composer.onboarding.addGuiReference("countdown", countdownField)
     composer.onboarding.addGuiReference("selfArrow", selfArrowImage)
@@ -183,18 +237,14 @@ function scene:show(event)
   if phase == "will" then
     return
   end
-  if not cameraAnchorX then
-    cameraAnchorX = display.contentWidth * (CAMERA_ANCHOR_BASE_X / 480)
-  end
-  if not cameraAnchorY then
-    cameraAnchorY = display.contentHeight * (CAMERA_ANCHOR_BASE_Y / 320)
-  end
   local screenGroup = self.view
   local killMessagesGroup = display.newGroup()
+  killMessagesGroup.xScale, killMessagesGroup.yScale = viewScale, viewScale
   local mapInterface = require("lua.map.interface")
   local physics = require("physics")
   local powerUps = require("lua.gameLogic.powerUps")
   local basicPlayer = require("lua.gameLogic.player")
+  local fireworksHandler = require("lua.game.effects.fireworksHandler")
   local gameRunning = false
   local networkGame = true
   local runOnce = true
@@ -217,15 +267,25 @@ function scene:show(event)
     1
   }
   local bottomBarList = {}
-  local barInsetLeft = display.contentWidth * (38 / 480)
-  local barInsetRight = display.contentWidth * (45 / 480)
-  local rawStartX = powerupButtonImage and powerupButtonImage.x or 40
-  local rawEndX = jumpButtonImage and jumpButtonImage.x or (display.contentWidth - 40)
-  local minRawX = math.min(rawStartX, rawEndX)
-  local maxRawX = math.max(rawStartX, rawEndX)
-  local bottomBarStartX = minRawX + barInsetLeft
-  local bottomBarEndX = maxRawX - barInsetRight
-  local bottomBarLength2 = math.max(1, bottomBarEndX - bottomBarStartX)
+  -- Left edge of the view at the start (world units): no further back than this.
+  local START_VIEW_BACK = 110
+  local startViewLeft
+  -- The progress bar of player heads runs between the powerup and jump buttons; the
+  -- heads (40 wide, centred) stay clear of both buttons at the start and the finish.
+  local HEAD_HALF_WIDTH, BAR_MARGIN = 20, 6
+  local bottomBarStartX, bottomBarLength2
+  local function computeBottomBar()
+    local startX = powerupButtonImage.x + powerupButtonImage.width * 0.5 + (HEAD_HALF_WIDTH + BAR_MARGIN) * viewScale
+    local endX = jumpButtonImage.x - jumpButtonImage.width * 0.5 - (HEAD_HALF_WIDTH + BAR_MARGIN) * viewScale
+    bottomBarStartX = math.min(startX, endX)
+    bottomBarLength2 = math.max(1, math.abs(endX - startX))
+  end
+  computeBottomBar()
+  local function layoutKillFeedGroup()
+    killMessagesGroup.x = screen.safeRight - 6
+    killMessagesGroup.y = screen.safeTop + 4
+  end
+  layoutKillFeedGroup()
   local playerList = {}
   local killTextMessages = {}
   local playerSelf, quitAlert, disconnectAlert, sendTimer, playerTimer, localCountdownTimer, puImageShufflerTimer, playerStartedTimer, antiStuckTimer, antiStuckCounter, botStuckTimer, startTimer, send, powerUpImage
@@ -248,9 +308,10 @@ function scene:show(event)
   local soundLevelClose = 0.7
   local soundLevelFar = 0.4
   local soundLevelOff = 0
-  local distanceThreshold1 = display.contentWidth
-  local distanceThreshold2 = display.contentWidth * 2
-  local distanceThreshold3 = display.contentWidth * 4
+  -- World distances (the original game's 480-unit screen width), not screen sizes.
+  local distanceThreshold1 = 480
+  local distanceThreshold2 = 480 * 2
+  local distanceThreshold3 = 480 * 4
 
   local function determineVolume(x1, x2)
     local distance = math.abs(x1 - x2)
@@ -325,8 +386,14 @@ function scene:show(event)
       powerUpImage = display.newImageRect("images/game/powerups/icons/rocket.png", size, size)
     elseif puType == 11 then
       powerUpImage = display.newImageRect("images/game/powerups/icons/teleport.png", size, size)
+    elseif puType == 97 or puType == 98 then
+      -- Level hazards (blade traps, icicles).
+      powerUpImage = display.newImageRect("images/game/powerups/icons/sawblade.png", size, size)
     elseif puType == 99 then
       powerUpImage = display.newImageRect("images/game/powerups/icons/mapIcon.png", size, size)
+    end
+    if not powerUpImage then
+      powerUpImage = display.newImageRect("images/transparent.png", size, size)
     end
     return powerUpImage
   end
@@ -371,11 +438,11 @@ function scene:show(event)
     if 50 < puType then
       puType = puType - 50
     end
-    powerUpImage = getPuIcon(puType, 54)
+    powerUpImage = getPuIcon(puType, 60 * viewScale)
     powerUpImage.anchorX = 0.5
     powerUpImage.anchorY = 0.5
-    powerUpImage.x = powerupButtonImage.x - 4
-    powerUpImage.y = powerupButtonImage.y + 2
+    powerUpImage.x = powerupButtonImage.x - 6 * viewScale
+    powerUpImage.y = powerupButtonImage.y + 1.5 * viewScale
     powerUpButtonGroup:insert(powerUpImage)
     powerUpImageReady = true
     powerUpButtonFX:setSequence("gotPU")
@@ -385,6 +452,18 @@ function scene:show(event)
 
   local function updatePowerUpImage(puType)
     setPowerUpImage(puType)
+  end
+
+  -- "This is you": the marker pops up big above the runner, then bounces down onto it.
+  local function playSelfArrowIntro()
+    if not selfArrowImage then
+      return
+    end
+    local restY = selfArrowImage.y
+    selfArrowImage.y = worldGroup.y + 100 * viewScale
+    selfArrowImage.alpha = 1
+    transition.to(selfArrowImage, { time = 300, xScale = 3, yScale = 3, transition = easing.outBack, tag = "selfArrowTransition" })
+    transition.to(selfArrowImage, { time = 300, delay = 400, y = restY, xScale = 1, yScale = 1, transition = easing.outBounce, tag = "selfArrowTransition" })
   end
 
   local function updateArrow()
@@ -419,103 +498,101 @@ function scene:show(event)
     end
   end
 
-  local function removeKillText(object)
-    if object and not startedClean then
-      object:removeSelf()
-      object = nil
+  -- Kill feed (top right): "killer [icon] victim", newest on top, a few entries at most.
+  local KILL_FEED_MAX = 4
+  local KILL_FEED_TIME = 6000
+  local KILL_FEED_ROW = 24
+
+  local function killFeedName(playerIndex)
+    if playerIndex == 98 then
+      return composer.localized.get("Level")
+    end
+    local entry = playerList and playerList[playerIndex]
+    if entry and entry.getUsername then
+      return entry.getUsername() or ""
+    end
+    return ""
+  end
+
+  local function layoutKillFeed()
+    for i = 1, #killTextMessages do
+      killTextMessages[i].y = (i - 1) * KILL_FEED_ROW
     end
   end
 
-  local function setKillText(killerId, puType, killedId)
-    if playerList and not startedClean then
-      local killerName = playerList[killerId].getUsername()
-      local killedName = playerList[killedId].getUsername()
-      local showTime = 6000
-      if puType == 7 or puType == 99 then
-        killedName = ""
+  local function removeKillFeedEntry(entry)
+    for i = #killTextMessages, 1, -1 do
+      if killTextMessages[i] == entry then
+        table.remove(killTextMessages, i)
       end
-      local text = composer.newText({
-        string = killedName,
-        size = 21,
-        color = {
-          1,
-          1,
-          1
-        }
-      })
-      text.anchorX = 1
-      text.anchorY = 0
-      text.x = display.contentWidth * 0.99
-      text.y = 0 - (#killTextMessages / 3 + 1) * display.contentHeight * 0.05
+    end
+    display.remove(entry)
+    if not startedClean then
+      layoutKillFeed()
+    end
+  end
 
-      local function killTextClosure(event)
-        return removeKillText(text)
+  -- The player's kills, deaths and suicides this race (for their league profile).
+  -- Magnet pulls, bounce traps and finishing also go through the kill feed.
+  local raceKills, raceDeaths, raceSuicides = 0, 0, 0
+  local function countKill(killerId, puType, killedId)
+    if not playerSelf or puType == 7 or puType == 8 or puType == 99 then
+      return
+    end
+    if killedId == playerSelf.id then
+      if killerId == playerSelf.id or killerId == 98 then
+        raceSuicides = raceSuicides + 1
+      else
+        raceDeaths = raceDeaths + 1
       end
-
-      timer.performWithDelay(showTime, killTextClosure, 1)
-      local puIcon = getPuIcon(puType, 26)
-      puIcon.anchorX = 1
-      puIcon.anchorY = 0
-      puIcon.x = text.x - text.width
-      puIcon.y = 2 - (#killTextMessages / 3 + 1) * display.contentHeight * 0.05
-
-      local function killTextClosure(event)
-        return removeKillText(puIcon)
-      end
-
-      timer.performWithDelay(showTime, killTextClosure, 1)
-      local text2 = composer.newText({
-        string = killerName,
-        size = 21,
-        color = {
-          1,
-          1,
-          1
-        }
-      })
-      text2.anchorX = 1
-      text2.anchorY = 0
-      text2.x = puIcon.x - puIcon.width
-      text2.y = 0 - (#killTextMessages / 3 + 1) * display.contentHeight * 0.05
-
-      local function killTextClosure(event)
-        return removeKillText(text2)
-      end
-
-      timer.performWithDelay(showTime, killTextClosure, 1)
-      killTextMessages[#killTextMessages + 1] = 1
-      killTextMessages[#killTextMessages + 1] = 1
-      killTextMessages[#killTextMessages + 1] = 1
-      killMessagesGroup:insert(text)
-      killMessagesGroup:insert(puIcon)
-      killMessagesGroup:insert(text2)
-      UIgroup:insert(killMessagesGroup)
+    elseif killerId == playerSelf.id then
+      raceKills = raceKills + 1
     end
   end
 
   local function createKillText(killerId, puType, killedId)
-    local transitionTime = 200
-    local newY = killMessagesGroup.y + display.contentHeight * 0.05
-    killMessagesGroup.y = newY
-
-    local function killTextClosure(event)
-      return setKillText(killerId, puType, killedId)
+    if not playerList or startedClean then
+      return
     end
-
-    timer.performWithDelay(transitionTime, killTextClosure, 1)
+    countKill(killerId, puType, killedId)
+    local killerName = killFeedName(killerId)
+    local killedName = killFeedName(killedId)
+    if puType == 7 or puType == 99 then
+      killedName = ""
+    end
+    local entry = display.newGroup()
+    local text = composer.newText({ string = killedName, size = 21, color = { 1, 1, 1 } })
+    text.anchorX, text.anchorY = 1, 0
+    text.x = 0
+    entry:insert(text)
+    local puIcon = getPuIcon(puType, 26)
+    puIcon.anchorX, puIcon.anchorY = 1, 0
+    puIcon.x = text.x - text.width
+    puIcon.y = 2
+    entry:insert(puIcon)
+    local text2 = composer.newText({ string = killerName, size = 21, color = { 1, 1, 1 } })
+    text2.anchorX, text2.anchorY = 1, 0
+    text2.x = puIcon.x - puIcon.width
+    entry:insert(text2)
+    killMessagesGroup:insert(entry)
+    table.insert(killTextMessages, 1, entry)
+    while #killTextMessages > KILL_FEED_MAX do
+      removeKillFeedEntry(killTextMessages[#killTextMessages])
+    end
+    layoutKillFeed()
+    timer.performWithDelay(KILL_FEED_TIME, function()
+      if not startedClean then
+        removeKillFeedEntry(entry)
+      end
+    end, 1)
   end
 
   function composer.isOnScreen(x, y)
     if not playerSelf then
       return false
     end
-    if x < playerSelf.x - 400 then
-      return false
-    elseif x > playerSelf.x + 580 then
-      return false
-    else
-      return true
-    end
+    local viewLeft = playerSelf.x - cameraAnchorX
+    return x >= viewLeft - 300 and x <= viewLeft + viewWidth + 200
   end
 
   local function playerInScreen(id)
@@ -539,9 +616,20 @@ function scene:show(event)
         activeCameraY = not composer.onboarding.disableCameraY(playerSelf.x)
       end
       if activeCameraX then
-        mapInterface.updateBackgrounds(-playerSelf.x, -playerSelf.y)
-        cameraGroup.x = -playerSelf.x + cameraAnchorX
-        cameraGroupForeground.x = -playerSelf.x + cameraAnchorX
+        -- Near the start the view stops short of the map's left wall (which shows
+        -- when the player starts in the first slot); then it follows as usual.
+        local viewLeft = playerSelf.x - cameraAnchorX
+        if startViewLeft and viewLeft < startViewLeft and composer.onboarding.isActive ~= true then
+          viewLeft = startViewLeft
+        end
+        mapInterface.updateBackgrounds(-(viewLeft + cameraAnchorX), -playerSelf.y)
+        cameraGroup.x = -viewLeft
+        cameraGroupForeground.x = -viewLeft
+        selfArrowImage.x = worldGroup.x + (playerSelf.x - viewLeft) * viewScale
+        selfHuntersMark.x = selfArrowImage.x
+      end
+      if composer.culler then
+        composer.culler.update(-cameraGroup.x, viewWidth)
       end
       if activeCameraY then
         cameraGroup.y = -playerSelf.y + cameraAnchorY
@@ -559,6 +647,13 @@ function scene:show(event)
             else
               playerList[i].forcePlayer()
             end
+          end
+        end
+      elseif playerList and composer.onboarding.isActive ~= true then
+        -- Waiting at the start: the trails already fly.
+        for i = 1, #playerList do
+          if playerList[i].updateIdleTrail then
+            playerList[i].updateIdleTrail()
           end
         end
       end
@@ -584,8 +679,20 @@ function scene:show(event)
     end
   end
 
+  -- The player's place when they crossed the line (later finishers can't change it).
+  local selfFinishPlace
+
   local function awardLocalRewards(placement)
     if composer.data.gameInfo.stats and composer.data.gameInfo.stats.rewardsApplied then
+      return
+    end
+    local ranked = composer.data.gameInfo.ranked == true
+    -- Practice races are just for fun: no coins, gems or league rating (the tutorial
+    -- still pays its coins).
+    if not ranked and composer.onboarding.isActive ~= true then
+      composer.data.gameInfo.stats.place = placement
+      composer.data.gameInfo.stats.practice = true
+      composer.data.gameInfo.stats.rewardsApplied = true
       return
     end
     local rewardTable = {
@@ -595,19 +702,57 @@ function scene:show(event)
       [4] = { coins = 15, xp = 15, gems = 0 }
     }
     local reward = rewardTable[placement] or rewardTable[4]
-    composer.database.increaseMoney(reward.coins)
+    local coins = reward.coins
+    -- The "Double coins" boost (store item 1001) doubles race coins, as in Fun Run 2.
+    local ownedItems = composer.database.getItems()
+    if ownedItems and ownedItems["1001"] then
+      coins = coins * 2
+    end
+    composer.database.increaseMoney(coins)
     composer.database.increaseXp(reward.xp)
     if reward.gems and reward.gems > 0 then
       composer.database.increaseGems(reward.gems)
     end
-    composer.data.gameInfo.stats.g = reward.coins
+    composer.data.gameInfo.stats.g = coins
     composer.data.gameInfo.stats.h = composer.database.getMoney()
     composer.data.gameInfo.stats.xp = reward.xp
     composer.data.gameInfo.stats.xpTotal = composer.database.getXp()
     composer.data.gameInfo.stats.gems = reward.gems
     composer.data.gameInfo.stats.gemsTotal = composer.database.getGems()
     composer.data.gameInfo.stats.place = placement
+    -- League rating for the finishing place (Quick Play only); a promotion is
+    -- announced on the results screen.
+    if ranked then
+      offlineLeague.endRankedRace()
+      require("lua.modules.racerProfiles").recordRace(placement, raceKills, raceDeaths, raceSuicides)
+      local leagueResult = offlineLeague.recordRace(placement)
+      composer.data.gameInfo.stats.a = leagueResult.rating
+      composer.data.gameInfo.stats.r = leagueResult.delta
+      composer.data.gameInfo.stats.league = leagueResult.tier
+      -- (A promotion not announced yet stays queued until a screen shows it.)
+      composer.league = leagueResult.popup or composer.league
+    end
     composer.data.gameInfo.stats.rewardsApplied = true
+  end
+
+  -- Bots can get stuck (e.g. dying on the same blade over and over). Once the
+  -- local runner is home, give them a while and then bring the stragglers in
+  -- behind the runner, as the tutorial races do.
+  local BOT_FINISH_GRACE = 15000
+  local botFinishTimer
+
+  local function bringBotsHome()
+    botFinishTimer = nil
+    if startedClean or allInGoal or not playerList then
+      return
+    end
+    local runnerTime = playerSelf.getPlayerGoalTime()
+    for i = 1, #playerList do
+      local racer = playerList[i]
+      if racer ~= playerSelf and racer.forceInGoal and racer.getPlayerGoalTime() < 1 then
+        racer.forceInGoal(runnerTime + math.random(1005, 10243))
+      end
+    end
   end
 
   local function endGame(playerInGoal)
@@ -635,7 +780,19 @@ function scene:show(event)
       end
       composer.data.gameInfo.quickPlayerRankingTable = rankingTable
       if playerInGoal == playerSelf.id then
+        selfFinishPlace = thisPlayerPosition
         updatePositionNumber(thisPlayerPosition)
+        -- Quick Play keeps the player's best time on each map.
+        if composer.data.gameInfo.ranked then
+          local bestTimes = require("lua.modules.bestTimes")
+          if bestTimes.record(composer.data.gameInfo.map, playerSelf.getPlayerGoalTime()) then
+            composer.data.gameInfo.stats.newBestTime = true
+          end
+        end
+        -- Fireworks over the finish line, livelier for better placings. Purely
+        -- cosmetic, so a failure here must not stop the race from ending.
+        local goalX = mapInterface.getGoal()
+        pcall(fireworksHandler.startFireWorks, goalX, playerSelf.y, cameraGroup, thisPlayerPosition)
       end
       if playersInGoal == #playerList and not allInGoal then
         awardLocalRewards(thisPlayerPosition)
@@ -643,6 +800,9 @@ function scene:show(event)
           allInGoal = true
           timer.performWithDelay(2000, goToNextScreen, 1)
         end
+      elseif composer.data.gameInfo.gameType == 0 and playerInGoal == playerSelf.id
+          and composer.onboarding.isActive ~= true and not botFinishTimer then
+        botFinishTimer = timer.performWithDelay(BOT_FINISH_GRACE, bringBotsHome, 1)
       elseif composer.onboarding.isActive == true and playerInGoal == playerSelf.id then
         if homeButton then
           homeButton.isVisible = false
@@ -744,12 +904,12 @@ function scene:show(event)
       countdownImg = nil
     end
     if imageText == "GO!" then
-      countdownImg = display.newImageRect("images/game/countdownGo.png", 129, 70)
+      countdownImg = display.newImageRect("images/game/countdownGo.png", 129 * viewScale, 70 * viewScale)
     else
       if string.len(imageText) > 1 then
         imageText = imageText:sub(1, 1)
       end
-      countdownImg = display.newImageRect("images/game/countdown" .. imageText .. ".png", 129, 70)
+      countdownImg = display.newImageRect("images/game/countdown" .. imageText .. ".png", 129 * viewScale, 70 * viewScale)
     end
     if countdownImg then
       countdownImg.x = display.contentWidth * 0.5
@@ -779,6 +939,20 @@ function scene:show(event)
     end
   end
 
+  -- Leaving a Quick Play race: before the finish it costs league rating; after it the
+  -- result counts as it stands.
+  local function leaveRankedRace()
+    if not composer.data.gameInfo.ranked or (composer.data.gameInfo.stats and composer.data.gameInfo.stats.rewardsApplied) then
+      return
+    end
+    if selfFinishPlace then
+      awardLocalRewards(selfFinishPlace)
+    else
+      offlineLeague.endRankedRace()
+      offlineLeague.applyLeavePenalty()
+    end
+  end
+
   local function quitAlertComplete(event)
     if "clicked" == event.action then
       local i = event.index
@@ -786,6 +960,7 @@ function scene:show(event)
         if startedClean then
           return
         end
+        leaveRankedRace()
         quitGameClean()
         if composer.onboarding.isActive == true then
           composer.onboarding.deactivate()
@@ -804,6 +979,7 @@ function scene:show(event)
         if startedClean then
           return
         end
+        leaveRankedRace()
         quitGameClean()
         if composer.onboarding.isActive == true then
           composer.onboarding.deactivate()
@@ -833,7 +1009,9 @@ function scene:show(event)
 
   local function showQuitAlert()
     local message = composer.localized.get("QuitGame")
-    if networkGame then
+    if composer.data.gameInfo.ranked and playerSelf and playerSelf.getPlayerGoalTime() <= 0 then
+      message = composer.localized.get("QuitGameWithWarning")
+    elseif networkGame then
       message = composer.localized.get("QuitGameWithWarning")
       if playerSelf.getPlayerGoalTime() > 0 then
         message = composer.localized.get("QuitGame")
@@ -1127,6 +1305,10 @@ function scene:show(event)
       timer.cancel(playerTimer)
       playerTimer = nil
     end
+    if botFinishTimer then
+      timer.cancel(botFinishTimer)
+      botFinishTimer = nil
+    end
     if startTimer then
       timer.cancel(startTimer)
       startTimer = nil
@@ -1268,8 +1450,28 @@ function scene:show(event)
     return false
   end
 
+  -- Rotating between the two landscape orientations moves the safe area.
+  local function hudResizeListener()
+    if startedClean then
+      return
+    end
+    layoutHud()
+    computeBottomBar()
+    layoutKillFeedGroup()
+    if powerUpImage and powerupButtonImage then
+      powerUpImage.x = powerupButtonImage.x - 6 * viewScale
+      powerUpImage.y = powerupButtonImage.y + 1.5 * viewScale
+    end
+    for i = 1, #bottomBarList do
+      if bottomBarList[i] then
+        bottomBarList[i].y = screen.bottom
+      end
+    end
+  end
+
   function cleanEnter()
     startedClean = true
+    Runtime:removeEventListener("resize", hudResizeListener)
     if gameController then
       Runtime:removeEventListener("enterFrame", gameController)
       gameController = nil
@@ -1285,6 +1487,7 @@ function scene:show(event)
     system.deactivate("multitouch")
     removeAlerts()
     stopTimers()
+    fireworksHandler.clean()
     powerUps.clean()
     for i = 1, #playerList do
       playerList[i].clean()
@@ -1334,8 +1537,9 @@ function scene:show(event)
     Runtime:addEventListener("mapDone", updateDisplayGroup)
     mapInterface.generateMap(composer.data.gameInfo.map, cameraGroup, cameraGroupForeground)
     local screenGroup = self.view
-    screenGroup:insert(1, mapInterface.getDisplayGroup())
+    worldGroup:insert(1, mapInterface.getDisplayGroup())
     local startXPos, startYPos = mapInterface.getStartPos()
+    startViewLeft = startXPos - START_VIEW_BACK
     initPlayers(startXPos, startYPos)
     for i = 1, #playerList do
       if playerList[i].playerId == myPlayerId then
@@ -1362,6 +1566,7 @@ function scene:show(event)
     end
     for i = 1, #playerList do
       bottomBarList[i] = playerList[i].getPlayerHead()
+      bottomBarList[i].xScale, bottomBarList[i].yScale = viewScale, viewScale
       local length = mapInterface.getLength() - 10
       if length <= 0 then
         bottomBarList[i].x = bottomBarStartX
@@ -1381,11 +1586,8 @@ function scene:show(event)
       UIgroup:insert(bottomBarList[playerSelf.id])
       updatePositionNumber(playerPosition)
     end
-    if positionNumber then
-      positionNumber.x = display.contentWidth * 0.5
-      positionNumber.y = display.contentHeight * (POSITION_TOP_BASE_Y / 320)
-      positionNumber.anchorX = 0.5
-      positionNumber.anchorY = 0.5
+    if layoutHud then
+      layoutHud()
     end
     playerTimer = timer.performWithDelay(100, updatePlayers, 0)
     shineTimer = timer.performWithDelay(4000, playShineEffect, 0)
@@ -1416,6 +1618,8 @@ function scene:show(event)
     end
     Runtime:addEventListener("key", androidKeyEvent)
     Runtime:addEventListener("enterFrame", androidButtonListener)
+    Runtime:addEventListener("resize", hudResizeListener)
+    playSelfArrowIntro()
   end
 
   setUpGame()

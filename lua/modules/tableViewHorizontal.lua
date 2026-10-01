@@ -2,6 +2,8 @@ local screenW, screenH = display.contentWidth, display.contentHeight
 local viewableScreenW, viewableScreenH = display.viewableContentWidth, display.viewableContentHeight
 local screenOffsetW, screenOffsetH = display.contentWidth - display.viewableContentWidth, display.contentHeight - display.viewableContentHeight
 local centerScreenX = display.contentWidth * 0.5
+-- Touches left of this x (e.g. over a side panel) don't start a drag.
+local minTouchX = 100
 local currentTarget, detailScreen, velocity, currentDefault, currentOver, prevY, onScrollEnd, numberOfItems, delta, startPos, prevPos
 local startTime, lastTime, prevTime = 0, 0, 0
 local M = {}
@@ -79,6 +81,10 @@ local function scrollList(event)
       transition = easing.outQuad
     })
   elseif velocity == 0 then
+    if not currentTarget[1] then
+      Runtime:removeEventListener("enterFrame", scrollList)
+      return true
+    end
     local numberOfCells = math.round(math.abs((centerScreenX - currentTarget.x) / currentTarget[1].width))
     onScrollEnd(numberOfCells + 1)
     local nearestCellPosition = centerScreenX - currentTarget[1].width * numberOfCells
@@ -104,7 +110,7 @@ local function newListItemHandler(self, event)
   local upperLimit, bottomLimit = left, screenW - currentTarget.width - right
   local result = true
   if phase == "began" then
-    if event.x > 100 then
+    if event.x > minTouchX then
       display.getCurrentStage():setFocus(self)
       self.isFocus = true
       startPos = event.x
@@ -215,6 +221,7 @@ local function newList(params)
   local right = params.right or 48
   screenW = params.screenWidth or display.contentWidth
   centerScreenX = params.centerX or (screenW * 0.5)
+  minTouchX = params.minTouchX or 100
   local cat = params.cat
   local order = params.order or {}
   local categoryBackground = params.categoryBackground
@@ -319,7 +326,16 @@ local function newList(params)
     end
   end
 
+  local function clampIndex(itemNumber)
+    itemNumber = tonumber(itemNumber) or 1
+    return math.max(1, math.min(itemNumber, math.max(1, numberOfItems or 1)))
+  end
+
   function listView:scrollTo(itemNumber)
+    if not self[1] then
+      return
+    end
+    itemNumber = clampIndex(itemNumber)
     local newX = centerScreenX - self[1].width * (itemNumber - 1)
     local timeVal = 400
     velocity = 0
@@ -332,6 +348,10 @@ local function newList(params)
   end
 
   function listView:startAt(itemNumber)
+    if not self[1] then
+      return
+    end
+    itemNumber = clampIndex(itemNumber)
     self.x = centerScreenX - self[1].width * (itemNumber - 1)
   end
 

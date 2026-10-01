@@ -79,7 +79,8 @@ function M.selectRandomPowerUp(player, playerPosition, numberOfPlayers, playerLi
   if composer.config.tutorial then
     powerUpType = 4
   end
-  if playerPosition == #playerList then
+  -- Far behind everyone in a race of three or more: teleport forward.
+  if playerPosition == #playerList and numberOfPlayers > 2 then
     local shouldGiveTeleport = true
     for i = 1, #playerList do
       if not playerList[i].mainPlayer and playerList[i].x < player.x + 1200 then

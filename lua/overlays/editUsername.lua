@@ -1,178 +1,142 @@
 local composer = require("composer")
+local screen = require("lua.modules.screen")
 local scene = composer.newScene()
 local clean, cleanEnter, nameTextField
 
+-- Rename sign in the original 480x320 design units: it hangs from the top of the
+-- screen, with the currency board in its usual corner.
+local DESIGN_W, DESIGN_H = 480, 320
+
 function scene:create(event)
   local group = self.view
-  local money = composer.database.getMoney()
-  local price = "error"
-  local dropdownGroup = display.newGroup()
-  price = composer.storeConfig.getUsernameChangePrice()
-  local textFieldSize = 25
-  local contiuneButton
-  if isAndroid then
-    textFieldSize = 35
+  local box = screen.designBox(DESIGN_W, DESIGN_H)
+  local s = box.scale
+  local price = composer.storeConfig.getUsernameChangePrice()
+  local continueButton
+
+  local function newText(params)
+    params.size = (params.size or composer.localized.getFontSize()) * s
+    local text = composer.newText(params)
+    text.baseScale = 1 / s
+    text.xScale, text.yScale = text.baseScale, text.baseScale
+    return text
   end
-  local background = display.newImageRect("images/gui/settings/windowRename.png", 405, 137)
-  background.anchorX = 0.5
+
+  local alphaBackground = display.newRect(group, screen.centerX, screen.centerY, screen.width + 4, screen.height + 4)
+  alphaBackground:setFillColor(0, 0, 0, 0.59)
+
+  local designGroup = display.newGroup()
+  designGroup.xScale, designGroup.yScale = s, s
+  designGroup.x, designGroup.y = box.left, box.top
+  group:insert(designGroup)
+  local dropdownGroup = display.newGroup()
+  designGroup:insert(dropdownGroup)
+  local top = box.T
+
+  local background = display.newImageRect(dropdownGroup, "images/gui/settings/windowRename.png", 350, 137)
   background.anchorY = 0
-  background.x = 250
-  background.y = -4
-  local backgroundCoins = display.newImageRect("images/gui/market/currentCoins.png", 70, 53)
-  backgroundCoins.anchorX = 0
-  backgroundCoins.anchorY = 0
-  backgroundCoins.x = 450
-  backgroundCoins.y = 0
+  background.x, background.y = 240, top
+
+  local backgroundCoins = display.newImageRect(designGroup, "images/gui/market/currentCoins.png", 70, 81)
+  backgroundCoins.anchorX, backgroundCoins.anchorY = 0, 0
+  backgroundCoins.x, backgroundCoins.y = box.SR - 80, top
+
+  local function newCurrencyLabel(value, y, color)
+    local label = newText({ string = value, size = 14, x = backgroundCoins.x + 24, y = top + y, ax = 0, color = color })
+    designGroup:insert(label)
+    return label
+  end
+
   local moneyValue = composer.database.getMoney()
   local gemValue = composer.database.getGems()
-  local moneyLabel = composer.newText({
-    string = moneyValue,
-    size = 14,
-    x = 476,
-    y = 45,
-    ax = 0,
-    color = {
-      1,
-      1,
-      1
-    }
-  })
-  local moneyLabelRed = composer.newText({
-    string = moneyValue,
-    size = 14,
-    x = 476,
-    y = 45,
-    ax = 0,
-    color = {
-      1,
-      0,
-      0
-    }
-  })
+  local moneyLabel = newCurrencyLabel(moneyValue, 69, { 1, 1, 1 })
+  local moneyLabelRed = newCurrencyLabel(moneyValue, 69, { 1, 0, 0 })
   moneyLabelRed.alpha = 0
-  local gemLabel = composer.newText({
-    string = gemValue,
-    size = 14,
-    x = 476,
-    y = 27,
-    ax = 0,
-    color = {
-      1,
-      1,
-      1
-    }
-  })
-  local gemLabelRed = composer.newText({
-    string = gemValue,
-    size = 14,
-    x = 476,
-    y = 27,
-    ax = 0,
-    color = {
-      1,
-      0,
-      0
-    }
-  })
-  gemLabelRed.alpha = 0
-  local alphaBackground = display.newRect(display.screenOriginX, display.screenOriginY, display.actualContentWidth, display.actualContentHeight)
-  alphaBackground.anchorX = 0
-  alphaBackground.anchorY = 0
-  alphaBackground:setFillColor(0, 0, 0, 0.5882352941176471)
-  alphaBackground.x = 0
-  alphaBackground.y = 0
-  local info = composer.newText({
-    string = composer.localized.get("SetUsername"),
-    size = 25,
-    color = {
-      1,
-      1,
-      1
-    }
-  })
-  info.anchorX = 0.5
-  info.anchorY = 0.5
-  info.x = 251
-  info.y = 20
-  local inputFieldDescriptionText = composer.newText({
-    string = composer.localized.get("Username"),
-    color = {
-      1,
-      1,
-      1
-    }
-  })
-  inputFieldDescriptionText.anchorX = 0.5
-  inputFieldDescriptionText.anchorY = 0.5
-  inputFieldDescriptionText.x = 125
-  inputFieldDescriptionText.y = 80
-  local infoText = composer.newText({string = ""})
-  infoText.anchorX = 0.5
-  infoText.anchorY = 0.5
-  infoText.x = 240
-  infoText.y = 110
-  nameTextField = native.newTextField(display.contentWidth * 4, display.contentHeight * 0.2, 150, textFieldSize)
-  nameTextField.anchorX = 0.5
-  nameTextField.anchorY = 0.5
-  nameTextField.x = 240
-  nameTextField.y = 80
-  nameTextField.userInput = composer.validateInput.limitTextField(15)
-  nameTextField:addEventListener("userInput", nameTextField.userInput)
-  nameTextField.text = composer.database.getPlayerInformation().username
+  newCurrencyLabel(gemValue, 41, { 1, 1, 1 })
+
+  local info = newText({ string = composer.localized.get("SetUsername"), size = 25, x = 240, y = top + 25, color = { 1, 1, 1 } })
+  dropdownGroup:insert(info)
+  local infoText = newText({ string = "", size = 13, x = 200, y = top + 111, color = { 1, 0.85, 0.6 } })
+  dropdownGroup:insert(infoText)
+
+  -- The name is typed on a cream plank drawn in the game's style; the phone's own
+  -- text box sits on it without a background, in the game font.
+  local INPUT_X, INPUT_Y, INPUT_W, INPUT_H = 200, top + 80, 200, 32
+  local inputBox = display.newRoundedRect(dropdownGroup, INPUT_X, INPUT_Y, INPUT_W, INPUT_H, 7)
+  inputBox:setFillColor(0.98, 0.93, 0.8)
+  inputBox:setStrokeColor(0.36, 0.22, 0.12)
+  inputBox.strokeWidth = 2
+  local keyboardOpen = false
+
+  local function onNameInput(event)
+    if event.phase == "began" then
+      keyboardOpen = true
+      infoText.text = ""
+    elseif event.phase == "ended" or event.phase == "submitted" then
+      keyboardOpen = false
+    end
+    nameTextField.limit(event)
+  end
+
+  -- Native objects don't follow the sign's drop-in animation, so the text box is
+  -- created once the sign has landed, in screen units.
+  local function createNameField()
+    if not background or not background.parent then
+      return
+    end
+    local fieldX = box.left + INPUT_X * s
+    local fieldY = box.top + INPUT_Y * s
+    nameTextField = native.newTextField(fieldX, fieldY, (INPUT_W - 16) * s, (INPUT_H - 4) * s)
+    nameTextField.hasBackground = false
+    nameTextField.font = native.newFont(composer.data.font or native.systemFontBold, 17 * s)
+    nameTextField:setTextColor(0.29, 0.16, 0.06)
+    nameTextField.align = "center"
+    nameTextField.placeholder = composer.localized.get("Username")
+    nameTextField.text = composer.database.getPlayerInformation().username
+    nameTextField.limit = composer.validateInput.limitTextField(15)
+    nameTextField.userInput = onNameInput
+    nameTextField:addEventListener("userInput", onNameInput)
+    group:insert(nameTextField)
+    if not isAndroid then
+      native.setKeyboardFocus(nameTextField)
+    end
+  end
 
   local function giveCoinFeedback()
-    local newSize = 1.2
-    local timeToUse = 100
-    local delayToUse = 200
-    transition.to(moneyLabel, {
-      time = timeToUse,
-      xScale = newSize,
-      yScale = newSize
-    })
-    transition.to(moneyLabel, {
-      time = timeToUse,
-      delay = delayToUse,
-      xScale = 1,
-      yScale = 1
-    })
-    transition.to(moneyLabelRed, {
-      time = timeToUse,
-      xScale = newSize,
-      yScale = newSize,
-      alpha = 1
-    })
-    transition.to(moneyLabelRed, {
-      time = timeToUse,
-      delay = delayToUse,
-      xScale = 1,
-      yScale = 1,
-      alpha = 0
-    })
+    local base = moneyLabel.baseScale
+    transition.to(moneyLabel, { time = 100, xScale = base * 1.2, yScale = base * 1.2 })
+    transition.to(moneyLabel, { time = 100, delay = 200, xScale = base, yScale = base })
+    transition.to(moneyLabelRed, { time = 100, xScale = base * 1.2, yScale = base * 1.2, alpha = 1 })
+    transition.to(moneyLabelRed, { time = 100, delay = 200, xScale = base, yScale = base, alpha = 0 })
   end
 
   local function canPlayerAffordItem()
-    local money = composer.database.getMoney()
-    if price and money >= price then
+    if price and composer.database.getMoney() >= price then
       composer.analytics.newEvent("design", {
         event_id = "rename:coins",
         area = composer.config.fullVersion
       })
       return true
-    else
-      giveCoinFeedback()
-      return false
     end
+    composer.audio.play("no_powerup")
+    giveCoinFeedback()
+    return false
   end
 
-  local function closeButtonEvent()
-    composer.hideOverlay()
+  local function close()
     native.setKeyboardFocus(nil)
+    composer.hideOverlay()
   end
 
+  -- A tap outside the sign first puts the keyboard away, then closes the sign.
   local function escapeTouchEvent(event)
     if event.phase == "ended" then
-      composer.hideOverlay()
-      native.setKeyboardFocus(nil)
+      if keyboardOpen then
+        keyboardOpen = false
+        native.setKeyboardFocus(nil)
+      else
+        close()
+      end
     end
     return true
   end
@@ -185,15 +149,19 @@ function scene:create(event)
   end
 
   local closeButton = composer.newButton({
-    x = 415,
-    y = 26,
+    x = 380,
+    y = top + 32,
     width = 43,
     height = 38,
-    image = "images/gui/common/buttonClosePopup.png",
-    onRelease = closeButtonEvent
+    image = "images/gui/common/buttonClosePopupBrown.png",
+    onRelease = close
   })
+  dropdownGroup:insert(closeButton)
 
   local function continueButtonEvent()
+    if not nameTextField then
+      return
+    end
     if canPlayerAffordItem() then
       local newName, nameError = composer.validateInput.validateUsername(nameTextField.text)
       if not newName then
@@ -208,14 +176,14 @@ function scene:create(event)
           event_id = "renameUser:attempt",
           area = composer.config.fullVersion
         })
-        composer.hideOverlay()
+        close()
       end
     end
   end
 
-  contiuneButton = composer.newButton({
+  continueButton = composer.newButton({
     x = 350,
-    y = 80,
+    y = INPUT_Y,
     width = 62,
     height = 45,
     text = {
@@ -226,54 +194,32 @@ function scene:create(event)
     image = "images/gui/settings/buttonRenameCoins.png",
     onRelease = continueButtonEvent
   })
+  dropdownGroup:insert(continueButton)
 
-  local function updateDisplayGroup()
-    group:insert(alphaBackground)
-    dropdownGroup:insert(background)
-    dropdownGroup:insert(backgroundCoins)
-    dropdownGroup:insert(moneyLabel)
-    dropdownGroup:insert(moneyLabelRed)
-    dropdownGroup:insert(gemLabel)
-    dropdownGroup:insert(gemLabelRed)
-    dropdownGroup:insert(info)
-    dropdownGroup:insert(nameTextField)
-    dropdownGroup:insert(inputFieldDescriptionText)
-    dropdownGroup:insert(infoText)
-    dropdownGroup:insert(closeButton)
-    dropdownGroup:insert(contiuneButton)
-    group:insert(dropdownGroup)
-  end
-
-  local function addListeners()
-    alphaBackground:addEventListener("touch", escapeTouchEvent)
-    background:addEventListener("touch", backgroundImageTouchEvent)
-  end
+  alphaBackground:addEventListener("touch", escapeTouchEvent)
+  background:addEventListener("touch", backgroundImageTouchEvent)
 
   function clean()
     display.remove(closeButton)
-    display.remove(contiuneButton)
+    display.remove(continueButton)
     native.setKeyboardFocus(nil)
-    nameTextField:removeEventListener("userInput", nameTextField)
+    if nameTextField then
+      nameTextField:removeEventListener("userInput", nameTextField.userInput)
+      display.remove(nameTextField)
+      nameTextField = nil
+    end
     alphaBackground:removeEventListener("touch", escapeTouchEvent)
     background:removeEventListener("touch", backgroundImageTouchEvent)
   end
 
-  updateDisplayGroup()
-  addListeners()
-  if not isAndroid then
-    native.setKeyboardFocus(nameTextField)
-  end
-  dropdownGroup.xScale = display.contentWidth / 480
-  dropdownGroup.yScale = display.contentHeight / 320
   composer.bouncer.down(dropdownGroup)
+  timer.performWithDelay(650, createNameField)
 end
 
 function scene:show(event)
-  local phase = event.phase
-  if phase == "will" then
+  if event.phase == "will" then
     return
   end
-  local group = self.view
   local androidLogic = require("lua.modules.androidBackButton")
 
   function cleanEnter()
@@ -284,17 +230,15 @@ function scene:show(event)
 end
 
 function scene:hide(event)
-  local phase = event.phase
-  if phase == "did" then
-    return
+  if event.phase == "will" and cleanEnter then
+    cleanEnter()
   end
-  local group = self.view
-  cleanEnter()
 end
 
 function scene:destroy(event)
-  local group = self.view
-  clean()
+  if clean then
+    clean()
+  end
 end
 
 scene:addEventListener("create", scene)

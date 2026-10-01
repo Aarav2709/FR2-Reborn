@@ -291,6 +291,23 @@ function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDi
     teleportEffect:play()
   end
 
+  -- Two ghosts per runner, used in turn (a quick second death reuses the other one).
+  local ghosts = {}
+  if composer.ghostImageSheet then
+    local ghostAnimation = require("lua.gameLogic.ghostAnimation")
+    ghosts[1] = ghostAnimation.create(bodyParts)
+    ghosts[2] = ghostAnimation.create(bodyParts)
+  end
+  local nextGhost = 1
+
+  function C.showGhostDeath(vx, vy, delay)
+    local ghost = ghosts[nextGhost]
+    if ghost then
+      nextGhost = nextGhost % #ghosts + 1
+      ghost.show(player, vx, vy, delay)
+    end
+  end
+
   local magnetEffect = display.newSprite(composer.powerUpEffectImageSheet, composer.data.animations.magnetEffect)
   magnetEffect.xScale = 0.5
   magnetEffect.yScale = 0.5
@@ -602,6 +619,9 @@ function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDi
     end
     transition.cancel("blood")
     removeEventListeners()
+    for _, ghost in ipairs(ghosts) do
+      ghost.clean()
+    end
   end
 
   function C.addEventListeners()

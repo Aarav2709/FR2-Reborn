@@ -127,27 +127,6 @@ local function tcpReceiveFunction(data)
     if data.sa and data.sb and data.sc then
       composer.database.setPushEnableStatus(data.sa, data.sb, data.sc)
     end
-    if data.v then
-      composer.adsTable.use = true
-      if data.v.t then
-        composer.adsTable.refreshRate = data.v.t
-      end
-      composer.adsTable.chances.chartboostAdChance = data.v.c
-      composer.adsTable.chances.fuseAdChance = data.v.d
-      composer.adsTable.postGameVideo = data.v.p
-      local chartboostVideoChance = data.v.cv
-      local fuseVideoChance = data.v.dv
-      local admobVideoChance = data.v.av
-      local vungleVideoChance = data.v.v
-      local nativeXVideoChance = data.v.x
-      local videoModule = require("lua.ads.videoModule")
-      videoModule.setChance(vungleVideoChance, admobVideoChance, chartboostVideoChance, nativeXVideoChance, fuseVideoChance)
-      videoModule.init()
-      if data.v.c then
-        local cb = require("lua.ads.chartboostModule")
-        cb.initAds()
-      end
-    end
     if data.fd and data.fe then
       composer.todayChallenges.data = data.fd
       composer.todayChallenges.time = data.fe
@@ -168,13 +147,6 @@ local function tcpReceiveFunction(data)
     if data.ar then
       composer.videosLeft = tonumber(data.ar)
     end
-    if data.fh then
-      composer.adBoostsLeft = tonumber(data.fh)
-    else
-      composer.adBoostsLeft = 0
-    end
-    composer.adBoostPrevGame = composer.gamesPlayed
-    composer.adBoostDrop = false
     if data.z then
       composer.database.setFacebookId(data.z)
     else
@@ -544,18 +516,6 @@ local function tcpReceiveFunction(data)
     if data.i and data.v and C.callback then
       C.callback(data)
     end
-  elseif data.m == tcpFormat.seenBoostVideo() then
-    if data.r then
-      return
-    end
-    if composer.adBoostsLeft then
-      if composer.adBoostsLeft > 0 then
-        composer.adBoostsLeft = composer.adBoostsLeft - 1
-      end
-    else
-      composer.adBoostsLeft = 0
-    end
-    print("Seen boost video OK response, decrementing remaining ad boosts. Remaining boosts " .. composer.adBoostsLeft)
   elseif data.m == tcpFormat.seenVideo() then
     if data.r then
       return
@@ -770,6 +730,10 @@ function C.deleteFriend(playerId)
 end
 
 function C.isOnline()
+  -- The offline build never connects (asking tcpSocial would start a connection).
+  if composer.config.offlineMode then
+    return false
+  end
   return tcpSocial.isOnline()
 end
 

@@ -3,8 +3,9 @@ local widget = require("widget")
 local composer = require("composer")
 local chatFormat = require("lua.network.chatMessageFormat")
 
-local function new(x, y, width, height, cellHeight, background, scene, callback, topPadding)
+local function new(x, y, width, height, cellHeight, background, scene, callback, topPadding, rowScale)
   local functionList = {}
+  rowScale = rowScale or 1
   local tableCellTouch = false
   local tableView, cellTimer
 
@@ -58,7 +59,6 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
           end
         end
         if scene == "friendsSettings2" then
-          print("row.isMysteryBox ", row.isMysteryBox)
           if row.isMysteryBox then
             if event.x > 330 then
               callback(row.sendMysterybox())
@@ -862,43 +862,44 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
     local text = params.text
     local saleImage
     local iconPath = params.image
-    local button = display.newImageRect(iconPath, 90, 49)
-    button.anchorX = 0
-    button.anchorY = 0
+    local s = rowScale
+    local button = display.newImageRect(iconPath, 87 * s, 47 * s)
     row:insert(button)
-    button.x = 0
-    button.y = 0
-    local buttonActive = display.newImageRect("images/gui/market/categorySelected.png", 90, 49)
-    buttonActive.anchorX = 0
-    buttonActive.anchorY = 0
-    row:insert(buttonActive)
-    buttonActive.x = button.x
-    buttonActive.y = button.y
+    button.x = 87 * s * 0.5
+    button.y = 47 * s * 0.5
     if iconPath == "images/gui/market/categoryGlasses.png" and composer.onboarding.isActive == true then
       composer.onboarding.addGuiReference("market_glasses", row)
     end
-    if not params.active then
-      buttonActive.isVisible = false
+    -- The selected category is tinted green and a little larger, as in Fun Run 2.
+    local function showActive(active)
+      if active then
+        button:setFillColor(0.7, 1, 0.7)
+        button.xScale, button.yScale = 1.05, 1.05
+      else
+        button:setFillColor(1, 1, 1)
+        button.xScale, button.yScale = 1, 1
+      end
     end
+    showActive(params.active)
     if params.sale then
-      saleImage = display.newImageRect("images/gui/market/saleSmall.png", 23, 20)
+      saleImage = display.newImageRect("images/gui/market/saleSmall.png", 23 * s, 20 * s)
       row:insert(saleImage)
-      saleImage.x = button.x + 86
-      saleImage.y = button.y + 6
+      saleImage.x = 80 * s
+      saleImage.y = 6 * s
     end
     if params.newItem then
-      local newItemImage = display.newImageRect("images/gui/market/newItemSmall.png", 23, 20)
+      local newItemImage = display.newImageRect("images/gui/market/newItemSmall.png", 23 * s, 20 * s)
       row:insert(newItemImage)
-      newItemImage.x = button.x + 86
-      newItemImage.y = button.y + 6
+      newItemImage.x = 80 * s
+      newItemImage.y = 6 * s
       if saleImage then
-        newItemImage.x = button.x + 72
+        newItemImage.x = 68 * s
         row:insert(saleImage)
       end
     end
 
     local function setActiveState(newState)
-      buttonActive.isVisible = newState
+      showActive(newState)
       params.active = newState
     end
 
@@ -945,23 +946,30 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
     elseif params.facebook then
       iconPath = "images/gui/settings/buttonFB.png"
     end
-    local iconBackground = display.newImageRect(iconPath, 120, 37)
+    -- The button fills its row, so a tap anywhere on it reaches this row.
+    local s = rowScale
+    local iconBackground = display.newImageRect(iconPath, 120 * s, 37 * s)
     iconBackground.anchorX = 0
     iconBackground.anchorY = 0
     row:insert(iconBackground)
     iconBackground.x = 0
-    iconBackground.y = 10
+    iconBackground.y = 0
     if text then
       local description = composer.newText({
         string = params.text,
-        size = 14
+        size = 14 * s
       })
       row:insert(description)
       description.anchorX = 0.5
       description.anchorY = 0.5
-      description.x = 60
-      description.y = 29
+      description.x = 60 * s
+      description.y = 18 * s
       description:setFillColor(0, 0, 0)
+      local maxWidth = 108 * s
+      if description.width > maxWidth then
+        local fit = maxWidth / description.width
+        description.xScale, description.yScale = fit, fit
+      end
     end
 
     local function clickButton()
@@ -1017,18 +1025,46 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
   end
 
   local function onRowRenderCredits(event)
-    local phase = event.phase
     local row = event.row
     local params = row.params
+    local s = rowScale
+    local size = params.size or composer.localized.getFontSize()
     local credits = composer.newText({
       string = params.creditInfo,
-      size = params.size,
-      x = 100,
+      size = size * s,
+      x = (params.x or 100) * s,
       y = row.contentHeight * 0.5,
       ax = 0,
-      ay = 0.5
+      ay = 0.5,
+      color = params.color
     })
     row:insert(credits)
+    local rowWidth = credits.width
+    -- Optional detail after the text (e.g. someone's role), smaller and in brown.
+    local detail
+    if params.detail then
+      detail = composer.newText({
+        string = params.detail,
+        size = size * 0.8 * s,
+        x = credits.x + credits.width + 6 * s,
+        y = row.contentHeight * 0.5,
+        ax = 0,
+        ay = 0.5,
+        color = params.detailColor or { 0.45, 0.27, 0.1 }
+      })
+      row:insert(detail)
+      rowWidth = detail.x + detail.width - credits.x
+    end
+    -- Long lines shrink to fit the column.
+    local maxWidth = row.contentWidth - credits.x - 2 * s
+    if maxWidth > 0 and rowWidth > maxWidth then
+      local fit = maxWidth / rowWidth
+      credits.xScale, credits.yScale = fit, fit
+      if detail then
+        detail.xScale, detail.yScale = fit, fit
+        detail.x = credits.x + (detail.x - credits.x) * fit
+      end
+    end
   end
 
   local function onRowRender(event)

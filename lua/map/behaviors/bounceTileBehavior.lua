@@ -1,134 +1,93 @@
+-- Bounce pads (mushrooms / springs). Tiles 68 (small pad), 69/70 (the two halves of
+-- a big pad; only one half spawns the sprite). The sprite carries the bouncy body.
+local util = require("lua.map.behaviors.behaviorUtil")
+
 local M = {}
-local composer = require("composer")
-local physics = require("physics")
 
-local function addBehavior(block)
-  local displayGroup = block.displayGroup
-  local imageSheet = block.animatedBlockSheet
+-- Physics bodies were renamed in some themes' data; accept both names.
+local PHYSICS_ALIASES = {
+  small_bounce1 = { "small_bounce1", "small_shroom1" },
+  big_bounce1 = { "big_bounce1", "big_shroom1" },
+}
+
+function M.addBehavior(block)
   local tileId = block.tileId
-  local frameName = ""
-  local xOffset = 0
-  local yOffset = 0
-
+  local isFlipped = block.image ~= nil and block.image.xScale < 0
+  local frameName, xOffset, yOffset
   if tileId == 68 then
-    frameName = "small_bounce1"
-    if block.animatedBlockSheetFile and not block.animatedBlockSheetFile:getFrameIndex("small_bounce1") then
-      frameName = "small_shroom1"
-    end
-    xOffset = 0
-    yOffset = -24
+    frameName, xOffset, yOffset = "small_bounce1", 0, -24
   elseif tileId == 69 then
-    frameName = "big_bounce1"
-    if block.animatedBlockSheetFile and not block.animatedBlockSheetFile:getFrameIndex("big_bounce1") then
-      frameName = "big_shroom1"
+    if not isFlipped then
+      return
     end
-    xOffset = -42
-    yOffset = -14
+    frameName, xOffset, yOffset = "big_bounce1", -42, -14
   elseif tileId == 70 then
-    frameName = "big_bounce1"
-    if block.animatedBlockSheetFile and not block.animatedBlockSheetFile:getFrameIndex("big_bounce1") then
-      frameName = "big_shroom1"
+    if isFlipped then
+      return
     end
-    xOffset = -42
-    yOffset = -14
+    frameName, xOffset, yOffset = "big_bounce1", -42, -14
+  else
+    return
   end
 
-  local frameIndex = nil
-  if block.animatedBlockSheetFile and frameName ~= "" then
-    frameIndex = block.animatedBlockSheetFile:getFrameIndex(frameName)
+  local startFrame = util.frameIndex(block.animatedBlockSheetFile, frameName)
+  if not startFrame then
+    -- No pad animation in this theme: make the tile itself bouncy instead.
+    if block.image then
+      block.image.bounce = true
+    end
+    return
   end
-  if not frameIndex then
-    frameIndex = 1
+  local theme = util.getTheme(block)
+  local frameCount, time, scale = 4, 350, block.scale
+  if theme == "space" then
+    frameCount, time, yOffset = 8, 200, -45
+  elseif theme == "tropical" then
+    frameCount, scale = 6, block.scale * 0.75
+    yOffset = yOffset + 6
   end
+  local frames = {}
+  for i = 1, frameCount do
+    frames[i] = startFrame + i - 1
+  end
+  frames[#frames + 1] = startFrame
 
-  local sequenceData = {
+  local sprite = display.newSprite(block.displayGroup, block.animatedBlockSheet, {
     name = "collisionAnimation",
-    start = frameIndex,
-    count = 4,
-    time = 500,
+    frames = frames,
+    time = time,
     loopCount = 1,
-    loopDirection = "bounce"
-  }
+    loopDirection = "forward"
+  })
+  sprite.x = block.x + xOffset
+  sprite.y = block.y + yOffset
+  sprite:scale(scale, scale)
 
-  local bounceSprite = display.newSprite(imageSheet, sequenceData)
-  bounceSprite.x = block.x + xOffset
-  bounceSprite.y = block.y + yOffset
-  bounceSprite:scale(block.scale or 1, block.scale or 1)
-  displayGroup:insert(bounceSprite)
-
-  local theme = (composer.data and composer.data.currentLevelTheme) or "forest"
-  local physicsPath = "lua.map.assets.physics." .. theme .. "_special"
-  local ok, physicsModule = pcall(require, physicsPath)
-  if not ok or not physicsModule then
-    pcall(function() physicsModule = require("lua.map.assets.physics.forest_special") end)
+  local names = PHYSICS_ALIASES[frameName]
+  local fixtures = util.getBodies(block, names[1], names[2])
+  if fixtures then
+    util.addStaticBody(sprite, fixtures, false)
+    sprite.mapElement = true
+    sprite.bounce = true
+  elseif block.image then
+    block.image.bounce = true
   end
-
-  local bodies = nil
-  if physicsModule and physicsModule.physicsData then
-    local physicsSheet = physicsModule.physicsData(block.scale or 1)
-    if physicsSheet and physicsSheet.get then
-      local physicsKey = (frameName == "small_bounce1" and "small_shroom1") or (frameName == "big_bounce1" and "big_shroom1") or frameName
-      local bodyData = physicsSheet:get(physicsKey) or physicsSheet:get(frameName)
-      if bodyData then
-        bodies = { bodyData }
-      end
-    end
-  end
-
-  if not bodies or not bodies[1] then
-    bodies = { { density = 2, friction = 0, bounce = 0, shape = { -40, -10, 40, -10, 40, 10, -40, 10 } } }
-  end
-
-  local activeFilter = obstacleFilter or { categoryBits = 2, maskBits = 21 }
-  for _, body in ipairs(bodies) do
-    if type(body) == "table" then
-      body.filter = activeFilter
-      body.isSensor = false
-    end
-  end
-
-  physics.addBody(bounceSprite, unpack(bodies))
-  bounceSprite.bodyType = "static"
-  bounceSprite.mapElement = true
-  bounceSprite.bounce = true
-
-  if composer.culler and composer.culler.addAnimatedTile then
-    composer.culler.addAnimatedTile(block.x, bounceSprite)
-  end
-  bounceSprite.isVisible = false
-
-  local function shouldPlay()
-    if composer.isOnScreen and composer.isOnScreen(block.x, block.y) then
-      return true
-    end
-    return true
-  end
+  util.registerAnimatedTile(block, sprite)
 
   local function play()
-    if bounceSprite and shouldPlay() then
-      bounceSprite.isVisible = true
-      bounceSprite:setSequence("collisionAnimation")
-      bounceSprite:play()
+    if sprite and util.isOnScreen(block.x, block.y) then
+      sprite:setSequence("collisionAnimation")
+      sprite:play()
     end
-  end
-
-  local function onCollision(self, event)
-    play()
   end
 
   local function clean()
-    if bounceSprite and bounceSprite.removeSelf then
-      pcall(function() bounceSprite:removeEventListener("collision", bounceSprite) end)
-      bounceSprite:removeSelf()
-      bounceSprite = nil
-    end
+    util.removeObject(sprite)
+    sprite = nil
   end
 
-  block.behaviors = block.behaviors or {}
   block.behaviors.bounceTile = { clean = clean }
-  bounceSprite.collision = onCollision
-  bounceSprite:addEventListener("collision", bounceSprite)
+  sprite.onCollision = play
 end
 
-M.addBehavior = addBehavior
 return M

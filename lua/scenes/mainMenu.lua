@@ -1,5 +1,10 @@
 local composer = require("composer")
+local seasonal = require("lua.modules.seasonalModule")
 local layoutGroup = require("lua.modules.layoutGroup")
+local screen = require("lua.modules.screen")
+local dailySpin = require("lua.modules.dailySpin")
+local offlineLeague = require("lua.modules.offlineLeague")
+local newsfeed = require("lua.overlays.newsfeed")
 local scene = composer.newScene()
 local clean, cleanEnter, checkForNewNotifications, refreshMainMenuAvatar
 local notificationPlugin
@@ -33,16 +38,16 @@ function scene:create(event)
     composer.gotoScene("lua.scenes.settings")
   end
 
+  local function btnNewsfeedSubtleSettingsRelease(event)
+    composer.showOverlay("lua.overlays.newsfeed", { isModal = true })
+  end
+
   local function btnClanRelease(event)
     composer.createCustomOverlay(1)
   end
 
   local function btnRankingRelease(event)
-    if composer.comm.isOnline() then
-      composer.gotoScene("lua.scenes.ranking")
-    else
-      composer.createCustomOverlay(1)
-    end
+    composer.showOverlay("lua.overlays.league", { isModal = true })
   end
 
   local function btnFriendsRelease(event)
@@ -68,12 +73,13 @@ function scene:create(event)
       local options = { isModal = true }
       composer.showOverlay("lua.overlays.achievementsScene", options)
     else
-      composer.createCustomOverlay(1)
+      -- Offline the trophy opens the prize wheel: one free spin every 24 hours.
+      composer.showOverlay("lua.overlays.spinningWheel", { isModal = true, params = {} })
     end
   end
 
   composer.playerInfo = composer.database.getPlayerInformation()
-  backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 1920, 1080)
+  backgroundImage = display.newImageRect(seasonal.menuBackground(), 1920, 1080)
   bearHead = display.newImageRect("images/gui/common/bgMainBear.png", 62, 60)
   logo = display.newImageRect("images/gui/common/logo.png", 244, 155)
   buttonStick = display.newImageRect("images/gui/mainMenu/buttonPlayStick.png", 150, 140)
@@ -170,136 +176,100 @@ function scene:create(event)
   refreshMainMenuAvatar()
 
   layoutMainMenu = function()
-    local screenLeft = display.screenOriginX
-    local screenTop = display.screenOriginY
-    local screenWidth = display.actualContentWidth
-    local screenHeight = display.actualContentHeight
-    local ratio = screenWidth / screenHeight
-    local buttonScale = 1.0
-    if ratio < 1.8 then
-    -- tablets
-      buttonScale = 1.25
-    end
-    local screenCenterX = screenLeft + screenWidth * 0.5
-    local screenCenterY = screenTop + screenHeight * 0.5
-    local contentLeft = 0
-    local contentTop = 0
-    local contentWidth = UI_BASE_W
-    local contentHeight = UI_BASE_H
-    local centerX = UI_BASE_W * 0.5
-    local centerY = UI_BASE_H * 0.5
-    local bottom = UI_BASE_H
+    screen.update()
+    local centerX = screen.centerX
+    local height = screen.height
+    local top = screen.top
+    local bottom = screen.safeBottom
+    -- On taller screens (tablets) the centre stack grows a little to use the extra height.
+    local stackScale = math.min(height / 400, 1.25)
 
-    if backgroundImage then
-      backgroundImage.x = screenCenterX
-      backgroundImage.y = screenCenterY
-      backgroundImage.xScale = 1
-      backgroundImage.yScale = 1
-      local scale = math.max(screenWidth / backgroundImage.width, screenHeight / backgroundImage.height)
-      backgroundImage.xScale = scale
-      backgroundImage.yScale = scale
-    end
+    screen.cover(backgroundImage)
     if logo then
+      logo.xScale, logo.yScale = stackScale, stackScale
       logo.x = centerX
-      logo.y = contentTop + contentHeight * 0.25
+      logo.y = top + height * 0.25
     end
     if playerAvatarGroup then
-      playerAvatarGroup.x = contentLeft + contentWidth * 0.2
-      playerAvatarGroup.y = contentTop + contentHeight * 0.7
-
-      local ratio = screenWidth / screenHeight
-
-      if ratio < 1.8 then
-        -- tablets
-        playerAvatarGroup.xScale = 1.8
-        playerAvatarGroup.yScale = 1.8
-      else
-        -- phones
-        playerAvatarGroup.xScale = 1.2
-        playerAvatarGroup.yScale = 1.2
-      end
-  end
-    if buttonStick then
-      buttonStick.x = centerX
-      buttonStick.y = contentTop + contentHeight * 0.75
+      local avatarScale = 1.2 * stackScale
+      playerAvatarGroup.xScale, playerAvatarGroup.yScale = avatarScale, avatarScale
+      playerAvatarGroup.x = math.max(screen.safeLeft + 110, screen.left + screen.width * 0.2)
+      playerAvatarGroup.y = top + height * 0.7
     end
-    if buttonStickClan then
-      buttonStickClan.x = contentLeft + 100
-      buttonStickClan.y = contentTop + contentHeight * 0.98
+    if buttonStick then
+      buttonStick.xScale, buttonStick.yScale = stackScale, stackScale
+      buttonStick.x = centerX
+      buttonStick.y = top + height * 0.75
     end
     if btnPlay then
+      btnPlay.xScale, btnPlay.yScale = stackScale, stackScale
       btnPlay.x = centerX
-      btnPlay.y = contentTop + contentHeight * 0.72
+      btnPlay.y = top + height * 0.72
     end
     if bearHead then
-      bearHead.x = centerX + contentWidth * 0.05
-      bearHead.y = contentTop + contentHeight * 0.90
+      bearHead.x = centerX + 45
+      bearHead.y = top + height * 0.9
     end
+    -- Corner buttons stay inside the safe area (notches, camera cut-outs).
+    btnSettings.x = screen.safeLeft + 32
+    btnSettings.y = screen.safeTop + 32
+    btnNewsfeedSubtleSettings.x = screen.safeLeft + 82
+    btnNewsfeedSubtleSettings.y = screen.safeTop + 32
+    local leftX = screen.safeLeft + 50
     if btnClan then
-      btnClan.x = contentLeft + 100
+      btnClan.x = leftX
       btnClan.y = bottom - 31
     end
-    btnSettings.x = screenLeft + 40
-    btnSettings.y = screenTop + 40
-
-    btnNewsfeedSubtleSettings.x = screenLeft + 90
-    btnNewsfeedSubtleSettings.y = screenTop + 40
+    if buttonStickClan then
+      buttonStickClan.x = leftX
+      buttonStickClan.y = bottom + 3
+    end
     if btnRanking then
-      btnRanking.x = contentLeft + 170
+      btnRanking.x = leftX + 71
       btnRanking.y = bottom - 28
     end
     if btnFriends then
-      btnFriends.x = contentLeft + 241
+      btnFriends.x = leftX + 142
       btnFriends.y = bottom - 28
     end
     if btnCustomize then
-      btnCustomize.x = contentLeft + contentWidth - 100
+      btnCustomize.x = screen.safeRight - 58
       btnCustomize.y = bottom - 28
     end
     if btnEarnCoins then
-      btnEarnCoins.x = contentLeft + contentWidth - 190
+      btnEarnCoins.x = screen.safeRight - 148
       btnEarnCoins.y = bottom - 28
     end
-    if tutorialLoadingScreen then
-      tutorialLoadingScreen.x = screenCenterX
-      tutorialLoadingScreen.y = screenCenterY
-      tutorialLoadingScreen.xScale = 1
-      tutorialLoadingScreen.yScale = 1
-      local scale = math.max(screenWidth / tutorialLoadingScreen.width, screenHeight / tutorialLoadingScreen.height)
-      tutorialLoadingScreen.xScale = scale
-      tutorialLoadingScreen.yScale = scale
-    end
+    screen.cover(tutorialLoadingScreen)
     if loadText then
-      loadText.x = screenCenterX
-      loadText.y = screenCenterY
+      loadText.x = screen.centerX
+      loadText.y = screen.centerY
     end
   end
 
   local function cleanNotifications()
-    if notifications[1] then
-      notifications[1]:removeSelf()
-      notifications[1] = nil
+    for i = 1, 4 do
+      display.remove(notifications[i])
+      notifications[i] = nil
+      display.remove(notificationText[i])
+      notificationText[i] = nil
     end
-    if notificationText[1] then
-      notificationText[1]:removeSelf()
-      notificationText[1] = nil
-    end
-    if notifications[2] then
-      notifications[2]:removeSelf()
-      notifications[2] = nil
-    end
-    if notificationText[2] then
-      notificationText[2]:removeSelf()
-      notificationText[2] = nil
-    end
-    if notifications[3] then
-      notifications[3]:removeSelf()
-      notifications[3] = nil
-    end
-    if notificationText[3] then
-      notificationText[3]:removeSelf()
-      notificationText[3] = nil
-    end
+  end
+
+  -- The red badge with a count on a menu button.
+  local function addBadge(index, button, count, offsetX)
+    notifications[index] = display.newImageRect("images/gui/mainMenu/alert.png", 20, 20)
+    notifications[index].x = button.x + offsetX
+    notifications[index].y = button.y - 20
+    uiGroup:insert(notifications[index])
+    notificationText[index] = composer.newText({
+      string = math.min(count, 99),
+      x = notifications[index].x,
+      y = notifications[index].y,
+      size = 20,
+      color = { 1, 1, 1 }
+    })
+    uiGroup:insert(notificationText[index])
   end
 
   local function checkForNotifications()
@@ -313,8 +283,8 @@ function scene:create(event)
         friendNotifications = 99
       end
       notifications[1] = display.newImageRect("images/gui/mainMenu/alert.png", 20, 20)
-      notifications[1].x = btnFriends.getX() + 23
-      notifications[1].y = btnFriends.getY() - 20
+      notifications[1].x = btnFriends.x + 23
+      notifications[1].y = btnFriends.y - 20
       uiGroup:insert(notifications[1])
       notificationText[1] = composer.newText({
         string = friendNotifications,
@@ -336,8 +306,8 @@ function scene:create(event)
         marketNotifications = 99
       end
       notifications[2] = display.newImageRect("images/gui/mainMenu/alert.png", 20, 20)
-      notifications[2].x = btnCustomize.getX() + 34
-      notifications[2].y = btnCustomize.getY() - 20
+      notifications[2].x = btnCustomize.x + 34
+      notifications[2].y = btnCustomize.y - 20
       uiGroup:insert(notifications[2])
       notificationText[2] = composer.newText({
         string = marketNotifications,
@@ -352,33 +322,21 @@ function scene:create(event)
       })
       uiGroup:insert(notificationText[2])
     end
-    local achievementNotifications = composer.data.dailyToClaim + composer.data.achievementToClaim
+    local achievementNotifications = (composer.data.dailyToClaim or 0) + (composer.data.achievementToClaim or 0)
+    if dailySpin.hasFreeSpin() then
+      achievementNotifications = achievementNotifications + 1
+    end
     if 0 < achievementNotifications then
-      if 99 < achievementNotifications then
-        achievementNotifications = 99
-      end
-      notifications[3] = display.newImageRect("images/gui/mainMenu/alert.png", 20, 20)
-      notifications[3].x = btnEarnCoins.getX() + 23
-      notifications[3].y = btnEarnCoins.getY() - 20
-      uiGroup:insert(notifications[3])
-      notificationText[3] = composer.newText({
-        string = achievementNotifications,
-        x = notifications[3].x,
-        y = notifications[3].y,
-        size = 20,
-        color = {
-          1,
-          1,
-          1
-        }
-      })
-      uiGroup:insert(notificationText[3])
+      addBadge(3, btnEarnCoins, achievementNotifications, 23)
+    end
+    if newsfeed.hasUnreadNews() then
+      addBadge(4, btnNewsfeedSubtleSettings, 1, 16)
     end
   end
 
   local function addTutorialImages()
     if composer.data.tutorial then
-      tutorialLoadingScreen = display.newImageRect("images/gui/common/bgBlur.png", display.actualContentWidth + 100, display.actualContentHeight + 100)
+      tutorialLoadingScreen = display.newImageRect(seasonal.menuBackground(), display.actualContentWidth + 100, display.actualContentHeight + 100)
       screenGroup:insert(tutorialLoadingScreen)
       tutorialLoadingScreen.alpha = 0
       loadText = composer.newText({
@@ -451,8 +409,10 @@ function scene:show(event)
     return
   end
   local androidLogic = require("lua.modules.androidBackButton")
-  local videoModule = require("lua.ads.videoModule")
   local saleGroup = display.newGroup()
+  local pendingLeaguePromotion, leaguePopupTimer
+  -- A Quick Play race left by closing the app costs the same as leaving it.
+  offlineLeague.settleAbandonedRace()
   local showingSaleInfo = false
   screenGroup:insert(saleGroup)
 
@@ -581,6 +541,7 @@ function scene:show(event)
       playerId = composer.database.getPlayerInformation().playerId
     }
     composer.data.gameInfo.gameType = composer.config.gameType
+    composer.data.gameInfo.ranked = false
     composer.data.gameInfo.map = composer.config.mapId
     composer.gotoScene("lua.scenes.gamePlay")
   end
@@ -595,14 +556,44 @@ function scene:show(event)
   function cleanEnter()
     androidLogic.removeBackButton()
     saleGroup:removeEventListener("tap", goToMarket)
+    if leaguePopupTimer then
+      timer.cancel(leaguePopupTimer)
+      leaguePopupTimer = nil
+    end
   end
 
   checkForNewNotifications()
   composer.comm.setCallback(getUpdatesFromServer)
 
+  -- Last week's league prize and any league change, one popup after the other.
+  local function showLeaguePopups()
+    leaguePopupTimer = nil
+    if composer.onboarding.isActive == true or composer.getSceneName("overlay") then
+      return
+    end
+    if not pendingLeaguePromotion then
+      local prize, promotion = offlineLeague.takePendingPopups()
+      -- A promotion from a race whose results were left before it was shown.
+      pendingLeaguePromotion = promotion or composer.league
+      composer.league = nil
+      if prize then
+        composer.showOverlay("lua.overlays.leaguePrize", { isModal = true, params = prize })
+        return
+      end
+    end
+    if pendingLeaguePromotion then
+      local promotion = pendingLeaguePromotion
+      pendingLeaguePromotion = nil
+      composer.showOverlay("lua.overlays.leaguePromotion", { isModal = true, params = promotion })
+    end
+  end
+
   function scene:overlayEnded()
     checkForNewNotifications()
     composer.comm.setCallback(getUpdatesFromServer)
+    if pendingLeaguePromotion and not leaguePopupTimer then
+      leaguePopupTimer = timer.performWithDelay(300, showLeaguePopups)
+    end
   end
 
   if composer.data.wrongVersion then
@@ -679,7 +670,6 @@ function scene:show(event)
   if notificationPlugin and notificationPlugin.cancelAllNotifications then
     notificationPlugin.cancelAllNotifications()
   end
-  videoModule.loadAd()
   checkForPromoItem()
   if composer.goToLobbyCustomPlay then
     composer.goToLobbyCustomPlay = false
@@ -697,6 +687,7 @@ function scene:show(event)
     local options = { isModal = true }
     composer.showOverlay("lua.overlays.todaysChallenges", options)
   end
+  leaguePopupTimer = timer.performWithDelay(600, showLeaguePopups)
 end
 
 function scene:hide(event)

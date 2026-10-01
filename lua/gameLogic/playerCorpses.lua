@@ -5,6 +5,9 @@ local gibPhysicsScale = 0.45
 local gibPhysicsSmallerScale = 0.3
 local gibPhysicsData = require("lua.monsters.physics.gibs").physicsData(gibPhysicsScale)
 local gibPhysicsSmallerData = require("lua.monsters.physics.gibs").physicsData(gibPhysicsSmallerScale)
+-- Tombstone outline (from the original physics data) for the 111x144 art at this scale.
+local TOMBSTONE_SCALE = 0.25
+local TOMBSTONE_SHAPE = { -41.5, 57, -33.5, -39, -1.5, -58, 29.5, -39, 41.5, 57 }
 
 local function newCorpsParts(displayGroup, playerToUse)
   local N = {}
@@ -20,6 +23,9 @@ local function newCorpsParts(displayGroup, playerToUse)
   local startedClean = false
   local bpForce = 30
   local deathAnimations
+  local tombstones = {}
+  local nextTombstone = 1
+  local tombstoneTimer
 
   local function addSpriteSet(monsterDeathAnimations)
     deathAnimations = monsterDeathAnimations
@@ -69,9 +75,65 @@ local function newCorpsParts(displayGroup, playerToUse)
         end
       end
     end
+    for i = 1, #tombstones do
+      display.remove(tombstones[i])
+    end
+    tombstones = {}
   end
 
   N.startedCleanNow = startedCleanNow
+
+  -- R.I.P. tombstones dropped where the runner died: three per runner, reused in
+  -- turn, like Fun Run 2. They fall onto the map and stay there.
+  local function readyTombstones()
+    if startedClean then
+      return
+    end
+    local shape = {}
+    for i = 1, #TOMBSTONE_SHAPE do
+      shape[i] = TOMBSTONE_SHAPE[i] * TOMBSTONE_SCALE
+    end
+    for i = 1, 3 do
+      local stone = display.newImageRect(bodyParts, "images/game/powerups/tombstone.png", 111 * TOMBSTONE_SCALE, 144 * TOMBSTONE_SCALE)
+      physics.addBody(stone, "dynamic", {
+        density = 0.6,
+        friction = 1,
+        bounce = 0,
+        shape = shape,
+        filter = remotePlayerCollisionFilter
+      })
+      stone.x, stone.y = player.x, player.y
+      stone.alpha = 0
+      stone.isBodyActive = false
+      tombstones[i] = stone
+    end
+  end
+
+  N.readyTombstones = readyTombstones
+
+  local function dropTombstone(delay)
+    if tombstoneTimer then
+      timer.cancel(tombstoneTimer)
+    end
+    -- Bodies can't be moved inside a collision, so this always runs on a timer.
+    tombstoneTimer = timer.performWithDelay(math.max(10, delay or 0), function()
+      tombstoneTimer = nil
+      local stone = tombstones[nextTombstone]
+      if startedClean or not stone or not stone.removeSelf then
+        return
+      end
+      nextTombstone = nextTombstone % #tombstones + 1
+      stone.isBodyActive = true
+      stone.x, stone.y = player.x, player.y
+      stone.rotation = 0
+      stone:setLinearVelocity(0, 0)
+      stone.angularVelocity = 0
+      stone.alpha = 1
+      stone:toFront()
+    end)
+  end
+
+  N.dropTombstone = dropTombstone
 
   local function dropHuntersMarkHead()
     if not startedClean then

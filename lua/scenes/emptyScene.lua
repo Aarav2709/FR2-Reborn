@@ -1,10 +1,11 @@
 local composer = require("composer")
+local seasonal = require("lua.modules.seasonalModule")
 local scene = composer.newScene()
 local backgroundImage, searchText, layoutEmptyScene, resizeListener
 
 function scene:create(event)
   local group = self.view
-  backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 1920, 1080)
+  backgroundImage = display.newImageRect(seasonal.menuBackground(), 1920, 1080)
   group:insert(backgroundImage)
   searchText = composer.newText({
     string = composer.localized.get("LoadingGame"),

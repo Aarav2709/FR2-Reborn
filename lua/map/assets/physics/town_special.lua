@@ -6,7 +6,7 @@ local M = {}
 function M.physicsData(scale)
   local physics = {
     data = {
-      cannon = {
+      cannon1 = {
         {
           pe_fixture_id = "",
           density = 2,
@@ -94,7 +94,10 @@ function M.physicsData(scale)
   end
   
   function physics:get(name)
-    return unpack(self.data[name])
+    local fixtures = self.data[name]
+    if fixtures then
+      return unpack(fixtures)
+    end
   end
   
   function physics:getFixtureId(name, index)

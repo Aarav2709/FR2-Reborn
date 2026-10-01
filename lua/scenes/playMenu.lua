@@ -1,9 +1,11 @@
 local composer = require("composer")
+local seasonal = require("lua.modules.seasonalModule")
 local layoutGroup = require("lua.modules.layoutGroup")
+local screen = require("lua.modules.screen")
 local scene = composer.newScene()
 local clean, cleanEnter
-local backgroundImage, bearHead, tipBackground, btnSingleplayerStick, btnQuickPlayrStick, btnCustomPlayStick
-local btnSingleplayer, btnQuickPlay, btnCustomPlay, btnBack, infoText
+local backgroundImage, tipBackground, btnSingleplayerStick, btnQuickPlayrStick, btnCustomPlayStick
+local btnSingleplayer, btnQuickPlay, btnCustomPlay, btnBack, btnPractice, infoText
 local layoutPlayMenu, resizeListener
 local uiGroup, updateUiGroup
 local UI_BASE_W, UI_BASE_H
@@ -37,16 +39,16 @@ function scene:create(event)
     composer.gotoScene("lua.scenes.lobbyPractice")
   end
 
+  -- 2 VS 2 needs other players: not in this version yet.
+  local function btn2v2Release(event)
+    composer.createCustomOverlay(1)
+  end
+
+  -- Quick Play is the ranked mode (offline: against bots), with coins, gems and league.
   local function btnQuickPlayRelease(event)
-    if composer.errorTable.quickplay then
-      showAlert(3)
-    elseif composer.comm.isOnline() then
-      composer.data.gameInfo.gameType = 1
-      composer.gotoScene("lua.scenes.lobbyQuickPlay")
-      composer.removeScene("lua.scenes.playMenu")
-    else
-      composer.createCustomOverlay(1)
-    end
+    composer.data.gameInfo.gameType = 0
+    composer.gotoScene("lua.scenes.lobbyQuickPlay")
+    composer.removeScene("lua.scenes.playMenu")
   end
 
   local function btnCustomPlayRelease(event)
@@ -63,10 +65,9 @@ function scene:create(event)
     composer.gotoScene("lua.scenes.mainMenu")
   end
 
-  backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 1920, 1080)
-  bearHead = display.newImageRect("images/gui/common/bgMainBear.png", 62, 60)
+  backgroundImage = display.newImageRect(seasonal.menuBackground(), 1920, 1080)
   tipBackground = display.newImageRect("images/gui/play/windowTips.png", 305, 60)
-  btnSingleplayerStick = display.newImageRect("images/gui/play/buttonStickPractice.png", 39, 153)
+  btnSingleplayerStick = display.newImageRect("images/gui/play/buttonStickFriends.png", 38, 159)
   btnQuickPlayrStick = display.newImageRect("images/gui/play/buttonQuickplayStick.png", 50, 200)
   btnCustomPlayStick = display.newImageRect("images/gui/play/buttonStickFriends.png", 38, 159)
   local practiceButtonSize = display.newImage("images/gui/play/button2v2Play.png")
@@ -82,14 +83,23 @@ function scene:create(event)
   btnSingleplayer = composer.newButton({
     image = "images/gui/play/button2v2Play.png",
     text = {
-      string = composer.localized.get("Practice"),
-      size = 20,
+      string = composer.localized.get("2 vs 2"),
+      size = 22,
       languageSizes = { fr = 18, es = 16 },
       y = 30,
       x = 0
     },
     width = practiceButtonScaledWidth,
     height = practiceButtonScaledHeight,
+    onRelease = btn2v2Release,
+    x = 0,
+    y = 0
+  })
+  -- Practice hangs under the Quick Play sign, as in Fun Run 2.
+  btnPractice = composer.newButton({
+    image = "images/gui/play/buttonPractice.png",
+    width = 125,
+    height = 41,
     onRelease = btnPracticePlayPlayRelease,
     x = 0,
     y = 0
@@ -140,35 +150,17 @@ function scene:create(event)
   })
 
   layoutPlayMenu = function()
-    local screenLeft = display.screenOriginX
-    local screenTop = display.screenOriginY
-    local screenWidth = display.actualContentWidth
-    local screenHeight = display.actualContentHeight
-    local screenCenterX = screenLeft + screenWidth * 0.5
-    local screenCenterY = screenTop + screenHeight * 0.5
+    screen.update()
+    local contentLeft = screen.left
+    local contentTop = screen.top
+    local contentWidth = screen.width
+    local contentHeight = screen.height
+    local centerX = screen.centerX
 
-    local contentLeft = 0
-    local contentTop = 0
-    local contentWidth = UI_BASE_W
-    local contentHeight = UI_BASE_H
-    local centerX = UI_BASE_W * 0.5
-
-    if backgroundImage then
-      backgroundImage.x = screenCenterX
-      backgroundImage.y = screenCenterY
-      backgroundImage.xScale = 1
-      backgroundImage.yScale = 1
-      local scale = math.max(screenWidth / backgroundImage.width, screenHeight / backgroundImage.height)
-      backgroundImage.xScale = scale
-      backgroundImage.yScale = scale
-    end
-    if bearHead then
-      bearHead.x = contentLeft + contentWidth * 0.55
-      bearHead.y = contentTop + contentHeight * 0.78
-    end
+    screen.cover(backgroundImage)
     if tipBackground then
-      tipBackground.x = 450
-      tipBackground.y = 28
+      tipBackground.x = centerX
+      tipBackground.y = screen.safeTop + 28
     end
     if btnSingleplayerStick then
       btnSingleplayerStick.x = contentLeft + contentWidth * 0.17
@@ -176,7 +168,7 @@ function scene:create(event)
     end
     if btnQuickPlayrStick then
       btnQuickPlayrStick.x = contentLeft + contentWidth * 0.501
-      btnQuickPlayrStick.y = contentTop + contentHeight * (167 / 320)
+      btnQuickPlayrStick.y = contentTop + contentHeight * (178 / 320)
     end
     if btnCustomPlayStick then
       btnCustomPlayStick.x = contentLeft + contentWidth * 0.83
@@ -190,19 +182,23 @@ function scene:create(event)
       btnQuickPlay.x = centerX
       btnQuickPlay.y = contentTop + contentHeight * 0.48
     end
+    if btnPractice then
+      btnPractice.x = centerX
+      btnPractice.y = contentTop + contentHeight * 0.76
+    end
     if btnCustomPlay then
       btnCustomPlay.x = contentLeft + contentWidth * 0.83
       btnCustomPlay.y = contentTop + contentHeight * 0.52
     end
     if btnBack then
-      btnBack.x = 120
-      btnBack.y = 385
+      -- The home sign's post runs off the bottom edge on purpose.
+      btnBack.x = screen.safeLeft + 70
+      btnBack.y = screen.bottom - 26
     end
-    if infoText then
-      if tipBackground then
-        infoText.x = tipBackground.x
-        infoText.y = tipBackground.y + 13
-      end
+    if infoText and tipBackground then
+      -- The plank is the upper 50 of the sign's 60 units (the rest is its shadow).
+      infoText.x = tipBackground.x
+      infoText.y = tipBackground.y - 3
     end
   end
 
@@ -214,14 +210,15 @@ function scene:create(event)
     uiGroup:insert(btnCustomPlayStick)
     uiGroup:insert(btnSingleplayer)
     uiGroup:insert(btnQuickPlay)
+    uiGroup:insert(btnPractice)
     uiGroup:insert(btnCustomPlay)
-    uiGroup:insert(bearHead)
     uiGroup:insert(btnBack)
   end
 
   function clean()
     display.remove(btnSingleplayer)
     display.remove(btnQuickPlay)
+    display.remove(btnPractice)
     display.remove(btnCustomPlay)
     display.remove(btnBack)
     if tryItAlert then
@@ -244,44 +241,30 @@ function scene:show(event)
   local screenGroup = self.view
   local androidLogic = require("lua.modules.androidBackButton")
   local botTimer
+  -- Tips on the sign at the top (the original's, minus the ones about its website,
+  -- social pages, accounts and online modes, plus a few about this version).
   local tipOfTheDay = {
-    "TD1",
-    "TD2",
-    "TD3",
-    "TD4",
-    "TD5",
-    "TD6",
-    "TD7",
-    "TD8",
-    "TD9",
-    "TD10",
-    "TD11",
-    "TD12",
-    "TD13",
-    "TD14",
-    "TD15",
-    "TD16",
-    "TD17",
-    "TD18",
-    "TD19",
-    "TD20",
-    "TD21",
-    "TD22",
-    "TD23",
-    "TD24",
-    "TD25",
-    "TD26",
-    "TD27",
-    "TD28",
-    "TD29",
-    "TD30",
-    "TD31",
-    "TD32",
-    "TD33",
-    "TD34",
-    "TD35",
-    "TD36",
-    "TD37"
+    "Fun Run: It's Fun!",
+    "Tip: Avoid traps! This also applies outside of Fun Run.",
+    "Tip: The balloon absorbs one hit, and is not limited by time.",
+    "No animals were harmed in the making of this game.",
+    "Tip: The shield lasts for 6 seconds and makes you invulnerable!",
+    "Tip: You can get new avatars and accessories in the Shop.",
+    "Tip: Got an argument you can't settle? Decide it with a race!",
+    "Tip: Replay the tutorial from the Settings menu.",
+    "Tip: Sawblades bounce off walls. Use it to your advantage!",
+    "Tip: Jumping slows you down slightly. Think before you jump.",
+    "Tip: Lightning strikes shortly after clouds appear.",
+    "Tip: Be careful when handling sawblades outside of the app!",
+    "Tip: Master skins can only be bought using coins!",
+    "Tip: The coin booster doubles coins gained from races. Forever.",
+    "Tip: The rocket explodes after a few seconds, killing anyone nearby. We blame poor engineering.",
+    "Tip: Strapping animals to rockets is not as fun in real life.",
+    "Tip: The Magnet pulls everyone towards you.",
+    "Break a leg!",
+    "Tip: Win races to earn league rating and climb to the next league.",
+    "Tip: Finish the week in the top places of your league for the best prizes.",
+    "Tip: Spin the prize wheel once a day for free coins, gems and items."
   }
 
   local function runBot()
@@ -309,23 +292,16 @@ function scene:show(event)
 
   composer.data.gameInfo.players = {}
   androidLogic.addBackButton("lua.scenes.mainMenu")
-  local tipToUseString = tipOfTheDay[math.random(1, #tipOfTheDay)]
-  local tipToUse = composer.localized.get(tipToUseString)
+  local tipToUse = composer.localized.get(tipOfTheDay[math.random(1, #tipOfTheDay)])
   if type(composer.data.messageOfTheDay) == "string" and 1 < string.len(composer.data.messageOfTheDay) then
     tipToUse = composer.data.messageOfTheDay
   end
+  -- No fixed height, so one and two line tips both sit in the middle of the plank.
   infoText = composer.newText({
     string = tipToUse,
-    x = 453,
-    y = 39,
     size = 12,
-    width = 290,
-    height = 49,
-    color = {
-      1,
-      1,
-      1
-    },
+    width = 285,
+    color = { 1, 1, 1 },
     align = "center"
   })
   uiGroup:insert(infoText)

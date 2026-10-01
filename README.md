@@ -1,6 +1,6 @@
 # FR2 Reborn
 
-FR2 Reborn is a fan made revival of Fun Run 2 for mobile, rebuilt from the ground up to look, play and feel like the original game.
+FR2 Reborn is a fan made revival of Fun Run 2 for mobile, rebuilt from the ground up to look, play and feel like the original game. Development of this game marks over 1.5 years of discontinuous development, from the project's creation in February 2025 to Release (October '26)!
 
 ## Features
 

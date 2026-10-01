@@ -34,14 +34,17 @@ local CHAT_TEXT = { "Well played", "Add me.. if you dare!", "Yaay!", "#&!?@*!", 
 -- The plank at the bottom: the coins icon sits in its first light patch and the
 -- league shield in the second, each with its total just left of it and the gain
 -- above the total.
-local PLANK_X, PLANK_Y, PLANK_W, PLANK_H = 220, 294, 170, 51
+local PLANK_X, PLANK_W, PLANK_H = 220, 150, 45
+-- Its wood ends 92% down the art (the post below that stays off screen), so the plank
+-- sits on the bottom edge of the screen like the original's.
+local PLANK_Y = 320 - PLANK_H * (0.92 - 0.5)
 local PLANK_LEFT = PLANK_X - PLANK_W * 0.5
--- (The light patches, measured on the art: centres at 40.5% and 86.1% across, 65% down.)
-local STATS_Y = PLANK_Y - PLANK_H * 0.5 + PLANK_H * 0.65
-local STATS_GAIN_Y = STATS_Y - 14
+-- (The light patches, measured on the art: centres at 40.5% and 86.3% across, 60.5% down.)
+local STATS_Y = PLANK_Y - PLANK_H * 0.5 + PLANK_H * 0.605
+local STATS_GAIN_Y = STATS_Y - 12
 local STATS_SLOTS = {
   { iconX = PLANK_LEFT + PLANK_W * 0.405, left = PLANK_LEFT + 10 },
-  { iconX = PLANK_LEFT + PLANK_W * 0.861, left = PLANK_LEFT + PLANK_W * 0.465 + 4 },
+  { iconX = PLANK_LEFT + PLANK_W * 0.863, left = PLANK_LEFT + PLANK_W * 0.465 + 4 },
 }
 -- Gap between a patch's icon and the numbers left of it.
 local STATS_TEXT_GAP = PLANK_W * 0.06 + 4
@@ -422,10 +425,10 @@ function scene:create(event)
     local slot = STATS_SLOTS[slotIndex]
     local icon = display.newImageRect(statsGroup, iconPath, options.iconSize or 15, options.iconSize or 15)
     icon.x, icon.y = slot.iconX, STATS_Y
-    local totalText = newText({ string = tostring(total - delta), size = 13, color = { 1, 1, 1 }, ax = 1 })
+    local totalText = newText({ string = tostring(total - delta), size = 12, color = { 1, 1, 1 }, ax = 1 })
     totalText.x, totalText.y = slot.iconX - STATS_TEXT_GAP, STATS_Y
     statsGroup:insert(totalText)
-    local gainText = newText({ string = "", size = 10, color = delta < 0 and { 1, 0.45, 0.4 } or { 0.6, 1, 0.45 }, ax = 1 })
+    local gainText = newText({ string = "", size = 9, color = delta < 0 and { 1, 0.45, 0.4 } or { 0.6, 1, 0.45 }, ax = 1 })
     gainText.x, gainText.y = totalText.x, STATS_GAIN_Y
     statsGroup:insert(gainText)
     local function showGain(value)
@@ -480,7 +483,7 @@ function scene:create(event)
       composer.database.setMoney(money)
     end
     local coinIcon = countUp(1, "images/gui/postgame/iconCoin.png", money, coinsWon,
-      { sound = "coins", endSound = "coins_end", delay = 650, iconSize = 17 })
+      { sound = "coins", endSound = "coins_end", delay = 650, iconSize = 14 })
     if coinsWon > 0 and podiumPlace then
       local feet = PODIUM_FEET[podiumPlace] or PODIUM_FEET[#PODIUM_FEET]
       local startX, startY = onBackground(feet[1], feet[2] - 40)
@@ -497,7 +500,7 @@ function scene:create(event)
     local rating = stats.a or offlineLeague.getRating()
     local ratingDelta = stats.r or 0
     countUp(2, "images/gui/ranking/league/tierS_" .. tier .. ".png", rating, ratingDelta,
-      { sound = "rating", endSound = "rating_end", delay = 2000 + coinsWon * 10, tickTime = 40, iconSize = 18 })
+      { sound = "rating", endSound = "rating_end", delay = 2000 + coinsWon * 10, tickTime = 40, iconSize = 15 })
   end
 
   -- A racer on the podium, with their league shield.

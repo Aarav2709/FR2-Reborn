@@ -5,6 +5,7 @@ local screen = require("lua.modules.screen")
 local dailySpin = require("lua.modules.dailySpin")
 local offlineLeague = require("lua.modules.offlineLeague")
 local newsfeed = require("lua.overlays.newsfeed")
+local pcMode = require("lua.modules.pcMode")
 local scene = composer.newScene()
 local clean, cleanEnter, checkForNewNotifications, refreshMainMenuAvatar
 local notificationPlugin
@@ -372,6 +373,15 @@ function scene:create(event)
       return
     end
     checkForNotifications()
+    -- (The PC menu has no corner buttons for the badges to sit on.)
+    if pcMode.isPC then
+      for _, badge in pairs(notifications) do
+        badge.isVisible = false
+      end
+      for _, text in pairs(notificationText) do
+        text.isVisible = false
+      end
+    end
   end
 
   function clean()
@@ -394,6 +404,110 @@ function scene:create(event)
 
   updateDisplay()
   addTutorialImages()
+
+  -- PC: a column on the right with the logo, one wooden plank per option and the coins
+  -- and gems below; the player's animal stands large on the left of a softly blurred
+  -- scene. The planks are buttons (mouse,
+  -- arrow keys and Enter); the one in focus swings out (see keyboardNav.lua).
+  if pcMode.isPC then
+    local PLANK_W, PLANK_H, PLANK_GAP, LABEL_SIZE = 200, 34, 6, 19
+    local pcMenu = display.newGroup()
+    uiGroup:insert(pcMenu)
+    local items = {
+      { "Play", btnPlayRelease },
+      { "Shop", btnCustomizeRelease },
+      { "Leagues", btnRankingRelease },
+      { "Daily Spin", btnEarnCoinsRelease },
+      { "News", btnNewsfeedSubtleSettingsRelease },
+      { "Settings", btnSettingsRelease },
+      { "Quit", function() native.requestExit() end }
+    }
+    local planks = {}
+    for i, item in ipairs(items) do
+      local plank = composer.newButton({
+        image = "images/gui/ranking/league/nextLeague.png",
+        width = PLANK_W,
+        height = PLANK_H,
+        x = 0,
+        y = 0,
+        onRelease = item[2]
+      })
+      local label = composer.newText({ string = composer.localized.get(item[1]), size = LABEL_SIZE, color = { 1, 1, 1 } })
+      label.y = 1
+      plank:insert(label)
+      pcMenu:insert(plank)
+      -- Every other plank leans a little, like a real signpost.
+      plank.restRotation = (i % 2 == 0) and 1.5 or -1.5
+      plank.navCustomFocus = function(isFocused)
+        transition.cancel(plank)
+        transition.to(plank, {
+          time = 140,
+          rotation = isFocused and 4 or plank.restRotation,
+          x = plank.restX - (isFocused and 14 or 0),
+          xScale = isFocused and 1.06 or 1,
+          yScale = isFocused and 1.06 or 1,
+          transition = easing.outQuad
+        })
+        label:setFillColor(1, isFocused and 0.85 or 1, isFocused and 0.3 or 1)
+      end
+      planks[i] = plank
+    end
+    local coinIcon = display.newImageRect(pcMenu, "images/gui/common/coin_small.png", 18, 18)
+    local coinText = composer.newText({ string = "", size = 16, color = { 1, 1, 1 }, ax = 1 })
+    pcMenu:insert(coinText)
+    local gemIcon = display.newImageRect(pcMenu, "images/gui/common/gem_small.png", 18, 18)
+    local gemText = composer.newText({ string = "", size = 16, color = { 1, 1, 1 }, ax = 1 })
+    pcMenu:insert(gemText)
+
+    -- A soft blur on the background puts the menu and the animal in front.
+    backgroundImage.fill.effect = "filter.blurGaussian"
+    backgroundImage.fill.effect.horizontal.blurSize = 12
+    backgroundImage.fill.effect.horizontal.sigma = 6
+    backgroundImage.fill.effect.vertical.blurSize = 12
+    backgroundImage.fill.effect.vertical.sigma = 6
+
+    local mobileLayout = layoutMainMenu
+    layoutMainMenu = function()
+      mobileLayout()
+      for _, object in ipairs({ btnPlay, buttonStick, buttonStickClan, bearHead, btnClan, btnRanking, btnFriends,
+        btnCustomize, btnEarnCoins, btnSettings, btnNewsfeedSubtleSettings }) do
+        object.isVisible = false
+      end
+      local top, height, width = screen.top, screen.height, screen.width
+      local columnX = screen.safeRight - PLANK_W * 0.5 - 24
+      local logoScale = (PLANK_W - 30) / logo.width
+      local logoH = logo.height * logoScale
+      local listH = #planks * PLANK_H + (#planks - 1) * PLANK_GAP
+      local CURRENCY_H = 22
+      local columnTop = top + (height - (logoH + 14 + listH + 14 + CURRENCY_H)) * 0.5
+      logo.xScale, logo.yScale = logoScale, logoScale
+      logo.x, logo.y = columnX, columnTop + logoH * 0.5
+      local firstY = columnTop + logoH + 14 + PLANK_H * 0.5
+      for i, plank in ipairs(planks) do
+        plank.restX = columnX
+        plank.x, plank.y = plank.restX, firstY + (i - 1) * (PLANK_H + PLANK_GAP)
+        plank.rotation = plank.restRotation
+      end
+      -- Coins and gems in one centred line under the planks.
+      coinText.text = tostring(composer.database.getMoney())
+      gemText.text = tostring(composer.database.getGems())
+      local currencyY = firstY + listH - PLANK_H * 0.5 + 14 + CURRENCY_H * 0.5
+      local lineW = 18 + 6 + coinText.width + 22 + 18 + 6 + gemText.width
+      local x = columnX - lineW * 0.5
+      coinIcon.x, coinIcon.y = x + 9, currencyY
+      coinText.x, coinText.y = x + 24 + coinText.width, currencyY
+      gemIcon.x, gemIcon.y = coinText.x + 22 + 9, currencyY
+      gemText.x, gemText.y = gemIcon.x + 15 + gemText.width, currencyY
+      -- The animal, larger, standing in the open space left of the column.
+      if playerAvatarGroup then
+        local avatarScale = 1.75 * height / 460
+        playerAvatarGroup.xScale, playerAvatarGroup.yScale = avatarScale, avatarScale
+        playerAvatarGroup.x = screen.safeLeft + (columnX - PLANK_W * 0.5 - screen.safeLeft) * 0.24
+        playerAvatarGroup.y = top + height * 0.7
+      end
+    end
+  end
+
   if layoutMainMenu then
     layoutMainMenu()
   end

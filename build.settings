@@ -11,15 +11,48 @@ settings = {
             "scripts/*",
             ".editor/*",
             "*.md",
+            "*.bat",
             ".luarc.json",
             ".gitignore"
         },
         osx = {
             "*"
         },
+        -- Mobile builds leave out the Windows icon.
+        android = {
+            "Icon-win32.ico"
+        },
+        iphone = {
+            "Icon-win32.ico"
+        },
+        -- Windows builds leave out the mobile only resources.
         win32 = {
-            "*"
+            "AndroidResources/*",
+            "iOSResources/*",
+            "LaunchScreen.storyboardc/*"
         }
+    },
+
+    -- Windows desktop build (Solar2D: Build, Windows); Android and iOS builds ignore
+    -- these. It opens fullscreen; F11 switches to a 1920 by 1080 window (sizes are given
+    -- relative to the portrait orientation, so they read swapped).
+    win32 = {
+        singleInstance = true
+    },
+    window = {
+        titleText = {
+            default = "FR2: Reborn"
+        },
+        defaultMode = "fullscreen",
+        defaultViewWidth = 1080,
+        defaultViewHeight = 1920,
+        minViewWidth = 480,
+        minViewHeight = 854,
+        resizable = true,
+        enableMaximizeButton = true,
+        enableMinimizeButton = true,
+        enableCloseButton = true,
+        suspendWhenMinimized = true
     },
 
     orientation = {

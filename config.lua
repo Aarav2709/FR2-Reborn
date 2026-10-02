@@ -1,11 +1,10 @@
--- Content scaling for every screen shape.
---
--- The UI is laid out for a landscape area 400 units tall. On phones the height is
--- fixed at 400 and the width follows the screen's aspect ratio (16:9 -> 711, 20:9 -> 889).
--- Squarer screens (tablets, 3:2 phones) keep a width of 711 and get extra height.
--- The computed size matches the screen exactly, so "letterbox" never shows bars and
--- display.contentWidth/contentHeight always cover the whole display.
 local DESIGN_HEIGHT = 400
+-- The Windows build packs the menus a little tighter than on a phone (the same check as
+-- lua/modules/pcMode.lua, which config.lua can't require).
+if (system.getInfo("platform") == "win32" and system.getInfo("environment") ~= "simulator")
+    or os.getenv("FR2_PC_UI") == "1" then
+  DESIGN_HEIGHT = 460
+end
 local MIN_ASPECT = 16 / 9
 
 local longSide = math.max(display.pixelWidth, display.pixelHeight)

@@ -1,5 +1,4 @@
--- This build collects no analytics. The game still reports events through
--- composer.analytics.newEvent, so the API stays in place and does nothing.
+-- Don't delete this, the game still needs it, idk why.
 local M = {}
 
 function M.newEvent(category, params)

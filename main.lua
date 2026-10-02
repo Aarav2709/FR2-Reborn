@@ -127,9 +127,15 @@ local onSystem = function(event)
     end
 end
 Runtime:addEventListener("system", onSystem)
-if isAndroid then
+-- Android's back button, and Escape on Windows.
+local isDesktop = system.getInfo("platform") == "win32" or system.getInfo("environment") == "simulator"
+if isAndroid or isDesktop then
     local androidLogic = require("lua.modules.androidBackButton")
     androidLogic.startAndroidBackButton()
+end
+-- PC: arrow keys and Enter work the menus (lua/modules/keyboardNav.lua).
+if isDesktop then
+    require("lua.modules.keyboardNav").start()
 end
 
 local function resolveGameFont()

@@ -14,6 +14,10 @@ local POSITION_TOP_BASE_Y = 20
 -- 480x320 units, scaled uniformly; wider screens see further ahead and taller ones
 -- (tablets) see more sky.
 local VIEW_WIDTH, VIEW_HEIGHT = 480, 320
+-- PC: keyboard HUD. No touch buttons: Space jumps, X fires; the power-up slot is a
+-- compact box in the bottom left and the progress bar runs along the rest of the bottom.
+local pcHud = require("lua.modules.pcMode").isPC
+local puScale = pcHud and 0.6 or 1
 
 function scene:create(event)
   local screenGroup = self.view
@@ -111,19 +115,23 @@ function scene:create(event)
   jumpButtonGroup:insert(jumpButtonImage)
   powerUpButton = display.newImageRect("images/transparent.png", 150 * hud, 150 * hud)
   powerUpButtonGroup:insert(powerUpButton)
-  powerupButtonImage = display.newImageRect("images/game/buttonPowerup" .. hudSuffix .. ".png", 68 * hud, 63 * hud)
+  powerupButtonImage = display.newImageRect("images/game/buttonPowerup" .. hudSuffix .. ".png", 68 * hud * puScale, 63 * hud * puScale)
   powerUpButtonGroup:insert(powerupButtonImage)
   -- The box on the power-up button takes the set's colours too.
   powerUpButtonFX = display.newSprite(composer.powerUpFXImageSheet,
     require("lua.modules.assetLoader").getButtonAnimation(hudSuffix ~= "" and hudSuffix or 0))
-  powerUpButtonFX.xScale = 0.5 * hud
-  powerUpButtonFX.yScale = 0.5 * hud
+  powerUpButtonFX.xScale = 0.5 * hud * puScale
+  powerUpButtonFX.yScale = 0.5 * hud * puScale
   powerUpButtonGroup:insert(powerUpButtonFX)
   shineEffect = display.newSprite(composer.powerUpFXImageSheet, composer.data.animations.shineEffect)
-  shineEffect.xScale = 0.5 * hud
-  shineEffect.yScale = 0.5 * hud
+  shineEffect.xScale = 0.5 * hud * puScale
+  shineEffect.yScale = 0.5 * hud * puScale
   shineEffect.alpha = 0
   powerUpButtonGroup:insert(shineEffect)
+  if pcHud then
+    -- (The jump zone stays as an invisible mouse target.)
+    jumpButtonImage.isVisible = false
+  end
   lagIndicator = display.newImageRect("images/game/networkAlert.png", 25 * hud, 25 * hud)
   UIgroup:insert(lagIndicator)
   lagIndicator.alpha = 0
@@ -153,8 +161,8 @@ function scene:create(event)
     powerUpButton.y = screen.bottom - powerUpButton.height * 0.5
     powerupButtonImage.x = screen.left + powerupButtonImage.width * 0.5
     powerupButtonImage.y = screen.bottom - powerupButtonImage.height * 0.5
-    powerUpButtonFX.x = powerupButtonImage.x - 5 * hud
-    powerUpButtonFX.y = powerupButtonImage.y + 3 * hud
+    powerUpButtonFX.x = powerupButtonImage.x - 5 * hud * puScale
+    powerUpButtonFX.y = powerupButtonImage.y + 3 * hud * puScale
     shineEffect.x = powerUpButtonFX.x
     shineEffect.y = powerUpButtonFX.y
   end
@@ -277,6 +285,9 @@ function scene:show(event)
   local function computeBottomBar()
     local startX = powerupButtonImage.x + powerupButtonImage.width * 0.5 + (HEAD_HALF_WIDTH + BAR_MARGIN) * viewScale
     local endX = jumpButtonImage.x - jumpButtonImage.width * 0.5 - (HEAD_HALF_WIDTH + BAR_MARGIN) * viewScale
+    if pcHud then
+      endX = screen.safeRight - (HEAD_HALF_WIDTH + BAR_MARGIN * 2) * viewScale
+    end
     bottomBarStartX = math.min(startX, endX)
     bottomBarLength2 = math.max(1, math.abs(endX - startX))
   end
@@ -438,11 +449,11 @@ function scene:show(event)
     if 50 < puType then
       puType = puType - 50
     end
-    powerUpImage = getPuIcon(puType, 60 * viewScale)
+    powerUpImage = getPuIcon(puType, 60 * viewScale * puScale)
     powerUpImage.anchorX = 0.5
     powerUpImage.anchorY = 0.5
-    powerUpImage.x = powerupButtonImage.x - 6 * viewScale
-    powerUpImage.y = powerupButtonImage.y + 1.5 * viewScale
+    powerUpImage.x = powerupButtonImage.x - 6 * viewScale * puScale
+    powerUpImage.y = powerupButtonImage.y + 1.5 * viewScale * puScale
     powerUpButtonGroup:insert(powerUpImage)
     powerUpImageReady = true
     powerUpButtonFX:setSequence("gotPU")
@@ -1433,6 +1444,7 @@ function scene:show(event)
     local phase = event.phase
     local keyName = event.keyName
     if phase == "down" and not event.isRepeat then
+      -- Keyboard (PC): Space to jump, X for the power-up.
       if keyName == "space" or keyName == "spacebar" then
         btnJumpPress(nil, { phase = "began" })
         return true
@@ -1441,7 +1453,8 @@ function scene:show(event)
         return true
       end
     end
-    if phase == "up" and keyName == "back" then
+    -- Escape on PC works like Android's back button.
+    if phase == "up" and (keyName == "back" or keyName == "escape") then
       if canPressButton then
         backButtonPushed = true
       end
@@ -1459,8 +1472,8 @@ function scene:show(event)
     computeBottomBar()
     layoutKillFeedGroup()
     if powerUpImage and powerupButtonImage then
-      powerUpImage.x = powerupButtonImage.x - 6 * viewScale
-      powerUpImage.y = powerupButtonImage.y + 1.5 * viewScale
+      powerUpImage.x = powerupButtonImage.x - 6 * viewScale * puScale
+      powerUpImage.y = powerupButtonImage.y + 1.5 * viewScale * puScale
     end
     for i = 1, #bottomBarList do
       if bottomBarList[i] then

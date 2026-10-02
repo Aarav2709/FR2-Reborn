@@ -347,6 +347,20 @@ local function newList(params)
     })
   end
 
+  -- Mouse wheel (PC): one item along, selected as if swiped there.
+  function listView:step(direction)
+    if not self[1] or not self.parent then
+      return
+    end
+    local current = math.floor((centerScreenX - self.x) / self[1].width + 0.5) + 1
+    -- (This list's own size: the module's shared count belongs to the newest list.)
+    local target = math.max(1, math.min(current + direction, #data))
+    if target ~= current then
+      self:scrollTo(target)
+      onScrollEnd(target, false)
+    end
+  end
+
   function listView:startAt(itemNumber)
     if not self[1] then
       return

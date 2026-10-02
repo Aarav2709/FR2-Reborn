@@ -49,7 +49,8 @@ end
 function androidKeyEvent(event)
   local phase = event.phase
   local keyName = event.keyName
-  if phase == "up" and keyName == "back" then
+  -- Escape on PC works like Android's back button.
+  if phase == "up" and (keyName == "back" or keyName == "escape") then
     if canPressButton then
       backButtonPushed = true
     end

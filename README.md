@@ -17,7 +17,7 @@ FR2 Reborn is a fan made revival of Fun Run 2 for mobile, rebuilt from the groun
 
 * Android
 * iOS
-* Desktop [planned for v1.0.1]
+* PC (controls are Up, Down, Left, Right for Navigation, otherwise use Mouse. Space to Jump, X for powerups.)
 > Download from [Releases](https://github.com/AaravGupta/FR2-Reborn/releases/latest)!
 
 ## Community

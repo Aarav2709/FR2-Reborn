@@ -503,7 +503,7 @@ function scene:create(event)
         local avatarScale = 1.75 * height / 460
         playerAvatarGroup.xScale, playerAvatarGroup.yScale = avatarScale, avatarScale
         playerAvatarGroup.x = screen.safeLeft + (columnX - PLANK_W * 0.5 - screen.safeLeft) * 0.24
-        playerAvatarGroup.y = top + height * 0.7
+        playerAvatarGroup.y = top + height * 0.65
       end
     end
   end

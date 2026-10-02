@@ -459,35 +459,25 @@ function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDi
     })
   end
 
+  -- Blood on the screen when you die (a scrapped effect of early Fun Run 2): splats in
+  -- the corners of the real screen, sized for its height (the original drew them at half
+  -- size on a 320 tall screen; a little bigger here).
   local bloodScreenBL, bloodScreenTL, bloodScreenTR
   if player.mainPlayer then
-    bloodScreenBL = display.newSprite(composer.powerUpEffectImageSheet, composer.data.animations.llBloodEffect)
-    bloodScreenBL.xScale = 0.5
-    bloodScreenBL.yScale = 0.5
-    bloodScreenBL.anchorX = 0
-    bloodScreenBL.anchorY = 1
-    bloodScreenBL.x = 0
-    bloodScreenBL.y = display.contentHeight
-    bloodScreenBL.alpha = 0
-    screenGroup:insert(bloodScreenBL)
-    bloodScreenTL = display.newSprite(composer.powerUpEffectImageSheet, composer.data.animations.tlBloodEffect)
-    bloodScreenTL.xScale = 0.5
-    bloodScreenTL.yScale = 0.5
-    bloodScreenTL.anchorX = 0
-    bloodScreenTL.anchorY = 0
-    bloodScreenTL.x = 0
-    bloodScreenTL.y = 0
-    bloodScreenTL.alpha = 0
-    screenGroup:insert(bloodScreenTL)
-    bloodScreenTR = display.newSprite(composer.powerUpEffectImageSheet, composer.data.animations.trBloodEffect)
-    bloodScreenTR.xScale = 0.5
-    bloodScreenTR.yScale = 0.5
-    bloodScreenTR.anchorX = 1
-    bloodScreenTR.anchorY = 0
-    bloodScreenTR.x = display.contentWidth
-    bloodScreenTR.y = 0
-    bloodScreenTR.alpha = 0
-    screenGroup:insert(bloodScreenTR)
+    local screen = require("lua.modules.screen")
+    local bloodScale = 0.65 * screen.height / 320
+    local function newSplat(sequence, anchorX, anchorY, x, y)
+      local splat = display.newSprite(composer.powerUpEffectImageSheet, sequence)
+      splat.xScale, splat.yScale = bloodScale, bloodScale
+      splat.anchorX, splat.anchorY = anchorX, anchorY
+      splat.x, splat.y = x, y
+      splat.alpha = 0
+      screenGroup:insert(splat)
+      return splat
+    end
+    bloodScreenBL = newSplat(composer.data.animations.llBloodEffect, 0, 1, screen.left, screen.bottom)
+    bloodScreenTL = newSplat(composer.data.animations.tlBloodEffect, 0, 0, screen.left, screen.top)
+    bloodScreenTR = newSplat(composer.data.animations.trBloodEffect, 1, 0, screen.right, screen.top)
   end
 
   local function showBloodScreen()
@@ -508,29 +498,29 @@ function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDi
 
   local function hideBloodScreen()
     transition.to(bloodScreenBL, {
-      time = 300,
+      time = 500,
       alpha = 0,
       tag = "blood"
     })
     transition.to(bloodScreenTR, {
-      time = 300,
+      time = 500,
       alpha = 0,
       tag = "blood"
     })
     transition.to(bloodScreenTL, {
-      time = 300,
+      time = 500,
       alpha = 0,
       tag = "blood"
     })
   end
 
   function C.runBloodScreen(override)
-    if player.mainPlayer or override then
+    if bloodScreenBL and composer.database.getViolence() == 1 and (player.mainPlayer or override) then
       showBloodScreen()
       timer.performWithDelay(125, showBloodScreen, 1)
       timer.performWithDelay(250, showBloodScreen, 1)
       timer.performWithDelay(375, showBloodScreen, 1)
-      timer.performWithDelay(800, hideBloodScreen, 1)
+      timer.performWithDelay(1300, hideBloodScreen, 1)
     end
   end
 

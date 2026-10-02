@@ -187,7 +187,7 @@ function scene:create(event)
 
   local function stopOnboardingComplete(alertEvent)
     if alertEvent.action == "clicked" and alertEvent.index == 1 and not startedClean then
-      composer.onboarding.deactivate()
+      composer.onboarding.deactivate(true)
       composer.gotoScene("lua.scenes.mainMenu")
       composer.removeScene("lua.scenes.postLobby")
     end

@@ -4,6 +4,27 @@ local function new(player)
   local composer = require("composer")
   local botPlayer = {}
   local botTimer, roofDontJump, prevY, prevX, noJumpTimer, gameFunction, gameState, counter, systemStartTime, btnPowerUpPress
+  local speedFactor = 1
+
+  -- Offline races: a bot that falls behind you runs a little faster (up to 12%), one far
+  -- ahead eases off a little (up to 5%), so races stay close like against real players.
+  local function updateCatchUp()
+    local me = composer.mainPlayer
+    if not botPlayer.setBotSpeedFactor or composer.data.gameInfo.gameType ~= 0 then
+      return
+    end
+    local target = 1
+    if me and me ~= botPlayer and me.x and botPlayer.x then
+      local behind = me.x - botPlayer.x
+      if behind > 100 then
+        target = 1 + math.min(0.12, (behind - 100) / 2500)
+      elseif behind < -400 then
+        target = 1 - math.min(0.05, (-behind - 400) / 4000)
+      end
+    end
+    speedFactor = speedFactor + (target - speedFactor) * 0.2
+    botPlayer.setBotSpeedFactor(speedFactor)
+  end
 
   local function checkIfStuck()
     if 10 < #prevX then
@@ -88,13 +109,13 @@ local function new(player)
       if 0 < vx and gameState == 0 then
         gameState = 1
       end
-      -- Blocked (almost stopped): jump the obstacle. Otherwise hop now and then.
-      if vx < 80 then
+      -- Slowed by a wall or a step: jump it before stopping. Otherwise hop now and then.
+      if vx < 120 then
         if gameState == 1 and not roofDontJump then
           jump(true)
           noJumpTimer = 0
         end
-      elseif math.random() > 0.95 then
+      elseif math.random() > 0.975 then
         if gameState == 1 and not roofDontJump then
           jump()
           noJumpTimer = 0
@@ -108,7 +129,10 @@ local function new(player)
       if 12 < #prevX then
         table.remove(prevX)
       end
-      if gameState == 1 and 5 < counter then
+      if gameState == 1 then
+        updateCatchUp()
+      end
+      if gameState == 1 and 10 < counter then
         if botPlayer.canJump() then
           table.insert(prevX, 1, botPlayer.x)
         end
@@ -131,7 +155,8 @@ local function new(player)
       noJumpTimer = 0
       gameState = 0
       counter = 0
-      botTimer = timer.performWithDelay(200, updateBot, 0)
+      -- Ten checks a second (the original's five let bots run into every wall).
+      botTimer = timer.performWithDelay(100, updateBot, 0)
     end
   end
 

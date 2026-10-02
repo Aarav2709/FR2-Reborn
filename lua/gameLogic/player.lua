@@ -37,6 +37,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   speeds.topSpeedX = 350
   speeds.accelerateX = 25
   speeds.tempSpeedX = 350
+  speeds.botFactor = 1
   speeds.boostMultiplier = 1.8          -- Speed pad: velocity multiplier
   speeds.boostSlideMultiplier = 1.5     -- Slide pad: velocity multiplier
   speeds.slowMultiplier = 0.5           -- Slow pad: velocity multiplier
@@ -738,14 +739,16 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       else
         changeSpeedState = 0
         local startVx = vx
+        -- Offline bots run a little faster or slower to keep the race close (botModule).
+        local topSpeed = speeds.topSpeedX * speeds.botFactor
         local acceleration = speeds.accelerateX
         local newTime = system.getTimer()
         local multiplier = (newTime - lastAccelerateTime) * 0.01
         lastAccelerateTime = newTime
         acceleration = acceleration * multiplier
-        if vx < speeds.topSpeedX * 0.2 then
+        if vx < topSpeed * 0.2 then
           acceleration = acceleration * 4
-        elseif vx < speeds.topSpeedX * 0.5 then
+        elseif vx < topSpeed * 0.5 then
           acceleration = acceleration * 2
         end
         if player.onGround or booleanStates.rocketActive then
@@ -754,15 +757,15 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
           vx = vx + acceleration * 0.4
         end
         -- Above top speed (after a speed pad) the runner eases back 10% per update.
-        if vx > speeds.topSpeedX and vy <= 20 then
-          if vx - speeds.topSpeedX < acceleration * 1.5 then
-            vx = speeds.topSpeedX
+        if vx > topSpeed and vy <= 20 then
+          if vx - topSpeed < acceleration * 1.5 then
+            vx = topSpeed
           else
             vx = vx * 0.9
           end
-        elseif vx > speeds.topSpeedX * 1.5 and 0 < vy then
-          if vx - speeds.topSpeedX < acceleration * 1.5 then
-            vx = speeds.topSpeedX * 1.5
+        elseif vx > topSpeed * 1.5 and 0 < vy then
+          if vx - topSpeed < acceleration * 1.5 then
+            vx = topSpeed * 1.5
           else
             vx = vx * 0.9
           end
@@ -775,11 +778,11 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
           end
         elseif changeSpeedState == 0 and state == 1 then
           setLinearVelocityOnPlayer(vx, vy)
-        elseif changeSpeedState == 0 and state == 3 and vx < speeds.topSpeedX then
+        elseif changeSpeedState == 0 and state == 3 and vx < topSpeed then
           setLinearVelocityOnPlayer(vx, vy)
-        elseif changeSpeedState == 0 and startVx < speeds.topSpeedX * 0.4 then
+        elseif changeSpeedState == 0 and startVx < topSpeed * 0.4 then
           setLinearVelocityOnPlayer(vx, vy)
-        elseif booleanStates.rocketActive and vx > speeds.topSpeedX then
+        elseif booleanStates.rocketActive and vx > topSpeed then
           setLinearVelocityOnPlayer(vx, vy)
         end
       end
@@ -1688,10 +1691,16 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
 
   local function startBot()
     bot = botModule.new(player)
-    local botTopSpeed = math.random(335, 345)
+    -- Your top speed, give or take a little (the original's debug bots ran at 335 to 345).
+    local botTopSpeed = math.random(344, 356)
     speeds.defaultTopSpeed = botTopSpeed
     speeds.topSpeedX = botTopSpeed
     speeds.tempSpeedX = botTopSpeed
+  end
+
+  -- Catch up for offline bots: a share of the top speed (1 is normal).
+  function player.setBotSpeedFactor(factor)
+    speeds.botFactor = factor
   end
 
   if isSimulator and composer.config.bot and mainPlayer then

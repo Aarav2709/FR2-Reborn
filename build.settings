@@ -50,6 +50,9 @@ settings = {
     },
 
     android = {
+        -- Raise versionCode by one for every release (and keep the same package name and
+        -- signing key), so updates install over the old version and keep the save.
+        versionCode = "1",
         versionName = "1.0.0",
         -- Name under the icon on Android (overrides the build dialog's Application Name).
         strings = {

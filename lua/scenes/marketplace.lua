@@ -554,7 +554,10 @@ function scene:create(event)
     updateItemTitle(index)
     updateTextInfo(index)
     changeAvatar(slotToChange, index)
-    if index == 2 and slotToChange == 4 and composer.onboarding.isActive == true then
+    -- Tutorial: putting on the free glasses (item 402) finishes the shop step, wherever
+    -- they are in the list.
+    local selected = currentMarketData[index]
+    if slotToChange == 4 and composer.onboarding.isActive == true and selected and tostring(selected.key) == "402" then
       composer.onboarding.removeIconArrow()
     end
     updateBuyButtonState(index)

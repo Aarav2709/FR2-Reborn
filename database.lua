@@ -26,8 +26,8 @@ local path = system.pathForFile("data.sqlite3", system.DocumentsDirectory)
 ---@type sqlite3_db|nil
 local db
 local M = {}
-local STARTING_COINS = 1000000
-local STARTING_GEMS = 1000
+local STARTING_COINS = 5000000
+local STARTING_GEMS = 10000
 
 local function setupTables()
     db = sqlite3.open(path)
@@ -617,7 +617,14 @@ function M.getPowerupSkin()
     return copy
 end
 
+-- The skin each animal wears, saved for every animal (starter animals such as the bear
+-- have no owned item entry to keep it on).
+local ANIMAL_SKINS_KEY = "animalSkins"
+
 function M.setNewDefaultSkinForAvatar(avatarId, skinId)
+    if avatarId == nil then
+        return
+    end
     loadItemsFromDb()
     if composer.databaseData.items then
         for key, item in pairs(composer.databaseData.items) do
@@ -627,9 +634,20 @@ function M.setNewDefaultSkinForAvatar(avatarId, skinId)
         end
     end
     saveItemsToDb()
+    local skins = M.getTable(ANIMAL_SKINS_KEY)
+    if type(skins) ~= "table" then
+        skins = {}
+    end
+    skins[tostring(tonumber(avatarId) or avatarId)] = tonumber(skinId) or 0
+    M.setTable(ANIMAL_SKINS_KEY, skins)
 end
 
 function M.getDefaultSkinForAvatar(avatarId)
+    local skins = M.getTable(ANIMAL_SKINS_KEY)
+    local saved = type(skins) == "table" and skins[tostring(tonumber(avatarId) or avatarId)]
+    if saved ~= nil then
+        return tonumber(saved) or 0
+    end
     loadItemsFromDb()
     if composer.databaseData.items then
         for key, item in pairs(composer.databaseData.items) do
@@ -637,6 +655,11 @@ function M.getDefaultSkinForAvatar(avatarId)
                 return item.s
             end
         end
+    end
+    -- Saves from before the list existed: the animal being worn keeps its skin.
+    local worn = getAvatarData()
+    if worn and tonumber(worn[1]) == tonumber(avatarId) then
+        return tonumber(worn[2]) or 0
     end
     return 0
 end
@@ -1403,7 +1426,17 @@ function M.initPlayerVariables()
     composer.facebookLogin = false
     composer.todayChallenges = {}
     composer.todayChallenges.shouldShow = true
+    -- The save survives updates: a damaged one is set aside, an empty one comes back
+    -- from the backup, older ones are upgraded (lua/modules/saveData.lua).
+    local saveData = require("lua.modules.saveData")
+    saveData.checkSave()
     setupTables()
+    if saveData.restoreIfEmpty() and composer.databaseData then
+        composer.databaseData.economyLoaded = false
+        composer.databaseData.itemsLoaded = false
+        composer.databaseData.avatarData = nil
+    end
+    saveData.migrate()
 
     -- Offline mode: create a default player
     if composer.config.offlineMode then
@@ -1429,6 +1462,8 @@ function M.createDefaultOfflinePlayer()
 end
 
 local function reset()
+    -- A deliberate reset: the backup goes too, or it would be restored on the next start.
+    require("lua.modules.saveData").deleteBackup()
     M.initPlayerVariables()
     local receipts = M.getReceipts()
     local numberOfReceipts = 0

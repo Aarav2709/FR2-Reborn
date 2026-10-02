@@ -963,7 +963,7 @@ function scene:show(event)
         leaveRankedRace()
         quitGameClean()
         if composer.onboarding.isActive == true then
-          composer.onboarding.deactivate()
+          composer.onboarding.deactivate(true)
         end
         timer.performWithDelay(200, goToNextScene, 1)
       elseif 2 == i then
@@ -982,7 +982,7 @@ function scene:show(event)
         leaveRankedRace()
         quitGameClean()
         if composer.onboarding.isActive == true then
-          composer.onboarding.deactivate()
+          composer.onboarding.deactivate(true)
         end
         timer.performWithDelay(200, goToNextScene, 1)
       end

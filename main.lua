@@ -78,6 +78,10 @@ local function showDisconnectAlert()
 end
 
 local onSystem = function(event)
+    -- Closed or sent to the background: back up the save (lua/modules/saveData.lua).
+    if event.type == "applicationExit" or event.type == "applicationSuspend" then
+        require("lua.modules.saveData").backup()
+    end
     if event.type == "applicationStart" then
     elseif event.type == "applicationExit" then
         closeNetwork()
@@ -200,6 +204,7 @@ local function main()
     composer.data.messageOfTheDay = ""
     composer.data.monsterInMemory = {}
     composer.database.initPlayerVariables()
+    require("lua.modules.saveData").backup()
     composer.database.getViolence()
     composer.errorTable = {}
     composer.errorTable.showServerError = true

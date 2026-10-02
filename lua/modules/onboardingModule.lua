@@ -459,20 +459,30 @@ function composer.onboarding.showMarketHomeArrow()
 end
 
 function composer.onboarding.showGlassesArrow()
-  if not composer.onboarding.guiReferences or not composer.onboarding.guiReferences.market_glasses_icon then
+  local stepData = composer.onboarding.stepData["25"]
+  if not composer.onboarding.guiReferences or not composer.onboarding.guiReferences.market_glasses_icon or stepData.glassesOn then
     return
   end
-  composer.onboarding.stepData["25"].iconArrow = composer.onboarding.insertArrow(composer.onboarding.guiReferences.market_glasses_icon, 45, 30, 0.45, 0.45, redArrow)
+  -- The row can be drawn again (scrolling, refreshes): one arrow at a time.
+  if stepData.iconArrow and stepData.iconArrow.removeSelf then
+    stepData.iconArrow:removeSelf()
+  end
+  stepData.iconArrow = composer.onboarding.insertArrow(composer.onboarding.guiReferences.market_glasses_icon, 45, 30, 0.45, 0.45, redArrow)
 end
 
+-- The glasses are on: the arrow goes and, once, the helper sends the player home.
 function composer.onboarding.removeIconArrow()
-  local arrow = composer.onboarding.stepData["25"] and composer.onboarding.stepData["25"].iconArrow
-  if arrow and arrow.removeSelf then
-    arrow:removeSelf()
-    arrow = nil
-    friendlyHelper.createMessage("Man I look good! Let's race some more with the new glasses!", composer.onboarding.screenDisplayGroup, helperMonsterWithGlassesData, false)
-    friendlyHelper.setOnCloseFunction(composer.onboarding.showMarketHomeArrow)
+  local stepData = composer.onboarding.stepData["25"]
+  if not stepData or stepData.glassesOn then
+    return
   end
+  stepData.glassesOn = true
+  if stepData.iconArrow and stepData.iconArrow.removeSelf then
+    stepData.iconArrow:removeSelf()
+  end
+  stepData.iconArrow = nil
+  friendlyHelper.createMessage("Man I look good! Let's race some more with the new glasses!", composer.onboarding.screenDisplayGroup, helperMonsterWithGlassesData, false)
+  friendlyHelper.setOnCloseFunction(composer.onboarding.showMarketHomeArrow)
 end
 
 function composer.contextualOnboarding.showPlayArrow()
@@ -2565,8 +2575,14 @@ function composer.onboarding.getNextStep(step)
   end
 end
 
-function composer.onboarding.deactivate()
+-- quit: the player left the tutorial part way. Then the hints that follow a finished
+-- tutorial (green arrows on Play and Quick Play until the first race) are skipped too.
+function composer.onboarding.deactivate(quit)
   composer.onboarding.clean()
+  if quit then
+    composer.contextualOnboarding.setPartDone(3)
+    composer.contextualOnboarding.deactivate()
+  end
   local id = composer.onboarding.activatedPart
   local onboardingVersion = composer.config.onboardingVersion
   composer.analytics.newEvent("design", {

@@ -123,7 +123,7 @@ local function new(player)
       else
         noJumpTimer = noJumpTimer + 1
       end
-      if noJumpTimer == 3 then
+      if noJumpTimer == 6 then
         prevY = 999999
       end
       if 12 < #prevX then
@@ -140,7 +140,9 @@ local function new(player)
         usePowerUp()
       end
       counter = counter + 1
-      checkIfStuck()
+      if counter % 2 == 0 then
+        checkIfStuck()
+      end
     else
       timer.cancel(event.source)
     end

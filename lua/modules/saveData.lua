@@ -1,13 +1,3 @@
--- Keeps the player's save safe across game updates.
---
--- The save is data.sqlite3 in the app's Documents folder, which app updates leave in
--- place. This module adds three things on top:
---   * a save version, with upgrade steps for older saves (MIGRATIONS below), so an
---     update that changes what is saved converts old saves instead of breaking them;
---   * a backup of every saved table (save_backup.json, next to the save), written at
---     launch and whenever the app is closed or sent to the background;
---   * a check at launch: a save that can't be read is set aside (data.sqlite3.damaged)
---     and an empty save is filled back from the backup.
 local sqlite3 = require("sqlite3")
 local json = require("json")
 local M = {}
@@ -29,11 +19,7 @@ for _, name in ipairs(TABLES) do
 end
 
 -- Steps that bring an older save up to date, keyed by the version they lead to. Each
--- gets the open database. Add one whenever an update changes what is saved; never
--- remove one (a player may skip several updates).
-local MIGRATIONS = {
-  -- [2] = function(db) db:exec("ALTER TABLE economy ADD COLUMN trophies INTEGER;") end,
-}
+local MIGRATIONS = {}
 
 local function dbPath()
   return system.pathForFile(DB_NAME, system.DocumentsDirectory)
@@ -52,31 +38,42 @@ local function fileExists(path)
   return false
 end
 
--- Before the tables are set up: a save that can't be read is moved aside, so the game
--- still starts and the backup can fill the new save.
+local function closeQuietly(db)
+  if db then
+    pcall(function()
+      db:close()
+    end)
+  end
+end
+
 function M.checkSave()
   local path = dbPath()
   if not fileExists(path) then
     return
   end
-  local ok, healthy = pcall(function()
-    local db = sqlite3.open(path)
+  local db
+  local readable, result = pcall(function()
+    db = sqlite3.open(path)
     if not db then
-      return false
+      error("cannot open")
     end
-    local result
+    local check
     for row in db:nrows("PRAGMA integrity_check;") do
-      result = row.integrity_check
+      check = row.integrity_check
       break
     end
-    db:close()
-    return result == "ok"
+    return check
   end)
-  if not (ok and healthy) then
-    local damaged = system.pathForFile(DB_NAME .. ".damaged", system.DocumentsDirectory)
-    os.remove(damaged)
-    os.rename(path, damaged)
+  closeQuietly(db)
+  db = nil
+  local healthy = readable and result == "ok"
+  if healthy then
+    return
   end
+  if readable and result ~= nil and not fileExists(backupPath()) then
+    return
+  end
+  os.rename(path, system.pathForFile(DB_NAME .. ".damaged-" .. os.time(), system.DocumentsDirectory))
 end
 
 local function hasPlayer(db)
@@ -88,9 +85,6 @@ local function hasPlayer(db)
   end)
   return count > 0
 end
-
--- After the tables are set up: an empty save (no player yet) is filled from the backup.
--- Returns true when it restored one.
 function M.restoreIfEmpty()
   local file = io.open(backupPath(), "rb")
   if not file then
@@ -98,27 +92,31 @@ function M.restoreIfEmpty()
   end
   local text = file:read("*a")
   file:close()
-  local ok, data = pcall(json.decode, text)
-  if not ok or type(data) ~= "table" or type(data.tables) ~= "table" then
+  local decoded, data = pcall(json.decode, text)
+  if not decoded or type(data) ~= "table" or type(data.tables) ~= "table" then
+    return false
+  end
+  local db = sqlite3.open(dbPath())
+  if not db then
+    return false
+  end
+  if hasPlayer(db) then
+    closeQuietly(db)
     return false
   end
   local restored = false
-  pcall(function()
-    local db = sqlite3.open(dbPath())
-    if hasPlayer(db) then
-      db:close()
-      return
-    end
+  local ok = pcall(function()
     db:exec("BEGIN;")
     for name, rows in pairs(data.tables) do
       if KNOWN_TABLES[name] and type(rows) == "table" then
         for _, row in ipairs(rows) do
           local columns, marks, values = {}, {}, {}
           for column, value in pairs(row) do
-            if type(column) == "string" and column:match("^[%w_]+$") then
+            local kind = type(value)
+            if type(column) == "string" and column:match("^[%w_]+$") and (kind == "string" or kind == "number" or kind == "boolean") then
               columns[#columns + 1] = column
               marks[#marks + 1] = "?"
-              values[#values + 1] = value
+              values[#values + 1] = kind == "boolean" and (value and 1 or 0) or value
             end
           end
           if #columns > 0 then
@@ -127,38 +125,71 @@ function M.restoreIfEmpty()
               ") VALUES (" .. table.concat(marks, ", ") .. ");")
             if statement then
               statement:bind_values(unpack(values))
-              statement:step()
+              if statement:step() == sqlite3.DONE then
+                restored = true
+              end
               statement:finalize()
-              restored = true
             end
           end
         end
       end
     end
-    db:exec("COMMIT;")
-    db:close()
+    if db:exec("COMMIT;") ~= sqlite3.OK then
+      error("commit failed")
+    end
   end)
+  if not ok then
+    pcall(function()
+      db:exec("ROLLBACK;")
+    end)
+    restored = false
+  end
+  closeQuietly(db)
   return restored
 end
 
--- Runs the upgrade steps an older save still needs and stamps the current version.
+local function setSaveVersion(db, version)
+  return db:exec("INSERT OR REPLACE INTO keyValue (key, value) VALUES ('saveVersion', '" .. version .. "');")
+end
+
 function M.migrate()
+  local db = sqlite3.open(dbPath())
+  if not db then
+    return
+  end
   pcall(function()
-    local db = sqlite3.open(dbPath())
+    if not hasPlayer(db) then
+      setSaveVersion(db, M.VERSION)
+      return
+    end
     local version = 0
     for row in db:nrows("SELECT value FROM keyValue WHERE key = 'saveVersion';") do
       version = tonumber(row.value) or 0
     end
-    if version < M.VERSION then
-      for step = version + 1, M.VERSION do
+    for step = version + 1, M.VERSION do
+      local stepOk = pcall(function()
+        db:exec("BEGIN;")
         if MIGRATIONS[step] then
-          MIGRATIONS[step](db)
+          MIGRATIONS[step](db, function(sql)
+            if db:exec(sql) ~= sqlite3.OK then
+              error("save upgrade " .. step .. " failed: " .. tostring(db:errmsg()))
+            end
+          end)
         end
+        setSaveVersion(db, step)
+        if db:exec("COMMIT;") ~= sqlite3.OK then
+          error("commit failed")
+        end
+      end)
+      if not stepOk then
+        pcall(function()
+          db:exec("ROLLBACK;")
+        end)
+        break
       end
-      db:exec("INSERT OR REPLACE INTO keyValue (key, value) VALUES ('saveVersion', '" .. M.VERSION .. "');")
     end
-    db:close()
   end)
+  closeQuietly(db)
 end
 
 -- Writes every table to the backup file (through a temporary file, so a crash while

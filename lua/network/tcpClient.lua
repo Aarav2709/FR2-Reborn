@@ -94,6 +94,9 @@ local function getPacketFromServer(event)
 end
 
 local function connectTCP()
+  if composer.config and composer.config.offlineMode then
+    return
+  end
   print("try to connect tcp")
   if tcpConnection then
     tcpConnection:close()
@@ -122,6 +125,9 @@ local function connectTCP()
 end
 
 local function startTCP(theReceiveFunction)
+  if composer.config and composer.config.offlineMode then
+    return false
+  end
   connected = false
   if not tcpConnection then
     composer.debugger.debugPrint("network", "start TCP game client")
@@ -129,6 +135,7 @@ local function startTCP(theReceiveFunction)
     connectTCP()
     getPacketLoop = timer.performWithDelay(timeInterval, getPacketFromServer, 0)
   end
+  return true
 end
 
 local function pauseReadFromBuffer()

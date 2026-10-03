@@ -117,9 +117,11 @@ local onSystem = function(event)
         end
         if isAndroid then
             native.setProperty("androidSystemUiVisibility", "immersiveSticky")
-            local inApp = require("lua.iap.inAppPurchase")
-            if inApp.getStoreType() == 2 and closeTime and closeTime + 300 < os.time() then
-                inApp.initInAppPurchase()
+            if not composer.config.offlineMode then
+                local inApp = require("lua.iap.inAppPurchase")
+                if inApp.getStoreType() == 2 and closeTime and closeTime + 300 < os.time() then
+                    inApp.initInAppPurchase()
+                end
             end
         end
         composer.notification.clearLocalPushNotificationQueue()

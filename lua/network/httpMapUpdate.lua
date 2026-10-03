@@ -38,6 +38,9 @@ local function didDownloadSucceed(event)
 end
 
 local function sendMapDownloadRequest(mapUrl)
+  if composer.config and composer.config.offlineMode then
+    return false
+  end
   local params = {}
   params.progress = false
   params.timeout = 10
@@ -67,7 +70,7 @@ function networkListener(event)
 end
 
 local function checkForJsonMapUpdate()
-  if composer.config.ignoreJsonConfig then
+  if composer.config.offlineMode or composer.config.ignoreJsonConfig then
     return
   end
   composer.updatingMaps = true

@@ -1431,10 +1431,16 @@ function M.initPlayerVariables()
     local saveData = require("lua.modules.saveData")
     saveData.checkSave()
     setupTables()
+    -- Keep the existing save state available until this version's migration commits.
+    if M.getPlayerInformation() then
+        saveData.backup()
+    end
     if saveData.restoreIfEmpty() and composer.databaseData then
         composer.databaseData.economyLoaded = false
         composer.databaseData.itemsLoaded = false
         composer.databaseData.avatarData = nil
+        -- Save the restored pre-migration state as the rollback copy.
+        saveData.backup()
     end
     saveData.migrate()
 

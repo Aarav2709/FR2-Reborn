@@ -78,22 +78,21 @@ settings = {
             UIRequiresFullScreen = true,
             CFBundleDisplayName = "FR2: Reborn",
             CFBundleShortVersionString = "1.0.0",
+            -- Increase this build number for every iOS release upload.
             CFBundleVersion = "1.0.0"
         }
     },
 
     android = {
-        -- Raise versionCode by one for every release (and keep the same package name and
-        -- signing key), so updates install over the old version and keep the save.
+        -- Raise versionCode for every release; keep the existing package name and signing
+        -- key so updates install over the old app and keep its local save.
         versionCode = "1",
         versionName = "1.0.0",
         -- Name under the icon on Android (overrides the build dialog's Application Name).
         strings = {
             app_name = "FR2: Reborn"
         },
-        usesPermissions = {
-            "android.permission.INTERNET",
-            "android.permission.ACCESS_NETWORK_STATE"
-        }
+        -- Offline game: no network permissions are needed.
+        usesPermissions = {}
     }
 }

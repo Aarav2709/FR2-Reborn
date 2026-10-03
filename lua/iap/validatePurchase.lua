@@ -3,6 +3,10 @@ local base64 = require("lua.iap.base64")
 local composer = require("composer")
 local listener
 
+local function offlineMode()
+  return composer.config and composer.config.offlineMode
+end
+
 local function preparePostData(receipt)
   receipt = receipt:sub(2, -2)
   receipt = receipt:gsub(" ", "")
@@ -33,6 +37,9 @@ local function localListener(event)
 end
 
 local function validateApple(params)
+  if offlineMode() then
+    return false
+  end
   listener = params.listener
   local testing = params.testing
   local productId = params.productId
@@ -67,6 +74,9 @@ local function validateApple(params)
 end
 
 local function validateGoogle(params)
+  if offlineMode() then
+    return false
+  end
   listener = params.listener
   local testing = params.testing
   local url = composer.config.httpsClient
@@ -106,6 +116,9 @@ local function validateGoogle(params)
 end
 
 local function validateOldGoogle(params)
+  if offlineMode() then
+    return false
+  end
   listener = params.listener
   local testing = params.testing
   local url = composer.config.httpsClient
@@ -145,6 +158,9 @@ local function validateOldGoogle(params)
 end
 
 local function validateAmazon(params)
+  if offlineMode() then
+    return false
+  end
   listener = params.listener
   local testing = params.testing
   local url = composer.config.httpsClient

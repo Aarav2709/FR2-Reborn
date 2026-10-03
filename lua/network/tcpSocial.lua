@@ -161,6 +161,9 @@ end
 Network.closeTCP = closeTCP
 
 local function connectTCP()
+  if composer.config and composer.config.offlineMode then
+    return
+  end
   if hardStop then
     print("Hard stop, do not auto reconnect")
     return
@@ -212,10 +215,14 @@ local function safeTCPStart()
 end
 
 local function startTCP(theReceiveFunction, message)
+  if composer.config and composer.config.offlineMode then
+    return false
+  end
   hardStop = false
   receiveFunction = theReceiveFunction
   connectMessage = message
   safeTCPStart()
+  return true
 end
 
 Network.startTCP = startTCP

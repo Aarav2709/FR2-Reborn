@@ -336,12 +336,16 @@ function M.loadFacebook()
 end
 
 function M.loadIAP()
+  if composer.config and composer.config.offlineMode then
+    return false
+  end
   if storeLoaded then
     return
   end
   storeLoaded = true
   local inApp = require("lua.iap.inAppPurchase")
   inApp.initInAppPurchase()
+  return true
 end
 
 function M.createConfigChecksum()
@@ -373,6 +377,11 @@ function M.createMapChecksum()
 end
 
 function M.updateMapFiles()
+  if composer.config and composer.config.offlineMode then
+    composer.mapDownloadFailure = true
+    composer.updatingMaps = false
+    return false
+  end
   local timeToLoad = system.getTimer()
   composer.updatingMaps = true
   local downloadStart = {
@@ -423,6 +432,11 @@ function M.readJsonMapFiles()
 end
 
 function M.updateConfigFiles()
+  if composer.config and composer.config.offlineMode then
+    composer.configDownloadFailure = true
+    composer.updatingConfingFiles = false
+    return false
+  end
   local timeToLoad = system.getTimer()
   composer.updatingConfingFiles = true
   local downloadStart = {

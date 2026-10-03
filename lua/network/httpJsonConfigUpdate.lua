@@ -41,6 +41,9 @@ local function didDownloadSucceed(event)
 end
 
 local function sendConfigDownloadRequest(filepath, httpUrl, responseListener)
+  if composer.config and composer.config.offlineMode then
+    return false
+  end
   composer.updatingConfingFiles = true
   composer.configDownloadFailure = false
   local params = {}
@@ -70,7 +73,7 @@ local function awardsListener(event)
 end
 
 local function checkForJsonAwardsUpdate()
-  if composer.config.ignoreJsonConfig then
+  if composer.config.offlineMode or composer.config.ignoreJsonConfig then
     return
   end
   awardsRequestActive = true
@@ -97,7 +100,7 @@ local function storeConfigListener(event)
 end
 
 local function checkForJsonStoreConfigUpdate()
-  if composer.config.ignoreJsonConfig then
+  if composer.config.offlineMode or composer.config.ignoreJsonConfig then
     return
   end
   storeRequestActive = true
@@ -124,7 +127,7 @@ local function configListener(event)
 end
 
 local function checkForJsonConfigUpdate()
-  if composer.config.ignoreJsonConfig then
+  if composer.config.offlineMode or composer.config.ignoreJsonConfig then
     return
   end
   configRequestActive = true
@@ -149,6 +152,9 @@ local function versionListener(event)
 end
 
 local function checkForVersion()
+  if composer.config and composer.config.offlineMode then
+    return
+  end
   if composer.config.ignoreJsonConfig then
     return
   end

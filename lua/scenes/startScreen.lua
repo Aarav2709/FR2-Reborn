@@ -98,6 +98,11 @@ function scene:show(event)
   composer.data.tutorial = true
   assetLoader.loadBaseSounds()
   assetLoader.loadFacebook()
+  if composer.config.offlineMode then
+    composer.database.createDefaultOfflinePlayer()
+    composer.gotoScene("lua.scenes.loadingScene")
+    return
+  end
   if isSimulator and composer.config.bot then
     local newName = "Guest" .. math.random(1, 1000)
     composer.database.setOnboardingPartDone(1)

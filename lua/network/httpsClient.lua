@@ -16,11 +16,22 @@ local function networkListener(event)
   end
 end
 
+local function sendPost(params)
+  if composer.config and composer.config.offlineMode then
+    return false
+  end
+  network.request(url, "POST", networkListener, params)
+  return true
+end
+
 function Network.send(data)
+  if composer.config and composer.config.offlineMode then
+    return false
+  end
   local jsonObject = json.encode(data)
   composer.debugger.debugPrint("network", jsonObject)
   local params = {body = jsonObject}
-  network.request(url, "POST", networkListener, params)
+  return sendPost(params)
 end
 
 function Network.setCallback(receiveFunction)
@@ -52,7 +63,7 @@ local function createUser(email, username, password)
   local postData = action .. "username=" .. username .. "&email=" .. email .. "&password=" .. password .. "&platform=" .. platform
   local params = {}
   params.body = postData
-  network.request(url, "POST", networkListener, params)
+  sendPost(params)
 end
 
 Network.createUser = createUser
@@ -63,7 +74,7 @@ local function createFacebookUser(username, facebookId, facebookToken)
   local postData = action .. "username=" .. username .. "&facebookId=" .. facebookId .. "&facebookToken=" .. facebookToken .. "&platform=" .. platform
   local params = {}
   params.body = postData
-  network.request(url, "POST", networkListener, params)
+  sendPost(params)
 end
 
 Network.createFacebookUser = createFacebookUser
@@ -73,7 +84,7 @@ local function addUserInformation(playerId, token, email, password)
   local postData = action .. "playerId=" .. playerId .. "&token=" .. token .. "&email=" .. email .. "&password=" .. password
   local params = {}
   params.body = postData
-  network.request(url, "POST", networkListener, params)
+  sendPost(params)
 end
 
 Network.addUserInformation = addUserInformation
@@ -83,7 +94,7 @@ local function loginUser(username, password)
   local postData = action .. "username=" .. username .. "&password=" .. password
   local params = {}
   params.body = postData
-  network.request(url, "POST", networkListener, params)
+  sendPost(params)
 end
 
 Network.loginUser = loginUser
@@ -93,7 +104,7 @@ local function addFacebookInformation(token, playerId, facebookId, facebookToken
   local postData = action .. "facebookId=" .. facebookId .. "&facebookToken=" .. facebookToken .. "&token=" .. token .. "&playerId=" .. playerId
   local params = {}
   params.body = postData
-  network.request(url, "POST", networkListener, params)
+  sendPost(params)
 end
 
 Network.addFacebookInformation = addFacebookInformation
@@ -103,7 +114,7 @@ local function loginFacebookUser(facebookId, facebookToken)
   local postData = action .. "facebookId=" .. facebookId .. "&facebookToken=" .. facebookToken
   local params = {}
   params.body = postData
-  network.request(url, "POST", networkListener, params)
+  sendPost(params)
 end
 
 Network.loginFacebookUser = loginFacebookUser
@@ -113,7 +124,7 @@ local function forgotPassword(username)
   local postData = action .. "username=" .. username
   local params = {}
   params.body = postData
-  network.request(url, "POST", networkListener, params)
+  sendPost(params)
 end
 
 Network.forgotPassword = forgotPassword

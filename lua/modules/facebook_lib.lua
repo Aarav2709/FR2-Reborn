@@ -1,5 +1,6 @@
 local M = {}
 local json = require("json")
+local composer = require("composer")
 local url = require("socket.url")
 M.FB_App_ID = "_UNDEFINED_"
 M.FB_Access_Token = nil
@@ -197,10 +198,16 @@ local function simulatorLogout()
 end
 
 function M.isLoggedIn()
+  if composer.config and composer.config.offlineMode then
+    return false
+  end
   return fbLoggedIn
 end
 
 function M.login(permissions, onLoginComplete)
+  if composer.config and composer.config.offlineMode then
+    return false
+  end
   dbg("Preparing to log in")
   assert(M.FB_App_ID and M.FB_App_ID:len() > 0 and M.FB_App_ID ~= "_UNDEFINED_", "Facebook FB_App_ID not defined by caller")
   setNextRequest("login", nil, permissions, onLoginComplete)
@@ -212,6 +219,9 @@ function M.login(permissions, onLoginComplete)
 end
 
 function M.request(path, httpMethod, params, onRequestComplete)
+  if composer.config and composer.config.offlineMode then
+    return false
+  end
   dbg("Preparing to send request: " .. httpMethod .. " " .. path)
   if fbNextRequest ~= nil then
     print("Error processing Facebook request: " .. httpMethod .. " " .. path .. ", a previous request is still being processed")
@@ -228,6 +238,9 @@ function M.request(path, httpMethod, params, onRequestComplete)
 end
 
 function M.showDialog(params, onDialogComplete)
+  if composer.config and composer.config.offlineMode then
+    return false
+  end
   dbg("Preparing to show dialog")
   if fbNextRequest ~= nil then
     print("Error processing Facebook show dialog, a previous request is still being processed")
@@ -244,6 +257,9 @@ function M.showDialog(params, onDialogComplete)
 end
 
 function M.logout(onLogoutComplete)
+  if composer.config and composer.config.offlineMode then
+    return false
+  end
   dbg("Preparing to log out")
   if fbNextRequest ~= nil then
     print("Error processing Facebook logout, a previous request is still being processed")

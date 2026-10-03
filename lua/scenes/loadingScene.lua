@@ -118,6 +118,13 @@ function scene:show(event)
   local updateConfig = false
   local configFilesCorruptOnFirstRead = false
   local loadBaseTimer, startToLoadTimer, nextStepTimer
+  local function showCorruptFilesAlert()
+    native.showAlert(composer.localized.get("CorruptedFiles"), composer.localized.get("CorruptedFilesText"), {
+      composer.localized.get("Ok")
+    }, function()
+      native.requestExit()
+    end)
+  end
   downloadText = composer.newText({
     string = composer.localized.get("Downloading"),
     x = 0,
@@ -249,13 +256,7 @@ function scene:show(event)
       if configFilesCorruptOnFirstRead then
         configFilesCorruptOnFirstRead = false
         if composer.awardsDownloadFailure or composer.storeDownloadFailure or composer.configDownloadFailure then
-          local function closeApp()
-            native.requestExit()
-          end
-
-          native.showAlert(composer.localized.get("CorruptedFiles"), composer.localized.get("CorruptedFilesText"), {
-            composer.localized.get("Ok")
-          }, closeApp)
+          showCorruptFilesAlert()
           print("Warning: Could not get new config files and current ones are currupted. Closing app.")
           return
         end
@@ -308,7 +309,11 @@ function scene:show(event)
     if filessAreOk == 0 then
       print("Current config files have errors. Need to get new.")
       configFilesCorruptOnFirstRead = true
-      assetLoader.updateConfigFiles()
+      if composer.config.offlineMode then
+        showCorruptFilesAlert()
+      else
+        assetLoader.updateConfigFiles()
+      end
     end
   end
 

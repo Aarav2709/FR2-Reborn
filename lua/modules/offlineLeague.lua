@@ -515,19 +515,6 @@ function M.randomName(random)
   return name
 end
 
--- The league shown next to another racer: their own league is made up from their name,
--- usually yours, sometimes one above or below.
-function M.tierForRacer(username)
-  local tier = M.getTier()
-  local roll = stringSeed(tostring(username)) % 10
-  if roll == 0 and tier < M.WOOD then
-    tier = tier + 1
-  elseif roll == 1 and tier > M.ELITE and tier ~= M.DIAMOND then
-    tier = tier - 1
-  end
-  return tier
-end
-
 function M.reset()
   save(defaultState())
 end

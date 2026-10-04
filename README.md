@@ -1,30 +1,33 @@
 # FR2 Reborn
 
-FR2 Reborn is a fan made, offline revival of Fun Run 2 for mobile, rebuilt to look, play and feel like the original game. Quick Play races against bots and player progress is stored on the device. Development of this game marks over 1.5 years of discontinuous development, from the project's creation in February 2025 to Release (October '26)!
+FR2 Reborn is a fan made revival of Fun Run 2 for mobile and PC. The game runs offline and saves progress on the device. Optional LAN discovery lets players find and invite nearby players on the same network.
 
 ## Features
 
 * Quick Play races against bots, with map voting, coins, gems and league rating
-* Practice races on every map, just for fun
+* Expert bots use one fixed skill level in every mode
+* Practice races on every map
+* Two versus two team races with bots
 * Weekly leagues from Wood to Elite, with divisions, prizes, promotions and player profiles
 * Power up sets you can try in the lobby for a single gem
-* The full shop: animals, skins, hats, accessories and power up skins
+* The full shop: animals, skins, hats, wings, accessories and power up skins
+* A local clan simulation with saved progress
+* A 30 or 60 FPS setting for mobile and PC
 * Daily spin wheel, achievements and news
 * The original tutorial, maps, themes and race results screen
-> More to come soon, I won't mention it outright, but check discord in case you need updates!
+
+LAN Friends supports local player discovery and invitations. Races with another LAN player are not available yet.
 
 ## Platforms
 
 * Android
 * iOS
-* PC (controls are Up, Down, Left, Right for Navigation, otherwise use Mouse. Space to Jump, X for powerups.)
+* PC (use the arrow keys for navigation, Space to jump and X for power ups)
 > Download from [Releases](https://github.com/AaravGupta/FR2-Reborn/releases/latest)!
 
-## Releasing Updates
+## Help and contributions
 
-The game save stays in the app's local Documents folder. To keep existing saves when publishing an update, keep the Android application ID and signing key, and the iOS bundle ID, the same as the previous release. Increase Android `versionCode` and iOS `CFBundleVersion` for every store upload; keep the displayed app version aligned in `build.settings` and `configuration.lua`. The app IDs and signing details are entered in Solar2D's build dialog and are not stored in this repository, so preserve the values from the previous release there. GitHub Actions is not needed; build and check each release in Solar2D.
-
-Only increase `lua/modules/saveData.lua`'s save version when the stored save format changes, and add the corresponding migration before releasing that change. Do not delete or recreate `data.sqlite3` during an app update.
+If you are new to GitHub, open [Issues](https://github.com/AaravGupta/FR2-Reborn/issues/new/choose) and choose Report a bug, Suggest an improvement, or Ask a question. Each form explains what information to share. To send a code change, read [the contribution guide](.github/CONTRIBUTING.md).
 
 ## Community
 
@@ -44,8 +47,8 @@ This is a fan made, non commercial project. The original game assets used here c
 
 ## Legal Notice
 
-This project is not affiliated with Dirtybit or the original Fun Run development team. The repository's license does not grant permission to use, redistribute or make commercial use of Dirtybit's material. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+This project is not affiliated with Dirtybit or the original Fun Run development team. The repository's license does not grant permission to use, redistribute or make commercial use of Dirtybit's material.
 
 ## License
 
-Original FR2 Reborn source code that the copyright holder is entitled to license is released under the MIT License. The license does not cover Fun Run 2 assets, decompiled or otherwise third-party material. See [LICENSE](LICENSE) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Original FR2 Reborn source code that the copyright holder is entitled to license is released under the MIT License. The license does not cover Fun Run 2 assets, decompiled or otherwise third-party material. See [LICENSE.](LICENSE)

@@ -44,7 +44,7 @@ function scene:create(event)
   end
 
   local function btnClanRelease(event)
-    composer.createCustomOverlay(1)
+    composer.showOverlay("lua.overlays.clanSimulation", { isModal = true })
   end
 
   local function btnRankingRelease(event)
@@ -56,7 +56,7 @@ function scene:create(event)
       local options = { isModal = true }
       composer.showOverlay("lua.overlays.messages", options)
     else
-      composer.createCustomOverlay(1)
+      composer.showOverlay("lua.overlays.lanFriends", { isModal = true })
     end
   end
 
@@ -94,7 +94,7 @@ function scene:create(event)
     y = 0
   })
   btnClan = composer.newButton({
-    image = "images/gui/ranking/tab_clansInactive.png",
+    image = "images/gui/ranking/tab_clans.png",
     width = 58,
     height = 58,
     onRelease = btnClanRelease,
@@ -165,7 +165,8 @@ function scene:create(event)
       return
     end
     -- Use local avatar format (same as marketplace) so equipped cosmetics are applied.
-    playerAvatar = monsterLoader.new(avatarData)
+    playerAvatar = monsterLoader.new(avatarData, false, nil,
+      composer.database.getBackwear and composer.database.getBackwear() or 0)
     if playerAvatar and playerAvatar.getGroup then
       local avatarGroup = playerAvatar.getGroup()
       avatarGroup.xScale = 0.5

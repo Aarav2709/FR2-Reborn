@@ -6,6 +6,13 @@ if (system.getInfo("platform") == "win32" and system.getInfo("environment") ~= "
   DESIGN_HEIGHT = 460
 end
 local MIN_ASPECT = 16 / 9
+local preferredFps = 60
+if system and system.getPreference then
+  local ok, savedFps = pcall(system.getPreference, "app", "preferredFps", "number")
+  if ok and (savedFps == 30 or savedFps == 60) then
+    preferredFps = savedFps
+  end
+end
 
 local longSide = math.max(display.pixelWidth, display.pixelHeight)
 local shortSide = math.min(display.pixelWidth, display.pixelHeight)
@@ -28,8 +35,6 @@ application = {
     scale = "letterbox",
     xAlign = "center",
     yAlign = "center",
-    -- Movement is time based (one-off kicks are impulses), so races play at the
-    -- original's pace at 60 frames per second too, just smoother.
-    fps = 60,
+    fps = preferredFps,
   }
 }

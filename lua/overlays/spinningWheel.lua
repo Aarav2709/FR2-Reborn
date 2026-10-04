@@ -4,6 +4,7 @@ local dailySpin = require("lua.modules.dailySpin")
 local scene = composer.newScene()
 local clean, cleanEnter, overlayEndedData
 local lineLength = 100
+local WHEEL_RADIUS = lineLength * 0.75
 
 -- The prize wheel sign, laid out in the original 480x320 design units: it hangs
 -- from the top of the screen with the coin board in its usual corner. Offline the
@@ -70,7 +71,8 @@ function scene:create(event)
   local headerBackground2 = display.newImageRect("images/gui/wheel/header2.png", 215, 75)
   headerBackground2.x, headerBackground2.y = headerBackground1.x, headerBackground1.y
   local arrow = display.newImageRect("images/gui/wheel/arrow.png", 25, 45)
-  arrow.x, arrow.y = headerBackground1.x, headerBackground1.y + 24
+  -- The arrow tip sits exactly one reward radius above the wheel centre.
+  arrow.x, arrow.y = WHEEL_X, top + WHEEL_Y - WHEEL_RADIUS - arrow.height * 0.5
   local windowInfo = newText({ string = "", x = WHEEL_X, y = top + 50, size = 20, color = { 1, 1, 1 } })
   -- Unused second line (the wait time now shares the sign's one line).
   local timeInfo = newText({ string = "", x = WHEEL_X, y = top + 62, size = 16, color = { 1, 1, 1 } })
@@ -181,9 +183,11 @@ function scene:create(event)
           firstAngle = meanAngle
           secondAngle = meanAngle
         end
-        local angle = math.random(math.floor(firstAngle), math.floor(secondAngle))
-        angle = angle + spinJson.rotationOffset * (180 / math.pi) + 90
-        return -angle
+        local sliceAngle = math.random(math.floor(firstAngle), math.floor(secondAngle))
+        local rewardAngle = sliceAngle + spinJson.rotationOffset * (180 / math.pi)
+        -- Reward art is laid out clockwise from the top pointer. This keeps the
+        -- selected reward centre inside its slice and centred under the arrow.
+        return -90 - rewardAngle
       end
     end
     return 0
@@ -278,8 +282,8 @@ function scene:create(event)
     end
     local text = newText({ string = iconText, size = textSize, x = 0, y = 15, color = { 1, 1, 1 } })
     iconGroup:insert(text)
-    iconGroup.x = math.cos(degrees) * lineLength / 4 * 3
-    iconGroup.y = math.sin(degrees) * lineLength / 4 * 3
+    iconGroup.x = math.cos(degrees) * WHEEL_RADIUS
+    iconGroup.y = math.sin(degrees) * WHEEL_RADIUS
     iconGroup.rotation = degrees * (180 / math.pi) + 90
     reward.degrees = iconGroup.rotation
     spinningGroup:insert(iconGroup)
@@ -310,7 +314,7 @@ function scene:create(event)
   end
 
   local function radToDegree(rad)
-    return rad * 180 / 3.14
+    return rad * 180 / math.pi
   end
 
   local function getSpinSpeedFromTouch(touchStartX, touchStartY, touchEndX, touchEndY)
@@ -403,6 +407,36 @@ function scene:create(event)
     return true
   end
 
+  local mouseDragging = false
+  local function onMouse(event)
+    local phase
+    if event.type == "down" then
+      local bounds = spinningGroup.contentBounds
+      if bounds and event.x >= bounds.xMin and event.x <= bounds.xMax and event.y >= bounds.yMin and event.y <= bounds.yMax then
+        mouseDragging = true
+        phase = "began"
+      end
+    elseif event.type == "move" and mouseDragging and event.isPrimaryButtonDown then
+      phase = "moved"
+    elseif event.type == "up" and mouseDragging then
+      phase = "ended"
+      mouseDragging = false
+    end
+    if phase then
+      spinWheel(spinningGroup, { phase = phase, x = event.x, y = event.y })
+      return true
+    end
+    return false
+  end
+
+  spinningGroup.navCustomFocus = function(isFocused)
+    if isFocused then
+      midWheel.xScale, midWheel.yScale = 1.08, 1.08
+    else
+      midWheel.xScale, midWheel.yScale = 1, 1
+    end
+  end
+
   local function commCallback(data)
     if startedClean or offline then
       return
@@ -460,6 +494,7 @@ function scene:create(event)
     transition.cancel(spinningGroup)
     display.remove(btnExit)
     spinningGroup:removeEventListener("touch", spinningGroup)
+    Runtime:removeEventListener("mouse", onMouse)
     Runtime:removeEventListener("enterFrame", applyRotationToWheel)
     for _, ref in pairs({ imageFlipperRef, imageFlipper2Ref, showPriceRef }) do
       timer.cancel(ref)
@@ -470,6 +505,9 @@ function scene:create(event)
   composer.bouncer.down(dropdownGroup)
   spinningGroup.touch = spinWheel
   spinningGroup:addEventListener("touch", spinningGroup)
+  if require("lua.modules.pcMode").isPC then
+    Runtime:addEventListener("mouse", onMouse)
+  end
   imageFlipperRef = timer.performWithDelay(300, flipImages, 1)
   imageFlipper2Ref = timer.performWithDelay(300, flipImages2, 1)
   spinningGroup.rotation = math.random(0, 360)

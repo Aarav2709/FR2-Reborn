@@ -32,6 +32,8 @@ function M.findIndexOnId(key)
     return 10
   elseif key >= 1200 and key < 2100 then
     return 9
+  elseif key >= 2100 and key < 2200 then
+    return 11
   end
 
   return nil
@@ -59,6 +61,10 @@ function M.normalizeSelection(spriteType, newIndex, marketData)
     end
   elseif index and 100 < index and index > #marketData then
     index = M.findIndexOnKey(marketData, index)
+  end
+
+  if spriteType == 11 then
+    slotToChange = 11
   end
 
   return index, slotToChange

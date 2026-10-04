@@ -174,6 +174,18 @@ end
 
 M.getAvatarData = getAvatarData
 
+-- Backwear is stored separately so legacy seven-slot avatar saves and server
+-- avatar packets keep their original layout.
+function M.getBackwear()
+    return tonumber(M.getValue("avatar_backwear")) or 0
+end
+
+function M.setBackwear(itemId)
+    local value = tonumber(itemId) or 0
+    M.setValue("avatar_backwear", value)
+    return value
+end
+
 local function getNumberOfGameInvites()
     if composer.databaseData.gameInvites then
         return #composer.databaseData.gameInvites

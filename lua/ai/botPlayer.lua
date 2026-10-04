@@ -30,10 +30,8 @@ M.botSkins = {
   0
 }
 
--- Create 3 bot players with exact same speed as player
-function M.createBots(difficulty)
+function M.createBots()
   local bots = {}
-  local speedMultiplier = 1.0 -- 100% exact player speed
 
   for i = 1, 3 do
     local bot = {}
@@ -42,20 +40,10 @@ function M.createBots(difficulty)
     local avatarId = M.botAvatars[i] or 1
 
     bot.playerId = 100 + i
-    bot.avatar = {
-      character = avatarId,
-      skin = 0,
-      hat = 0,
-      facewear = 0,
-      neck = 0,
-      boots = 0,
-      item = 0
-    }
+    bot.avatar = { 100 + avatarId, 0, 0, 0, 0, 0, 0 }
     bot.isBot = true
-    bot.difficulty = difficulty or 2
-    bot.speedMultiplier = speedMultiplier
-    bot.reactionTime = 0.2
-    bot.powerupChance = 0.3
+    bot.speedMultiplier = 1
+    bot.powerupChance = 1
 
     table.insert(bots, bot)
   end
@@ -64,10 +52,7 @@ function M.createBots(difficulty)
 end
 
 function M.shouldUsePowerup(bot, playerPosition, enemyNearby)
-  if enemyNearby or math.random() < bot.powerupChance then
-    return true
-  end
-  return false
+  return enemyNearby or bot.powerupChance == 1
 end
 
 function M.updateBotMovement(bot, deltaTime)
@@ -76,14 +61,12 @@ function M.updateBotMovement(bot, deltaTime)
 end
 
 function M.getReactionDelay(bot)
-  local delay = bot.reactionTime + (math.random() * 0.2 - 0.1)
-  return math.max(0, delay)
+  return 0
 end
 
 function M.getBotInfo(bot)
   return {
     name = bot.username,
-    difficulty = bot.difficulty,
     speed = bot.speedMultiplier
   }
 end

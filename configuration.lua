@@ -1,7 +1,7 @@
 local composer = require("composer")
 composer.config = {}
-composer.config.version = "1.0.0"
-composer.config.fullVersion = "1.0.0"
+composer.config.version = "1.1.0"
+composer.config.fullVersion = "1.1.0"
 composer.config.onboardingVersion = "0.1"
 composer.config.abTest = ""
 composer.config.serverVersion = 24

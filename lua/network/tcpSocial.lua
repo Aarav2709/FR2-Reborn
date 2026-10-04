@@ -35,7 +35,6 @@ local function toggleNetworkAlert()
      or currentScene == "lua.scenes.startScreen"
      or currentScene == "lua.scenes.loadingScene"
      or currentScene == "lua.scenes.lobbyPractice"
-     or currentScene == "lua.scenes.difficultySelect"
      or (composer.data and composer.data.gameInfo and composer.data.gameInfo.gameType == 0) then
     return
   end

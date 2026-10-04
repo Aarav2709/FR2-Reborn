@@ -85,6 +85,7 @@ end
 function M.createBots()
   local bots = {}
   local used = {}
+  local playerLeague = league.getTier()
   local playerName = (composer.database.getPlayerInformation() or {}).username
   if playerName then
     used[playerName] = true
@@ -100,7 +101,7 @@ function M.createBots()
       avatar = M.randomAvatar(),
       playerId = 200 + i,
       isBot = true,
-      league = league.tierForRacer(name)
+      league = playerLeague
     }
     if math.random() < POWERUP_SET_CHANCE then
       bot.customPowerUps = M.powerupSet(M.randomPowerupSetId())

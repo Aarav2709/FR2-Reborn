@@ -233,7 +233,8 @@ function scene:create(event)
   local previewMonsterData = buildPreviewMonsterData(item)
   if previewMonsterData then
     local monsterLoader = require("spine-corona.monsterLoader")
-    avatarMonster = monsterLoader.new(previewMonsterData)
+    avatarMonster = monsterLoader.new(previewMonsterData, false, nil,
+      composer.database.getBackwear and composer.database.getBackwear() or 0)
     icon = avatarMonster.getGroup()
     icon.xScale, icon.yScale = 0.35, 0.35
     icon.x, icon.y = wx, wy + 168

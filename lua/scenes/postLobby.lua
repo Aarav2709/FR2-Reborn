@@ -165,6 +165,12 @@ function scene:create(event)
   mapName.x, mapName.y = board.x, board.y - 44
   fitWidth(mapName, 150)
   ui:insert(mapName)
+  if gameInfo.teamMode and gameInfo.stats and gameInfo.stats.teamWinner then
+    local teamText = gameInfo.stats.team == gameInfo.stats.teamWinner and "Your team won" or "Your team lost"
+    local teamResult = newText({ string = teamText, size = 13, color = { 1, 1, 1 } })
+    teamResult.x, teamResult.y = board.x, board.y + 58
+    ui:insert(teamResult)
+  end
   local rowsGroup = display.newGroup()
   ui:insert(rowsGroup)
 
@@ -511,7 +517,7 @@ function scene:create(event)
     end
     local feet = PODIUM_FEET[place] or PODIUM_FEET[#PODIUM_FEET]
     local networkFormat = isOnlineGame
-    local monster = monsterLoader.new(player.avatar, networkFormat)
+    local monster = monsterLoader.new(player.avatar, networkFormat, nil, player.backwear)
     monsters[#monsters + 1] = monster
     local monsterGroup = monster.getGroup()
     monsterGroup.xScale, monsterGroup.yScale = 0.5 * podiumScale, 0.5 * podiumScale
@@ -526,7 +532,7 @@ function scene:create(event)
     if isSelf then
       tier = (gameInfo.stats and gameInfo.stats.league) or offlineLeague.getTier()
     elseif tier == nil then
-      tier = offlineLeague.tierForRacer(player.username)
+      tier = offlineLeague.getTier()
     end
     local badgeCorner = PODIUM_BADGES[place] or PODIUM_BADGES[#PODIUM_BADGES]
     local badge = display.newImageRect(podiumGroup, "images/gui/ranking/league/tierS_" .. tier .. ".png", 26 * podiumScale, 26 * podiumScale)

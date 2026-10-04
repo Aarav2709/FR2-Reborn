@@ -36,16 +36,18 @@ function scene:create(event)
   end
 
   local function btnPracticePlayPlayRelease(event)
+    composer.data.gameInfo.teamMode = nil
     composer.gotoScene("lua.scenes.lobbyPractice")
   end
 
-  -- 2 VS 2 needs other players: not in this version yet.
   local function btn2v2Release(event)
-    composer.createCustomOverlay(1)
+    composer.data.gameInfo.teamMode = true
+    composer.gotoScene("lua.scenes.lobbyPractice")
   end
 
   -- Quick Play is the ranked mode (offline: against bots), with coins, gems and league.
   local function btnQuickPlayRelease(event)
+    composer.data.gameInfo.teamMode = nil
     composer.data.gameInfo.gameType = 0
     composer.gotoScene("lua.scenes.lobbyQuickPlay")
     composer.removeScene("lua.scenes.playMenu")

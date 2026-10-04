@@ -321,6 +321,9 @@ function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDi
   end
 
   function C.playMagnetEffect(dirRight)
+    if booleanStates.startedClean then
+      return
+    end
     if dirRight then
       magnetEffect.x = -40
       magnetEffect.xScale = math.abs(magnetEffect.xScale)
@@ -329,7 +332,9 @@ function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDi
       magnetEffect.xScale = -math.abs(magnetEffect.xScale)
     end
     magnetEffect.alpha = 1
+    magnetEffect:pause()
     magnetEffect:setSequence("normal")
+    magnetEffect:setFrame(1)
     magnetEffect:play()
   end
 

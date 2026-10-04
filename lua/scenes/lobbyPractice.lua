@@ -57,6 +57,11 @@ function scene:create(event)
   board.x, board.y = BOARD_X, BOARD_Y
   local roof = display.newImageRect(sign, "images/gui/practice/top.png", 22, 14)
   roof.x, roof.y = BOARD_X, BOARD_Y - BOARD_H * 0.51
+  if composer.data.gameInfo.teamMode then
+    local modeLabel = newText({ string = "2 vs 2 with expert bots", size = 14, color = { 1, 1, 1 } })
+    modeLabel.x, modeLabel.y = BOARD_X, 36
+    sign:insert(modeLabel)
+  end
 
   -- The cards scroll a page at a time inside the board.
   local cardsWindow = display.newContainer(330, 212)
@@ -70,15 +75,21 @@ function scene:create(event)
     if id == 0 then
       id = math.random(1, numberOfMaps)
     end
+    composer.data.gameInfo.players = {}
     composer.data.gameInfo.players[1] = {
       username = composer.database.getPlayerInformation().username,
       avatar = composer.database.getAvatarData(),
       playerId = composer.database.getPlayerInformation().playerId,
-      customPowerUps = composer.database.getPowerupSkin()
+      customPowerUps = composer.database.getPowerupSkin(),
+      backwear = composer.database.getBackwear and composer.database.getBackwear() or 0,
+      team = composer.data.gameInfo.teamMode and 1 or nil
     }
     local botAI = require("lua.ai.botPlayer")
-    local bots = botAI.createBots(composer.data.gameInfo.difficulty or 2)
+    local bots = botAI.createBots()
     for i = 1, #bots do
+      if composer.data.gameInfo.teamMode then
+        bots[i].team = i == 1 and 1 or 2
+      end
       composer.data.gameInfo.players[i + 1] = bots[i]
     end
     composer.data.gameInfo.gameType = 0

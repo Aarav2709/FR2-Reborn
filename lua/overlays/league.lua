@@ -375,7 +375,8 @@ function scene:create(event)
       stats = racerProfiles.racerStats(racerName, entry.rating, tier)
     end
     if avatar then
-      monster = monsterLoader.new(avatar)
+      monster = monsterLoader.new(avatar, false, nil,
+        isPlayer and composer.database.getBackwear and composer.database.getBackwear() or 0)
       if monster and monster.getGroup then
         local monsterGroup = monster.getGroup()
         monsterGroup.xScale, monsterGroup.yScale = 0.45, 0.45

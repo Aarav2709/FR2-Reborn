@@ -173,50 +173,10 @@ function scene:create(event)
   positionTexts[3] = composer.localized.get("3rd")
   positionTexts[4] = composer.localized.get("4th")
   audio.reserveChannels(21)
-  -- Practice races are against the three animal bots (Quick Play brings its own).
+  -- Practice races use the same expert bots as the practice map selector.
   if composer.data.gameInfo.gameType == 0 and not composer.data.gameInfo.ranked then
     if composer.onboarding.isActive == true then
       composer.onboarding.setBotCharacters()
-    else
-      composer.data.gameInfo.players[2] = {
-        username = "Sheep",
-        avatar = {
-          105,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        },
-        playerId = 1
-      }
-      composer.data.gameInfo.players[3] = {
-        username = "Wolf",
-        avatar = {
-          105,
-          214,
-          0,
-          0,
-          0,
-          0,
-          0
-        },
-        playerId = 2
-      }
-      composer.data.gameInfo.players[4] = {
-        username = "Tiger",
-        avatar = {
-          104,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        },
-        playerId = 3
-      }
     end
   end
   if composer.onboarding.isActive == true then
@@ -354,7 +314,8 @@ function scene:show(event)
           powerUp = 6
         end
         playerList[i] = basicPlayer.new(i, list[i].username, list[i].avatar, powerUp, mainPlayer, playerList,
-          startXPos + (i - 1) * 40, startYPos, list[i].customPowerUps)
+          startXPos + (i - 1) * 40, startYPos, list[i].customPowerUps, list[i].backwear)
+        playerList[i].team = list[i].team
         playerList[i].addPlaySoundFunction(playSound)
         playerList[i].playerId = list[i].playerId
         if mainPlayer then
@@ -788,6 +749,28 @@ function scene:show(event)
             thisPlayerPosition = thisPlayerPosition + 1
           end
         end
+      end
+      if composer.data.gameInfo.teamMode then
+        local teamScores = {}
+        for i = 1, #playerList do
+          local team = playerList[i].team
+          if team then
+            local time = playerList[i].getPlayerGoalTime()
+            if time <= 0 then
+              time = 9999999999
+            end
+            teamScores[team] = (teamScores[team] or 0) + time
+          end
+        end
+        local winner, winningScore
+        for team = 1, 2 do
+          local score = teamScores[team]
+          if score and (not winningScore or score < winningScore) then
+            winner, winningScore = team, score
+          end
+        end
+        composer.data.gameInfo.stats.teamWinner = winner
+        composer.data.gameInfo.stats.team = playerSelf and playerSelf.team
       end
       composer.data.gameInfo.quickPlayerRankingTable = rankingTable
       if playerInGoal == playerSelf.id then

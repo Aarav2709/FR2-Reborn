@@ -449,6 +449,22 @@ function M.getAllFeetSortedOnPrice()
   return sortOnPrice(list)
 end
 
+function M.getAllBackwearSortedOnPrice()
+  reloadConfigIfNil()
+  local list = {}
+  addNoneItem(list)
+  for key, value in pairs(configInput.backwear or {}) do
+    if shouldAddItem(value) then
+      list[#list + 1] = value
+      list[#list].key = key
+      list[#list].imagePath = "images/gui/market/items/backwear/" .. key .. ".png"
+      addSalesInfo(list[#list])
+      addSeasonalInfo(list[#list])
+    end
+  end
+  return sortOnPrice(list)
+end
+
 function M.getAllHats()
   reloadConfigIfNil()
   return configInput.hats

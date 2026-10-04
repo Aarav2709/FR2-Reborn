@@ -235,7 +235,7 @@ function scene:create(event)
       return
     end
     local monsterLoader = require("spine-corona.monsterLoader")
-    local monster = monsterLoader.new(racer.avatar)
+    local monster = monsterLoader.new(racer.avatar, false, nil, racer.backwear)
     if monster and monster.getGroup then
       monsters[#monsters + 1] = monster
       local monsterGroup = monster.getGroup()
@@ -259,6 +259,7 @@ function scene:create(event)
     avatar = composer.database.getAvatarData(),
     playerId = playerInfo.playerId,
     customPowerUps = composer.database.getPowerupSkin(),
+    backwear = composer.database.getBackwear and composer.database.getBackwear() or 0,
     league = league.getTier()
   }
   slots.me = me

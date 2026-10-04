@@ -7,7 +7,8 @@ local monsterLoader = require("spine-corona.monsterLoader")
 local powerUpChance = require("lua.gameLogic.powerUpChance")
 local basicPlayerEffects = require("lua.gameLogic.playerEffects")
 
-local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList, startXPos, startYPos, customPowerUpSkins)
+local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList, startXPos, startYPos,
+  customPowerUpSkins, backwearId)
   local player = display.newGroup()
   local playerGhost = display.newGroup()
   local spriteDisplay = display.newGroup()
@@ -19,7 +20,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   if composer.data.gameInfo.gameType > 0 then
     networkGame = true
   end
-  local monster = monsterLoader.new(accessorize, networkGame, customPowerUpSkins)
+  local monster = monsterLoader.new(accessorize, networkGame, customPowerUpSkins, backwearId)
   monster.getGroup().xScale = 0.25
   monster.getGroup().yScale = 0.25
   spriteDisplay:insert(monster.getGroup())
@@ -833,6 +834,22 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     end
   end
 
+  local function obstacleAhead(distance)
+    if booleanStates.startedClean or not player then
+      return false
+    end
+    local hits = physics.rayCast(player.x + 18, player.y + 6, player.x + distance, player.y + 6, "closest")
+    if not hits then
+      return false
+    end
+    for _, hit in ipairs(hits) do
+      if hit.object and hit.object.mapElement and not hit.object.bounce then
+        return true
+      end
+    end
+    return false
+  end
+
   local function tryToSpawnJumpEffect()
     local ray = castRayAgainstMapElement(player.x, player.y + 12, player.x, player.y + 30)
     if ray then
@@ -1390,6 +1407,10 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   end
 
   onCollisionPowerUp = function(killer, puType, isNetworkGame)
+    local attacker = playerList[tonumber(killer)]
+    if composer.data.gameInfo.teamMode and attacker and player.team and attacker.team == player.team then
+      return 0
+    end
     if booleanStates.startedClean then
     elseif gameTimes.goalTime == -1 and not booleanStates.playerInvulnerable then
       local hitType = 0
@@ -1691,8 +1712,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
 
   local function startBot()
     bot = botModule.new(player)
-    -- Your top speed, give or take a little (the original's debug bots ran at 335 to 345).
-    local botTopSpeed = math.random(344, 356)
+    local botTopSpeed = 350 * bot.speedMultiplier
     speeds.defaultTopSpeed = botTopSpeed
     speeds.topSpeedX = botTopSpeed
     speeds.tempSpeedX = botTopSpeed
@@ -1727,6 +1747,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   player.getUsername = getUsername
   player.jump = jump
   player.canJump = canJump
+  player.obstacleAhead = obstacleAhead
   player.speedPowerUp = speedPowerUp
   player.stopPowerUpSpeed = stopPowerUpSpeed
   player.shieldPowerUp = shieldPowerUp

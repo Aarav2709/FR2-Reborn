@@ -45,6 +45,10 @@ function scene:create(event)
   local creditsTableData = {}
   local startedClean = false
   local offline = composer.config.offlineMode
+  local savedFps = tonumber(system.getPreference("app", "preferredFps", "number"))
+  local currentFps = savedFps == 30 and 30 or 60
+  local lanFriendsEnabled = composer.database.getValue("lan_friends_enabled") == "1"
+  local onFpsClick, updateSettingsList
   updateArt()
   -- Texts are rasterised at the scale in use when the scene is built.
   local textUi = art.ui
@@ -167,6 +171,14 @@ function scene:create(event)
     settingsTable.refreshTable()
   end
 
+  local function onLanFriendsClick()
+    lanFriendsEnabled = not lanFriendsEnabled
+    composer.database.setValue("lan_friends_enabled", lanFriendsEnabled and 1 or 0)
+    composer.data.lanFriendsEnabled = lanFriendsEnabled
+    updateSettingsList()
+    settingsTable.refreshTable(settingsList, tablesGroup)
+  end
+
   local function onFacebookClick()
     if not composer.database.getFacebookId() then
       composer.analytics.newEvent("design", {
@@ -198,11 +210,13 @@ function scene:create(event)
     composer.showOverlay("lua.overlays.editNotificationSettings", { isModal = true })
   end
 
-  local function updateSettingsList()
+  updateSettingsList = function()
     if offline then
       -- Account, social and push features need the game server.
       settingsList = {
         { sound = true, onClick = onSoundClick },
+        { text = "FPS: " .. tostring(currentFps), onClick = onFpsClick },
+        { text = "LAN Friends: " .. (lanFriendsEnabled and "On" or "Off"), onClick = onLanFriendsClick },
         {
           tutorial = true,
           onClick = onTutorialClick,
@@ -213,6 +227,8 @@ function scene:create(event)
     end
     settingsList = {
       { sound = true, onClick = onSoundClick },
+      { text = "FPS: " .. tostring(currentFps), onClick = onFpsClick },
+      { text = "LAN Friends: " .. (lanFriendsEnabled and "On" or "Off"), onClick = onLanFriendsClick },
       {
         tutorial = true,
         onClick = onTutorialClick,
@@ -249,6 +265,20 @@ function scene:create(event)
     end
   end
 
+  onFpsClick = function()
+    local previousFps = currentFps
+    currentFps = currentFps == 60 and 30 or 60
+    local ok, saved = pcall(system.setPreferences, "app", { preferredFps = currentFps })
+    if not ok or not saved then
+      currentFps = previousFps
+      native.showAlert("Frame Rate", "Could not save the frame rate setting.", { "OK" })
+      return
+    end
+    updateSettingsList()
+    settingsTable.refreshTable(settingsList, tablesGroup)
+    native.showAlert("Frame Rate", "Restart the game to use " .. tostring(currentFps) .. " FPS.", { "OK" })
+  end
+
   local headerFontSize = 16
   local itemFontSize = 12
 
@@ -257,7 +287,7 @@ function scene:create(event)
     creditsTableData[#creditsTableData + 1] = { creditInfo = name, size = size or itemFontSize, x = 4, detail = detail }
   end
 
-  addToCredits("FR2: Reborn", headerFontSize, "v1.0.0")
+  addToCredits("FR2: Reborn", headerFontSize, "v1.1.0")
   addToCredits("")
   addToCredits("Developers", headerFontSize)
   addToCredits("Aarav Gupta", itemFontSize, "Creator & Frontend")

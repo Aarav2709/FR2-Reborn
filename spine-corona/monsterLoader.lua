@@ -2,7 +2,7 @@ local M = {}
 local spineInterface = require("spine-corona.interface")
 local composer = require("composer")
 
-local function new(monsterData, networkFormat, powerupSkins)
+local function new(monsterData, networkFormat, powerupSkins, backwearId)
   local monster = {}
   local monsterData = monsterData
   local skeletonData, spineLoader, skeleton, animationHandler, monsterGroup, lastUpdateTime, animationSpeedFactor, runAnimation
@@ -12,6 +12,7 @@ local function new(monsterData, networkFormat, powerupSkins)
   local blinkIndex = 0
   local blinkState = 1
   local paused = false
+  local backwearLeft, backwearRight
 
   local function setPowerupAnimationIds(powerupSet)
     rocketPowerupId, sacrificePowerupId, magnetPowerupId, markPowerupId, speedPowerupId = 1401, 1601, 1701, 1801, 1901
@@ -616,6 +617,27 @@ local function new(monsterData, networkFormat, powerupSkins)
     skeleton:updateWorldTransform()
     monsterGroup = skeleton.group
     monsterGroup.y = 24
+
+    -- Backwear is a local cosmetic slot. Draw mirrored wings behind the Spine
+    -- skeleton without changing the legacy network avatar format.
+    local backwear = tonumber(backwearId)
+    if backwear and backwear >= 2100 and backwear < 2200 then
+      local path = "images/monsters/backwear/" .. backwear .. ".png"
+      backwearLeft = display.newImage(monsterGroup, path)
+      backwearRight = display.newImage(monsterGroup, path)
+      if backwearLeft and backwearRight then
+        backwearLeft.x, backwearRight.x = -20, 20
+        backwearLeft.y, backwearRight.y = -5, -5
+        backwearLeft.xScale, backwearLeft.yScale = -0.48, 0.48
+        backwearRight.xScale, backwearRight.yScale = 0.48, 0.48
+        monsterGroup:insert(1, backwearLeft)
+        monsterGroup:insert(2, backwearRight)
+      else
+        display.remove(backwearLeft)
+        display.remove(backwearRight)
+        backwearLeft, backwearRight = nil, nil
+      end
+    end
 
     -- Skeleton scale adjustments by character
     -- Default scale is 1.0, some characters need tweaks

@@ -1,102 +1,101 @@
 local M = {}
 
+local BOT_SPEED = 1
+local LOOK_AHEAD = 185
+local BLOCKED_SPEED = 280
+local JUMP_COOLDOWN = 500
+local POWER_UP_INTERVAL = 850
+
 local function new(player)
   local composer = require("composer")
-  local botPlayer = {}
-  local botTimer, roofDontJump, prevY, prevX, noJumpTimer, gameFunction, gameState, counter, systemStartTime, btnPowerUpPress
-  local speedFactor = 1
+  local botPlayer = player
+  local botTimer
+  local gameFunction
+  local gameState = 0
+  local systemStartTime
+  local btnPowerUpPress
+  local nextJumpTime = system.getTimer() + 350
+  local nextPowerUpTime = system.getTimer() + POWER_UP_INTERVAL
+  local nextStuckSample = system.getTimer()
+  local positionSamples = {}
+  local runningSince
 
-  -- Offline races: a bot that falls behind you runs a little faster (up to 12%), one far
-  -- ahead eases off a little (up to 5%), so races stay close like against real players.
-  local function updateCatchUp()
-    local me = composer.mainPlayer
-    if not botPlayer.setBotSpeedFactor or composer.data.gameInfo.gameType ~= 0 then
+  botPlayer.speedMultiplier = BOT_SPEED
+
+  local function jump()
+    if not botPlayer.canJump() then
+      return false
+    end
+    botPlayer.jump()
+    return true
+  end
+
+  local function createPowerUpList(powerUpType)
+    if not gameFunction then
       return
     end
-    local target = 1
-    if me and me ~= botPlayer and me.x and botPlayer.x then
-      local behind = me.x - botPlayer.x
-      if behind > 100 then
-        target = 1 + math.min(0.12, (behind - 100) / 2500)
-      elseif behind < -400 then
-        target = 1 - math.min(0.05, (-behind - 400) / 4000)
-      end
-    end
-    speedFactor = speedFactor + (target - speedFactor) * 0.2
-    botPlayer.setBotSpeedFactor(speedFactor)
+    local data = {
+      "11",
+      botPlayer.id,
+      {},
+      powerUpType,
+      botPlayer.x,
+      botPlayer.y
+    }
+    gameFunction(data)
   end
 
-  local function checkIfStuck()
-    if 10 < #prevX then
-      local lastPosition = prevX[1]
-      local stuck = true
-      for i = 2, #prevX do
-        if math.abs(lastPosition - prevX[i]) > 30 then
-          stuck = false
-          break
-        end
-      end
-      if stuck then
-        -- Back off and hop (a one-step push of the original 30 fps game).
-        botPlayer:applyLinearImpulse(-400 / 30, -200 / 30, botPlayer.x, botPlayer.y)
-      end
-    end
-  end
-
-  local function jumpAgain()
-    roofDontJump = false
-    prevY = 999999
-  end
-
-  local function jump(wall)
-    if botPlayer.canJump() then
-      -- A wall jump that didn't gain height means a roof is overhead: wait a bit.
-      if botPlayer.y > prevY - 20 then
-        roofDontJump = true
-        timer.performWithDelay(1800, jumpAgain, 1)
-      else
-        botPlayer.jump()
-        if wall then
-          prevY = botPlayer.y
-        end
-      end
-    end
-  end
-
-  local function createPowerUpList(pType)
-    if gameFunction then
-      local data = {}
-      data[1] = "11"
-      data[2] = botPlayer.id
-      data[3] = {}
-      data[4] = pType
-      data[5] = botPlayer.x
-      data[6] = botPlayer.y
-      gameFunction(data)
-    end
-  end
-
-  local function usePowerUp(secTime)
+  local function usePowerUp()
     if composer.data.gameInfo.gameType == 0 then
-      local pType = botPlayer.getPowerUp()
-      if 0 < pType then
-        if 50 < pType then
-          createPowerUpList(pType)
-
-          local function myclosure(event)
-            return createPowerUpList(pType - 50)
-          end
-
-          timer.performWithDelay(200, myclosure, 1)
+      local powerUpType = botPlayer.getPowerUp()
+      if powerUpType > 0 then
+        if powerUpType > 50 then
+          createPowerUpList(powerUpType)
+          timer.performWithDelay(200, function()
+            createPowerUpList(powerUpType - 50)
+          end, 1)
         else
-          createPowerUpList(pType)
+          createPowerUpList(powerUpType)
         end
         botPlayer.usedPowerUp()
       end
     elseif btnPowerUpPress then
-      local event = {}
-      event.phase = "began"
-      btnPowerUpPress(nil, event)
+      btnPowerUpPress(nil, { phase = "began" })
+    end
+  end
+
+  local function checkIfStuck()
+    if #positionSamples < 8 or not botPlayer.canJump() then
+      return
+    end
+    local first = positionSamples[1]
+    local stuck = true
+    for i = 2, #positionSamples do
+      if math.abs(first - positionSamples[i]) > 34 then
+        stuck = false
+        break
+      end
+    end
+    if stuck then
+      jump()
+      positionSamples = {}
+      nextJumpTime = system.getTimer() + JUMP_COOLDOWN
+    end
+  end
+
+  local function sampleProgress(now)
+    if now < nextStuckSample then
+      return
+    end
+    nextStuckSample = now + 100
+    if botPlayer.canJump() then
+      table.insert(positionSamples, 1, botPlayer.x)
+      if #positionSamples > 10 then
+        table.remove(positionSamples)
+      end
+      checkIfStuck()
+    else
+      positionSamples = {}
     end
   end
 
@@ -104,79 +103,62 @@ local function new(player)
     if composer.onboarding.isActive == true and composer.onboarding.overrideAI() then
       return
     end
-    if botPlayer then
-      local vx, vy = botPlayer:getLinearVelocity()
-      if 0 < vx and gameState == 0 then
-        gameState = 1
-      end
-      -- Slowed by a wall or a step: jump it before stopping. Otherwise hop now and then.
-      if vx < 120 then
-        if gameState == 1 and not roofDontJump then
-          jump(true)
-          noJumpTimer = 0
-        end
-      elseif math.random() > 0.975 then
-        if gameState == 1 and not roofDontJump then
-          jump()
-          noJumpTimer = 0
+    if not botPlayer then
+      timer.cancel(event.source)
+      return
+    end
+
+    local now = system.getTimer()
+    local vx = botPlayer:getLinearVelocity()
+    if vx > 0 and gameState == 0 then
+      gameState = 1
+      runningSince = now
+      nextJumpTime = now + 350
+    end
+
+    if gameState ~= 1 then
+      return
+    end
+
+    sampleProgress(now)
+
+    if now >= nextJumpTime then
+      local lookAhead = math.max(75, math.min(LOOK_AHEAD, vx * 0.24 + 28))
+      local obstacleAhead = botPlayer.obstacleAhead and botPlayer.obstacleAhead(lookAhead)
+      local slowedDown = runningSince and now - runningSince > 700 and vx < BLOCKED_SPEED
+      if obstacleAhead or slowedDown then
+        if jump() then
+          nextJumpTime = now + JUMP_COOLDOWN
+        else
+          nextJumpTime = now + 120
         end
       else
-        noJumpTimer = noJumpTimer + 1
+        nextJumpTime = now + 80
       end
-      if noJumpTimer == 6 then
-        prevY = 999999
-      end
-      if 12 < #prevX then
-        table.remove(prevX)
-      end
-      if gameState == 1 then
-        updateCatchUp()
-      end
-      if gameState == 1 and 10 < counter then
-        if botPlayer.canJump() then
-          table.insert(prevX, 1, botPlayer.x)
-        end
-        counter = 0
-        usePowerUp()
-      end
-      counter = counter + 1
-      if counter % 2 == 0 then
-        checkIfStuck()
-      end
-    else
-      timer.cancel(event.source)
+    end
+
+    if now >= nextPowerUpTime then
+      usePowerUp()
+      nextPowerUpTime = now + POWER_UP_INTERVAL
     end
   end
 
-  local function startBotModule(player)
-    if player then
-      botPlayer = player
-      roofDontJump = false
-      prevY = 999999
-      prevX = {}
-      noJumpTimer = 0
-      gameState = 0
-      counter = 0
-      -- Ten checks a second (the original's five let bots run into every wall).
-      botTimer = timer.performWithDelay(100, updateBot, 0)
-    end
+  local function startBotModule()
+    gameState = 0
+    botTimer = timer.performWithDelay(80, updateBot, 0)
   end
 
-  startBotModule(player)
-
-  local function setGameFunction(powerUpFunction, startTime, powerUpBtn)
+  local function setGameFunction(powerUpFunction, startTime, powerUpButton)
     gameFunction = powerUpFunction
     systemStartTime = startTime
-    btnPowerUpPress = powerUpBtn
+    btnPowerUpPress = powerUpButton
   end
-
-  botPlayer.setGameFunction = setGameFunction
 
   local function botDied()
-    jumpAgain()
+    positionSamples = {}
+    runningSince = nil
+    gameState = 0
   end
-
-  botPlayer.botDied = botDied
 
   local function cleanBot()
     if botTimer then
@@ -185,40 +167,28 @@ local function new(player)
     end
   end
 
-  botPlayer.cleanBot = cleanBot
-
   local function inGoal()
-    if gameFunction and botPlayer and gameState == 1 and composer.data.gameInfo.gameType == 0 then
-      local event = {}
-      event[1] = "15"
-      event[2] = botPlayer.id
-      event[3] = ""
-      event[4] = system.getTimer() - systemStartTime
-      gameFunction(event)
+    if gameFunction and gameState == 1 and composer.data.gameInfo.gameType == 0 then
+      gameFunction({ "15", botPlayer.id, "", system.getTimer() - (systemStartTime or 0) })
     end
     gameState = 2
-    if botTimer then
-      timer.cancel(botTimer)
-      botTimer = nil
-    end
+    cleanBot()
   end
 
   local function forceInGoal(time)
-    local event = {}
-    event[1] = "15"
-    event[2] = botPlayer.id
-    event[3] = ""
-    event[4] = time
-    gameFunction(event)
-    gameState = 2
-    if botTimer then
-      timer.cancel(botTimer)
-      botTimer = nil
+    if gameFunction then
+      gameFunction({ "15", botPlayer.id, "", time })
     end
+    gameState = 2
+    cleanBot()
   end
 
+  botPlayer.setGameFunction = setGameFunction
+  botPlayer.botDied = botDied
+  botPlayer.cleanBot = cleanBot
   botPlayer.inGoal = inGoal
   botPlayer.forceInGoal = forceInGoal
+  startBotModule()
   return botPlayer
 end
 

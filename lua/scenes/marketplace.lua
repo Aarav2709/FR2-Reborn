@@ -98,6 +98,7 @@ function scene:create(event)
   local gemLabel, gemIcon
   local monsterData = composer.database.getAvatarData()
   local itemTrailSelected = monsterData[6]
+  local backwearId = composer.database.getBackwear and composer.database.getBackwear() or 0
   local startMonsterData = composer.tableHelper.deepCopy(monsterData)
   local moneyValue = composer.database.getMoney()
   local boughtItems = composer.database.getItems()
@@ -332,12 +333,15 @@ function scene:create(event)
         newMonsterData[1] = currentMarketData[1].key
       end
     end
-    if tabSelected == 8 and index == 1 then
+    if spriteType == 11 then
+      -- Backwear lives in its own save key, outside the seven legacy avatar slots.
+    elseif tabSelected == 8 and index == 1 then
       newMonsterData[1] = newMonsterData[1]
     else
       newMonsterData[spriteType] = currentMarketData[itemSelected].key
     end
-    monster = monsterLoader.new(newMonsterData)
+    local previewBackwear = spriteType == 11 and currentMarketData[index].key or backwearId
+    monster = monsterLoader.new(newMonsterData, false, nil, previewBackwear)
     local monsterGroup = monster.getGroup()
     monsterGroup.xScale = 0.5
     monsterGroup.yScale = 0.5
@@ -645,6 +649,10 @@ function scene:create(event)
       itemSelected = 1
       return
     end
+    if tabSelected == 11 then
+      itemSelected = marketplaceIndex.findIndexOnKey(currentMarketData, backwearId) or 1
+      return
+    end
     itemSelected = marketplaceIndex.findItemSelectedForSpriteType(
       tabSelected,
       currentMarketData,
@@ -686,6 +694,15 @@ function scene:create(event)
       return
     end
 
+    if tabSelected == 11 then
+      local item = currentMarketData[itemSelected]
+      if item and isItemBought(item) then
+        backwearId = tonumber(item.key) or 0
+        composer.database.setBackwear(backwearId)
+      end
+      return
+    end
+
     if tabSelected == 2 then
       giveNoticeOfSkinChanges()
     end
@@ -718,6 +735,8 @@ function scene:create(event)
         deselectIndex = 1
       elseif deselectIndex == 9 or deselectIndex == 10 then
         deselectIndex = 8
+      elseif deselectIndex == 11 then
+        deselectIndex = 9
       end
       if marketTable.getTable():getRowAtIndex(deselectIndex) then
         marketTable.getTable():getRowAtIndex(deselectIndex).setActiveState(false)
@@ -733,6 +752,8 @@ function scene:create(event)
       selectIndex = 1
     elseif selectIndex == 9 or selectIndex == 10 then
       selectIndex = 8
+    elseif selectIndex == 11 then
+      selectIndex = 9
     end
     findItemSelectedForSpriteType(currentMonster)
     if tabSelected == 9 or tabSelected == 10 then
@@ -746,6 +767,11 @@ function scene:create(event)
       end
       itemSelected = startIndex
       updateMarketplace(tabSelected, startIndex)
+      if marketTable.getTable():getRowAtIndex(selectIndex) then
+        marketTable.getTable():getRowAtIndex(selectIndex).setActiveState(true)
+      end
+    elseif tabSelected == 11 then
+      updateMarketplace(tabSelected, itemSelected)
       if marketTable.getTable():getRowAtIndex(selectIndex) then
         marketTable.getTable():getRowAtIndex(selectIndex).setActiveState(true)
       end
@@ -876,6 +902,15 @@ function scene:create(event)
     end
   end
 
+  local function btnBackwearRelease(self, event)
+    if tabSelected ~= 11 then
+      composer.audio.play("button_press")
+      storeTempMonsterChanges()
+      currentMarketData = composer.storeConfig.getAllBackwearSortedOnPrice()
+      updateMarketTabSelected(11)
+    end
+  end
+
   local function btnSaleRelease(self, event, noSound)
     if tabSelected ~= 8 then
       if not noSound then
@@ -940,6 +975,10 @@ function scene:create(event)
       {
         image = "images/gui/market/categoryPowerups.png",
         onClick = btnPowerupsRelease
+      },
+      {
+        image = "images/gui/market/items/backwear/2102.png",
+        onClick = btnBackwearRelease
       }
     }
     if composer.database.salesItem then
@@ -1063,6 +1102,10 @@ function scene:create(event)
     y = 0
   })
   uiGroup:insert(btnBuy)
+  btnBuy.navCustomFocus = function(isFocused)
+    local scale = isFocused and 1.08 or 1
+    btnBuy.xScale, btnBuy.yScale = scale, scale
+  end
   btnSkin = composer.newButton({
     image = "images/gui/market/buttonSkins.png",
     width = 57,

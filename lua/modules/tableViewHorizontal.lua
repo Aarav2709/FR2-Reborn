@@ -42,15 +42,15 @@ end
 M.in_table = in_table
 
 local function scrollList(event)
-  local friction = 0.9
   local timePassed = event.time - lastTime
   lastTime = lastTime + timePassed
+  local friction = math.pow(0.9, timePassed / 16.6667)
   if math.abs(velocity) < 0.05 then
     velocity = 0
     Runtime:removeEventListener("enterFrame", scrollList)
   end
   velocity = velocity * friction
-  currentTarget.x = math.floor(currentTarget.x + velocity * timePassed)
+  currentTarget.x = currentTarget.x + velocity * timePassed
   local upperLimit = currentTarget.left
   local bottomLimit = screenW - currentTarget.width - currentTarget.right
   if upperLimit < currentTarget.x then
@@ -337,9 +337,12 @@ local function newList(params)
     end
     itemNumber = clampIndex(itemNumber)
     local newX = centerScreenX - self[1].width * (itemNumber - 1)
-    local timeVal = 400
     velocity = 0
     Runtime:removeEventListener("enterFrame", scrollList)
+    if self.tween then
+      transition.cancel(self.tween)
+      self.tween = nil
+    end
     self.tween = transition.to(self, {
       time = 400,
       x = newX,
@@ -366,6 +369,10 @@ local function newList(params)
       return
     end
     itemNumber = clampIndex(itemNumber)
+    if self.tween then
+      transition.cancel(self.tween)
+      self.tween = nil
+    end
     self.x = centerScreenX - self[1].width * (itemNumber - 1)
   end
 

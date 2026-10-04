@@ -1,0 +1,60 @@
+name: Report a bug
+description: Tell us what went wrong so we can understand and reproduce it.
+title: "Bug: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please share what you saw and what you expected. A short report is welcome.
+  - type: input
+    id: version
+    attributes:
+      label: Game version
+      description: Find the version on the Settings screen.
+      placeholder: 1.1.0
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Where did this happen?
+      options:
+        - Android
+        - iOS
+        - Windows PC
+        - Solar2D Simulator
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the problem in your own words.
+      placeholder: The game closed when I started a race.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How can we see it?
+      description: List the steps you took before the problem appeared.
+      placeholder: |
+        1. Open the game.
+        2. Choose Quick Play.
+        3. Start a race.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots or other details
+      description: Add a screenshot or any detail that could help. Do not include private account information.
+    validations:
+      required: false

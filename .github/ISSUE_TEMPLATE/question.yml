@@ -1,0 +1,29 @@
+name: Ask a question
+description: Get help using or contributing to the project.
+title: "Question: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Share what you are trying to do. Please do not include passwords or private account information.
+  - type: textarea
+    id: question
+    attributes:
+      label: What do you need help with?
+      placeholder: Explain what you are trying to do and where you are stuck.
+    validations:
+      required: true
+  - type: textarea
+    id: tried
+    attributes:
+      label: What have you tried so far?
+      placeholder: Tell us what you have already tried.
+    validations:
+      required: false
+  - type: input
+    id: platform
+    attributes:
+      label: Device or computer
+      placeholder: Android phone, iPhone, or Windows PC
+    validations:
+      required: false

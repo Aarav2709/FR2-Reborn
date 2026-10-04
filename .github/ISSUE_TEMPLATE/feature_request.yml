@@ -1,0 +1,29 @@
+name: Suggest an improvement
+description: Share an idea for making the game better.
+title: "Suggestion: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Tell us what you would like to see and why it would help.
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like to change or add?
+      placeholder: Describe the idea in your own words.
+    validations:
+      required: true
+  - type: textarea
+    id: reason
+    attributes:
+      label: Why would this be useful?
+      placeholder: Tell us what problem it would solve for players.
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Examples or screenshots
+      description: Share any extra context that helps explain the idea.
+    validations:
+      required: false

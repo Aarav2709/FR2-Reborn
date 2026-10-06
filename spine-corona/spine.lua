@@ -61,134 +61,101 @@ function spine.Skeleton.new(skeletonData, group)
 
   local updateWorldTransform_super = self.updateWorldTransform
 
-  local regionType, meshType = spine.AttachmentType.region, spine.AttachmentType.mesh
-  local failedImage = spine.Skeleton.failed
-  local abs = math.abs
-
   function self:updateWorldTransform()
     updateWorldTransform_super(self)
     local images = self.images
     local skeletonR, skeletonG, skeletonB, skeletonA = self.r, self.g, self.b, self.a
-    local flipX, flipY = self.flipX and -1 or 1, self.flipY and -1 or 1
-    local drawOrder = self.drawOrder
-    local order = self.imageOrder
-    if not order then
-      order = {}
-      self.imageOrder = order
-    end
-    local count = 0
-    local orderChanged = false
-    for i = 1, #drawOrder do
-      local slot = drawOrder[i]
+    for i, slot in ipairs(self.drawOrder) do
       local image = images[slot]
       local attachment = slot.attachment
       if not attachment then
         if image then
           display.remove(image)
           images[slot] = nil
-          orderChanged = true
         end
-      else
-        local attachmentType = attachment.type
-        if attachmentType == regionType or attachmentType == meshType then
-          if image and image ~= failedImage and not image.translate then
+      elseif attachment.type == spine.AttachmentType.region or attachment.type == spine.AttachmentType.mesh then
+        if image and image ~= spine.Skeleton.failed and not image.translate then
+          if not self.reportedLostImage then
+            self.reportedLostImage = true
+          end
+          images[slot] = nil
+          image = nil
+        end
+        if image and image.attachment ~= attachment then
+          if self:modifyImage(image, attachment) then
+            image.lastR, image.lastA = nil, nil
+            image.attachment = attachment
+          else
+            display.remove(image)
             images[slot] = nil
             image = nil
           end
-          if image and image.attachment ~= attachment then
-            if self:modifyImage(image, attachment) then
-              image.lastR, image.lastA = nil, nil
-              image.attachment = attachment
-            else
-              display.remove(image)
-              images[slot] = nil
-              image = nil
-            end
-          end
-          if not image then
-            image = self:createImage(attachment)
-            if image then
-              image.attachment = attachment
-              image.anchorX = 0.5
-              image.anchorY = 0.5
-            else
-              image = failedImage
-            end
-            if slot.data.additiveBlending then
-              image.blendMode = "add"
-            end
-            images[slot] = image
-            orderChanged = true
-          end
-          if image ~= failedImage then
-            local bone = slot.bone
-            local attachmentX, attachmentY = attachment.x, attachment.y
-            local x = bone.worldX + attachmentX * bone.m00 + attachmentY * bone.m01
-            local y = -(bone.worldY + attachmentX * bone.m10 + attachmentY * bone.m11)
-            local lastX = image.lastX
-            if not lastX then
-              image.x, image.y = x, y
-              image.lastX, image.lastY = x, y
-            elseif lastX ~= x or image.lastY ~= y then
-              image:translate(x - lastX, y - image.lastY)
-              image.lastX, image.lastY = x, y
-            end
-            local xScale = attachment.scaleX * flipX
-            local yScale = attachment.scaleY * flipY
-            local attachmentRotation = attachment.rotation
-            if abs(attachmentRotation) % 180 == 90 then
-              xScale = xScale * bone.worldScaleY
-              yScale = yScale * bone.worldScaleX
-            else
-              xScale = xScale * bone.worldScaleX
-              yScale = yScale * bone.worldScaleY
-            end
-            local lastScaleX = image.lastScaleX
-            if not lastScaleX then
-              image.xScale, image.yScale = xScale, yScale
-              image.lastScaleX, image.lastScaleY = xScale, yScale
-            elseif lastScaleX ~= xScale or image.lastScaleY ~= yScale then
-              image:scale(xScale / lastScaleX, yScale / image.lastScaleY)
-              image.lastScaleX, image.lastScaleY = xScale, yScale
-            end
-            local rotation = -(bone.worldRotation + attachmentRotation) * flipX * flipY
-            local lastRotation = image.lastRotation
-            if not lastRotation then
-              image.rotation = rotation
-              image.lastRotation = rotation
-            elseif rotation ~= lastRotation then
-              image:rotate(rotation - lastRotation)
-              image.lastRotation = rotation
-            end
-            local r, g, b = skeletonR * slot.r, skeletonG * slot.g, skeletonB * slot.b
-            if image.lastR ~= r or image.lastG ~= g or image.lastB ~= b or not image.lastR then
-              image:setFillColor(r, g, b)
-              image.lastR, image.lastG, image.lastB = r, g, b
-            end
-            local a = skeletonA * slot.a
-            if a and (image.lastA ~= a or not image.lastA) then
-              image.lastA = a
-              image.alpha = a
-            end
-            count = count + 1
-            if order[count] ~= image then
-              order[count] = image
-              orderChanged = true
-            end
-          end
         end
-      end
-    end
-    if order[count + 1] ~= nil then
-      for i = #order, count + 1, -1 do
-        order[i] = nil
-      end
-      orderChanged = true
-    end
-    if orderChanged then
-      local group = self.group
-      for i = 1, count do
-        group:insert(order[i])
+        if not image then
+          image = self:createImage(attachment)
+          if image then
+            image.attachment = attachment
+            image.anchorX = 0.5
+            image.anchorY = 0.5
+          else
+            image = spine.Skeleton.failed
+          end
+          if slot.data.additiveBlending then
+            image.blendMode = "add"
+          end
+          images[slot] = image
+        end
+        if image ~= spine.Skeleton.failed then
+          local flipX, flipY = self.flipX and -1 or 1, self.flipY and -1 or 1
+          local x = slot.bone.worldX + attachment.x * slot.bone.m00 + attachment.y * slot.bone.m01
+          local y = -(slot.bone.worldY + attachment.x * slot.bone.m10 + attachment.y * slot.bone.m11)
+          if not image.lastX then
+            image.x, image.y = x, y
+            image.lastX, image.lastY = x, y
+          elseif image.lastX ~= x or image.lastY ~= y then
+            image:translate(x - image.lastX, y - image.lastY)
+            image.lastX, image.lastY = x, y
+          end
+          local xScale = attachment.scaleX * flipX
+          local yScale = attachment.scaleY * flipY
+          local rotation = math.abs(attachment.rotation) % 180
+          if rotation == 90 then
+            xScale = xScale * slot.bone.worldScaleY
+            yScale = yScale * slot.bone.worldScaleX
+          else
+            xScale = xScale * slot.bone.worldScaleX
+            yScale = yScale * slot.bone.worldScaleY
+            if rotation ~= 0 and xScale ~= yScale and not image.rotationWarning then
+              image.rotationWarning = true
+            end
+          end
+          if not image.lastScaleX then
+            image.xScale, image.yScale = xScale, yScale
+            image.lastScaleX, image.lastScaleY = xScale, yScale
+          elseif image.lastScaleX ~= xScale or image.lastScaleY ~= yScale then
+            image:scale(xScale / image.lastScaleX, yScale / image.lastScaleY)
+            image.lastScaleX, image.lastScaleY = xScale, yScale
+          end
+          rotation = -(slot.bone.worldRotation + attachment.rotation) * flipX * flipY
+          if not image.lastRotation then
+            image.rotation = rotation
+            image.lastRotation = rotation
+          elseif rotation ~= image.lastRotation then
+            image:rotate(rotation - image.lastRotation)
+            image.lastRotation = rotation
+          end
+          local r, g, b = skeletonR * slot.r, skeletonG * slot.g, skeletonB * slot.b
+          if image.lastR ~= r or image.lastG ~= g or image.lastB ~= b or not image.lastR then
+            image:setFillColor(r, g, b)
+            image.lastR, image.lastG, image.lastB = r, g, b
+          end
+          local a = skeletonA * slot.a
+          if a and (image.lastA ~= a or not image.lastA) then
+            image.lastA = a
+            image.alpha = image.lastA
+          end
+          self.group:insert(image)
+        end
       end
     end
     if self.debug then

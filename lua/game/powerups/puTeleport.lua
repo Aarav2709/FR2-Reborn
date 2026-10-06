@@ -5,7 +5,6 @@ local function new(id, playerList)
   teleport.x = 1
   teleport.y = 1
   local player = playerList[id]
-  local startedClean = false
 
   local function findPos()
     local myPos = 1

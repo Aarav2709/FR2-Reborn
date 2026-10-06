@@ -3,8 +3,6 @@ local screen = require("lua.modules.screen")
 local scene = composer.newScene()
 local clean, cleanEnter, overlayEndedData, onCloseFunction
 
--- "You got ..." for a free item (the tutorial's prize): a countdown, then the item on
--- the sign hanging from the top of the screen (original 480x320 design units).
 local DESIGN_W, DESIGN_H = 480, 320
 
 function scene:create(event)

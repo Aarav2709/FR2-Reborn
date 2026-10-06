@@ -19,7 +19,6 @@ end
 
 local function reloadConfigIfNil()
   if M.isFileCorrupt() then
-    print("WARNING: Reloading Config File.")
     composer.analytics.newEvent("design", {
       event_id = "config:fileCorrupt",
       area = composer.config.fullVersion
@@ -55,7 +54,6 @@ function M.getZoneThemeString(zoneId)
   if theme then
     return theme
   else
-    print("Warning: No theme for zoneId, ", zoneId)
     return ""
   end
 end
@@ -1038,7 +1036,6 @@ function M.getLevelProgression(xp, level)
     end
     return xp / targetXp
   else
-    print("M.getLevelProgression error", xp)
     return 1
   end
 end
@@ -1074,7 +1071,6 @@ function M.getLevelSoftReward(level)
   end
   if softReward < 0 or softReward == nil then
     softReward = 0
-    print("WARNING: Could not find valid soft reward for level " .. levelindex)
   end
   return softReward
 end
@@ -1090,7 +1086,6 @@ function M.getLevelHardReward(level)
   end
   if hardReward < 0 or hardReward == nil then
     hardReward = 0
-    print("WARNING: Could not find valid hard reward for level " .. levelindex .. ". Returning 0.")
   end
   return hardReward
 end

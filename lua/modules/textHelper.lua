@@ -22,7 +22,6 @@ local function createAdvancedText(params)
   local embos = true
   if text == nil then
     text = ""
-    print("WARNING: text in newText is nil")
   end
   if x == nil then
     x = 0

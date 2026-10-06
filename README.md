@@ -1,22 +1,23 @@
 # FR2 Reborn
 
-FR2 Reborn is a fan made revival of Fun Run 2 for mobile and PC. The game runs offline and saves progress on the device. Optional LAN discovery lets players find and invite nearby players on the same network.
+FR2 Reborn is a fan made revival of Fun Run 2 for mobile and PC. The game runs offline and saves progress on the device. Friends on the same network can race each other over LAN.
 
 ## Features
 
 * Quick Play races against bots, with map voting, coins, gems and league rating
-* Expert bots use one fixed skill level in every mode
+* Expert bots that run your speed and race smart: they time their jumps, clear traps, dodge blades, keep power ups for the right moment and shield themselves against attacks
 * Practice races on every map
-* Two versus two team races with bots
+* 2 vs 2 team races: you and a bot teammate against two bots, with a live team score and team rewards
+* LAN races with up to four friends on the same network: host a game or join one (found automatically, or by address)
+* Clans: join one or start your own, race for the weekly clan chest and climb the clan league from Wood to Elite to earn the clan capes
 * Weekly leagues from Wood to Elite, with divisions, prizes, promotions and player profiles
 * Power up sets you can try in the lobby for a single gem
 * The full shop: animals, skins, hats, wings, accessories and power up skins
-* A local clan simulation with saved progress
 * A 30 or 60 FPS setting for mobile and PC
 * Daily spin wheel, achievements and news
 * The original tutorial, maps, themes and race results screen
 
-LAN Friends supports local player discovery and invitations. Races with another LAN player are not available yet.
+LAN races use UDP port 48828 to find games and TCP port 48829 for the race. On Windows, allow the game through the firewall when asked.
 
 ## Platforms
 
@@ -27,7 +28,7 @@ LAN Friends supports local player discovery and invitations. Races with another 
 
 ## Help and contributions
 
-If you are new to GitHub, open [Issues](https://github.com/AaravGupta/FR2-Reborn/issues/new/choose) and choose Report a bug, Suggest an improvement, or Ask a question. Each form explains what information to share. To send a code change, read [the contribution guide](.github/CONTRIBUTING.md).
+If you are new to GitHub, open [Issues](https://github.com/AaravGupta/FR2-Reborn/issues/new/choose) and choose the form that fits: a bug, a crash, a LAN problem, a suggestion or a question. Each form explains what information to share; most ask for your game version and device. To send a code change, read [the contribution guide](.github/CONTRIBUTING.md), which also explains how to debug the game.
 
 ## Community
 

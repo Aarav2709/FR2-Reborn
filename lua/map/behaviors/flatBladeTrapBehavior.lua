@@ -1,5 +1,4 @@
--- Flat blade trap (tropical): a sawblade spinning out of the ground. Touching it
--- kills the runner and throws the body upwards.
+-- flat blade trap (tropical)
 local composer = require("composer")
 local util = require("lua.map.behaviors.behaviorUtil")
 

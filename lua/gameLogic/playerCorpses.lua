@@ -4,8 +4,6 @@ local physics = require("physics")
 local gibPhysicsScale = 0.45
 local gibPhysicsSmallerScale = 0.3
 local gibPhysicsData = require("lua.monsters.physics.gibs").physicsData(gibPhysicsScale)
-local gibPhysicsSmallerData = require("lua.monsters.physics.gibs").physicsData(gibPhysicsSmallerScale)
--- Tombstone outline (from the original physics data) for the 111x144 art at this scale.
 local TOMBSTONE_SCALE = 0.25
 local TOMBSTONE_SHAPE = { -41.5, 57, -33.5, -39, -1.5, -58, 29.5, -39, 41.5, 57 }
 
@@ -83,8 +81,6 @@ local function newCorpsParts(displayGroup, playerToUse)
 
   N.startedCleanNow = startedCleanNow
 
-  -- R.I.P. tombstones dropped where the runner died: three per runner, reused in
-  -- turn, like Fun Run 2. They fall onto the map and stay there.
   local function readyTombstones()
     if startedClean then
       return
@@ -115,7 +111,6 @@ local function newCorpsParts(displayGroup, playerToUse)
     if tombstoneTimer then
       timer.cancel(tombstoneTimer)
     end
-    -- Bodies can't be moved inside a collision, so this always runs on a timer.
     tombstoneTimer = timer.performWithDelay(math.max(10, delay or 0), function()
       tombstoneTimer = nil
       local stone = tombstones[nextTombstone]
@@ -195,7 +190,6 @@ local function newCorpsParts(displayGroup, playerToUse)
   end
 
   N.dropRocketParts = dropRocketParts
-  -- Actual gib files are named gibs_1.png through gibs_9.png
   local gibArray = {
     "gibs_1",
     "gibs_2",
@@ -216,11 +210,9 @@ local function newCorpsParts(displayGroup, playerToUse)
   end
 
   local function createGibObject(imageName, xScale, yScale, x, y, shouldApplyForce, physicsBody)
-    -- Safe image load with error check
     local gib = display.newImage(imageName)
 
     if not gib then
-      print("WARNING: Failed to create gib with image: " .. imageName)
       return nil
     end
     gib.xScale = xScale
@@ -293,7 +285,6 @@ local function newCorpsParts(displayGroup, playerToUse)
         local randomGibName = gibArray[randomGibIndex]
         local randomName = "images/game/powerups/" .. randomGibName .. ".png"
 
-        -- Use a simple default physics body since gibs have no custom physics data
         local defaultPhysicsBody = {
           density = 2,
           friction = 0.5,
@@ -302,19 +293,15 @@ local function newCorpsParts(displayGroup, playerToUse)
           filter = remotePlayerCollisionFilter
         }
 
-        -- Safe gib creation with nil check
         local gibObj = createGibObject(randomName, gibPhysicsSmallerScale, gibPhysicsSmallerScale, player.x, player.y,
           true, defaultPhysicsBody)
         if not gibObj then
-          print("WARNING: Failed to create sawblade gib, skipping...")
         end
       end
 
-      -- Use existing sawblade physics bodies when available
       local sawbladeLeftBody = gibPhysicsData:get("sawbladeLeft")
       local sawbladeRightBody = gibPhysicsData:get("sawbladeRight")
 
-      -- Create only if sawblade physics data exists
       if sawbladeLeftBody and sawbladeRightBody then
         local sawbladeLeftFrame = getDeathFrameIndex("deaths/sawbladeLeft")
         local sawbladeRightFrame = getDeathFrameIndex("deaths/sawbladeRight")
@@ -325,7 +312,6 @@ local function newCorpsParts(displayGroup, playerToUse)
             gibPhysicsScale, 0.5, 0.5, player.x, player.y, true, -100, -350, -30, -90, sawbladeRightBody, vx, vy)
         end
       else
-        print("WARNING: Sawblade physics data not available")
       end
     end
   end
@@ -342,7 +328,6 @@ local function newCorpsParts(displayGroup, playerToUse)
     if not startedClean then
       for i = 1, 4 do
         local randomName = "images/game/powerups/" .. hunterGibArray[i] .. ".png"
-        -- Use a simple default physics body
         local defaultPhysicsBody = {
           density = 2,
           friction = 0.5,

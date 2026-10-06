@@ -1,4 +1,4 @@
--- Cannons (town / space): touching the cannon's mouth fires the runner forward.
+-- cannons (town / space)
 local util = require("lua.map.behaviors.behaviorUtil")
 local cannonEffectCreator = require("lua.game.effects.cannonEffect")
 

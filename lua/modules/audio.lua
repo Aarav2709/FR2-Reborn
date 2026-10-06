@@ -5,7 +5,6 @@ function M.play(soundNameString, options)
   if composer.database.getSound() == 1 then
     local handle = composer.data.sounds and composer.data.sounds[soundNameString]
     if not handle then
-      -- Not loaded yet (e.g. a button pressed before the loading scene finished).
       return nil
     end
     local channel
@@ -14,7 +13,6 @@ function M.play(soundNameString, options)
     else
       channel = audio.play(handle)
     end
-    composer.debugger.debugPrint("audio", "Playing sound " .. soundNameString)
     return channel
   end
 end

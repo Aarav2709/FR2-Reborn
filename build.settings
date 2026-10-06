@@ -4,7 +4,6 @@ settings = {
             "Decompiled/*",
             "FR2-ORIGINAL/*",
             ".git/*",
-            -- Development files that are not part of the game.
             "frontend/*",
             "backend/*",
             "tests/*",
@@ -20,14 +19,12 @@ settings = {
         osx = {
             "*"
         },
-        -- Mobile builds leave out the Windows icon.
         android = {
             "Icon-win32.ico"
         },
         iphone = {
             "Icon-win32.ico"
         },
-        -- Windows builds leave out the mobile only resources.
         win32 = {
             "AndroidResources/*",
             "iOSResources/*",
@@ -35,9 +32,6 @@ settings = {
         }
     },
 
-    -- Windows desktop build (Solar2D: Build, Windows); Android and iOS builds ignore
-    -- these. It opens fullscreen; F11 switches to a 1920 by 1080 window (sizes are given
-    -- relative to the portrait orientation, so they read swapped).
     win32 = {
         singleInstance = true
     },
@@ -68,7 +62,6 @@ settings = {
         }
     },
 
-    -- No monetization, ads, IAP or analytics. LAN discovery is opt in.
     plugins = {},
 
     iphone = {
@@ -78,24 +71,19 @@ settings = {
             UIViewControllerBasedStatusBarAppearance = false,
             UILaunchStoryboardName = "LaunchScreen",
             UIRequiresFullScreen = true,
-            NSLocalNetworkUsageDescription = "Find and invite players on your local network.",
+            NSLocalNetworkUsageDescription = "Find nearby players and race them on your local network.",
             CFBundleDisplayName = "FR2: Reborn",
             CFBundleShortVersionString = "1.1.0",
-            -- Increase this build number for every iOS release upload.
             CFBundleVersion = "1.1.0"
         }
     },
 
     android = {
-        -- Raise versionCode for every release; keep the existing package name and signing
-        -- key so updates install over the old app and keep its local save.
         versionCode = "2",
         versionName = "1.1.0",
-        -- Name under the icon on Android (overrides the build dialog's Application Name).
         strings = {
             app_name = "FR2: Reborn"
         },
-        -- Used only for opt-in local network discovery and invitations.
         usesPermissions = { "android.permission.INTERNET" }
     }
 }

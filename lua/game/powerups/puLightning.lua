@@ -5,15 +5,12 @@ local function new(id, playerId, playerList)
   local cloud = {1}
   cloud.x = 1
   cloud.y = 1
-  -- Players up to one original screen width (480 world units) behind the caster,
-  -- and everyone ahead, get struck. This is a world distance, not the screen width.
   local hitRange = 480
 
   local function createLightning()
     for i = 1, #playerList do
       if playerList[i].id ~= id then
         if playerList[i].x == nil then
-          print("createLightning race condition")
           return
         end
         if playerList[i].mainPlayer and playerList[i].x then

@@ -42,7 +42,6 @@ local function matchFacebookFriendsWithServerFriends(friendInstalled)
       composer.comm.addFacebookFriend(friendInstalled[i].id)
     end
   end
-  composer.debugger.debugTable("facebook", "friends matched", friends)
 end
 
 local function onShowDialogComplete(event)
@@ -60,10 +59,8 @@ M.invitePlayerToDownloadApp = invitePlayerToDownloadApp
 
 local function onListFriendsComplete(event)
   if event.isError then
-    composer.debugger.debugPrint("facebook", "List Friends - Error, details: " .. event.response.error.message)
   elseif event.response.data then
     local friendList = event.response.data
-    composer.debugger.debugPrint("facebook", "Facebook friends Length: " .. #friendList)
     friendList = sortFacebookFriends(friendList)
     friendList = changeToShortNames(friendList)
     local friendInstalled = {}
@@ -84,14 +81,12 @@ local function onListFriendsComplete(event)
       end
     end
     matchFacebookFriendsWithServerFriends(friendInstalled)
-    composer.debugger.debugPrint("facebook", "Sorted facebook friends name")
     composer.database.setFacebookFriends(friendInstalled)
     composer.database.setFacebookFriendsNotInstalled(friendNotInstalled)
   end
 end
 
 local function getFacebookFriends()
-  composer.debugger.debugPrint("facebook", "getFacebookFriends")
   M.libFacebook.request("me/friends", "GET", {
     fields = "name,installed"
   }, onListFriendsComplete)
@@ -117,9 +112,7 @@ local function onListMeComplete(event)
     else
       composer.createCustomOverlay(2)
     end
-    composer.debugger.debugPrint("facebook", "List Me - Error, details: " .. event.response.error.message)
   elseif event.response.id then
-    composer.debugger.debugPrint("facebook", "Set Facebook id: " .. event.response.id)
     if composer.config.loginMessage then
       composer.commHttps.loginWithFacebook(composer.config.facebookToken, event.response.id)
     elseif composer.database.getFacebookId() then
@@ -134,7 +127,6 @@ local function onListMeComplete(event)
             onListMeComplete(sameEvent)
           end
 
-          print("WARNING: delayed facebook friend check")
           delayedTimer = timer.performWithDelay(2000, closure, 1)
           delayedAttemps = delayedAttemps + 1
         end
@@ -163,7 +155,6 @@ end
 
 local function onLoginComplete(event)
   if event.phase ~= "login" then
-    composer.debugger.debugPrint("facebook", "Facebook login not successful")
     if composer.getSceneName("overlay") == "lua.overlay.loginUser" then
       if callback then
         local data = {isError = true}
@@ -178,7 +169,6 @@ local function onLoginComplete(event)
     else
       composer.createCustomOverlay(4)
     end
-    composer.debugger.debugPrint("facebook", "Facebook login error - details: " .. event.response.error.message)
   else
     if event.token then
       composer.config.facebookToken = event.token

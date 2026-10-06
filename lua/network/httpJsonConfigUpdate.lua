@@ -30,11 +30,9 @@ end
 
 local function didDownloadSucceed(event)
   if not isValidRequest(event) then
-    print("Warning: Not valid request getting config.")
     return false
   end
   if not jsonParser.isValidJson(event.response.filename) then
-    print("Downloaded file is not valid format!", event.response.filename)
     return false
   end
   return true
@@ -145,7 +143,6 @@ local function versionListener(event)
   local minVersion = jsonObject.supportedVersion
   local currentVersion = jsonObject.version
   if composer.comm.haveValidVersion(currentVersion, minVersion) == false then
-    print("WARNING: deny access")
     composer.data.wrongVersion = true
     composer.gotoScene("lua.scenes.intro.blockScene")
   end

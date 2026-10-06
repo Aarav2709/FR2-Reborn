@@ -14,6 +14,15 @@ local function newButton(params)
   local button, text, textColor
   local clickStartedInButton = false
 
+  local function resetLook()
+    if button and button.parent then
+      button:setFillColor(1)
+      if text and text.parent then
+        text.returnToNormalColor()
+      end
+    end
+  end
+
   local function handleButtonEvent(event)
     if "began" == event.phase then
       clickStartedInButton = true
@@ -36,17 +45,11 @@ local function newButton(params)
         if params.onRelease then
           params.onRelease(event)
         end
-        button:setFillColor(1)
-        if text then
-          text.returnToNormalColor()
-        end
+        resetLook()
       end
       clickStartedInButton = false
     elseif "cancelled" == event.phase then
-      button:setFillColor(1)
-      if text then
-        text.returnToNormalColor()
-      end
+      resetLook()
       clickStartedInButton = false
     end
   end

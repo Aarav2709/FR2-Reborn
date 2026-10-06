@@ -7,9 +7,6 @@ local scene = composer.newScene()
 local cointickloopChannel = 25
 local clean, cleanEnter, addChatBubble
 
--- The results screen, laid out like Fun Run 2's (original 480x320 design units): the
--- racers on the podium painted into the background, the times on the board in the top
--- right, the coins, league rating and gems on the plank at the bottom.
 local DESIGN_W, DESIGN_H = 480, 320
 local THEME_BACKGROUNDS = {
   forest = "images/gui/postgame/postBG_forest.png",
@@ -18,37 +15,22 @@ local THEME_BACKGROUNDS = {
   tropical = "images/gui/postgame/postBG_tropical.png",
   winter = "images/gui/postgame/postBG_winter.png"
 }
--- Where the racers stand (their feet), in the 480x320 background art: the 1, 2 and 3
--- blocks of the podium and the grass next to it.
 local PODIUM_FEET = { { 130, 168 }, { 46, 205 }, { 220, 212 }, { 310, 252 } }
--- The league shield on the podium next to each racer (its top right corner).
 local PODIUM_BADGES = { { 170, 175 }, { 86, 210 }, { 256, 217 }, { 350, 234 } }
--- The phrase list sits a little above the chat button; the bubbles are a bit smaller
--- than the art.
 local CHAT_LIST_Y = 166
--- The phrases sit evenly inside the list's frame (centred a little above the art's
--- middle, as its lower edge carries the post).
 local CHAT_ROWS_DY, CHAT_ROW_SPACING = -7, 29
 local CHAT_BUBBLE_SCALE = 0.8
 local CHAT_TEXT = { "Well played", "Add me.. if you dare!", "Yaay!", "#&!?@*!", "So unlucky!" }
--- The plank at the bottom: the coins icon sits in its first light patch and the
--- league shield in the second, each with its total just left of it and the gain
--- above the total.
 local PLANK_X, PLANK_W, PLANK_H = 220, 150, 45
--- Its wood ends 92% down the art (the post below that stays off screen), so the plank
--- sits on the bottom edge of the screen like the original's.
 local PLANK_Y = 320 - PLANK_H * (0.92 - 0.5)
 local PLANK_LEFT = PLANK_X - PLANK_W * 0.5
--- (The light patches, measured on the art: centres at 40.5% and 86.3% across, 60.5% down.)
 local STATS_Y = PLANK_Y - PLANK_H * 0.5 + PLANK_H * 0.605
 local STATS_GAIN_Y = STATS_Y - 12
 local STATS_SLOTS = {
   { iconX = PLANK_LEFT + PLANK_W * 0.405, left = PLANK_LEFT + 10 },
   { iconX = PLANK_LEFT + PLANK_W * 0.863, left = PLANK_LEFT + PLANK_W * 0.465 + 4 },
 }
--- Gap between a patch's icon and the numbers left of it.
 local STATS_TEXT_GAP = PLANK_W * 0.06 + 4
--- Times board: rows sized to fill it.
 local ROW_TEXT_SIZE, ROW_SPACING, ROW_TOP = 17, 21, 35
 
 function scene:create(event)
@@ -59,7 +41,10 @@ function scene:create(event)
   if gameInfo.map == nil then
     gameInfo.map = 1
   end
-  local isOnlineGame = gameInfo.gameType ~= nil and gameInfo.gameType ~= 0
+  local isLan = gameInfo.gameType == 5
+  local networkAvatars = gameInfo.gameType ~= nil and gameInfo.gameType ~= 0
+  local isOnlineGame = networkAvatars and not isLan
+  local selfId = (isLan and gameInfo.lanPlayerId) or (composer.database.getPlayerInformation() or {}).playerId
   local monsterLoader = require("spine-corona.monsterLoader")
   local monsters = {}
   local timers = {}
@@ -83,15 +68,7 @@ function scene:create(event)
     return text
   end
 
-  local function sharpenLabel(button)
-    local label = button[button.numChildren]
-    if label and label.size and label ~= button[1] then
-      label.size = label.size * s
-      label.xScale, label.yScale = 1 / s, 1 / s
-    end
-  end
 
-  -- Measured in the parent's units, so it works before or after the text is inserted.
   local function fitWidth(text, maxWidth)
     local width = text.width * math.abs(text.xScale)
     if width > maxWidth then
@@ -106,8 +83,6 @@ function scene:create(event)
     return handle
   end
 
-  -- Background: stretched to the screen's shape like the original, but only between
-  -- 4:3 and 16:9; beyond that it covers the screen (and gets cropped).
   local backgroundPath = THEME_BACKGROUNDS.forest
   local mapId = tonumber(gameInfo.map)
   if mapId and mapId < 1000 then
@@ -125,17 +100,14 @@ function scene:create(event)
   local bgLeft, bgTop = screen.centerX - bgWidth * 0.5, screen.centerY - bgHeight * 0.5
   local background = display.newImageRect(screenGroup, backgroundPath, bgWidth, bgHeight)
   background.x, background.y = screen.centerX, screen.centerY
-  -- A point of the 480x320 background art on the screen, and the art's scale.
   local function onBackground(x, y)
     return bgLeft + x / DESIGN_W * bgWidth, bgTop + y / DESIGN_H * bgHeight
   end
   local podiumScale = bgHeight / DESIGN_H
 
-  -- Racers, their league shields, coin bursts and chat bubbles live on the background.
   local podiumGroup = display.newGroup()
   screenGroup:insert(podiumGroup)
 
-  -- The UI on the design box.
   local ui = display.newGroup()
   ui.xScale, ui.yScale = s, s
   ui.x, ui.y = box.left, box.top
@@ -149,7 +121,6 @@ function scene:create(event)
     return box.left + x * s, box.top + y * s
   end
 
-  -- The board with the map name and the times.
   local board = display.newImageRect(ui, "images/gui/postgame/windowTimes.png", 182, 131)
   board.x, board.y = R - 96, T + 64
   local mapNameString = ""
@@ -165,17 +136,11 @@ function scene:create(event)
   mapName.x, mapName.y = board.x, board.y - 44
   fitWidth(mapName, 150)
   ui:insert(mapName)
-  if gameInfo.teamMode and gameInfo.stats and gameInfo.stats.teamWinner then
-    local teamText = gameInfo.stats.team == gameInfo.stats.teamWinner and "Your team won" or "Your team lost"
-    local teamResult = newText({ string = teamText, size = 13, color = { 1, 1, 1 } })
-    teamResult.x, teamResult.y = board.x, board.y + 58
-    ui:insert(teamResult)
-  end
+  local teamRace = require("lua.modules.teamRace")
+  local myTeam = gameInfo.teamMode and gameInfo.stats and gameInfo.stats.team
   local rowsGroup = display.newGroup()
   ui:insert(rowsGroup)
 
-  -- The plank with coins, league rating and gems (Quick Play and the tutorial; a
-  -- practice race has no rewards).
   local isPractice = gameInfo.stats and gameInfo.stats.practice
   local plank = display.newImageRect(ui, "images/gui/postgame/windowCurrency.png", PLANK_W, PLANK_H)
   plank.x, plank.y = PLANK_X, PLANK_Y
@@ -184,7 +149,6 @@ function scene:create(event)
   statsGroup.isVisible = not isPractice
   ui:insert(statsGroup)
 
-  -- Buttons: back to the menu in the top left corner, race again in the bottom right.
   local function returnToMenu()
     composer.tcpClient.stopTCPClient()
     composer.gotoScene("lua.scenes.mainMenu")
@@ -210,7 +174,9 @@ function scene:create(event)
     if composer.onboarding.isActive == true then
       composer.onboarding.stepDone()
       return
-    elseif gameInfo.ranked or gameInfo.gameType == 1 then
+    elseif isLan then
+      composer.gotoScene("lua.scenes.lobbyLan")
+    elseif gameInfo.ranked or gameInfo.teamMode or gameInfo.gameType == 1 then
       composer.gotoScene("lua.scenes.lobbyQuickPlay")
     elseif gameInfo.gameType == 3 or gameInfo.gameType == 4 then
       composer.gotoScene("lua.scenes.lobbyCustomPlay")
@@ -241,11 +207,8 @@ function scene:create(event)
   ui:insert(replayButton)
   buttons[#buttons + 1] = replayButton
 
-  -- Offline the bots chat too: what fits their place (CHAT_TEXT: 1 well played,
-  -- 2 add me, 3 yaay, 4 #&!?@*!, 5 so unlucky), one bubble per racer at a time.
   local BOT_PHRASES = { { 3, 1, 2 }, { 1, 2, 5 }, { 1, 4, 5 }, { 4, 5, 1 } }
   local chatBusyUntil = {}
-  -- While the player has the phrase list open the bots wait.
   local chatListOpen = false
   local function botSay(player)
     local now = system.getTimer()
@@ -264,7 +227,7 @@ function scene:create(event)
     return true
   end
   local function otherRacers()
-    local myId = composer.database.getPlayerInformation().playerId
+    local myId = selfId
     local others = {}
     for _, player in ipairs(gameInfo.players or {}) do
       if player.playerId ~= myId and player.pos then
@@ -273,7 +236,6 @@ function scene:create(event)
     end
     return others
   end
-  -- Now and then one of them answers the player.
   local lastBotAnswer = 0
   local function botAnswer()
     if system.getTimer() - lastBotAnswer < 3000 or math.random() > 0.6 then
@@ -288,7 +250,6 @@ function scene:create(event)
       end)
     end
   end
-  -- In some races a few of them say something by themselves.
   local function botsChatOnTheirOwn()
     if math.random() > 0.55 then
       return
@@ -302,8 +263,6 @@ function scene:create(event)
     end
   end
 
-  -- Chat phrases to the other racers (offline the bots sometimes answer); friend
-  -- requests online only.
   local chatButton, friendsButton, chatList, chatToggle, friendsToggle
   do
     chatToggle = display.newImageRect(ui, "images/gui/postgame/buttonToggle.png", 55, 52)
@@ -337,14 +296,16 @@ function scene:create(event)
         onRelease = function()
           if isOnlineGame then
             composer.comm.postGameChat(i, otherPlayersId)
+          elseif isLan then
+            require("lua.network.lanSession").sendChat(i)
           end
-          local myId = composer.database.getPlayerInformation().playerId
+          local myId = selfId
           if (chatBusyUntil[myId] or 0) <= system.getTimer() then
             chatBusyUntil[myId] = system.getTimer() + 4200
             addChatBubble(myId, i)
           end
           toggleChat()
-          if not isOnlineGame then
+          if not networkAvatars then
             botAnswer()
           end
         end
@@ -399,15 +360,12 @@ function scene:create(event)
     if not racer or not racer.pos then
       return
     end
-    -- Bubbles pointing down for the racers up high, sideways for the lower ones.
-    -- (tipX, tipY: where the tail ends, from the bubble's centre at full size.)
     local bubbleImage, offsetX, offsetY, textOffset, tipX, tipY = "images/gui/postgame/bubbleTalk.png", 30, -76, -8, 12, 23.5
     if racer.pos == 2 then
       bubbleImage, offsetX, offsetY, textOffset, tipX, tipY = "images/gui/postgame/bubbleTalk3.png", 42, 10, 6, 0, -23.5
     elseif racer.pos == 4 then
       bubbleImage, offsetX, offsetY, textOffset, tipX, tipY = "images/gui/postgame/bubbleTalk2.png", 38, 10, 6, 0, -23.5
     end
-    -- Smaller than the art, shrunk around the tail's tip so it still points at the racer.
     local k = podiumScale * CHAT_BUBBLE_SCALE
     offsetX = offsetX + tipX * (1 - CHAT_BUBBLE_SCALE)
     offsetY = offsetY + tipY * (1 - CHAT_BUBBLE_SCALE)
@@ -423,8 +381,6 @@ function scene:create(event)
       display.remove(text)
     end)
   end
-
-  -- Coins and league rating count up on the plank.
 
   local function countUp(slotIndex, iconPath, total, delta, options)
     options = options or {}
@@ -502,21 +458,22 @@ function scene:create(event)
       coinEffect.animateCoins()
       effectGroup:insert(coinEffect)
     end
-    local tier = stats.league or offlineLeague.getTier()
-    local rating = stats.a or offlineLeague.getRating()
-    local ratingDelta = stats.r or 0
-    countUp(2, "images/gui/ranking/league/tierS_" .. tier .. ".png", rating, ratingDelta,
-      { sound = "rating", endSound = "rating_end", delay = 2000 + coinsWon * 10, tickTime = 40, iconSize = 15 })
+    if not gameInfo.teamMode then
+      local tier = stats.league or offlineLeague.getTier()
+      local rating = stats.a or offlineLeague.getRating()
+      local ratingDelta = stats.r or 0
+      countUp(2, "images/gui/ranking/league/tierS_" .. tier .. ".png", rating, ratingDelta,
+        { sound = "rating", endSound = "rating_end", delay = 2000 + coinsWon * 10, tickTime = 40, iconSize = 15 })
+    end
   end
 
-  -- A racer on the podium, with their league shield.
   local function placeRacer(indexInList, place)
     local player = gameInfo.players[indexInList]
     if not player then
       return
     end
     local feet = PODIUM_FEET[place] or PODIUM_FEET[#PODIUM_FEET]
-    local networkFormat = isOnlineGame
+    local networkFormat = networkAvatars
     local monster = monsterLoader.new(player.avatar, networkFormat, nil, player.backwear)
     monsters[#monsters + 1] = monster
     local monsterGroup = monster.getGroup()
@@ -527,7 +484,7 @@ function scene:create(event)
     player.pos = place
     player.x, player.y = centerX, centerY
 
-    local isSelf = player.playerId == composer.database.getPlayerInformation().playerId
+    local isSelf = player.playerId == selfId
     local tier = player.league
     if isSelf then
       tier = (gameInfo.stats and gameInfo.stats.league) or offlineLeague.getTier()
@@ -541,7 +498,7 @@ function scene:create(event)
     badge.isVisible = not isPractice and place < 4
 
     if isSelf then
-      if place == 1 and networkFormat then
+      if place == 1 and isOnlineGame then
         composer.database.updateWinsForAvatar()
       end
       showStats(place)
@@ -577,12 +534,10 @@ function scene:create(event)
     end
   end
 
-  -- Times with two decimals: "31.50".
   local function formatSeconds(seconds)
     return string.format("%.2f", seconds)
   end
 
-  -- The times on the board, and the racers on the podium in finishing order.
   local function showRanking(rankingTable)
     if not rankingTable or #rankingTable == 0 then
       local errorText = newText({ string = composer.localized.get("ErrorNoPlayers"), size = 18, color = { 1, 1, 1 } })
@@ -593,7 +548,6 @@ function scene:create(event)
     table.sort(rankingTable, function(a, b)
       return a.goalTime < b.goalTime
     end)
-    -- Equal times still get distinct places.
     for i = 1, #rankingTable - 1 do
       if rankingTable[i].goalTime >= rankingTable[i + 1].goalTime then
         rankingTable[i + 1].goalTime = rankingTable[i].goalTime + 10
@@ -611,16 +565,20 @@ function scene:create(event)
         timeString = "+ " .. formatSeconds(seconds - fastest) .. " s"
       end
       local rowY = T + ROW_TOP + (i - 1) * ROW_SPACING
-      local nameText = newText({ string = i .. ". " .. tostring(entry.username), size = ROW_TEXT_SIZE, color = { 1, 1, 1 }, ax = 0, ay = 0 })
+      local rowRacer = gameInfo.players[entry.index or i]
+      local nameColor = { 1, 1, 1 }
+      if myTeam and rowRacer and rowRacer.team then
+        nameColor = teamRace.colorFor(rowRacer.team, myTeam)
+      end
+      local nameText = newText({ string = i .. ". " .. tostring(entry.username), size = ROW_TEXT_SIZE, color = nameColor, ax = 0, ay = 0 })
       nameText.x, nameText.y = board.x - 81.6, rowY
       rowsGroup:insert(nameText)
       local timeText = newText({ string = timeString, size = ROW_TEXT_SIZE, color = { 1, 1, 1 }, ax = 1, ay = 0 })
       timeText.x, timeText.y = board.x + 83.5, rowY
       rowsGroup:insert(timeText)
       fitWidth(nameText, 165 - timeText.width * timeText.xScale - 6)
-      -- A new personal best (Quick Play): the player's row flashes "New Best Time".
       local racer = gameInfo.players[entry.index or i]
-      local myId = (composer.database.getPlayerInformation() or {}).playerId
+      local myId = selfId
       if gameInfo.stats and gameInfo.stats.newBestTime and racer and racer.playerId == myId then
         local nameString = nameText.text
         local bestString = i .. ". " .. composer.localized.get("New Best Time")
@@ -655,16 +613,6 @@ function scene:create(event)
     end
   end
 
-  if composer.config.showPostLobby then
-    gameInfo.quickPlayerRankingTable = {
-      { username = "gunnar", goalTime = 10000, index = 1 },
-      { username = "per", goalTime = 13000, index = 2 },
-      { username = "arne", goalTime = 40000, index = 3 },
-      { username = "ole", goalTime = 20000, index = 4 }
-    }
-    gameInfo.stats = { a = 15, h = 26, g = 30, r = 5 }
-  end
-
   if #gameInfo.players == 0 then
     local avatar = composer.database.getAvatarData()
     for i = 1, 4 do
@@ -672,10 +620,9 @@ function scene:create(event)
     end
   end
   showRanking(gameInfo.quickPlayerRankingTable)
-  -- In case the player wasn't among the racers, still count up the rewards.
   showStats(nil)
 
-  if not isOnlineGame and composer.onboarding.isActive ~= true then
+  if not networkAvatars and composer.onboarding.isActive ~= true then
     botsChatOnTheirOwn()
   end
 
@@ -721,6 +668,8 @@ function scene:show(event)
     local messageType = composer.gameConfig.getMessageTypeForID(data[1])
     if messageType == "UNLOCKED_AWARD" then
       dropDownModule.showAchivement({ 0, data[2], data[3], data[4] })
+    elseif messageType == "CHAT" and addChatBubble then
+      addChatBubble(data[2], tonumber(data[3]) or 1)
     end
   end
 
@@ -731,8 +680,6 @@ function scene:show(event)
     end
   end)
 
-  -- A league promotion is announced once the rewards have counted up (if the player
-  -- leaves sooner, the main menu announces it).
   local promotionTimer
   if composer.league then
     promotionTimer = timer.performWithDelay(3200, function()
@@ -745,17 +692,9 @@ function scene:show(event)
     end)
   end
 
-  local botTimer = timer.performWithDelay(2000, function()
-    if isSimulator and composer.config.bot then
-      composer.gotoScene("lua.scenes.mainMenu")
-      composer.removeScene("lua.scenes.postLobby")
-    end
-  end)
-
   function cleanEnter()
     startedClean = true
     androidLogic.removeBackButton()
-    timer.cancel(botTimer)
     if promotionTimer then
       timer.cancel(promotionTimer)
       promotionTimer = nil

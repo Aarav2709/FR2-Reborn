@@ -1,4 +1,4 @@
--- Floating blade trap (tropical): a spinning sawblade on a bar that kills on touch.
+-- floating blade trap (tropical)
 local composer = require("composer")
 local util = require("lua.map.behaviors.behaviorUtil")
 

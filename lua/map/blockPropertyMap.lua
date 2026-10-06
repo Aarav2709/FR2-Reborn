@@ -1,4 +1,3 @@
---------------------------------------- 
 local L0_1, L1_1, L2_1
 L0_1 = {}
 L1_1 = require
@@ -126,13 +125,6 @@ function L2_1(A0_2)
       L10_3 = L8_3 + L1_3
       L9_3[L7_3] = L10_3
     end
-    L4_3 = L1_1
-    L4_3 = L4_3.debugger
-    L4_3 = L4_3.debugTable
-    L5_3 = "main"
-    L6_3 = "blockmap after adding special"
-    L7_3 = L2_2
-    L4_3(L5_3, L6_3, L7_3)
   end
   
   L5_2 = L4_2
@@ -283,4 +275,3 @@ end
 L0_1.init = L2_1
 return L0_1
  
----------------------------------------

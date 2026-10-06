@@ -74,7 +74,6 @@ function M.loadSounds()
   sounds.trap_hit = audio.loadSound("sound/sfx_trap_hit.wav")
   sounds.wheel_win = audio.loadSound("sound/sfx_wheel_win.wav")
   timeToLoad = system.getTimer() - timeToLoad
-  composer.debugger.debugPrint("loadingTime", "SOUND timeToLoad  " .. timeToLoad)
 end
 
 function M.loadAnimations3()
@@ -90,7 +89,6 @@ function M.loadAnimations3()
   composer.characterPowerUpEffectsImageSheet = graphics.newImageSheet("images/monsters/powerups/powerUpEffects.png", composer.characterPowerUpEffectsImageSheetInfo:getSheet())
   composer.characterPowerUpEffectsSpeedImageSheetInfo = require("lua.monsters.powerUpEffectsSpeed")
   composer.characterPowerUpEffectsSpeedImageSheet = graphics.newImageSheet("images/monsters/powerups/powerUpEffectsSpeed.png", composer.characterPowerUpEffectsSpeedImageSheetInfo:getSheet())
-  -- The blue skull ghost that floats up when a runner dies.
   composer.ghostImageSheetInfo = require("lua.game.powerups.ghostImageSheet")
   composer.ghostImageSheet = graphics.newImageSheet("images/game/powerups/ghost.png", composer.ghostImageSheetInfo:getSheet())
   animations.ghost = {
@@ -100,7 +98,6 @@ function M.loadAnimations3()
     time = 300,
     loopCount = 0
   }
-  -- The puff of smoke when a power-up set is tried in the Quick Play lobby.
   local poofStart = composer.powerUpEffectImageSheetInfo:getFrameIndex("poof1")
   animations.poff = {
     { name = "normal", start = poofStart, count = 6, time = 600, loopCount = 1 },
@@ -225,7 +222,6 @@ function M.loadAnimations3()
   }
   animations.chat = chatSequenceData
   timeToLoad = system.getTimer() - timeToLoad
-  composer.debugger.debugPrint("loadingTime", "Animations3 timeToLoad  " .. timeToLoad)
 end
 
 function M.loadAnimations2()
@@ -238,10 +234,8 @@ function M.loadAnimations2()
   composer.powerUpImageSheetInfo = require("lua.game.powerups.powerupsImageSheet")
   composer.powerUpImageSheet = graphics.newImageSheet("images/game/powerups/powerups.png", composer.powerUpImageSheetInfo:getSheet())
 
-  -- Pre-build default trap animation (skin 1301)
   animations["1301"] = M.getTrapAnimation(1301)
 
-  -- Pre-build default bounce trap animation (skin 2001)
   animations["2001"] = M.getBounceTrapAnimation(2001)
 
   local teleportEffectStartIndex = composer.powerUpImageSheetInfo:getFrameIndex("tp1")
@@ -271,11 +265,8 @@ function M.loadAnimations2()
   }
   animations.teleportEffect = teleportEffectSequenceData
   timeToLoad = system.getTimer() - timeToLoad
-  composer.debugger.debugPrint("loadingTime", "Animations2 timeToLoad  " .. timeToLoad)
 end
 
--- The power-up button's box (opens on a pick-up, closes when used): wood (0) or the
--- colours of a full power-up set (1 to 7), as in Fun Run 2.
 function M.getButtonAnimation(set)
   local animations = composer.data.animations
   set = tonumber(set) or 0
@@ -332,7 +323,6 @@ function M.loadFacebook()
   facebookLoaded = true
   composer.facebook = require("lua.modules.facebookModule")
   timeToLoad = system.getTimer() - timeToLoad
-  composer.debugger.debugPrint("loadingTime", "facebook timeToLoad  " .. timeToLoad)
 end
 
 function M.loadIAP()
@@ -357,7 +347,6 @@ function M.createConfigChecksum()
   local checksum = crypto.digest(crypto.sha1, basesum)
   composer.data.configChecksum = checksum
   timeToLoad = system.getTimer() - timeToLoad
-  composer.debugger.debugPrint("loadingTime", "createConfigChecksum timeToLoad  " .. timeToLoad)
 end
 
 function M.createMapChecksum()
@@ -373,7 +362,6 @@ function M.createMapChecksum()
   local checksum = crypto.digest(crypto.sha1, basesum)
   composer.data.mapChecksum = checksum
   timeToLoad = system.getTimer() - timeToLoad
-  composer.debugger.debugPrint("loadingTime", "createMapChecksum timeToLoad  " .. timeToLoad)
 end
 
 function M.updateMapFiles()
@@ -391,7 +379,6 @@ function M.updateMapFiles()
   local mapUpdater = require("lua.network.httpMapUpdate")
   mapUpdater.checkForJsonMapUpdate()
   timeToLoad = system.getTimer() - timeToLoad
-  composer.debugger.debugPrint("loadingTime", "UPDATE map files timeToLoad  " .. timeToLoad)
 end
 
 function M.readMapDataToMemory(override)
@@ -416,7 +403,6 @@ function M.readJsonConfigFiles()
     return 0
   end
   timeToLoad = system.getTimer() - timeToLoad
-  composer.debugger.debugPrint("loadingTime", "readJsonConfigFiles timeToLoad  " .. timeToLoad)
   return 1
 end
 
@@ -427,7 +413,6 @@ function M.readJsonMapFiles()
     return -1
   end
   timeToLoad = system.getTimer() - timeToLoad
-  composer.debugger.debugPrint("loadingTime", "readJsonMapFiles timeToLoad  " .. timeToLoad)
   return 1
 end
 
@@ -448,7 +433,6 @@ function M.updateConfigFiles()
   jsonConfig.checkForJsonStoreConfigUpdate()
   jsonConfig.checkForJsonAwardsUpdate()
   timeToLoad = system.getTimer() - timeToLoad
-  composer.debugger.debugPrint("loadingTime", "UPDATE config files timeToLoad  " .. timeToLoad)
 end
 
 function M.checksumProcedure(serverConfigCheckSum, serverMapCheckSum)
@@ -462,7 +446,6 @@ function M.checksumProcedure(serverConfigCheckSum, serverMapCheckSum)
 
   local function checkMapCheckSumAndDownload()
     if serverMapCheckSum ~= composer.data.mapChecksum then
-      print("WARNING: map checksum wrong, get new")
       Runtime:addEventListener("downloadMapDone", rereadMapDataAfterDownload)
       M.updateMapFiles()
     end
@@ -472,7 +455,6 @@ function M.checksumProcedure(serverConfigCheckSum, serverMapCheckSum)
     if event.configType == "config" then
       M.readJsonConfigFiles()
       M.loadIAP()
-      print("Got new config file.")
       M.createMapChecksum()
       checkMapCheckSumAndDownload()
       Runtime:removeEventListener("downloadConfigDone", downloadMaps)
@@ -480,7 +462,6 @@ function M.checksumProcedure(serverConfigCheckSum, serverMapCheckSum)
   end
 
   if serverConfigCheckSum ~= composer.data.configChecksum then
-    print("WARNING: config checksum wrong, get new")
     Runtime:addEventListener("downloadConfigDone", downloadMaps)
     M.updateConfigFiles()
   elseif serverMapCheckSum ~= composer.data.mapChecksum then
@@ -523,7 +504,6 @@ function M.loadSpine()
   local spineInterface = require("spine-corona.interface")
   spineInterface.init()
   timeToLoad = system.getTimer() - timeToLoad
-  composer.debugger.debugPrint("loadingTime", "spine timeToLoad  " .. timeToLoad)
 end
 
 return M

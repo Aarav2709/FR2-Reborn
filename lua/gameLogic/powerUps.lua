@@ -18,6 +18,19 @@ local basicHuntersMarkAnimation = require("lua.game.powerups.puHuntersMarkAnimat
 local basicRocket = require("lua.game.powerups.puRocket")
 local basicTeleport = require("lua.game.powerups.puTeleport")
 local updateTimer, playSound
+local recentCasts = {}
+local MAX_RECENT_CASTS = 12
+
+local function noteCast(puType, playerId, x)
+  local target
+  if puType == 9 or puType == 59 then
+    target = tonumber(x)
+  end
+  recentCasts[#recentCasts + 1] = { type = puType, caster = playerId, target = target, time = system.getTimer() }
+  if #recentCasts > MAX_RECENT_CASTS then
+    table.remove(recentCasts, 1)
+  end
+end
 
 local function usePowerUp(puType, playerId, myPlayerId, player, x, y, displayGroup, screenGroup, playerList)
   local index = #powerUps + 1
@@ -26,6 +39,7 @@ local function usePowerUp(puType, playerId, myPlayerId, player, x, y, displayGro
   else
     return 1, 1
   end
+  noteCast(puType, playerId, x)
   if puType == 1 then
     newPowerUp = basicBlade.new(playerId, player, x, y, displayGroup, playerList)
     powerUps[index] = newPowerUp
@@ -92,6 +106,12 @@ end
 
 functionList.getPowerUps = getPowerUps
 
+local function getRecentCasts()
+  return recentCasts
+end
+
+functionList.getRecentCasts = getRecentCasts
+
 local function updatePowerUps()
   for i = 1, #powerUps do
     if powerUps[i] and powerUps[i].update then
@@ -105,6 +125,7 @@ local function clean()
     timer.cancel(updateTimer)
     updateTimer = nil
   end
+  recentCasts = {}
   for i = 1, #powerUps do
     if powerUps[i] then
       if powerUps[i].removeObject then
@@ -121,6 +142,7 @@ functionList.clean = clean
 
 local function init()
   powerUps = {}
+  recentCasts = {}
   updateTimer = timer.performWithDelay(100, updatePowerUps, 0)
 end
 

@@ -2,7 +2,6 @@ local composer = require("composer")
 
 local M = {}
 
--- Bot names (Fun Run style)
 M.botNames = {
   "Speedy",
   "Bouncer",
@@ -16,14 +15,12 @@ M.botNames = {
   "Blitz"
 }
 
--- Bot avatar IDs (Fun Run 2 characters)
 M.botAvatars = {
-  1, -- Character 1
-  2, -- Character 2
-  3  -- Character 3
+  1,
+  2,
+  3
 }
 
--- Bot colors
 M.botSkins = {
   0,
   0,
@@ -32,11 +29,14 @@ M.botSkins = {
 
 function M.createBots()
   local bots = {}
+  local names = {}
+  for i = 1, #M.botNames do
+    names[i] = M.botNames[i]
+  end
 
   for i = 1, 3 do
     local bot = {}
-    local nameIndex = math.random(1, #M.botNames)
-    bot.username = M.botNames[nameIndex]
+    bot.username = table.remove(names, math.random(1, #names))
     local avatarId = M.botAvatars[i] or 1
 
     bot.playerId = 100 + i

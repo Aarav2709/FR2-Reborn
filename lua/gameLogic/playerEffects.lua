@@ -1,6 +1,5 @@
 local M = {}
 local composer = require("composer")
-local spawnGibs = true
 
 function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDisplay, bodyParts, screenGroup, customPowerUpSkins)
   local C = {}
@@ -177,8 +176,6 @@ function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDi
     local cloudBackgroundPath = composer.powerUpEffectImageSheetInfo:getFrameIndex("lightningBackground")
     local cw = display.contentWidth
     local ch = display.contentHeight
-    -- Cloud sprites are 1060×188 source. Original 0.5 scale covered 480px screen.
-    -- For current resolution, use uniform scale to cover screen width with ~10% overshoot.
     local cloudScale = cw / 960
     cloudBottom = display.newImage(composer.powerUpEffectImageSheet, cloudBottomPath)
     cloudBottom.xScale = cloudScale
@@ -291,7 +288,6 @@ function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDi
     teleportEffect:play()
   end
 
-  -- Two ghosts per runner, used in turn (a quick second death reuses the other one).
   local ghosts = {}
   if composer.ghostImageSheet then
     local ghostAnimation = require("lua.gameLogic.ghostAnimation")
@@ -334,13 +330,10 @@ function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDi
     magnetEffect.alpha = 1
     magnetEffect:pause()
     magnetEffect:setSequence("normal")
-    magnetEffect:setFrame(1)
     magnetEffect:play()
   end
 
-  -- Shield: TWO display.newImage objects (main + absorb overlay with mask wipe)
   local shieldItemId = 1501
-  -- Determine shield skin from customPowerUpSkins
   if customPowerUpSkins then
     for i = 1, #customPowerUpSkins do
       local itemId = tonumber(customPowerUpSkins[i])
@@ -381,7 +374,6 @@ function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDi
     shieldAbsorbImage.alpha = 0
   end
 
-  -- Shield bounce: mutual recursion for idle pulsing
   local function shieldPulseA()
   end
   local function shieldPulseB()
@@ -447,12 +439,10 @@ function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDi
 
   function C.playPowerUpShieldStart()
     transition.cancel(shieldImage)
-    -- 3200ms shield duration timer
     transition.to(shieldImage, {
       time = 3200,
       onComplete = shieldOverEffect
     })
-    -- Pop-in entrance animation
     shieldImage.xScale = 0.01
     shieldImage.yScale = 0.01
     transition.to(shieldImage, {
@@ -464,9 +454,6 @@ function M.createEffects(player, playerCorpses, monster, booleanStates, spriteDi
     })
   end
 
-  -- Blood on the screen when you die (a scrapped effect of early Fun Run 2): splats in
-  -- the corners of the real screen, sized for its height (the original drew them at half
-  -- size on a 320 tall screen; a little bigger here).
   local bloodScreenBL, bloodScreenTL, bloodScreenTR
   if player.mainPlayer then
     local screen = require("lua.modules.screen")

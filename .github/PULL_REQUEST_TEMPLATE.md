@@ -1,21 +1,45 @@
 # Pull request
 
-Thank you for helping improve FR2 Reborn. You can keep this short and use plain language.
+Thank you for helping improve FR2 Reborn. Plain language is perfect; delete the parts that don't apply.
 
 ## What changed?
 
-Describe the change.
+<!-- A short description. Link the issue it fixes, for example "Fixes #12". -->
 
-## Why is this change useful?
+## Type of change
 
-Describe the problem it solves or the improvement it makes.
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Menus, layout or art
+- [ ] Gameplay or balance (racing, bots, power-ups)
+- [ ] Multiplayer (LAN)
+- [ ] Performance
+- [ ] Documentation or GitHub files
 
 ## How did you check it?
 
-Describe what you opened or tried in Solar2D. If you could not run it, say so.
+<!-- What you opened or tried. If you could not run it, say so. -->
 
-## Before you submit
+Tested on:
 
-1. I checked that this change belongs in this project.
-2. I included screenshots if the screen changed.
-3. I removed private information and files that do not belong in the game.
+- [ ] Solar2D Simulator (phone layout)
+- [ ] Solar2D Simulator with PC controls (`PCMode.bat` / `FR2_PC_UI=1`)
+- [ ] Android device
+- [ ] iOS device
+- [ ] Windows build
+
+What I tried (modes, maps, screens):
+
+## Screenshots or video
+
+<!-- Before and after, if a screen changed. A short clip helps for gameplay changes. -->
+
+## Checklist
+
+- [ ] The CI check (Lua syntax and JSON) passes.
+- [ ] No new global variables (everything is `local` unless it has to be shared).
+- [ ] Gameplay or timing changes work at both 30 and 60 FPS (Settings > frame rate).
+- [ ] Screen changes work with PC keyboard navigation and on wide and tall screens.
+- [ ] Old saves still load (if the save changed, `saveData.VERSION` and a migration were added).
+- [ ] LAN changes were tried with two devices (or two copies of the game) on one network.
+- [ ] No saves, signing keys, passwords, private details or built app files are included.

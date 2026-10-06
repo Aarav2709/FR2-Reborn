@@ -16,7 +16,6 @@ end
 
 local function reloadConfigIfNil()
   if M.isFileCorrupt() then
-    print("WARNING: Reloading storeConfig File.")
     M.readFromFile()
   end
 end
@@ -194,7 +193,6 @@ local function addBoostItem(list)
   local boostList = {}
   if configInput.boosts then
     for key, value in pairs(configInput.boosts) do
-      -- The mystery box is shared with a friend, which needs the online game.
       local needsFriends = value.mysteryBox and composer.config.offlineMode
       if shouldAddItem(value) and not needsFriends then
         boostList[#boostList + 1] = value
@@ -482,7 +480,6 @@ local powerupCategories = {
   { name = "punchbox", idBase = 2000, imagePath = "punchbox" }
 }
 
--- One entry per powerup type (its original skin), in a fixed order.
 function M.getAllPowerupsSortedOnPrice()
   reloadConfigIfNil()
   local list = {}
@@ -509,8 +506,6 @@ function M.getAllPowerupsSortedOnPrice()
   return list
 end
 
--- All skins of one powerup type: the original first, then cheapest to most expensive
--- (gem prices are compared in coins through the store's gem ratio).
 function M.getAllPowerupsOfTypeSortedOnPrice(category)
   reloadConfigIfNil()
   local list = {}
@@ -655,8 +650,6 @@ function M.isThereNewItems(itemType)
   return false
 end
 
--- Whether a powerup skin has graphics in the sheet its category is drawn from:
--- thrown/placed powerups use the powerup sheet, the others the character rig sheets.
 function M.canDrawItem(itemId)
   itemId = tonumber(itemId)
   if not itemId or not M.getItem(itemId) then
@@ -676,8 +669,8 @@ function M.canDrawItem(itemId)
   return sheetInfo ~= nil and sheetInfo:getFrameIndex(frameName) ~= nil
 end
 
--- Returns the set number when every powerup type uses a skin from the same set
--- (e.g. all gold skins), which unlocks themed in-game buttons; false otherwise.
+-- returns the set number when every powerup type uses a skin from the same set
+-- (e.g. all gold skins), which unlocks themed in game buttons; false otherwise.
 function M.isThisAPowerupSet(skinList)
   if type(skinList) ~= "table" or #skinList < #powerupCategories then
     return false

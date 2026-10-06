@@ -1,11 +1,25 @@
 name: Ask a question
-description: Get help using or contributing to the project.
+description: Get help with playing, building or contributing to the project.
 title: "Question: "
+labels: ["question"]
 body:
   - type: markdown
     attributes:
       value: |
-        Share what you are trying to do. Please do not include passwords or private account information.
+        Share what you are trying to do. Please do not include passwords or private account information. For a quick chat, the Discord server (linked on the previous page) is often faster.
+  - type: dropdown
+    id: topic
+    attributes:
+      label: Topic
+      options:
+        - Playing the game
+        - Installing or updating
+        - Running the project in Solar2D
+        - Building for Android, iOS or Windows
+        - Contributing code or art
+        - Something else
+    validations:
+      required: true
   - type: textarea
     id: question
     attributes:
@@ -17,13 +31,13 @@ body:
     id: tried
     attributes:
       label: What have you tried so far?
-      placeholder: Tell us what you have already tried.
     validations:
       required: false
-  - type: input
-    id: platform
+  - type: textarea
+    id: debug-info
     attributes:
-      label: Device or computer
-      placeholder: Android phone, iPhone, or Windows PC
+      label: Game version and device (if the game runs)
+      description: Your game version and device.
+      render: text
     validations:
       required: false

@@ -11,7 +11,6 @@ local white = {
   1
 }
 
--- position is a podium place (1-4) or a start point { x = ..., y = ... }.
 local function createCoinReward(totalGold, gold, position, isCoins, targetX, targetY)
   local function getCoinStartPosition()
     if type(position) == "table" then
@@ -45,15 +44,6 @@ local function createCoinReward(totalGold, gold, position, isCoins, targetX, tar
     return coinRewardGroup and coinRewardGroup.insert ~= nil
   end
 
-  local function getSignText(number)
-    local signString
-    if 0 <= number then
-      signString = "+ " .. number
-    else
-      signString = "- " .. math.abs(number)
-    end
-    return signString
-  end
 
   totalGold = totalGold or 0
   gold = gold or 0

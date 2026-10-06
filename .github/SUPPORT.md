@@ -1,11 +1,7 @@
 # Get help
 
-For a game problem, open Issues and choose Report a bug.
+- **Something is broken:** open [Issues](../../issues/new/choose) and choose Report a bug, Report a crash or error box, or Report a LAN (friends) problem.
+- **A question:** choose Ask a question, or ask on the Discord server linked in the README.
+- **A security problem:** please don't post it publicly; see [SECURITY.md](../SECURITY.md).
 
-For an idea, choose Suggest an improvement.
-
-For help using the game or project, choose Ask a question.
-
-Before opening a new report, check whether someone has already shared the same problem. If so, add a comment with your device and what you saw.
-
-Please do not post passwords, private account details, or save files.
+In every report, include your game version and device: it helps find the problem faster.

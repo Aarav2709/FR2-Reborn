@@ -31,7 +31,6 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   powerUpImages.bounceTrapImage = display.newImageRect("images/game/powerups/icons/punchbox.png", 25, 25)
   powerUpImages.markPlayerImage = display.newImageRect("images/game/markIcon.png", 37, 34)
   powerUpImages.markBarImage = display.newImageRect("images/game/markIcon.png", 24, 22)
-  -- Running speeds from Fun Run 2 (world units per second / per 100 ms update).
   local speeds = {}
   speeds.defaultTopSpeed = 350
   speeds.defaultAcceleration = 30
@@ -39,10 +38,10 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   speeds.accelerateX = 25
   speeds.tempSpeedX = 350
   speeds.botFactor = 1
-  speeds.boostMultiplier = 1.8          -- Speed pad: velocity multiplier
-  speeds.boostSlideMultiplier = 1.5     -- Slide pad: velocity multiplier
-  speeds.slowMultiplier = 0.5           -- Slow pad: velocity multiplier
-  -- Caps stay at their starting values (as in the original, powerups don't move them).
+  speeds.boostMultiplier = 1.8
+  speeds.boostSlideMultiplier = 1.5
+  speeds.slowMultiplier = 0.5
+  -- caps stay at their starting values (as in the original, powerups don't move them).
   speeds.boostMaks = speeds.topSpeedX * 2.5
   speeds.boostMaksSlide = speeds.topSpeedX * 2
   speeds.slowMaks = speeds.topSpeedX * 0.4
@@ -102,7 +101,6 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   local playerEffects = basicPlayerEffects.createEffects(player, playerCorpses, monster, booleanStates, spriteDisplay,
     bodyParts, screenGroup, customPowerUpSkins)
   local disconnectBar = display.newImageRect("images/game/avatar/disconnected.png", 18, 18)
-  -- Head frame on the progress bar, themed by the local player's power-up set (if any).
   local headBarBackground
   local headSuffix = (composer.data.gameInfo and composer.data.gameInfo.hudSuffix) or ""
   local headPath = (mainPlayer and "images/game/playerSelfNormal" or "images/game/playerOtherNormal") .. headSuffix .. ".png"
@@ -168,15 +166,11 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     playerGhost:setLinearVelocity(vx, vy)
   end
 
-  -- Continuous force, for code that pushes every frame (e.g. rocket thrust).
   local function applyForceOnPlayer(vx, vy)
     player:applyForce(vx, vy, player.x, player.y)
     playerGhost:applyForce(vx, vy, playerGhost.x, playerGhost.y)
   end
 
-  -- One-off push (jump, knockback). Fun Run 2 used applyForce at 30 fps, where a force
-  -- acts for one 1/30 s physics step; the equivalent impulse keeps the same kick at
-  -- any frame rate.
   local STEP = 1 / 30
   local function applyStepForceOnPlayer(fx, fy)
     player:applyLinearImpulse(fx * STEP, fy * STEP, player.x, player.y)
@@ -194,7 +188,6 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   local function stopPowerUpSpeed(showPlayer)
     if not booleanStates.startedClean then
       if showPlayer then
-        -- Safe animation playback
         pcall(function()
           monster.playBuffAnimation("speed_end", false)
         end)
@@ -214,7 +207,6 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
 
   local function hidePowerUpArmor()
     playSound("armor_end")
-    -- Safe animation playback
     pcall(function()
       monster.playBuffAnimation("sacrifice_end", false)
     end)
@@ -225,13 +217,10 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   end
 
   local function playPowerUpArmor()
-    -- Safe animation playback with error handling
     local success = pcall(function()
       monster.playBuffAnimation("sacrifice_start", true)
     end)
     if not success then
-      print("WARNING: Failed to play sacrifice_start animation, using fallback")
-      -- Fall back to the normal run animation
       pcall(function()
         monster.setAnimation("run", true, false)
       end)
@@ -297,10 +286,14 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   end
 
   local function isValidNinjaPlayer(ninjaMarkIndex)
-    if ninjaMarkIndex > #playerList then
+    local other = playerList[ninjaMarkIndex]
+    if not other then
       return false
     end
-    if playerList[ninjaMarkIndex].isDisconnected() then
+    if other.isDisconnected() or other.getPlayerGoalTime() > 0 then
+      return false
+    end
+    if other ~= player and composer.data.gameInfo.teamMode and player.team ~= nil and other.team == player.team then
       return false
     end
     return true
@@ -327,14 +320,14 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
           break
         end
       end
-      if maxSearch < 0 then
-        ninjaMarkIndex = playerId
-      end
-      playerList[ninjaMarkIndex].addNinjaMark()
       if lastNinjaMark then
         playerList[lastNinjaMark].removeNinjaMark()
+        lastNinjaMark = nil
       end
-      lastNinjaMark = ninjaMarkIndex
+      if foundIndex then
+        playerList[ninjaMarkIndex].addNinjaMark()
+        lastNinjaMark = ninjaMarkIndex
+      end
       ninjaMarkIndex = ninjaMarkIndex + 1
       ninjaEffectTimer = timer.performWithDelay(501, playNinjaEffect, 1)
     else
@@ -503,13 +496,6 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     return false
   end
 
-  local function tryToSpawnLandEffect()
-    local ray = castRayAgainstMapElement(player.x, player.y + 12, player.x, player.y + 30)
-    if ray then
-      playerEffects.playLandEffect(ray.position.x, ray.position.y,
-        radToDegree(math.atan2(ray.normal.y, ray.normal.x)) + 90)
-    end
-  end
 
   local function cannonFunction(cannonObject)
     if player and not booleanStates.startedClean then
@@ -670,7 +656,6 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     end
   end
 
-  -- Trail items drop a particle every 6 frames of the original 30 fps game (200 ms).
   local TRAIL_INTERVAL = 200
   local lastTrailTime = 0
 
@@ -713,8 +698,6 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     end
   end
 
-  -- Before the start the runners stand still, but their trails (butterflies, sparks...)
-  -- already fly around them, as in Fun Run 2.
   local function updateIdleTrail()
     local now = system.getTimer()
     if now - lastTrailTime >= TRAIL_INTERVAL then
@@ -740,7 +723,6 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       else
         changeSpeedState = 0
         local startVx = vx
-        -- Offline bots run a little faster or slower to keep the race close (botModule).
         local topSpeed = speeds.topSpeedX * speeds.botFactor
         local acceleration = speeds.accelerateX
         local newTime = system.getTimer()
@@ -757,7 +739,6 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
         else
           vx = vx + acceleration * 0.4
         end
-        -- Above top speed (after a speed pad) the runner eases back 10% per update.
         if vx > topSpeed and vy <= 20 then
           if vx - topSpeed < acceleration * 1.5 then
             vx = topSpeed
@@ -772,7 +753,6 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
           end
         end
         if booleanStates.playerDead then
-          -- Killed by a level hazard, the body keeps its momentum.
           if not booleanStates.killedByLevel then
             vx = 0
             setLinearVelocityOnPlayer(vx, vy)
@@ -826,8 +806,6 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     elseif player.onGround then
       return true
     elseif system.getTimer() - gameTimes.lastJumpTime > 75 and castRayAgainstMapElement(player.x, player.y + 12, player.x, player.y + 30) then
-      -- Just above the ground still counts, but not right after a jump (that would
-      -- let a quick double tap stack two jumps).
       return true
     else
       return false
@@ -947,6 +925,20 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     return playerHead
   end
 
+  local function showAsTeammate()
+    if mainPlayer or not headBarBackground or not playerHead then
+      return
+    end
+    local friendly = display.newImageRect("images/game/playerOtherNormal" .. headSuffix .. "Friendly.png", 40, 40)
+    if not friendly then
+      return
+    end
+    playerHead:insert(1, friendly)
+    friendly.x, friendly.y = headBarBackground.x, headBarBackground.y
+    display.remove(headBarBackground)
+    headBarBackground = friendly
+  end
+
   local function trimNumber(number)
     number = number * 100
     number = math.floor(number)
@@ -1019,7 +1011,6 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     speeds.topSpeedX = speeds.topSpeedX * 1.5
     speeds.accelerateX = speeds.accelerateX * 1.5
     applyStepForceOnPlayer(300, 0)
-    -- Safe animation playback
     pcall(function()
       monster.playBuffAnimation("speed_start", false)
     end)
@@ -1027,7 +1018,6 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
 
   local function rocketPowerUp()
     disablePreviousPowerUp()
-    -- Safe animation playback
     pcall(function()
       monster.playBuffAnimation("rocket_start", false)
     end)
@@ -1041,8 +1031,6 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     rocketBlinkTimer = timer.performWithDelay(3500, startBlink, 1)
   end
 
-  -- Magnet: players ahead of the user are stopped and yanked back toward them;
-  -- players behind get a small tug forward.
   local function magnetPowerUp(killer)
     playSound("magnet_hit")
     local dirRight
@@ -1057,7 +1045,6 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     playerEffects.playMagnetEffect(dirRight)
   end
 
-  -- Punch box: stops the runner and knocks them back and up.
   local function bounceTrapPowerUp()
     setLinearVelocityOnPlayer(0, 0)
     applyStepForceOnPlayer(-300, -150)
@@ -1195,8 +1182,6 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     end
   end
 
-  -- Back in the race with a bandage: the runner stays invulnerable until
-  -- showPlayerSprite takes it off two seconds later (as in Fun Run 2).
   local function setPlayerAlive()
     booleanStates.playerDead = false
     partlyShowPlayerSprite()
@@ -1204,7 +1189,6 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     if booleanStates.speedActive then
       stopPowerUpSpeed(false)
     end
-    -- Reset run animation after respawn
     pcall(function()
       monster.setAnimation("run", true, false)
     end)
@@ -1368,8 +1352,6 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
         setPlayerAliveTimer = timer.performWithDelay(baseDeadTime, setPlayerAlive, 1)
         hideRocketEffect(true)
       end
-      -- Every death: the ghost rises and a tombstone drops (after the lightning strike
-      -- for lightning deaths), as in Fun Run 2.
       local deathEffectDelay = puType == 3 and 200 or nil
       playerEffects.showGhostDeath(vx, vy, deathEffectDelay)
       playerCorpses.dropTombstone(deathEffectDelay)
@@ -1408,7 +1390,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
 
   onCollisionPowerUp = function(killer, puType, isNetworkGame)
     local attacker = playerList[tonumber(killer)]
-    if composer.data.gameInfo.teamMode and attacker and player.team and attacker.team == player.team then
+    if composer.data.gameInfo.teamMode and attacker and attacker ~= player and player.team and attacker.team == player.team then
       return 0
     end
     if booleanStates.startedClean then
@@ -1416,13 +1398,11 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
       local hitType = 0
       local list = {}
       local deadTime = nil
-      -- Environmental hazards (blade traps) - puType 97/98
       if puType == 98 or puType == 97 then
         booleanStates.killedByLevel = true
         hitType = 1
         deadTime = 500
         if puType == 98 then
-          -- Flat blade trap: apply bounce effect
           local vx, vy = player:getLinearVelocity()
           if math.abs(vy) > 100 then
             vx = vx * 0.7
@@ -1535,7 +1515,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
     currentVolume = volume
     for i = 1, reservedChannels do
       local index = channelList[i]
-      local didSetVolume = audio.setVolume(volume, { channel = index })
+      audio.setVolume(volume, { channel = index })
     end
   end
 
@@ -1711,21 +1691,18 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   powerUpImages.markPlayerImage.y = -43
 
   local function startBot()
-    bot = botModule.new(player)
+    bot = botModule.new(player, playerList)
     local botTopSpeed = 350 * bot.speedMultiplier
     speeds.defaultTopSpeed = botTopSpeed
     speeds.topSpeedX = botTopSpeed
     speeds.tempSpeedX = botTopSpeed
   end
 
-  -- Catch up for offline bots: a share of the top speed (1 is normal).
   function player.setBotSpeedFactor(factor)
     speeds.botFactor = factor
   end
 
-  if isSimulator and composer.config.bot and mainPlayer then
-    startBot()
-  elseif composer.data.gameInfo.gameType == 0 and not mainPlayer then
+  if composer.data.gameInfo.gameType == 0 and not mainPlayer then
     startBot()
   end
 
@@ -1770,6 +1747,7 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
   player.getCurrentGameTime = getCurrentGameTime
   player.setCurrentGameTime = setCurrentGameTime
   player.getPlayerHead = getPlayerHead
+  player.showAsTeammate = showAsTeammate
   player.playHitAnimation = playHitAnimation
   player.playAnimation = playAnimation
   player.playBloodScreen = playBloodScreen

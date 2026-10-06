@@ -7,7 +7,6 @@ local tempTable
 local C = {}
 
 function C.callback()
-  print("WARNING: Https callback not sat")
 end
 
 function C.setCallback(callback)
@@ -16,7 +15,6 @@ end
 
 local function httpsReceiveFunction(data)
   if data.r then
-    print("WARNING: got error in commHttps type: ", data.r)
   end
   if data.m == httpsFormat.register() then
     if data.r then
@@ -29,8 +27,7 @@ local function httpsReceiveFunction(data)
     composer.database.setPlayerInformation(data.u, data.t, data.p, data.a)
     composer.database.setAvatarData()
     composer.database.setOnboardingPartDone(1)
-    if isSimulator and composer.config.bot then
-    elseif data.ab then
+    if data.ab then
       composer.config.abTest = data.ab
       if composer.config.abTest == "A" then
       else
@@ -166,14 +163,12 @@ local function httpsReceiveFunction(data)
     end
   elseif data.m == httpsFormat.buyCrystalIOS() or data.m == httpsFormat.buyCrystalGoogle() or data.m == httpsFormat.buyCrystalAmazon() then
     if data.r then
-      print("WARNING: buy item failed ", data.x)
       if C.callback then
         C.callback(data)
       end
       return
     end
     if data.x then
-      composer.debugger.debugPrint("network", "purchaseItem with cash ", data.x)
       if tonumber(data.x) ~= 1002 then
         composer.database.addItem(data.x)
       end
@@ -208,10 +203,11 @@ function C.sendRegisterMessage(username)
   httpsClient.send(data)
 end
 
-function C.changeUsername(username)
+function C.changeUsername(username, newUsernameCode)
   local playerInfo = composer.database.getPlayerInformation()
   if composer.config and composer.config.offlineMode then
-    local usernameCode = playerInfo and playerInfo.usernameCode or 0
+    -- offline the player picks their own #tag too (kept when they don't type one).
+    local usernameCode = tonumber(newUsernameCode) or (playerInfo and playerInfo.usernameCode) or 0
     composer.database.updatePlayerInfo(username, usernameCode)
     local renamePrice = composer.storeConfig.getUsernameChangePrice() or 0
     composer.database.setMoney((composer.database.getMoney() or 0) - renamePrice)

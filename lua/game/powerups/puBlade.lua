@@ -3,7 +3,6 @@ local composer = require("composer")
 local physics = require("physics")
 
 local function new(id, player, x, y, displayGroup, playerList)
-  -- Determine blade skin from player's customPowerUpSkins
   local skinId = 1201
   if playerList[id] and playerList[id].customPowerUpSkins then
     for i = 1, #playerList[id].customPowerUpSkins do
@@ -54,7 +53,6 @@ local function new(id, player, x, y, displayGroup, playerList)
     cantHitOwner = false
   end
 
-  -- Spin with speed; the original turned vx * 0.05 degrees per 30 fps frame.
   local lastRotateTime
   local function rotateBlades(event)
     if blade and not cleaning then
@@ -174,6 +172,8 @@ local function new(id, player, x, y, displayGroup, playerList)
     if id then
       blade.id = blade.id .. id
     end
+    blade.botHazard = "blade"
+    blade.ownerId = id
     displayGroup:insert(blade)
     Runtime:addEventListener("enterFrame", rotateBlades)
   end

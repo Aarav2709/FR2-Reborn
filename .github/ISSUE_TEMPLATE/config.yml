@@ -1,2 +1,8 @@
 blank_issues_enabled: false
-contact_links: []
+contact_links:
+  - name: Chat with the community on Discord
+    url: https://discord.gg/k8XM2k23kd
+    about: Quick questions, feedback and announcements. Bugs are easier to track here on GitHub.
+  - name: Report a security problem privately
+    url: https://github.com/Aarav2709/FR2-Reborn/security/policy
+    about: Please do not post security problems in a public issue.

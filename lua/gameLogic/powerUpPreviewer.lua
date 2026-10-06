@@ -1,10 +1,8 @@
--- Marketplace preview for powerup skins. The caller decides where previews go
--- (setPlacement) and inserts the returned image into its own display group.
+-- marketplace preview for powerup skins
 local composer = require("composer")
 local M = {}
 local activePreview = nil
 
--- Centre point and size multiplier for previews, in the caller's coordinates.
 local placement = { x = display.contentWidth * 0.5, y = display.contentHeight * 0.34, scale = 1 }
 
 function M.setPlacement(x, y, scale)
@@ -13,14 +11,12 @@ function M.setPlacement(x, y, scale)
   placement.scale = scale or 1
 end
 
--- enterFrame listener: runs per-frame effects (e.g. sawblade rotation)
 local function onEnterFrame()
   if activePreview and activePreview.effect then
     activePreview.effect()
   end
 end
 
--- Remove current preview image and cancel its transitions
 local function removeCurrentPreview()
   if activePreview then
     if activePreview.transition then
@@ -34,20 +30,17 @@ local function removeCurrentPreview()
   end
 end
 
--- Initialize the previewer (call before showing previews)
 function M.init()
   M.clean()
   activePreview = nil
   Runtime:addEventListener("enterFrame", onEnterFrame)
 end
 
--- Market icon for any powerup skin; nil when the icon file is missing.
 local function newMarketIcon(category, itemKey, width, height)
   local path = "images/gui/market/items/" .. category .. "/" .. itemKey .. ".png"
   return display.newImageRect(path, width * placement.scale, height * placement.scale)
 end
 
--- Show shield preview with breathing scale animation
 function M.showShield(itemKey)
   removeCurrentPreview()
   local frameIndex = composer.powerUpImageSheetInfo and composer.powerUpImageSheetInfo:getFrameIndex("" .. itemKey)
@@ -84,7 +77,6 @@ function M.showShield(itemKey)
   return image
 end
 
--- Show sawblade preview with rotation effect
 function M.showSawblade(itemKey)
   removeCurrentPreview()
   local image = newMarketIcon("sawblade", itemKey, 52, 58)
@@ -102,7 +94,6 @@ function M.showSawblade(itemKey)
   return image
 end
 
--- Show generic powerup item preview (beartrap, punchbox, rocket, balloon, magnet, gun, speed)
 function M.showGenericPowerup(itemKey, category)
   removeCurrentPreview()
   local image = newMarketIcon(category, itemKey, 56, 64)
@@ -118,18 +109,15 @@ end
 M.showBearTrap = function(itemKey) return M.showGenericPowerup(itemKey, "beartrap") end
 M.showPunchbox = function(itemKey) return M.showGenericPowerup(itemKey, "punchbox") end
 
--- Remove preview but keep enterFrame listener
 function M.softClean()
   removeCurrentPreview()
 end
 
--- Full cleanup: remove preview AND enterFrame listener
 function M.clean()
   removeCurrentPreview()
   Runtime:removeEventListener("enterFrame", onEnterFrame)
 end
 
--- Show preview for any powerup category
 function M.showPreviewForCategory(category, itemKey)
   if category == "sawblade" then
     return M.showSawblade(itemKey)

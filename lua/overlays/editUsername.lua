@@ -3,8 +3,6 @@ local screen = require("lua.modules.screen")
 local scene = composer.newScene()
 local clean, cleanEnter, nameTextField
 
--- Rename sign in the original 480x320 design units: it hangs from the top of the
--- screen, with the currency board in its usual corner.
 local DESIGN_W, DESIGN_H = 480, 320
 
 function scene:create(event)
@@ -59,49 +57,44 @@ function scene:create(event)
   local infoText = newText({ string = "", size = 13, x = 200, y = top + 111, color = { 1, 0.85, 0.6 } })
   dropdownGroup:insert(infoText)
 
-  -- The name is typed on a cream plank drawn in the game's style; the phone's own
-  -- text box sits on it without a background, in the game font.
   local INPUT_X, INPUT_Y, INPUT_W, INPUT_H = 200, top + 80, 200, 32
-  local inputBox = display.newRoundedRect(dropdownGroup, INPUT_X, INPUT_Y, INPUT_W, INPUT_H, 7)
-  inputBox:setFillColor(0.98, 0.93, 0.8)
-  inputBox:setStrokeColor(0.36, 0.22, 0.12)
-  inputBox.strokeWidth = 2
-  local keyboardOpen = false
-
-  local function onNameInput(event)
-    if event.phase == "began" then
-      keyboardOpen = true
-      infoText.text = ""
-    elseif event.phase == "ended" or event.phase == "submitted" then
-      keyboardOpen = false
+  local textInput = require("lua.modules.textInput")
+  local playerInfo = composer.database.getPlayerInformation() or {}
+  local currentName = tostring(playerInfo.username or "")
+  if playerInfo.usernameCode then
+    local suffix = "#" .. tostring(playerInfo.usernameCode)
+    if currentName:sub(-#suffix) ~= suffix then
+      currentName = currentName .. suffix
     end
-    nameTextField.limit(event)
   end
+  local continueButtonEvent
 
-  -- Native objects don't follow the sign's drop-in animation, so the text box is
-  -- created once the sign has landed, in screen units.
   local function createNameField()
-    if not background or not background.parent then
+    if not background or not background.parent or nameTextField then
       return
     end
-    local fieldX = box.left + INPUT_X * s
-    local fieldY = box.top + INPUT_Y * s
-    nameTextField = native.newTextField(fieldX, fieldY, (INPUT_W - 16) * s, (INPUT_H - 4) * s)
-    nameTextField.hasBackground = false
-    nameTextField.font = native.newFont(composer.data.font or native.systemFontBold, 17 * s)
-    nameTextField:setTextColor(0.29, 0.16, 0.06)
-    nameTextField.align = "center"
-    nameTextField.placeholder = composer.localized.get("Username")
-    nameTextField.text = composer.database.getPlayerInformation().username
-    nameTextField.limit = composer.validateInput.limitTextField(15)
-    nameTextField.userInput = onNameInput
-    nameTextField:addEventListener("userInput", onNameInput)
-    group:insert(nameTextField)
-    if not isAndroid then
-      native.setKeyboardFocus(nameTextField)
-    end
+    nameTextField = textInput.new({
+      parent = dropdownGroup,
+      x = INPUT_X,
+      y = INPUT_Y,
+      width = INPUT_W,
+      height = INPUT_H,
+      size = 17,
+      text = currentName,
+      placeholder = composer.localized.get("Username"),
+      maxLength = 20,
+      allowed = "[%w#]",
+      onChange = function()
+        infoText.text = ""
+      end,
+      onSubmit = function()
+        if continueButtonEvent then
+          continueButtonEvent()
+        end
+      end
+    })
+    nameTextField.focus()
   end
-
   local function giveCoinFeedback()
     local base = moneyLabel.baseScale
     transition.to(moneyLabel, { time = 100, xScale = base * 1.2, yScale = base * 1.2 })
@@ -128,15 +121,9 @@ function scene:create(event)
     composer.hideOverlay()
   end
 
-  -- A tap outside the sign first puts the keyboard away, then closes the sign.
   local function escapeTouchEvent(event)
     if event.phase == "ended" then
-      if keyboardOpen then
-        keyboardOpen = false
-        native.setKeyboardFocus(nil)
-      else
-        close()
-      end
+      close()
     end
     return true
   end
@@ -158,20 +145,22 @@ function scene:create(event)
   })
   dropdownGroup:insert(closeButton)
 
-  local function continueButtonEvent()
+  function continueButtonEvent()
     if not nameTextField then
       return
     end
     if canPlayerAffordItem() then
-      local newName, nameError = composer.validateInput.validateUsername(nameTextField.text)
+      local newName, tagOrError = composer.validateInput.validateUsernameWithTag(nameTextField.getText())
       if not newName then
-        infoText.text = composer.localized.get(nameError)
+        infoText.text = tagOrError
+        local fit = math.min(1, 260 / math.max(1, infoText.width * infoText.baseScale))
+        infoText.xScale, infoText.yScale = infoText.baseScale * fit, infoText.baseScale * fit
         composer.analytics.newEvent("design", {
           event_id = "renameUser:invalidUsername",
           area = composer.config.fullVersion
         })
       else
-        composer.commHttps.changeUsername(newName)
+        composer.commHttps.changeUsername(newName, tagOrError)
         composer.analytics.newEvent("design", {
           event_id = "renameUser:attempt",
           area = composer.config.fullVersion
@@ -204,8 +193,7 @@ function scene:create(event)
     display.remove(continueButton)
     native.setKeyboardFocus(nil)
     if nameTextField then
-      nameTextField:removeEventListener("userInput", nameTextField.userInput)
-      display.remove(nameTextField)
+      nameTextField.remove()
       nameTextField = nil
     end
     alphaBackground:removeEventListener("touch", escapeTouchEvent)
@@ -213,7 +201,11 @@ function scene:create(event)
   end
 
   composer.bouncer.down(dropdownGroup)
-  timer.performWithDelay(650, createNameField)
+  if require("lua.modules.pcMode").isPC then
+    createNameField()
+  else
+    timer.performWithDelay(650, createNameField)
+  end
 end
 
 function scene:show(event)

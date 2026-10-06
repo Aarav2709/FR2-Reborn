@@ -32,7 +32,6 @@ local function getFile(path)
     local file = io.open(absolutePath, "r")
     local readFile = file:read("*a")
     io.close(file)
-    composer.debugger.debugPrint("filesystem", "getFile", readFile)
     return readFile
   else
     return nil
@@ -43,9 +42,7 @@ local function getJsonFromFile(path)
   local jsonFile = getFile(path)
   if jsonFile then
     local decodedJson = json.decode(jsonFile)
-    composer.debugger.debugTable("filesystem", "getJsonFromFile", decodedJson)
     if decodedJson == nil and composer.analytics then
-      print("WARNING: failed to find file ", path)
       composer.analytics.newEvent("design", {
         event_id = "json:decodeFailed",
         area = composer.config.fullVersion
@@ -108,10 +105,8 @@ local function getMapInfoFromFile(path)
   if noSyntaxError and noFileError and jsonString then
     io.close(file)
     local decodedJson = json.decode(jsonString)
-    composer.debugger.debugPrint("filesystem", "getMapInfoFromFile json", decodedJson)
     return decodedJson
   else
-    composer.debugger.debugPrint("filesystem", "getMapInfoFromFile file", file)
     io.close(file)
     return -1
   end
@@ -119,7 +114,6 @@ end
 
 local function writeJsonToFile(path, object, callback)
   local function writeJson()
-    composer.debugger.debugPrint("filesystem", "writeJsonToFile: " .. path, object)
 
     local absolutePath = system.pathForFile(path, system.CachesDirectory)
     local file = io.open(absolutePath, "w")

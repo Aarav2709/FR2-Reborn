@@ -6,7 +6,6 @@ local joinGameTime = 0
 function M.showGameInvite(data)
   local nameToShow = data.username
   if nameToShow == nil then
-    print("WARNING: showGameInvite - nameToShow is nil")
     return
   end
   if composer.getSceneName("current") == "lua.scenes.lobbyCustomPlay" then

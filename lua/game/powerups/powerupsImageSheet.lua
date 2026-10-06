@@ -1,123 +1,122 @@
--- Frame data for images/game/powerups/powerups.png (in-game powerup skins).
--- Generated from the original game's sheet definition.
+-- frame data for images/game/powerups/powerups.png (in game powerup skins)
 local SheetInfo = {}
 
 SheetInfo.sheet = {
   frames = {
-    { x = 932, y = 226, width = 90, height = 90 }, -- 1
-    { x = 152, y = 624, width = 90, height = 90 }, -- 2
-    { x = 152, y = 718, width = 90, height = 90 }, -- 3
-    { x = 152, y = 812, width = 90, height = 90 }, -- 4
-    { x = 924, y = 320, width = 90, height = 90 }, -- 5
-    { x = 246, y = 656, width = 82, height = 90, sourceX = 4, sourceY = 0, sourceWidth = 90, sourceHeight = 90 }, -- 6
-    { x = 152, y = 906, width = 90, height = 90 }, -- 7
-    { x = 332, y = 618, width = 90, height = 90 }, -- 8
-    { x = 426, y = 618, width = 90, height = 90 }, -- 9
-    { x = 246, y = 750, width = 90, height = 90 }, -- 10
-    { x = 246, y = 844, width = 90, height = 90 }, -- 11
-    { x = 520, y = 618, width = 90, height = 90 }, -- 12
-    { x = 614, y = 614, width = 90, height = 90 }, -- 13
-    { x = 802, y = 614, width = 86, height = 90, sourceX = 2, sourceY = 0, sourceWidth = 90, sourceHeight = 90 }, -- 14
-    { x = 340, y = 806, width = 86, height = 90, sourceX = 2, sourceY = 0, sourceWidth = 90, sourceHeight = 90 }, -- 15
-    { x = 708, y = 614, width = 90, height = 90 }, -- 16
-    { x = 340, y = 712, width = 90, height = 90 }, -- 17
-    { x = 924, y = 414, width = 96, height = 28, sourceX = 0, sourceY = 52, sourceWidth = 96, sourceHeight = 80 }, -- 18
-    { x = 836, y = 820, width = 76, height = 48, sourceX = 10, sourceY = 32, sourceWidth = 96, sourceHeight = 80 }, -- 19
-    { x = 868, y = 554, width = 44, height = 56, sourceX = 26, sourceY = 24, sourceWidth = 96, sourceHeight = 80 }, -- 20
-    { x = 482, y = 904, width = 32, height = 52, sourceX = 32, sourceY = 28, sourceWidth = 96, sourceHeight = 80 }, -- 21
-    { x = 904, y = 478, width = 96, height = 24, sourceX = 0, sourceY = 56, sourceWidth = 96, sourceHeight = 80 }, -- 22
-    { x = 736, y = 768, width = 80, height = 48, sourceX = 6, sourceY = 32, sourceWidth = 96, sourceHeight = 80 }, -- 23
-    { x = 916, y = 686, width = 44, height = 52, sourceX = 26, sourceY = 28, sourceWidth = 96, sourceHeight = 80 }, -- 24
-    { x = 786, y = 908, width = 32, height = 52, sourceX = 32, sourceY = 28, sourceWidth = 96, sourceHeight = 80 }, -- 25
-    { x = 736, y = 820, width = 96, height = 24, sourceX = 0, sourceY = 56, sourceWidth = 96, sourceHeight = 80 }, -- 26
-    { x = 642, y = 828, width = 76, height = 48, sourceX = 10, sourceY = 32, sourceWidth = 96, sourceHeight = 80 }, -- 27
-    { x = 626, y = 932, width = 44, height = 52, sourceX = 26, sourceY = 28, sourceWidth = 96, sourceHeight = 80 }, -- 28
-    { x = 986, y = 834, width = 36, height = 52, sourceX = 28, sourceY = 28, sourceWidth = 96, sourceHeight = 80 }, -- 29
-    { x = 904, y = 446, width = 96, height = 28, sourceX = 0, sourceY = 52, sourceWidth = 96, sourceHeight = 80 }, -- 30
-    { x = 820, y = 768, width = 80, height = 48, sourceX = 8, sourceY = 32, sourceWidth = 96, sourceHeight = 80 }, -- 31
-    { x = 822, y = 932, width = 44, height = 52, sourceX = 26, sourceY = 28, sourceWidth = 96, sourceHeight = 80 }, -- 32
-    { x = 986, y = 890, width = 36, height = 52, sourceX = 30, sourceY = 28, sourceWidth = 96, sourceHeight = 80 }, -- 33
-    { x = 904, y = 506, width = 96, height = 28, sourceX = 0, sourceY = 52, sourceWidth = 96, sourceHeight = 80 }, -- 34
-    { x = 722, y = 848, width = 76, height = 48, sourceX = 10, sourceY = 32, sourceWidth = 96, sourceHeight = 80 }, -- 35
-    { x = 674, y = 952, width = 44, height = 52, sourceX = 26, sourceY = 28, sourceWidth = 96, sourceHeight = 80 }, -- 36
-    { x = 770, y = 964, width = 32, height = 52, sourceX = 32, sourceY = 28, sourceWidth = 96, sourceHeight = 80 }, -- 37
-    { x = 916, y = 590, width = 96, height = 28, sourceX = 0, sourceY = 52, sourceWidth = 96, sourceHeight = 80 }, -- 38
-    { x = 916, y = 538, width = 80, height = 48, sourceX = 6, sourceY = 32, sourceWidth = 96, sourceHeight = 80 }, -- 39
-    { x = 370, y = 900, width = 44, height = 56, sourceX = 26, sourceY = 24, sourceWidth = 96, sourceHeight = 80 }, -- 40
-    { x = 872, y = 494, width = 28, height = 56, sourceX = 34, sourceY = 24, sourceWidth = 96, sourceHeight = 80 }, -- 41
-    { x = 526, y = 900, width = 96, height = 24, sourceX = 0, sourceY = 56, sourceWidth = 96, sourceHeight = 80 }, -- 42
-    { x = 626, y = 880, width = 76, height = 48, sourceX = 10, sourceY = 32, sourceWidth = 96, sourceHeight = 80 }, -- 43
-    { x = 722, y = 952, width = 44, height = 52, sourceX = 26, sourceY = 28, sourceWidth = 96, sourceHeight = 80 }, -- 44
-    { x = 152, y = 370, width = 28, height = 52, sourceX = 34, sourceY = 28, sourceWidth = 96, sourceHeight = 80 }, -- 45
-    { x = 906, y = 742, width = 96, height = 28, sourceX = 0, sourceY = 52, sourceWidth = 96, sourceHeight = 80 }, -- 46
-    { x = 706, y = 900, width = 76, height = 48, sourceX = 10, sourceY = 32, sourceWidth = 96, sourceHeight = 80 }, -- 47
-    { x = 986, y = 774, width = 36, height = 56, sourceX = 30, sourceY = 24, sourceWidth = 96, sourceHeight = 80 }, -- 48
-    { x = 802, y = 848, width = 24, height = 56, sourceX = 36, sourceY = 24, sourceWidth = 96, sourceHeight = 80 }, -- 49
-    { x = 2, y = 370, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 }, -- 50
-    { x = 186, y = 184, width = 142, height = 140, sourceX = 4, sourceY = 0, sourceWidth = 150, sourceHeight = 140 }, -- 51
-    { x = 330, y = 2, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 }, -- 52
-    { x = 186, y = 328, width = 142, height = 140, sourceX = 4, sourceY = 0, sourceWidth = 150, sourceHeight = 140 }, -- 53
-    { x = 2, y = 514, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 }, -- 54
-    { x = 480, y = 2, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 }, -- 55
-    { x = 2, y = 658, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 }, -- 56
-    { x = 630, y = 2, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 }, -- 57
-    { x = 2, y = 802, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 }, -- 58
-    { x = 780, y = 2, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 }, -- 59
-    { x = 332, y = 146, width = 146, height = 140, sourceX = 2, sourceY = 0, sourceWidth = 150, sourceHeight = 140 }, -- 60
-    { x = 632, y = 290, width = 142, height = 140, sourceX = 4, sourceY = 0, sourceWidth = 150, sourceHeight = 140 }, -- 61
-    { x = 482, y = 146, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 }, -- 62
-    { x = 632, y = 146, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 }, -- 63
-    { x = 782, y = 146, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 }, -- 64
-    { x = 778, y = 290, width = 142, height = 140, sourceX = 2, sourceY = 0, sourceWidth = 150, sourceHeight = 140 }, -- 65
-    { x = 332, y = 290, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 }, -- 66
-    { x = 482, y = 290, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 }, -- 67
-    { x = 964, y = 622, width = 58, height = 56, sourceX = 80, sourceY = 0, sourceWidth = 138, sourceHeight = 56 }, -- 68
-    { x = 262, y = 536, width = 66, height = 56, sourceX = 72, sourceY = 0, sourceWidth = 138, sourceHeight = 56 }, -- 69
-    { x = 624, y = 708, width = 90, height = 56, sourceX = 48, sourceY = 0, sourceWidth = 138, sourceHeight = 56 }, -- 70
-    { x = 474, y = 558, width = 122, height = 56, sourceX = 16, sourceY = 0, sourceWidth = 138, sourceHeight = 56 }, -- 71
-    { x = 620, y = 434, width = 138, height = 56 }, -- 72
-    { x = 964, y = 682, width = 58, height = 56, sourceX = 80, sourceY = 0, sourceWidth = 138, sourceHeight = 56 }, -- 73
-    { x = 262, y = 596, width = 66, height = 56, sourceX = 72, sourceY = 0, sourceWidth = 138, sourceHeight = 56 }, -- 74
-    { x = 718, y = 708, width = 90, height = 56, sourceX = 48, sourceY = 0, sourceWidth = 138, sourceHeight = 56 }, -- 75
-    { x = 620, y = 494, width = 122, height = 56, sourceX = 16, sourceY = 0, sourceWidth = 138, sourceHeight = 56 }, -- 76
-    { x = 762, y = 434, width = 138, height = 56 }, -- 77
-    { x = 370, y = 966, width = 58, height = 56, sourceX = 80, sourceY = 0, sourceWidth = 138, sourceHeight = 56 }, -- 78
-    { x = 916, y = 774, width = 66, height = 56, sourceX = 72, sourceY = 0, sourceWidth = 138, sourceHeight = 56 }, -- 79
-    { x = 812, y = 708, width = 90, height = 56, sourceX = 48, sourceY = 0, sourceWidth = 138, sourceHeight = 56 }, -- 80
-    { x = 746, y = 494, width = 122, height = 56, sourceX = 16, sourceY = 0, sourceWidth = 138, sourceHeight = 56 }, -- 81
-    { x = 332, y = 498, width = 138, height = 56 }, -- 82
-    { x = 432, y = 966, width = 58, height = 56, sourceX = 80, sourceY = 0, sourceWidth = 138, sourceHeight = 56 }, -- 83
-    { x = 916, y = 834, width = 66, height = 56, sourceX = 72, sourceY = 0, sourceWidth = 138, sourceHeight = 56 }, -- 84
-    { x = 526, y = 840, width = 90, height = 56, sourceX = 48, sourceY = 0, sourceWidth = 138, sourceHeight = 56 }, -- 85
-    { x = 616, y = 554, width = 122, height = 56, sourceX = 16, sourceY = 0, sourceWidth = 138, sourceHeight = 56 }, -- 86
-    { x = 474, y = 498, width = 138, height = 56 }, -- 87
-    { x = 518, y = 928, width = 58, height = 56, sourceX = 80, sourceY = 0, sourceWidth = 138, sourceHeight = 56 }, -- 88
-    { x = 830, y = 872, width = 66, height = 56, sourceX = 72, sourceY = 0, sourceWidth = 138, sourceHeight = 56 }, -- 89
-    { x = 642, y = 768, width = 90, height = 56, sourceX = 48, sourceY = 0, sourceWidth = 138, sourceHeight = 56 }, -- 90
-    { x = 742, y = 554, width = 122, height = 56, sourceX = 16, sourceY = 0, sourceWidth = 138, sourceHeight = 56 }, -- 91
-    { x = 332, y = 558, width = 138, height = 56 }, -- 92
-    { x = 558, y = 712, width = 62, height = 60, sourceX = 78, sourceY = 0, sourceWidth = 140, sourceHeight = 59 }, -- 93
-    { x = 558, y = 776, width = 80, height = 60, sourceX = 60, sourceY = 0, sourceWidth = 140, sourceHeight = 59 }, -- 94
-    { x = 930, y = 2, width = 92, height = 60, sourceX = 48, sourceY = 0, sourceWidth = 140, sourceHeight = 59 }, -- 95
-    { x = 246, y = 938, width = 120, height = 60, sourceX = 20, sourceY = 0, sourceWidth = 140, sourceHeight = 59 }, -- 96
-    { x = 2, y = 946, width = 140, height = 60, sourceX = 0, sourceY = 0, sourceWidth = 140, sourceHeight = 59 }, -- 97
-    { x = 900, y = 894, width = 62, height = 60, sourceX = 78, sourceY = 0, sourceWidth = 140, sourceHeight = 59 }, -- 98
-    { x = 892, y = 622, width = 68, height = 60, sourceX = 72, sourceY = 0, sourceWidth = 140, sourceHeight = 59 }, -- 99
-    { x = 930, y = 66, width = 92, height = 60, sourceX = 48, sourceY = 0, sourceWidth = 140, sourceHeight = 59 }, -- 100
-    { x = 434, y = 712, width = 120, height = 60, sourceX = 20, sourceY = 0, sourceWidth = 140, sourceHeight = 59 }, -- 101
-    { x = 332, y = 434, width = 140, height = 60, sourceX = 0, sourceY = 0, sourceWidth = 140, sourceHeight = 59 }, -- 102
-    { x = 418, y = 904, width = 60, height = 58, sourceX = 80, sourceY = 0, sourceWidth = 140, sourceHeight = 59 }, -- 103
-    { x = 262, y = 472, width = 66, height = 60, sourceX = 74, sourceY = 0, sourceWidth = 140, sourceHeight = 59 }, -- 104
-    { x = 430, y = 840, width = 92, height = 60, sourceX = 48, sourceY = 0, sourceWidth = 140, sourceHeight = 59 }, -- 105
-    { x = 434, y = 776, width = 120, height = 60, sourceX = 20, sourceY = 0, sourceWidth = 140, sourceHeight = 59 }, -- 106
-    { x = 476, y = 434, width = 140, height = 60, sourceX = 0, sourceY = 0, sourceWidth = 140, sourceHeight = 59 }, -- 107
-    { x = 186, y = 2, width = 140, height = 178, sourceX = 20, sourceY = 12, sourceWidth = 186, sourceHeight = 197 }, -- 108
-    { x = 2, y = 2, width = 180, height = 182, sourceX = 2, sourceY = 6, sourceWidth = 186, sourceHeight = 197 }, -- 109
-    { x = 2, y = 188, width = 180, height = 178, sourceX = 2, sourceY = 0, sourceWidth = 186, sourceHeight = 197 }, -- 110
-    { x = 620, y = 840, width = 18, height = 20, sourceX = 82, sourceY = 96, sourceWidth = 186, sourceHeight = 197 }, -- 111
-    { x = 152, y = 472, width = 106, height = 148, sourceX = 40, sourceY = 36, sourceWidth = 186, sourceHeight = 197 }, -- 112
-    { x = 932, y = 130, width = 90, height = 92, sourceX = 52, sourceY = 62, sourceWidth = 186, sourceHeight = 197 }, -- 113
-    { x = 580, y = 928, width = 42, height = 46, sourceX = 72, sourceY = 84, sourceWidth = 186, sourceHeight = 197 }, -- 114
+    { x = 932, y = 226, width = 90, height = 90 },
+    { x = 152, y = 624, width = 90, height = 90 },
+    { x = 152, y = 718, width = 90, height = 90 },
+    { x = 152, y = 812, width = 90, height = 90 },
+    { x = 924, y = 320, width = 90, height = 90 },
+    { x = 246, y = 656, width = 82, height = 90, sourceX = 4, sourceY = 0, sourceWidth = 90, sourceHeight = 90 },
+    { x = 152, y = 906, width = 90, height = 90 },
+    { x = 332, y = 618, width = 90, height = 90 },
+    { x = 426, y = 618, width = 90, height = 90 },
+    { x = 246, y = 750, width = 90, height = 90 },
+    { x = 246, y = 844, width = 90, height = 90 },
+    { x = 520, y = 618, width = 90, height = 90 },
+    { x = 614, y = 614, width = 90, height = 90 },
+    { x = 802, y = 614, width = 86, height = 90, sourceX = 2, sourceY = 0, sourceWidth = 90, sourceHeight = 90 },
+    { x = 340, y = 806, width = 86, height = 90, sourceX = 2, sourceY = 0, sourceWidth = 90, sourceHeight = 90 },
+    { x = 708, y = 614, width = 90, height = 90 },
+    { x = 340, y = 712, width = 90, height = 90 },
+    { x = 924, y = 414, width = 96, height = 28, sourceX = 0, sourceY = 52, sourceWidth = 96, sourceHeight = 80 },
+    { x = 836, y = 820, width = 76, height = 48, sourceX = 10, sourceY = 32, sourceWidth = 96, sourceHeight = 80 },
+    { x = 868, y = 554, width = 44, height = 56, sourceX = 26, sourceY = 24, sourceWidth = 96, sourceHeight = 80 },
+    { x = 482, y = 904, width = 32, height = 52, sourceX = 32, sourceY = 28, sourceWidth = 96, sourceHeight = 80 },
+    { x = 904, y = 478, width = 96, height = 24, sourceX = 0, sourceY = 56, sourceWidth = 96, sourceHeight = 80 },
+    { x = 736, y = 768, width = 80, height = 48, sourceX = 6, sourceY = 32, sourceWidth = 96, sourceHeight = 80 },
+    { x = 916, y = 686, width = 44, height = 52, sourceX = 26, sourceY = 28, sourceWidth = 96, sourceHeight = 80 },
+    { x = 786, y = 908, width = 32, height = 52, sourceX = 32, sourceY = 28, sourceWidth = 96, sourceHeight = 80 },
+    { x = 736, y = 820, width = 96, height = 24, sourceX = 0, sourceY = 56, sourceWidth = 96, sourceHeight = 80 },
+    { x = 642, y = 828, width = 76, height = 48, sourceX = 10, sourceY = 32, sourceWidth = 96, sourceHeight = 80 },
+    { x = 626, y = 932, width = 44, height = 52, sourceX = 26, sourceY = 28, sourceWidth = 96, sourceHeight = 80 },
+    { x = 986, y = 834, width = 36, height = 52, sourceX = 28, sourceY = 28, sourceWidth = 96, sourceHeight = 80 },
+    { x = 904, y = 446, width = 96, height = 28, sourceX = 0, sourceY = 52, sourceWidth = 96, sourceHeight = 80 },
+    { x = 820, y = 768, width = 80, height = 48, sourceX = 8, sourceY = 32, sourceWidth = 96, sourceHeight = 80 },
+    { x = 822, y = 932, width = 44, height = 52, sourceX = 26, sourceY = 28, sourceWidth = 96, sourceHeight = 80 },
+    { x = 986, y = 890, width = 36, height = 52, sourceX = 30, sourceY = 28, sourceWidth = 96, sourceHeight = 80 },
+    { x = 904, y = 506, width = 96, height = 28, sourceX = 0, sourceY = 52, sourceWidth = 96, sourceHeight = 80 },
+    { x = 722, y = 848, width = 76, height = 48, sourceX = 10, sourceY = 32, sourceWidth = 96, sourceHeight = 80 },
+    { x = 674, y = 952, width = 44, height = 52, sourceX = 26, sourceY = 28, sourceWidth = 96, sourceHeight = 80 },
+    { x = 770, y = 964, width = 32, height = 52, sourceX = 32, sourceY = 28, sourceWidth = 96, sourceHeight = 80 },
+    { x = 916, y = 590, width = 96, height = 28, sourceX = 0, sourceY = 52, sourceWidth = 96, sourceHeight = 80 },
+    { x = 916, y = 538, width = 80, height = 48, sourceX = 6, sourceY = 32, sourceWidth = 96, sourceHeight = 80 },
+    { x = 370, y = 900, width = 44, height = 56, sourceX = 26, sourceY = 24, sourceWidth = 96, sourceHeight = 80 },
+    { x = 872, y = 494, width = 28, height = 56, sourceX = 34, sourceY = 24, sourceWidth = 96, sourceHeight = 80 },
+    { x = 526, y = 900, width = 96, height = 24, sourceX = 0, sourceY = 56, sourceWidth = 96, sourceHeight = 80 },
+    { x = 626, y = 880, width = 76, height = 48, sourceX = 10, sourceY = 32, sourceWidth = 96, sourceHeight = 80 },
+    { x = 722, y = 952, width = 44, height = 52, sourceX = 26, sourceY = 28, sourceWidth = 96, sourceHeight = 80 },
+    { x = 152, y = 370, width = 28, height = 52, sourceX = 34, sourceY = 28, sourceWidth = 96, sourceHeight = 80 },
+    { x = 906, y = 742, width = 96, height = 28, sourceX = 0, sourceY = 52, sourceWidth = 96, sourceHeight = 80 },
+    { x = 706, y = 900, width = 76, height = 48, sourceX = 10, sourceY = 32, sourceWidth = 96, sourceHeight = 80 },
+    { x = 986, y = 774, width = 36, height = 56, sourceX = 30, sourceY = 24, sourceWidth = 96, sourceHeight = 80 },
+    { x = 802, y = 848, width = 24, height = 56, sourceX = 36, sourceY = 24, sourceWidth = 96, sourceHeight = 80 },
+    { x = 2, y = 370, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 },
+    { x = 186, y = 184, width = 142, height = 140, sourceX = 4, sourceY = 0, sourceWidth = 150, sourceHeight = 140 },
+    { x = 330, y = 2, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 },
+    { x = 186, y = 328, width = 142, height = 140, sourceX = 4, sourceY = 0, sourceWidth = 150, sourceHeight = 140 },
+    { x = 2, y = 514, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 },
+    { x = 480, y = 2, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 },
+    { x = 2, y = 658, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 },
+    { x = 630, y = 2, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 },
+    { x = 2, y = 802, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 },
+    { x = 780, y = 2, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 },
+    { x = 332, y = 146, width = 146, height = 140, sourceX = 2, sourceY = 0, sourceWidth = 150, sourceHeight = 140 },
+    { x = 632, y = 290, width = 142, height = 140, sourceX = 4, sourceY = 0, sourceWidth = 150, sourceHeight = 140 },
+    { x = 482, y = 146, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 },
+    { x = 632, y = 146, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 },
+    { x = 782, y = 146, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 },
+    { x = 778, y = 290, width = 142, height = 140, sourceX = 2, sourceY = 0, sourceWidth = 150, sourceHeight = 140 },
+    { x = 332, y = 290, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 },
+    { x = 482, y = 290, width = 146, height = 140, sourceX = 0, sourceY = 0, sourceWidth = 150, sourceHeight = 140 },
+    { x = 964, y = 622, width = 58, height = 56, sourceX = 80, sourceY = 0, sourceWidth = 138, sourceHeight = 56 },
+    { x = 262, y = 536, width = 66, height = 56, sourceX = 72, sourceY = 0, sourceWidth = 138, sourceHeight = 56 },
+    { x = 624, y = 708, width = 90, height = 56, sourceX = 48, sourceY = 0, sourceWidth = 138, sourceHeight = 56 },
+    { x = 474, y = 558, width = 122, height = 56, sourceX = 16, sourceY = 0, sourceWidth = 138, sourceHeight = 56 },
+    { x = 620, y = 434, width = 138, height = 56 },
+    { x = 964, y = 682, width = 58, height = 56, sourceX = 80, sourceY = 0, sourceWidth = 138, sourceHeight = 56 },
+    { x = 262, y = 596, width = 66, height = 56, sourceX = 72, sourceY = 0, sourceWidth = 138, sourceHeight = 56 },
+    { x = 718, y = 708, width = 90, height = 56, sourceX = 48, sourceY = 0, sourceWidth = 138, sourceHeight = 56 },
+    { x = 620, y = 494, width = 122, height = 56, sourceX = 16, sourceY = 0, sourceWidth = 138, sourceHeight = 56 },
+    { x = 762, y = 434, width = 138, height = 56 },
+    { x = 370, y = 966, width = 58, height = 56, sourceX = 80, sourceY = 0, sourceWidth = 138, sourceHeight = 56 },
+    { x = 916, y = 774, width = 66, height = 56, sourceX = 72, sourceY = 0, sourceWidth = 138, sourceHeight = 56 },
+    { x = 812, y = 708, width = 90, height = 56, sourceX = 48, sourceY = 0, sourceWidth = 138, sourceHeight = 56 },
+    { x = 746, y = 494, width = 122, height = 56, sourceX = 16, sourceY = 0, sourceWidth = 138, sourceHeight = 56 },
+    { x = 332, y = 498, width = 138, height = 56 },
+    { x = 432, y = 966, width = 58, height = 56, sourceX = 80, sourceY = 0, sourceWidth = 138, sourceHeight = 56 },
+    { x = 916, y = 834, width = 66, height = 56, sourceX = 72, sourceY = 0, sourceWidth = 138, sourceHeight = 56 },
+    { x = 526, y = 840, width = 90, height = 56, sourceX = 48, sourceY = 0, sourceWidth = 138, sourceHeight = 56 },
+    { x = 616, y = 554, width = 122, height = 56, sourceX = 16, sourceY = 0, sourceWidth = 138, sourceHeight = 56 },
+    { x = 474, y = 498, width = 138, height = 56 },
+    { x = 518, y = 928, width = 58, height = 56, sourceX = 80, sourceY = 0, sourceWidth = 138, sourceHeight = 56 },
+    { x = 830, y = 872, width = 66, height = 56, sourceX = 72, sourceY = 0, sourceWidth = 138, sourceHeight = 56 },
+    { x = 642, y = 768, width = 90, height = 56, sourceX = 48, sourceY = 0, sourceWidth = 138, sourceHeight = 56 },
+    { x = 742, y = 554, width = 122, height = 56, sourceX = 16, sourceY = 0, sourceWidth = 138, sourceHeight = 56 },
+    { x = 332, y = 558, width = 138, height = 56 },
+    { x = 558, y = 712, width = 62, height = 60, sourceX = 78, sourceY = 0, sourceWidth = 140, sourceHeight = 59 },
+    { x = 558, y = 776, width = 80, height = 60, sourceX = 60, sourceY = 0, sourceWidth = 140, sourceHeight = 59 },
+    { x = 930, y = 2, width = 92, height = 60, sourceX = 48, sourceY = 0, sourceWidth = 140, sourceHeight = 59 },
+    { x = 246, y = 938, width = 120, height = 60, sourceX = 20, sourceY = 0, sourceWidth = 140, sourceHeight = 59 },
+    { x = 2, y = 946, width = 140, height = 60, sourceX = 0, sourceY = 0, sourceWidth = 140, sourceHeight = 59 },
+    { x = 900, y = 894, width = 62, height = 60, sourceX = 78, sourceY = 0, sourceWidth = 140, sourceHeight = 59 },
+    { x = 892, y = 622, width = 68, height = 60, sourceX = 72, sourceY = 0, sourceWidth = 140, sourceHeight = 59 },
+    { x = 930, y = 66, width = 92, height = 60, sourceX = 48, sourceY = 0, sourceWidth = 140, sourceHeight = 59 },
+    { x = 434, y = 712, width = 120, height = 60, sourceX = 20, sourceY = 0, sourceWidth = 140, sourceHeight = 59 },
+    { x = 332, y = 434, width = 140, height = 60, sourceX = 0, sourceY = 0, sourceWidth = 140, sourceHeight = 59 },
+    { x = 418, y = 904, width = 60, height = 58, sourceX = 80, sourceY = 0, sourceWidth = 140, sourceHeight = 59 },
+    { x = 262, y = 472, width = 66, height = 60, sourceX = 74, sourceY = 0, sourceWidth = 140, sourceHeight = 59 },
+    { x = 430, y = 840, width = 92, height = 60, sourceX = 48, sourceY = 0, sourceWidth = 140, sourceHeight = 59 },
+    { x = 434, y = 776, width = 120, height = 60, sourceX = 20, sourceY = 0, sourceWidth = 140, sourceHeight = 59 },
+    { x = 476, y = 434, width = 140, height = 60, sourceX = 0, sourceY = 0, sourceWidth = 140, sourceHeight = 59 },
+    { x = 186, y = 2, width = 140, height = 178, sourceX = 20, sourceY = 12, sourceWidth = 186, sourceHeight = 197 },
+    { x = 2, y = 2, width = 180, height = 182, sourceX = 2, sourceY = 6, sourceWidth = 186, sourceHeight = 197 },
+    { x = 2, y = 188, width = 180, height = 178, sourceX = 2, sourceY = 0, sourceWidth = 186, sourceHeight = 197 },
+    { x = 620, y = 840, width = 18, height = 20, sourceX = 82, sourceY = 96, sourceWidth = 186, sourceHeight = 197 },
+    { x = 152, y = 472, width = 106, height = 148, sourceX = 40, sourceY = 36, sourceWidth = 186, sourceHeight = 197 },
+    { x = 932, y = 130, width = 90, height = 92, sourceX = 52, sourceY = 62, sourceWidth = 186, sourceHeight = 197 },
+    { x = 580, y = 928, width = 42, height = 46, sourceX = 72, sourceY = 84, sourceWidth = 186, sourceHeight = 197 },
   },
   sheetContentWidth = 1024,
   sheetContentHeight = 1024

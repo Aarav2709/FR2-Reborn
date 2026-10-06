@@ -1,0 +1,49 @@
+name: Checks
+
+# Catches broken files before they reach players: every Lua file must compile with
+# Lua 5.1 (the version Solar2D runs) and every JSON file (store, maps, prizes) must
+# be valid. The game itself is built and tried in Solar2D.
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  syntax:
+    name: Lua syntax and JSON
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Lua 5.1
+        run: sudo apt-get update -q && sudo apt-get install -y -q lua5.1
+
+      - name: Compile every Lua file
+        run: |
+          status=0
+          count=0
+          while IFS= read -r -d '' file; do
+            count=$((count + 1))
+            if ! luac5.1 -p "$file"; then
+              echo "::error file=${file#./}::Lua syntax error"
+              status=1
+            fi
+          done < <(find . -name "*.lua" -not -path "./.git/*" -print0)
+          echo "Checked $count Lua files."
+          exit $status
+
+      - name: Validate JSON files
+        run: |
+          status=0
+          count=0
+          while IFS= read -r -d '' file; do
+            count=$((count + 1))
+            if ! python3 -m json.tool "$file" > /dev/null; then
+              echo "::error file=${file#./}::Invalid JSON"
+              status=1
+            fi
+          done < <(find . -name "*.json" -not -path "./.git/*" -print0)
+          echo "Checked $count JSON files."
+          exit $status

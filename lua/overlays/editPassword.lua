@@ -12,7 +12,6 @@ function scene:create(event)
   if isAndroid then
     textFieldSize = 30
   end
-  local tempEmail = ""
   local background = display.newImageRect("images/gui/login/window.png", 350, 137)
   background.anchorX = 0.5
   background.anchorY = 0

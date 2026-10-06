@@ -50,18 +50,6 @@ end
 
 Network.toggleNetworkAlert = toggleNetworkAlert
 
-local function checkIfPlayerIsInInvalidScene(suspendinApp)
-  if isSimulator and composer.config.bot then
-    local currentScene = composer.getSceneName("current")
-    if currentScene ~= "lua.scenes.mainMenu" then
-      composer.gotoScene("lua.scenes.mainMenu")
-      composer.removeScene(currentScene)
-    end
-  end
-end
-
-Network.checkIfPlayerIsInInvalidScene = checkIfPlayerIsInInvalidScene
-
 local function sendHeatbeat()
   local data = {}
   data.m = tcpFormat.heartbeat()
@@ -74,15 +62,12 @@ Network.sendHeatbeat = sendHeatbeat
 
 local function sendConnectMessage()
   if connectMessage == nil then
-    print("ERROR in connecting message, it's nil")
     return
   end
   if type(connectMessage) ~= "table" then
-    print("ERROR in connecting message")
     return
   end
   local jsonObject = json.encode(connectMessage)
-  composer.debugger.debugPrint("network", "jsonObject sendPacket: " .. jsonObject)
   tcpConnection:send(jsonObject .. "\n")
 end
 
@@ -102,17 +87,14 @@ local function getPacketFromServer(event)
     if errorCode and errorCode == "timeout" and partialRead and string.len(partialRead) > 0 then
       partialReadMessage = partialReadMessage .. partialRead
     elseif errorCode and errorCode == "closed" then
-      print("errorCode social ", errorCode)
       isConnected = false
       gotFirstPackage = false
-      checkIfPlayerIsInInvalidScene()
       timeBasedReconnect()
     elseif jsonObject then
       if string.len(partialReadMessage) > 0 then
         jsonObject = partialReadMessage .. jsonObject
         partialReadMessage = ""
       end
-      composer.debugger.debugPrint("network", "rec: " .. jsonObject)
       local data = json.decode(jsonObject)
       if type(data) == "table" then
         if gotFirstPackage == false then
@@ -122,7 +104,6 @@ local function getPacketFromServer(event)
         end
         receiveFunction(data)
       else
-        print("TCP social: got corrupt data ", jsonObject)
         local newData = {}
         newData.corrupt = true
         receiveFunction(newData)
@@ -132,7 +113,6 @@ local function getPacketFromServer(event)
 end
 
 local function closeTCP(isHardStop)
-  composer.debugger.debugPrint("network", "close tcp social connection with closeTCP")
   isConnected = false
   gotFirstPackage = false
   if isHardStop then
@@ -164,7 +144,6 @@ local function connectTCP()
     return
   end
   if hardStop then
-    print("Hard stop, do not auto reconnect")
     return
   end
   if composer.config.fakeServer then
@@ -185,7 +164,6 @@ local function connectTCP()
   isConnected = tcpConnection:connect(composer.config.tcpSocial, serverPort)
   tcpConnection:settimeout(0)
   gotFirstPackage = false
-  composer.debugger.debugTable("network", #connectMessage, connectMessage)
   if heartbeatLoop then
     timer.cancel(heartbeatLoop)
     heartbeatLoop = nil
@@ -199,10 +177,8 @@ local function checkConnection()
     return
   end
   if isConnected then
-    composer.debugger.debugPrint("network", "tcp social connection up")
     getPacketLoop = timer.performWithDelay(timeInterval, getPacketFromServer, 0)
   else
-    print("failed to start tcp social connection")
   end
 end
 
@@ -210,7 +186,6 @@ local function safeTCPStart()
   closeTCP()
   connectTCP()
   checkConnection()
-  composer.debugger.debugPrint("network", "start TCP social")
 end
 
 local function startTCP(theReceiveFunction, message)
@@ -243,7 +218,6 @@ local function sendPacket(data)
   end
   if isConnected and gotFirstPackage then
     local jsonObject = json.encode(data)
-    composer.debugger.debugPrint("network", "jsonObject sendPacket: " .. jsonObject)
     tcpConnection:send(jsonObject .. "\n")
   end
 end

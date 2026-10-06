@@ -4,11 +4,7 @@ local screen = require("lua.modules.screen")
 local scene = composer.newScene()
 local clean
 
--- Map select for practice races, laid out like Fun Run 2's (original 480x320 design
--- units): a sign on a post with six map cards per page (the name printed on the
--- card's lower strip) and arrows to flip through the pages.
 local DESIGN_W, DESIGN_H = 480, 320
--- The sign is drawn a little smaller than the full design box.
 local SIGN_SCALE = 0.92
 local ICONS_PER_PAGE = 6
 local COLUMNS = 3
@@ -45,7 +41,6 @@ function scene:create(event)
   local backgroundImage = display.newImageRect(screenGroup, seasonal.menuBackground(), 1920, 1080)
   screen.cover(backgroundImage)
 
-  -- The sign, centred on the screen (post and roof included).
   local sign = display.newGroup()
   sign.xScale, sign.yScale = k, k
   sign.x = screen.centerX - DESIGN_W * 0.5 * k
@@ -57,13 +52,7 @@ function scene:create(event)
   board.x, board.y = BOARD_X, BOARD_Y
   local roof = display.newImageRect(sign, "images/gui/practice/top.png", 22, 14)
   roof.x, roof.y = BOARD_X, BOARD_Y - BOARD_H * 0.51
-  if composer.data.gameInfo.teamMode then
-    local modeLabel = newText({ string = "2 vs 2 with expert bots", size = 14, color = { 1, 1, 1 } })
-    modeLabel.x, modeLabel.y = BOARD_X, 36
-    sign:insert(modeLabel)
-  end
 
-  -- The cards scroll a page at a time inside the board.
   local cardsWindow = display.newContainer(330, 212)
   cardsWindow.x, cardsWindow.y = BOARD_X, BOARD_Y
   sign:insert(cardsWindow)
@@ -81,19 +70,15 @@ function scene:create(event)
       avatar = composer.database.getAvatarData(),
       playerId = composer.database.getPlayerInformation().playerId,
       customPowerUps = composer.database.getPowerupSkin(),
-      backwear = composer.database.getBackwear and composer.database.getBackwear() or 0,
-      team = composer.data.gameInfo.teamMode and 1 or nil
+      backwear = composer.database.getBackwear and composer.database.getBackwear() or 0
     }
     local botAI = require("lua.ai.botPlayer")
     local bots = botAI.createBots()
     for i = 1, #bots do
-      if composer.data.gameInfo.teamMode then
-        bots[i].team = i == 1 and 1 or 2
-      end
       composer.data.gameInfo.players[i + 1] = bots[i]
     end
     composer.data.gameInfo.gameType = 0
-    -- Practice: no rewards, no league (see Quick Play).
+    composer.data.gameInfo.teamMode = nil
     composer.data.gameInfo.ranked = false
     composer.data.gameInfo.map = id
     composer.gotoScene("lua.scenes.gamePlay")
@@ -213,7 +198,6 @@ function scene:show(event)
 end
 
 function scene:hide(event)
-  -- Rebuilt on every visit (e.g. "race again" from the results).
   if event.phase == "will" then
     require("lua.modules.androidBackButton").removeBackButton()
   elseif event.phase == "did" then

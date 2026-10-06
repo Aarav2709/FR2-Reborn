@@ -29,14 +29,7 @@ local function sendFirstGameMessage(solvedChallenge)
   local messageType = tonumber(composer.gameConfig.getClientMessageTypeForName("CONNECT"))
   local playerId = composer.database.getPlayerInformation().playerId
   local data
-  if composer.config.serverBot then
-    messageType = tonumber(composer.gameConfig.getClientMessageTypeForName("BOT_CONNECT"))
-    data = {
-      m = messageType,
-      p = playerId,
-      t = gameType
-    }
-  elseif gameType == 4 then
+  if gameType == 4 then
     data = {
       m = messageType,
       p = playerId,
@@ -52,9 +45,7 @@ local function sendFirstGameMessage(solvedChallenge)
   end
   data.a = solvedChallenge
   local jsonObject = json.encode(data)
-  composer.debugger.debugPrint("network", jsonObject)
   tcpConnection:send(jsonObject .. "\n")
-  composer.debugger.debugPrint("network", "have sent first message")
 end
 
 local function lostConnection()
@@ -68,13 +59,11 @@ local function getPacketFromServer(event)
   if tcpConnection and connected then
     local jsonObject, errorCode = tcpConnection:receive("*l")
     if errorCode == "closed" then
-      print("errorCode game", errorCode)
       connected = false
       lostConnection()
     elseif jsonObject then
       local data = json.decode(jsonObject)
       if type(data) == "table" then
-        composer.debugger.debugPrint("network", "rec tcpClient: " .. jsonObject)
         if data[1] and composer.gameConfig.getMessageTypeForID(tostring(data[1])) == "HANDSHAKE" then
           local challenge = solveChallenge(data[2], data[3])
           sendFirstGameMessage(challenge)
@@ -97,7 +86,6 @@ local function connectTCP()
   if composer.config and composer.config.offlineMode then
     return
   end
-  print("try to connect tcp")
   if tcpConnection then
     tcpConnection:close()
     tcpConnection = nil
@@ -109,11 +97,9 @@ local function connectTCP()
   tcpConnection:setoption("tcp-nodelay", true)
   serverAddress = composer.config.tcpClient
   if tcpConnection == nil then
-    print("WARNING: tcpConnection game = nil")
     return
   end
   if type(serverAddress) == "table" or serverAddress == nil then
-    print("WARNING:  in sendFirstGameMessage not valid format", serverAddress)
     return
   end
   if composer.data.gameInfo.gameType == 3 then
@@ -121,7 +107,6 @@ local function connectTCP()
   tcpConnection:connect(serverAddress, serverPort)
   tcpConnection:settimeout(0)
   connected = true
-  print("done with connect")
 end
 
 local function startTCP(theReceiveFunction)
@@ -130,7 +115,6 @@ local function startTCP(theReceiveFunction)
   end
   connected = false
   if not tcpConnection then
-    composer.debugger.debugPrint("network", "start TCP game client")
     receiveFunction = theReceiveFunction
     connectTCP()
     getPacketLoop = timer.performWithDelay(timeInterval, getPacketFromServer, 0)
@@ -166,19 +150,15 @@ local function sendMessage(msg)
   local data = {m = msg}
   if connected and gotFirstConnection then
     local jsonObject = json.encode(data)
-    composer.debugger.debugPrint("network", "sendMessage tcp: ", jsonObject)
     tcpConnection:send(jsonObject .. "\n")
   else
-    print("tcp connection is not up yet")
   end
 end
 
 local function sendMinimizedMessage(msg)
   if connected and gotFirstConnection then
-    composer.debugger.debugPrint("network", "sendMinimizedMessage tcp", msg)
     tcpConnection:send(msg .. "\n")
   else
-    print("WARNING: sendMinimizedMessage tcp connection is not up yet")
   end
 end
 
@@ -199,7 +179,6 @@ local function sendCorrigateMessage(pX, pY, pVX, pVY)
     local jsonObject = "[" .. id .. "," .. t .. "," .. pX .. "," .. pY .. "," .. pVX .. "," .. pVY .. "]"
     tcpConnection:send(jsonObject .. "\n")
   else
-    print("WARNING: sendCorrigateMessage tcp connection is not up yet")
   end
 end
 
@@ -248,7 +227,6 @@ local function sendPlayerHitByPowerUp(killerID, powerUpType, puNumber, hitType, 
     local jsonObject = "[" .. id .. "," .. t .. "," .. killerID .. "," .. powerUpType .. "," .. puNumber .. "," .. hitType .. "]"
     sendMinimizedMessage(jsonObject)
   else
-    print("sendPlayerHitByPowerUp error ", puNumber)
   end
 end
 
@@ -322,7 +300,6 @@ local function stopTCPClient()
     tcpConnection = nil
   end
   connected = false
-  composer.debugger.debugPrint("network", "stop tcp")
 end
 
 local function isOnline()

@@ -9,7 +9,6 @@ local function networkListener(event)
   if event.isError then
     jsonObject = "{\"e\":\"Could not connect to server\"}"
   end
-  print("rec: ", jsonObject)
   if jsonObject and string.len(jsonObject) > 0 then
     local table = json.decode(jsonObject)
     receiveInfoFunction(table)
@@ -29,7 +28,6 @@ function Network.send(data)
     return false
   end
   local jsonObject = json.encode(data)
-  composer.debugger.debugPrint("network", jsonObject)
   local params = {body = jsonObject}
   return sendPost(params)
 end

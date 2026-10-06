@@ -12,7 +12,6 @@ local function new(monsterData, networkFormat, powerupSkins, backwearId)
   local blinkIndex = 0
   local blinkState = 1
   local paused = false
-  local backwearLeft, backwearRight
 
   local function setPowerupAnimationIds(powerupSet)
     rocketPowerupId, sacrificePowerupId, magnetPowerupId, markPowerupId, speedPowerupId = 1401, 1601, 1701, 1801, 1901
@@ -189,15 +188,12 @@ local function new(monsterData, networkFormat, powerupSkins, backwearId)
 
   local function overrideSkeletonFunctions()
     function skeleton:createImage(attachment)
-      composer.debugger.profile("CreateImage")
 
       local attachmentName = attachment.name or attachment.path
       local prepath, restOfPath = isCustomMonsterImage(attachmentName)
 
-      -- Determine if this is a character body part (starts with cXsY/)
       local isCharacterPart = (restOfPath ~= nil and prepath ~= "powerups")
 
-      -- If isCustomMonsterImage failed but it looks like a character path, try regex
       if not restOfPath and attachmentName:match("^c%d+s%d+/") then
         restOfPath = attachmentName:gsub("^c%d+s%d+/", "")
         isCharacterPart = true
@@ -205,7 +201,6 @@ local function new(monsterData, networkFormat, powerupSkins, backwearId)
 
       local image
 
-      -- Case 1: Character body part - use character imagesheet
       if isCharacterPart and imageSheetInfo and restOfPath then
         local imagePath = imageSheetInfo:getFrameIndex(restOfPath)
 
@@ -215,7 +210,6 @@ local function new(monsterData, networkFormat, powerupSkins, backwearId)
           image.anchorX = 0.5
           image.anchorY = 0.5
         end
-        -- Not in the character sheet (most neck items): the item's own PNG is used below.
 
       elseif prepath == "powerups" and restOfPath then
         local powerupPrefix, frameKey = splitPrefixAndFrame(restOfPath)
@@ -238,7 +232,6 @@ local function new(monsterData, networkFormat, powerupSkins, backwearId)
         end
       end
 
-      -- Case 3: Not in any imagesheet (accessories, hats, etc.) - load PNG directly
       if not image and prepath ~= "powerups" then
         local allowFallback = true
         local segment, _ = splitFirstSegment(attachmentName)
@@ -249,22 +242,18 @@ local function new(monsterData, networkFormat, powerupSkins, backwearId)
           local pngPath = "images/monsters/" .. attachmentName .. ".png"
           image = display.newImage(pngPath)
           if not image then
-            print("WARNING: Failed to load PNG: " .. pngPath)
           end
         end
       end
 
-      composer.debugger.profile("CreateImage")
       return image
     end
 
     function skeleton:modifyImage(image, attachment)
       if image and image.setFrame then
-        composer.debugger.profile("ModifyImage")
         local attachmentName = attachment.name or attachment.path
         local prepath, restOfPath = isCustomMonsterImage(attachmentName)
 
-        -- If isCustomMonsterImage failed, try regex for character paths
         if not restOfPath and attachmentName:match("^c%d+s%d+/") then
           restOfPath = attachmentName:gsub("^c%d+s%d+/", "")
         end
@@ -279,7 +268,6 @@ local function new(monsterData, networkFormat, powerupSkins, backwearId)
           end
           if imagePath then
             image:setFrame(imagePath)
-            composer.debugger.profile("ModifyImage")
             return true
           end
         end
@@ -288,7 +276,6 @@ local function new(monsterData, networkFormat, powerupSkins, backwearId)
           local imagePath = imageSheetInfo:getFrameIndex(restOfPath)
           if imagePath then
             image:setFrame(imagePath)
-            composer.debugger.profile("ModifyImage")
             return true
           end
         end
@@ -317,7 +304,6 @@ local function new(monsterData, networkFormat, powerupSkins, backwearId)
       composer.data.monsterInMemory[memoryIndex] = {}
       local sucess = pcall(safeLoad)
       if not sucess then
-        print("ERROR: Failed to load " .. path .. " lua file! Using default c1s0")
         composer.data.monsterInMemory[memoryIndex] = nil
         setIdAndSkinDefault()
         return
@@ -346,7 +332,6 @@ local function new(monsterData, networkFormat, powerupSkins, backwearId)
       skeleton:setAttachment("hat", nil)
       skeleton:setAttachment("hair", "hair")
       if hat ~= nil and hat ~= 0 then
-        print("WARNING: failed to find hat in spine, set default")
       end
     end
   end
@@ -361,7 +346,6 @@ local function new(monsterData, networkFormat, powerupSkins, backwearId)
     if not neckSlot or not neckSlot.attachment then
       skeleton:setAttachment("neck", nil)
       if neck ~= nil and neck ~= 0 then
-        print("WARNING: failed to find neck in spine, set default")
       end
     end
   end
@@ -376,20 +360,17 @@ local function new(monsterData, networkFormat, powerupSkins, backwearId)
     if not facewearSlot or not facewearSlot.attachment then
       skeleton:setAttachment("facewear", nil)
       if facewear ~= nil and facewear ~= 0 then
-        print("WARNING: failed to find facewear in spine, set default")
       end
     end
   end
 
   local function setSkin()
     local function setSkinSafe()
-      -- Each character has its own skin, e.g. "c1s0", "c2s0"
       skeleton:setSkin(path)
     end
 
     local sucess = pcall(setSkinSafe)
     if not sucess then
-      print("ERROR: Skin '" .. path .. "' not found! Trying fallback...")
       setIdAndSkinDefault()
       pcall(function() skeleton:setSkin("c1s0") end)
     end
@@ -404,11 +385,9 @@ local function new(monsterData, networkFormat, powerupSkins, backwearId)
     elseif composer.storeConfig.isBoard(boots) then
       skeleton:setAttachment("foot_l", nil)
       skeleton:setAttachment("foot_r", nil)
-      -- Boards use "shoes/XXX" attachment name format
       skeleton:setAttachment("board", "shoes/" .. boots)
       setRunAnimation(true)
     else
-      -- Shoe attachments use "shoes/XXXl" and "shoes/XXXr" format
       skeleton:setAttachment("board", nil)
       skeleton:setAttachment("foot_l", "shoes/" .. boots .. "l")
       skeleton:setAttachment("foot_r", "shoes/" .. boots .. "r")
@@ -426,7 +405,6 @@ local function new(monsterData, networkFormat, powerupSkins, backwearId)
       skeleton:setAttachment("foot_l", "0")
       skeleton:setAttachment("foot_r", "0")
       setRunAnimation(false)
-      print("WARNING: failed to find foot or board in spine, set default")
     end
   end
 
@@ -452,12 +430,26 @@ local function new(monsterData, networkFormat, powerupSkins, backwearId)
     end
   end
 
+  local function setBackwear()
+    local itemId = tonumber(backwearId)
+    if not itemId or itemId < 2100 or itemId >= 2200 then
+      pcall(function() skeleton:setAttachment("backwear", nil) end)
+      return
+    end
+    local ok = pcall(function() skeleton:setAttachment("backwear", tostring(itemId)) end)
+    local slot = skeleton:findSlot("backwear")
+    if not ok or not slot or not slot.attachment then
+      pcall(function() skeleton:setAttachment("backwear", nil) end)
+    end
+  end
+
   local function setDefaultSkin()
     setSkin()
     setHat()
     setNeck()
     setEyeware()
     setFeet()
+    setBackwear()
     monster.setBandage(nil)
   end
 
@@ -491,13 +483,10 @@ local function new(monsterData, networkFormat, powerupSkins, backwearId)
       return
     end
     if not monsterGroup.insert then
-      -- Removed together with its parent (e.g. a scene) without clean() being
-      -- called: stop animating a skeleton that is no longer on screen.
       startedClean = true
       Runtime:removeEventListener("enterFrame", update)
       return
     end
-    composer.debugger.profile("monsterUpdate")
     local currentTime = system.getTimer() / 1000
     local delta = currentTime - lastUpdateTime
     lastUpdateTime = currentTime
@@ -516,12 +505,10 @@ local function new(monsterData, networkFormat, powerupSkins, backwearId)
     end
     animationHandler:apply(skeleton)
     skeleton:updateWorldTransform()
-    composer.debugger.profile("monsterUpdate")
     blinkEyes()
   end
 
   local function init()
-    composer.debugger.debugTable("spine", "monsterData :", monsterData)
     local rawMonsterData = monsterData
     if networkFormat then
       monsterData = composer.monsterConverter.fromServerFormat(monsterData)
@@ -557,8 +544,6 @@ local function new(monsterData, networkFormat, powerupSkins, backwearId)
           skin = 0
         end
       end
-      -- Avatar ID fix: if greater than 100, subtract 100
-      -- If below 10 (1-10), keep as is
       if id > 100 then
         id = id - 100
       end
@@ -610,7 +595,6 @@ local function new(monsterData, networkFormat, powerupSkins, backwearId)
     animationHandler = spineLoader.getAnimationState()
     overrideSkeletonFunctions()
 
-    -- Set the skeleton to the setup pose (correct part positions)
     skeleton:setToSetupPose()
     skeleton:setSlotsToSetupPose()
     setDefaultSkin()
@@ -618,37 +602,13 @@ local function new(monsterData, networkFormat, powerupSkins, backwearId)
     monsterGroup = skeleton.group
     monsterGroup.y = 24
 
-    -- Backwear is a local cosmetic slot. Draw mirrored wings behind the Spine
-    -- skeleton without changing the legacy network avatar format.
-    local backwear = tonumber(backwearId)
-    if backwear and backwear >= 2100 and backwear < 2200 then
-      local path = "images/monsters/backwear/" .. backwear .. ".png"
-      backwearLeft = display.newImage(monsterGroup, path)
-      backwearRight = display.newImage(monsterGroup, path)
-      if backwearLeft and backwearRight then
-        backwearLeft.x, backwearRight.x = -20, 20
-        backwearLeft.y, backwearRight.y = -5, -5
-        backwearLeft.xScale, backwearLeft.yScale = -0.48, 0.48
-        backwearRight.xScale, backwearRight.yScale = 0.48, 0.48
-        monsterGroup:insert(1, backwearLeft)
-        monsterGroup:insert(2, backwearRight)
-      else
-        display.remove(backwearLeft)
-        display.remove(backwearRight)
-        backwearLeft, backwearRight = nil, nil
-      end
-    end
-
-    -- Skeleton scale adjustments by character
-    -- Default scale is 1.0, some characters need tweaks
     local scaleX = 1.0
     local scaleY = 1.0
 
-    -- Character-specific scale adjustments
-    if id == 2 then -- Character 2 (sheep) is slightly large
+    if id == 2 then
       scaleX = 0.95
       scaleY = 0.95
-    elseif id == 3 then -- Character 3
+    elseif id == 3 then
       scaleX = 1.0
       scaleY = 1.0
     end
@@ -672,24 +632,7 @@ local function new(monsterData, networkFormat, powerupSkins, backwearId)
     animationSpeedFactor = newFactor
   end
 
-  local function hasCurrentAnimationCompleted()
-    local track = animationHandler:getCurrent(0)
-    if track then
-      return track.endTime <= track.time
-    end
-    return true
-  end
 
-  local function isLockedAnimation()
-    do return false end
-    local currentAnimation = animationHandler:getCurrent(0).animation.name
-    if currentAnimation == "jump_start" or currentAnimation == "rocket_start" or currentAnimation == "rocket_end" then
-      return true
-    elseif currentAnimation == "speed_start" or currentAnimation == "speed_active" or currentAnimation == "speed_end" then
-      return true
-    end
-    return false
-  end
 
   local function isAnimationPlaying(newAnimation)
     if animationHandler:getCurrent(0) and animationHandler:getCurrent(0).animation.name == newAnimation then
@@ -786,13 +729,34 @@ local function new(monsterData, networkFormat, powerupSkins, backwearId)
     Runtime:removeEventListener("enterFrame", update)
   end
 
+  local USE_ANIMATION_SLOTS = { "magnet", "magnetEffect", "rifle", "rifleEffect" }
+  local useAnimationSlots = {}
+
+  local function rememberAnimationSlots(animationName)
+    local animation
+    pcall(function()
+      animation = skeletonData:findAnimation(animationName)
+    end)
+    if animation and animation.timelines then
+      for _, timeline in ipairs(animation.timelines) do
+        if timeline.slotName then
+          useAnimationSlots[timeline.slotName] = true
+        end
+      end
+    end
+  end
+
   function monster.cleanUseAnimationImages()
     if animationHandler:getCurrent(2) then
       animationHandler:clearTrack(2)
     end
-    pcall(function() skeleton:setAttachment("magnet", nil) end)
-    pcall(function() skeleton:setAttachment("rifle", nil) end)
-    pcall(function() skeleton:setAttachment("rifleEffect", nil) end)
+    for _, slotName in ipairs(USE_ANIMATION_SLOTS) do
+      useAnimationSlots[slotName] = true
+    end
+    for slotName in pairs(useAnimationSlots) do
+      pcall(function() skeleton:setAttachment(slotName, nil) end)
+    end
+    useAnimationSlots = {}
   end
 
   function monster.playUseAnimation(newAnimation)
@@ -803,6 +767,7 @@ local function new(monsterData, networkFormat, powerupSkins, backwearId)
         local resolvedAnimation = resolveAnimationName(newAnimation)
         animationToPlay = resolvedAnimation or newAnimation
       end
+      rememberAnimationSlots(animationToPlay)
       local entry
       local ok = pcall(function()
         entry = animationHandler:setAnimationByName(2, animationToPlay, false)
@@ -810,7 +775,7 @@ local function new(monsterData, networkFormat, powerupSkins, backwearId)
       if not ok then
         return
       end
-      -- The magnet is held up only while its animation plays; when it ends the prop
+      -- the magnet is held up only while its animation plays; when it ends the prop
       -- would otherwise stay stuck on the runner.
       if entry and newAnimation == "magnet_start" then
         entry.onComplete = function()
@@ -851,7 +816,6 @@ local function new(monsterData, networkFormat, powerupSkins, backwearId)
         animationHandler:setAnimationByName(1, animationToPlay, loop)
       end)
       if not ok then
-        print("WARNING: Animation '" .. newAnimation .. "' not found, skipping...")
         return
       end
       if newAnimation == "speed_start" then

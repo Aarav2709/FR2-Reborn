@@ -3,13 +3,9 @@ local screen = require("lua.modules.screen")
 local scene = composer.newScene()
 local clean, cleanEnter, overlayEndedData
 
--- The purchase sign is laid out in the shop's 480x320 design units: it hangs from
--- the top of the screen, and a copy of the shop's currency board stays visible
--- above the dimmed shop.
 local DESIGN_W, DESIGN_H = 480, 320
 local WINDOW_W, WINDOW_H = 276, 253
 
--- Items worn by the monster are previewed on it; everything else as a picture.
 local PREVIEW_SLOTS = { avatars = 1, hat = 3, facewear = 4, neck = 5, shoes = 7 }
 
 function scene:create(event)
@@ -29,7 +25,6 @@ function scene:create(event)
   local lockTimer, iapPriceTimeout
   local tryingToBuy = false
 
-  -- Text rasterised at its on-screen size, then scaled back into design units.
   local function newText(textParams)
     textParams.size = (textParams.size or 14) * s
     if textParams.width then
@@ -51,13 +46,11 @@ function scene:create(event)
     return group
   end
 
-  -- Dimmed shop behind the sign; tapping it closes the popup.
   local backgroundImage = display.newImageRect(sceneGroup, "images/gui/common/black.png", screen.width + 4, screen.height + 4)
   backgroundImage.x, backgroundImage.y = screen.centerX, screen.centerY
 
   local designGroup = newDesignGroup()
   sceneGroup:insert(designGroup)
-  -- The sign drops in from above (composer.bouncer animates this group's y).
   local dropdownGroup = display.newGroup()
   designGroup:insert(dropdownGroup)
   local wx, wy = DESIGN_W * 0.5, box.T
@@ -66,7 +59,6 @@ function scene:create(event)
   backgroundWindow.anchorY = 0
   backgroundWindow.x, backgroundWindow.y = wx, wy
 
-  -- Currency board over the shop's own board.
   local currencyGroup = newDesignGroup()
   sceneGroup:insert(currencyGroup)
   local overlayCurrentCoins = display.newImageRect(currencyGroup, "images/gui/market/currentCoins.png", 70, 81)
@@ -179,7 +171,6 @@ function scene:create(event)
     return characterId, skinId or 0
   end
 
-  -- Monster slot the item goes into, or nil when it isn't worn.
   local function getPreviewSlot(itemData)
     local itemType = tonumber(itemData.itemType)
     if itemType then
@@ -198,7 +189,20 @@ function scene:create(event)
     return PREVIEW_SLOTS[composer.storeConfig.getItemCategory(keyNum)]
   end
 
+  local previewBackwear = composer.database.getBackwear and composer.database.getBackwear() or 0
+
   local function buildPreviewMonsterData(itemData)
+    if composer.storeConfig.getItemCategory(tonumber(itemData.key)) == "backwear" then
+      previewBackwear = tonumber(itemData.key) or 0
+      local base = {}
+      for i, value in ipairs(composer.database.getAvatarData() or {}) do
+        base[i] = value
+      end
+      if #base < 7 then
+        base = { 101, 0, 0, 0, 0, 0, 0 }
+      end
+      return base
+    end
     local slot = getPreviewSlot(itemData)
     if slot ~= 1 and slot ~= 2 and not PREVIEW_SLOTS[composer.storeConfig.getItemCategory(tonumber(itemData.key))] then
       return nil
@@ -233,8 +237,7 @@ function scene:create(event)
   local previewMonsterData = buildPreviewMonsterData(item)
   if previewMonsterData then
     local monsterLoader = require("spine-corona.monsterLoader")
-    avatarMonster = monsterLoader.new(previewMonsterData, false, nil,
-      composer.database.getBackwear and composer.database.getBackwear() or 0)
+    avatarMonster = monsterLoader.new(previewMonsterData, false, nil, previewBackwear)
     icon = avatarMonster.getGroup()
     icon.xScale, icon.yScale = 0.35, 0.35
     icon.x, icon.y = wx, wy + 168
@@ -261,7 +264,6 @@ function scene:create(event)
     stopIAPCashTimer()
   end
 
-  -- While the store is being contacted the screen is locked behind a dark layer.
   local alphaBackground = display.newRect(sceneGroup, screen.centerX, screen.centerY, screen.width + 4, screen.height + 4)
   alphaBackground:setFillColor(0, 0, 0, 0.78)
   alphaBackground.isVisible = false
@@ -361,7 +363,6 @@ function scene:create(event)
     end
   end
 
-  -- Offline purchases are settled against the local wallet straight away.
   local function completeLocalPurchase(currency, price)
     if currency == "coins" then
       composer.database.decreaseMoney(price)
@@ -380,7 +381,6 @@ function scene:create(event)
     composer.hideOverlay()
   end
 
-  -- "Not enough" feedback: the balance pulses and flashes red.
   local function pulseLabel(label, redLabel)
     local pulse = 1.2
     if label and label.removeSelf then
@@ -509,7 +509,6 @@ function scene:create(event)
     end
   end
 
-  -- Price buttons hang from the bottom edge of the sign.
   local function newPriceButton(image, label, onRelease)
     local button = composer.newButton({
       image = image,
@@ -545,7 +544,6 @@ function scene:create(event)
   })
   dropdownGroup:insert(btnExit)
 
-  -- Sale badge in the top-left corner of the discounted price button.
   local function addSaleBadge(button)
     local path, amount
     if item.saleTier and item.tier then
@@ -575,7 +573,6 @@ function scene:create(event)
     btnWithGems.isVisible = gemPrice ~= nil
     btnWithCash.isVisible = item.tier ~= nil and not composer.config.offlineMode
     if not (btnWithCoins.isVisible or btnWithGems.isVisible or btnWithCash.isVisible) then
-      -- Free items still need a way to claim them.
       btnWithCoins.isVisible = true
       btnWithCoins.changeText("0")
     end

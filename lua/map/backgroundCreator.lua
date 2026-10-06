@@ -102,7 +102,6 @@ local function createImage(layerId)
   local screenOriginY = display.screenOriginY or 0
   local visibleWidth = math.ceil((display.actualContentWidth or display.contentWidth or 480) + math.abs(screenOriginX) * 2)
   local visibleHeight = math.ceil((display.actualContentHeight or display.contentHeight or 320) + math.abs(screenOriginY) * 2)
-  -- During a race the backgrounds live in the scaled world view (see gamePlay).
   local viewport = composer.gameViewport
   if viewport then
     screenOriginX, screenOriginY = 0, 0

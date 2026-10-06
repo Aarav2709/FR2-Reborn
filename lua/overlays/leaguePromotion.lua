@@ -5,8 +5,6 @@ local fireworksHandler = require("lua.game.effects.fireworksHandler")
 local scene = composer.newScene()
 local clean, cleanEnter
 
--- "You reached ..." on the hanging sign between the two runners, with the
--- new league's shield bouncing in (original 480x320 design units).
 local DESIGN_W, DESIGN_H = 480, 320
 local PROMOTION_TEXT = {
   [league.PROMOTED] = "You reached",
@@ -42,7 +40,7 @@ function scene:create(event)
   window.anchorY = 0
   window.x, window.y = 240, top
   local shield = display.newImageRect(design, "images/gui/ranking/promotion/tierP_" .. tier .. ".png", 180, 178)
-  -- The shield sits on the sign above the plate (a little smaller than full size so
+  -- the shield sits on the sign above the plate (a little smaller than full size so
   -- the two don't overlap).
   local SHIELD_SCALE = 0.7
   shield.x, shield.y = 240, top + 98

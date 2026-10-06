@@ -5,8 +5,6 @@ local newsItems = require("lua.modules.newsItems")
 local scene = composer.newScene()
 local clean, cleanEnter
 
--- The original news board (a framed page under a red banner). Fun Run 2 loaded the
--- page from a website; here the news is written in lua/modules/newsItems.lua.
 local DESIGN_W, DESIGN_H = 480, 320
 local FRAME_W, FRAME_H = 332, 320
 local PAGE_W = 244
@@ -22,7 +20,6 @@ local function newestNewsId()
   return newest
 end
 
--- Whether there is news the player hasn't opened yet (for the menu's badge).
 function scene.hasUnreadNews()
   return (tonumber(composer.database.getValue(SEEN_KEY)) or 0) < newestNewsId()
 end
@@ -62,7 +59,7 @@ function scene:create(event)
   })
   design:insert(closeButton)
 
-  -- The news scrolls on the cream page between the posts (in screen units: widgets
+  -- the news scrolls on the cream page between the posts (in screen units: widgets
   -- don't scale with their group).
   local pageTop = frameTop + 42
   local pageHeight = FRAME_H - 46
@@ -116,7 +113,6 @@ function scene:create(event)
   dim:addEventListener("touch", onDimTouch)
   frame:addEventListener("touch", swallowTouch)
   composer.database.setValue(SEEN_KEY, newestNewsId())
-  -- The board drops in like the other signs.
   composer.audio.play("dropdown_menu")
   transition.from(design, { time = 600, y = box.top - 200 * s, transition = easing.outBounce })
   transition.from(scrollView, { time = 600, y = scrollView.y - 200 * s, transition = easing.outBounce })

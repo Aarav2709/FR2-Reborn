@@ -71,7 +71,6 @@ local function new(id, player, x, y, displayGroup, playerList)
 
   local function createTrap()
     playerList[id].removeTrapAnimation()
-    -- Determine trap skin from player's customPowerUpSkins
     local skinId = 1301
     if playerList[id] and playerList[id].customPowerUpSkins then
       for i = 1, #playerList[id].customPowerUpSkins do
@@ -119,6 +118,8 @@ local function new(id, player, x, y, displayGroup, playerList)
     trapSprite.yScale = 0.5
     trapSprite.update = update
     trapSprite.removeObject = removeObject
+    trapSprite.botHazard = "trap"
+    trapSprite.ownerId = id
     trapSprite.collision = onCollision
     trapSprite:addEventListener("collision", trapSprite)
     trapSprite:addEventListener("sprite", nextEffect)

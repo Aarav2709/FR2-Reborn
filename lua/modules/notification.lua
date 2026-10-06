@@ -29,9 +29,7 @@ local inactivityText7Days = {
 
 local function notificationListener(event)
   if event.type == "remote" then
-    print("remote notification")
   elseif event.type == "local" then
-    print("local notification")
   elseif event.type == "remoteRegistration" then
     local platform
     if "Android" == system.getInfo("platformName") then
@@ -44,7 +42,6 @@ local function notificationListener(event)
     remotePushToken.p = platform
     composer.pushToken = remotePushToken
   end
-  composer.debugger.debugTable("notification", "Push - event: ", event)
   if event.custom then
     local data = event.custom
     if data and data.m then
@@ -55,7 +52,6 @@ local function notificationListener(event)
         composer.config.tcpClient = composer.gameHostData.serverAddress
       end
     else
-      print("push data on wrong format", data)
     end
   end
 end
@@ -98,7 +94,6 @@ local function checkForPushNotification()
   if currentScene == "lua.scenes.loadingScene" then
     return
   end
-  print("checkForPushNotification ", messageType)
   if tonumber(messageType) == 1 then
     composer.data.gameInfo.gameType = 4
     composer.gotoScene("lua.scenes.lobbyCustomPlay")

@@ -6,9 +6,6 @@ local racerProfiles = require("lua.modules.racerProfiles")
 local scene = composer.newScene()
 local clean, cleanEnter
 
--- The league board, laid out like Fun Run 2's (original 480x320 design units): the
--- player on the left, the weekly group of 50 on the right with the division plates
--- between the places, the next league on top and the time left in the week below.
 local DESIGN_W, DESIGN_H = 480, 320
 local LIST_LEFT, LIST_TOP, LIST_W, LIST_H = 206, 88, 200, 215
 local ROW_H, NEXT_LEAGUE_ROW_H = 30, 66
@@ -18,7 +15,6 @@ local BROWN = { 0.29, 0.16, 0.06 }
 local OWN_ROW_COLOR = { 0.2, 0.432, 0.12 }
 local INTRO_COLOR = { 0.565, 0.506, 0.431 }
 local STAT_LABEL_COLOR = { 0.4, 0.4, 0.4 }
--- The profile's stats, as the original: label position, value offset and row.
 local STAT_ROWS = {
   { "Games", 72, 28, 274 },
   { "Wins", 72, 28, 287 },
@@ -47,7 +43,6 @@ function scene:create(event)
     return text
   end
 
-  -- Shrinks a text to `maxWidth` design units (measured in its parent's units).
   local function fitWidth(text, maxWidth)
     local width = text.width * math.abs(text.xScale)
     if width > maxWidth then
@@ -56,7 +51,6 @@ function scene:create(event)
     end
   end
 
-  -- Button labels are drawn at screen resolution too.
   local function sharpenLabel(button)
     local label = button[button.numChildren]
     if label and label.size and label ~= button[1] then
@@ -76,7 +70,6 @@ function scene:create(event)
   local dim = display.newRect(group, screen.centerX, screen.centerY, screen.width + 4, screen.height + 4)
   dim:setFillColor(0, 0, 0, 0.59)
 
-  -- Behind the frame: the panes' backgrounds, the player and the group list.
   local back = newDesignGroup()
   local listBackground = display.newImageRect(back, "images/gui/ranking/mainOverlayBG.png", 212.5, 272.5)
   listBackground.anchorY = 0
@@ -105,16 +98,11 @@ function scene:create(event)
     return scrollView, content
   end
 
-  -- The weekly group: next league, then the places with the division plates (and the
-  -- demotion line) between them.
   local listView, listContent = newScrollView()
   local groupList, place = league.getGroup()
   local ownRowY = 0
   local y = 0
   if tier > league.ELITE then
-    -- The next league's shield and what it takes to get there.
-    -- A plain plank with the shield drawn inside it (the art with the shield baked in
-    -- has it sticking out of the wood).
     local plankW, plankH = 176, 48
     local nextLeague = display.newImageRect(listContent, "images/gui/ranking/league/nextLeague.png", plankW, plankH)
     nextLeague.x, nextLeague.y = LIST_W * 0.5, y + NEXT_LEAGUE_ROW_H * 0.5
@@ -151,7 +139,6 @@ function scene:create(event)
       highlight.x, highlight.y = 0, y
       ownRowY = y
     end
-    -- Tap a racer to see them on the left.
     local rowY = y
     local hitArea = display.newRect(listContent, LIST_W * 0.5, y + ROW_H * 0.5, LIST_W, ROW_H)
     hitArea.isVisible = false
@@ -179,11 +166,9 @@ function scene:create(event)
     end
   end
   listView:setScrollHeight(y * s)
-  -- Open on the player's own place.
   local scrollTo = math.max(0, math.min(y - LIST_H, ownRowY - LIST_H * 0.5 + ROW_H * 0.5))
   listView:scrollToPosition({ y = -scrollTo * s, time = 0 })
 
-  -- Shop icon of a prize item (skins, ids from 5000, have their own folder).
   local function itemIconPath(itemId)
     local category = composer.storeConfig.getItemCategory(itemId)
     if not category and tonumber(itemId) and tonumber(itemId) >= 5000 then
@@ -195,7 +180,6 @@ function scene:create(event)
     end
   end
 
-  -- The prizes of every league, one sign each (Elite's has room for its items).
   local prizesView, prizesContent = newScrollView()
   prizesView.isVisible = false
   local prizeY = 4
@@ -211,9 +195,7 @@ function scene:create(event)
     panel.x, panel.y = LIST_W * 0.5 - 104 * 0.96, prizeY
     local sign = display.newImageRect(panel, isElite and "images/gui/ranking/prizes2.png" or "images/gui/ranking/prizes1.png", 208, height)
     sign.anchorX, sign.anchorY = 0, 0
-    -- The league's name centred above its shield, in the sign's free left column.
     local leagueName = newText({ string = composer.localized.get(league.leagueName(prizeTier)), size = 10, color = WHITE })
-    -- (Elite's strips reach further left, so its column is narrower.)
     local columnX = isElite and 39 or 48
     leagueName.x, leagueName.y = columnX, isElite and 22 or 17
     fitWidth(leagueName, isElite and 72 or 82)
@@ -232,12 +214,9 @@ function scene:create(event)
       if bigBox then
         stripLeft = 94
       end
-      -- Elite's strips are thinner than the other signs' (11 against 12.5 units), so
-      -- their plates, numbers and icons are a size smaller to sit inside them.
-      local rowScale = (isElite and not bigBox) and 0.86 or 1
+      local rowScale = 1
       local plate = display.newImageRect(panel, "images/gui/ranking/league/" .. prizeTier .. division .. ".png", 21 * rowScale, 11.4 * rowScale)
       plate.x, plate.y = stripLeft + 8, stripY
-      -- Currency on the right of the strip; items after it (in Elite's big box, below).
       local x = 172
       local items = {}
       for _, prize in ipairs(prizes) do
@@ -250,7 +229,7 @@ function scene:create(event)
           local isGems = prize.type == "HARD_CURRENCY"
           local icon = display.newImageRect(panel, isGems and "images/gui/common/gem_small.png" or "images/gui/common/coin_small.png", 10 * rowScale, 10 * rowScale)
           icon.anchorX = 1
-          icon.x, icon.y = (#items > 0 and not bigBox) and 158 or 172, stripY
+          icon.x, icon.y = 172, stripY
           local amount = newText({ string = tostring(prize.amount), size = 11 * rowScale, color = BROWN, ax = 1 })
           amount.x, amount.y = icon.x - 12 * rowScale, stripY
           panel:insert(amount)
@@ -259,13 +238,12 @@ function scene:create(event)
       for i, prize in ipairs(items) do
         local path = itemIconPath(prize.itemId)
         if path then
-          local size = bigBox and 30 or 13 * rowScale
+          local size = bigBox and 30 or 11.5
           local icon = display.newImageRect(panel, path, size * 65 / 72, size)
           if bigBox then
             icon.x, icon.y = 135 + (i - (#items + 1) * 0.5) * 32, 38
           else
-            icon.anchorX = 1
-            icon.x, icon.y = 172, stripY
+            icon.x, icon.y = plate.x + 21 * rowScale * 0.5 + 6 + size * 0.5 + (i - 1) * (size + 2), stripY
           end
         end
       end
@@ -283,12 +261,10 @@ function scene:create(event)
   prizesView:setScrollHeight(prizeY * s)
   prizesView:scrollToPosition({ y = -math.max(0, math.min(prizeY - LIST_H, ownPrizeY)) * s, time = 0 })
 
-  -- The frame and everything on it.
   local front = newDesignGroup()
   local frame = display.newImageRect(front, "images/gui/ranking/mainOverlay.png", 409.5, 320)
   frame.anchorY = 0
   frame.x, frame.y = 240, 0
-  -- The league intro (before the first race of the week) goes under the header.
   local intro = display.newGroup()
   front:insert(intro)
   local header = display.newImageRect(front, "images/gui/ranking/dynamicTop.png", 211, 44)
@@ -313,7 +289,6 @@ function scene:create(event)
     placeText.text = composer.localized.get("Not placed")
   end
 
-  -- Time left in the week on the footer's tab (as the original: just "3d 4h 12m").
   local timeText = newText({ string = "", size = 12, color = WHITE })
   timeText.x, timeText.y = 310, 312.5
   front:insert(timeText)
@@ -323,8 +298,6 @@ function scene:create(event)
   updateTime()
   timeTimer = timer.performWithDelay(30000, updateTime, 0)
 
-  -- The racer on the left: the player, or whoever was tapped in the list. Their look
-  -- on the red sign, the last weeks under it and their stats at the bottom.
   local monsterLoader = require("spine-corona.monsterLoader")
   local profileBack = display.newGroup()
   back:insert(profileBack)
@@ -395,7 +368,6 @@ function scene:create(event)
       noHistory.x, noHistory.y = 133, 249
       profileFront:insert(noHistory)
     else
-      -- The last weeks, newest first: league badge and place.
       for i = 1, math.min(4, #history) do
         local week = history[i]
         local x = 78 + (i - 1) * 32
@@ -426,7 +398,6 @@ function scene:create(event)
 
   showProfile(nil)
 
-  -- Before the first race of the week the list is replaced by the league intro.
   if state.placed then
     display.remove(intro)
     intro = nil

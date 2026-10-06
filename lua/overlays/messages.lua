@@ -396,17 +396,6 @@ function scene:create(event)
     group:insert(contentGroup)
   end
 
-  local function moveToMysteryItemScene()
-    local options = {
-      isModal = true,
-      params = {
-        item = composer.storeConfig.getItem(isMysteryBox)
-      }
-    }
-    local category = composer.storeConfig.getItemCategory(isMysteryBox)
-    options.params.item.imagePath = "images/gui/market/items/" .. category .. "/" .. isMysteryBox .. ".png"
-    composer.showOverlay("lua.overlays.marketFree", options)
-  end
 
   local function closeOverlayButtonEvent()
     composer.hideOverlay()
@@ -446,9 +435,6 @@ function scene:create(event)
   end
 
   local function tableCallbackGameInbox(clickType, playerId, sessionId, serverAddress, item)
-    print("")
-    print("tableCallbackGameInbox")
-    print("callback type", clickType)
     if clickType == 1 then
       composer.database.removeGameInvite(playerId)
       refreshTable()
@@ -459,7 +445,6 @@ function scene:create(event)
     elseif clickType == 2 then
       composer.database.removeGameInvite(playerId)
       if composer.comm.isOnline() then
-        print("go to game")
         composer.data.gameInfo.gameType = 4
         composer.gameHostData.serverAddress = serverAddress
         composer.gameHostData.sessionId = sessionId

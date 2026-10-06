@@ -103,12 +103,6 @@ function scene:show(event)
     composer.gotoScene("lua.scenes.loadingScene")
     return
   end
-  if isSimulator and composer.config.bot then
-    local newName = "Guest" .. math.random(1, 1000)
-    composer.database.setOnboardingPartDone(1)
-    composer.commHttps.sendRegisterMessage(newName)
-  end
-
   function cleanEnter()
     androidLogic.removeBackButton()
   end

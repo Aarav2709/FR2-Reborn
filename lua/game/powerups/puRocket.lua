@@ -15,7 +15,6 @@ local function new(id, playerList, displayGroup)
   local prevY = 0
   local prevX = 0
   local isStuckNow = false
-  -- The stuck check counts frames of the original 30 fps game.
   local lastFrameTime
 
   local function frameSteps(event)
@@ -61,7 +60,6 @@ local function new(id, playerList, displayGroup)
       local vx, vy = player:getLinearVelocity()
       if hitsUp then
         if not hitsUp[1].object or not hitsUp[1].object.mapElement then
-          -- Ignore non-terrain hits
         else
         local posDiffX = player.x - hitsUp[1].position.x
         local posDiffY = player.y - hitsUp[1].position.y
@@ -77,7 +75,6 @@ local function new(id, playerList, displayGroup)
         end
       elseif hitsDown then
         if not hitsDown[1].object or not hitsDown[1].object.mapElement then
-          -- Ignore non-terrain hits
         else
         local posDiffX = player.x - hitsDown[1].position.x
         local posDiffY = player.y - hitsDown[1].position.y

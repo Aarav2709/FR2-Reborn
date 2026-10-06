@@ -1,5 +1,4 @@
--- Icicles (winter): sharp icicles hanging from the roof that kill on touch.
--- Special tile 1 is the large icicle, special tile 2 the small one.
+-- icicles (winter)
 local util = require("lua.map.behaviors.behaviorUtil")
 
 local M = {}

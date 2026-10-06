@@ -84,7 +84,6 @@ function scene:create(event)
   end
 
   local function getMapChangeText(id)
-    local mapId = tonumber(id)
     local text = composer.localized.get("HostSelect") .. "some map"
     return text
   end
@@ -222,9 +221,6 @@ function scene:create(event)
 
   local function sendButtonEvent()
     local chatMessage = chatTextField.text
-    if isSimulator then
-      chatMessage = "random text asdasd asd asd asdasasdasdasd asd asd wqd asd sad as b v dasda sdasdas d " .. math.random(1, 1000000)
-    end
     if chatMessage and string.len(chatMessage) > 0 then
       local msgID = composer.gameConfig.getClientMessageTypeForName("CHAT")
       local msg = "[" .. msgID .. "," .. chatMessage .. "]"
@@ -339,7 +335,6 @@ function scene:create(event)
 end
 
 function scene:show(event)
-  local screenGroup = self.view
   local phase = event.phase
   if phase == "will" then
     return

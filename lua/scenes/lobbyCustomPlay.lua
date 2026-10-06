@@ -23,7 +23,6 @@ function scene:create(event)
     startGame = false
     avatarDisplayGroupList = {}
     backgroundImage = display.newImageRect("images/gui/common/bgBlur.png", 1920, 1080)
-    -- backgroundImage2 = display.newImageRect("images/gui/common/bgMain.png", 1920, 1080)
     tableBackground = display.newImageRect("images/gui/ranking/cell.png", display.actualContentWidth, display.actualContentHeight)
     titleText = composer.newText({
         string = composer.localized.get("InviteFriends"),
@@ -585,16 +584,6 @@ function scene:show(event)
         playerText[id].text = name and name:gsub("#%d+$", "") or name
     end
 
-    local function setImagePath(path)
-        if mapImage then
-            mapImage:removeSelf()
-            mapImage = nil
-        end
-        mapImage = display.newImageRect(path, 80, 104)
-        mapImage.x = 50
-        mapImage.y = UI_BASE_H * 0.5
-        uiGroup:insert(mapImage)
-    end
 
     local function returnToPlayMenu()
         local currentScene = composer.getSceneName("overlay")
@@ -721,7 +710,6 @@ function scene:show(event)
             if composer.data.getMapName(mapId) ~= mapText.text and composer.data.getMapName(mapId) ~= "" then
                 mapText.text = composer.data.getMapName(mapId)
             else
-                print("WARNING: failed to find mapId based on vote")
             end
         end
     end
@@ -827,11 +815,8 @@ function scene:show(event)
         elseif messageType == "PING" then
         elseif messageType == "HANDSHAKE" then
         elseif messageType then
-            print("ERROR NETWORK: Uncaught messagetype: ", messageType)
         elseif messageID then
-            print("ERROR NETWORK: Uncaught messageid: ", messageID)
         else
-            print("ERROR NETWORK: Got this stuff, dunno what to do: ", data)
         end
     end
 
@@ -880,7 +865,6 @@ function scene:show(event)
         elseif composer.data.gameInfo.gameType == 4 then
             tcpClient.startTCP(receiveUpdateFromNetwork)
         else
-            print("WARNING: gameType is ", composer.data.gameInfo.gameType)
         end
     end
 

@@ -57,7 +57,6 @@ local function createCustomOverlay(infoTextId, doNotOverrideMessage, extra)
   canExitOverlay = false
   local text = ""
   if infoTextId == 1 then
-    -- Online features (2 vs 2, friends, clans...) aren't out yet.
     text = composer.localized.get("Stay Tuned!")
   elseif infoTextId == 2 then
     text = composer.localized.get("Facebook login failed E3")

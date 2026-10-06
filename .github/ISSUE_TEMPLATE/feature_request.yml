@@ -1,29 +1,54 @@
 name: Suggest an improvement
-description: Share an idea for making the game better.
+description: An idea for a new feature or for making something better.
 title: "Suggestion: "
+labels: ["enhancement"]
 body:
   - type: markdown
     attributes:
       value: |
-        Tell us what you would like to see and why it would help.
+        Tell us what you would like to see and why it would make the game better. One idea per suggestion, please.
+  - type: dropdown
+    id: area
+    attributes:
+      label: What is it about?
+      options:
+        - Racing or maps
+        - Bots
+        - Power-ups
+        - Game modes (Quick Play, 2 vs 2, Practice, LAN)
+        - Clans or leagues
+        - Shop, items or wings
+        - Menus or layout
+        - PC version
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is missing or could be better?
+      description: The problem or wish behind the idea.
+      placeholder: When I race my friends on LAN, empty slots stay empty.
+    validations:
+      required: true
   - type: textarea
     id: idea
     attributes:
-      label: What would you like to change or add?
-      placeholder: Describe the idea in your own words.
+      label: Your idea
+      description: How it could work in the game.
+      placeholder: The host could fill the empty slots with bots.
     validations:
       required: true
   - type: textarea
-    id: reason
+    id: alternatives
     attributes:
-      label: Why would this be useful?
-      placeholder: Tell us what problem it would solve for players.
+      label: Other ways it could be solved
     validations:
-      required: true
+      required: false
   - type: textarea
     id: extra
     attributes:
-      label: Examples or screenshots
-      description: Share any extra context that helps explain the idea.
+      label: Examples, mockups or screenshots
+      description: From the original Fun Run 2 or anywhere else.
     validations:
       required: false

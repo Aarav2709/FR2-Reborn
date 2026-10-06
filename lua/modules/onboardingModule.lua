@@ -31,8 +31,8 @@ local redArrow = "images/game/skull.png"
 
 function composer.onboarding.checkOnboardingStatus()
   local onboardingIntroActive = composer.database.introOnboardingIsActive()
-  -- New players start with the tutorial. Saves that already have races but never
-  -- began it (from before it was switched on) skip it; Settings can still start it.
+  -- new players start with the tutorial. saves that already have races but never
+  -- began it (from before it was switched on) skip it; settings can still start it.
   if onboardingIntroActive and composer.database.getOnboardingIntroPart() == "0"
       and (composer.database.getXp() or 0) > 0 then
     composer.database.setOnboardingPartDone(1)
@@ -163,10 +163,6 @@ local function usePowerUp(player, id, powerUpId)
   powerUps.usePowerUp(powerUpId, id, nil, player, 0, 0, composer.onboarding.ingameDisplayGroup, composer.onboarding.screenDisplayGroup, composer.onboarding.playerReferences)
 end
 
--- Where the tutorial arrows point at the jump / power-up buttons. The original placed
--- them for its 480x320 screen (jump arrow at 480,240 and power-up arrow at 70,240): the
--- tip 17 units above the button, at the jump button's right edge or centred over the
--- power-up button.
 local function arrowSpot(referenceName)
   local refs = composer.onboarding.guiReferences and composer.onboarding.guiReferences[referenceName]
   local button = refs and refs[#refs]
@@ -463,14 +459,12 @@ function composer.onboarding.showGlassesArrow()
   if not composer.onboarding.guiReferences or not composer.onboarding.guiReferences.market_glasses_icon or stepData.glassesOn then
     return
   end
-  -- The row can be drawn again (scrolling, refreshes): one arrow at a time.
   if stepData.iconArrow and stepData.iconArrow.removeSelf then
     stepData.iconArrow:removeSelf()
   end
   stepData.iconArrow = composer.onboarding.insertArrow(composer.onboarding.guiReferences.market_glasses_icon, 45, 30, 0.45, 0.45, redArrow)
 end
 
--- The glasses are on: the arrow goes and, once, the helper sends the player home.
 function composer.onboarding.removeIconArrow()
   local stepData = composer.onboarding.stepData["25"]
   if not stepData or stepData.glassesOn then
@@ -2099,9 +2093,6 @@ Let's have a REAL race!]], composer.onboarding.screenDisplayGroup, helperMonster
       postLoad = function()
         composer.onboarding.hideReferences("marketplace_back")
 
-        local function friendlyHelperCloseFunction2()
-          friendlyHelper.createMessage("Click on the 'Glasses' category to see different glasses you can wear", composer.onboarding.screenDisplayGroup, helperMonsterWithGlassesData, false)
-        end
 
         local function friendlyHelperCloseFunction()
           friendlyHelper.createMessage("Let's put on the new glasses! Follow the arrows.", composer.onboarding.screenDisplayGroup, helperMonsterData, false)
@@ -2448,10 +2439,8 @@ function composer.onboarding.activateStep()
   if composer.config.invalidUser then
     return
   elseif not composer.onboarding.isActive then
-    print("The Onboarding Module is not active")
     return
   elseif not composer.onboarding.activatedPart then
-    print("activatedPart is not set")
     return
   end
   local id = composer.onboarding.activatedPart
@@ -2575,8 +2564,6 @@ function composer.onboarding.getNextStep(step)
   end
 end
 
--- quit: the player left the tutorial part way. Then the hints that follow a finished
--- tutorial (green arrows on Play and Quick Play until the first race) are skipped too.
 function composer.onboarding.deactivate(quit)
   composer.onboarding.clean()
   if quit then
@@ -2608,7 +2595,6 @@ function composer.onboarding.ingameUpdate()
     if detachCamera then
       composer.onboarding.hideReferences("exit")
       local vx, vy = livePlayer.getLinearVelocityOnPlayer()
-      -- The runner eases off by 15% per frame of the original 30 fps game.
       local now = system.getTimer()
       local frames = lastSlowdownTime and math.min((now - lastSlowdownTime) / (1000 / 30), 3) or 1
       lastSlowdownTime = now

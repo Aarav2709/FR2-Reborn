@@ -1,0 +1,67 @@
+name: Report a crash or error box
+description: The game closed by itself, froze, or showed a "Runtime error" box.
+title: "Crash: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Crashes are usually easy to fix once the error text is known. If the game showed an error box, its text tells exactly which line of code failed, so please copy all of it.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What happened?
+      options:
+        - An error box appeared ("Runtime error" or similar)
+        - The game closed by itself
+        - The game froze and stopped responding
+        - The screen went black or white
+    validations:
+      required: true
+  - type: textarea
+    id: error
+    attributes:
+      label: Error text
+      description: Everything the error box said, including the "stack traceback" lines. On Android you can also run `adb logcat -s Corona` and copy the lines from around the crash.
+      placeholder: |
+        lua/scenes/gamePlay.lua:1234: attempt to index a nil value
+        stack traceback:
+            ...
+      render: text
+    validations:
+      required: false
+  - type: textarea
+    id: debug-info
+    attributes:
+      label: Game version and device
+      description: Your game version, device and its system version.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: What were you doing?
+      description: The steps right before it happened, starting from the main menu.
+      placeholder: |
+        1. Shop > Wings
+        2. Tapped the fairy wings
+        3. The game closed
+    validations:
+      required: true
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: Can you make it happen again?
+      options:
+        - Yes, every time
+        - Sometimes
+        - No, it happened once
+    validations:
+      required: true
+  - type: textarea
+    id: media
+    attributes:
+      label: Screenshots or a short video
+    validations:
+      required: false

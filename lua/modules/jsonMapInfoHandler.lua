@@ -73,7 +73,6 @@ function M.readMapDataToMemory(override)
   if fastReadFailed then
     composer.data.mapInfo = {}
     addRandomMap()
-    print("WARNING: use slow read of maps")
     for i = 1, numberOfMaps do
       local configInput = jsonParser.getJsonFromFile("config/map/" .. i .. ".json")
       if configInput then

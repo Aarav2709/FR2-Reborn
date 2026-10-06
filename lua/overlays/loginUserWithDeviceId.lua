@@ -4,7 +4,6 @@ local clean, cleanEnter
 
 function scene:create(event)
   local sceneGroup = self.view
-  local httpsFormat = require("lua.network.httpsMessageFormat")
   local dropdownGroup = display.newGroup()
   local canClickButton = true
   local username = ""
@@ -61,11 +60,6 @@ function scene:create(event)
     }
   })
 
-  local function serverTimeout()
-    canClickButton = true
-    composer.config.loginMessage = false
-    errorInfo.text = composer.localized.get("Could not access Facebook")
-  end
 
   local function btnNoRelease()
     if not canClickButton then

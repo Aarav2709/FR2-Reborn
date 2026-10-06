@@ -42,10 +42,11 @@ function scene:create(event)
 
   local function btn2v2Release(event)
     composer.data.gameInfo.teamMode = true
-    composer.gotoScene("lua.scenes.lobbyPractice")
+    composer.data.gameInfo.gameType = 0
+    composer.gotoScene("lua.scenes.lobbyQuickPlay")
+    composer.removeScene("lua.scenes.playMenu")
   end
 
-  -- Quick Play is the ranked mode (offline: against bots), with coins, gems and league.
   local function btnQuickPlayRelease(event)
     composer.data.gameInfo.teamMode = nil
     composer.data.gameInfo.gameType = 0
@@ -59,7 +60,8 @@ function scene:create(event)
       composer.data.gameInfo.gameType = 3
       composer.gotoScene("lua.scenes.lobbyCustomPlay")
     else
-      composer.createCustomOverlay(1)
+      composer.data.gameInfo.teamMode = nil
+      composer.gotoScene("lua.scenes.lobbyLan", { params = { back = "lua.scenes.playMenu" } })
     end
   end
 
@@ -97,7 +99,6 @@ function scene:create(event)
     x = 0,
     y = 0
   })
-  -- Practice hangs under the Quick Play sign, as in Fun Run 2.
   btnPractice = composer.newButton({
     image = "images/gui/play/buttonPractice.png",
     width = 125,
@@ -193,12 +194,10 @@ function scene:create(event)
       btnCustomPlay.y = contentTop + contentHeight * 0.52
     end
     if btnBack then
-      -- The home sign's post runs off the bottom edge on purpose.
       btnBack.x = screen.safeLeft + 70
       btnBack.y = screen.bottom - 26
     end
     if infoText and tipBackground then
-      -- The plank is the upper 50 of the sign's 60 units (the rest is its shadow).
       infoText.x = tipBackground.x
       infoText.y = tipBackground.y - 3
     end
@@ -242,9 +241,6 @@ function scene:show(event)
   end
   local screenGroup = self.view
   local androidLogic = require("lua.modules.androidBackButton")
-  local botTimer
-  -- Tips on the sign at the top (the original's, minus the ones about its website,
-  -- social pages, accounts and online modes, plus a few about this version).
   local tipOfTheDay = {
     "Fun Run: It's Fun!",
     "Tip: Avoid traps! This also applies outside of Fun Run.",
@@ -269,23 +265,11 @@ function scene:show(event)
     "Tip: Spin the prize wheel once a day for free coins, gems and items."
   }
 
-  local function runBot()
-    if isSimulator and composer.config.bot then
-      composer.data.gameInfo.gameType = 1
-      composer.gotoScene("lua.scenes.lobbyQuickPlay")
-      composer.removeScene("lua.scenes.playMenu")
-    end
-  end
-
   function cleanEnter()
     androidLogic.removeBackButton()
     if infoText then
       infoText:removeSelf()
       infoText = nil
-    end
-    if botTimer then
-      timer.cancel(botTimer)
-      botTimer = nil
     end
     if composer.contextualOnboarding.isActive == true then
       composer.onboarding.clean()
@@ -298,7 +282,6 @@ function scene:show(event)
   if type(composer.data.messageOfTheDay) == "string" and 1 < string.len(composer.data.messageOfTheDay) then
     tipToUse = composer.data.messageOfTheDay
   end
-  -- No fixed height, so one and two line tips both sit in the middle of the plank.
   infoText = composer.newText({
     string = tipToUse,
     size = 12,
@@ -322,7 +305,6 @@ function scene:show(event)
   resizeListener()
   math.randomseed(os.time() + system.getTimer())
   composer.tcpClient.stopTCPClient()
-  botTimer = timer.performWithDelay(2000, runBot, 1)
   if composer.contextualOnboarding.isActive == true and composer.contextualOnboarding.isPartActive(3) then
     if 1 > composer.gamesPlayed then
       composer.onboarding.addGuiReference("playMenu_quickPlay", screenGroup)

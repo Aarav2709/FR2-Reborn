@@ -5,11 +5,9 @@ local url = require("socket.url")
 M.FB_App_ID = "_UNDEFINED_"
 M.FB_Access_Token = nil
 M.isDebug = false
-local dbgPrefix = "[Facebook]"
 
 local function dbg(...)
   if M.isDebug then
-    print(dbgPrefix .. " " .. unpack(arg))
   end
 end
 
@@ -139,7 +137,6 @@ local function fbListener(event)
   end
   dbgDumpFacebookRequestResponse(fbNextRequest, event)
   if fbNextRequest == nil then
-    print("Facebook request completed, but no pending request state was available")
   else
     event.request = fbNextRequest
     fbNextRequest = nil
@@ -163,7 +160,6 @@ local function simulatorRequest(path, httpMethod, params)
   if M.FB_Access_Token then
     params.access_token = M.FB_Access_Token
   else
-    print("Facebook functionality in the simulator requires that FB_Access_Token be set in lib_facebook.lua")
   end
   local queryString
   for k, v in pairs(params) do
@@ -224,12 +220,10 @@ function M.request(path, httpMethod, params, onRequestComplete)
   end
   dbg("Preparing to send request: " .. httpMethod .. " " .. path)
   if fbNextRequest ~= nil then
-    print("Error processing Facebook request: " .. httpMethod .. " " .. path .. ", a previous request is still being processed")
   else
     setNextRequest(path, httpMethod, params, onRequestComplete)
   end
   if not fbLoggedIn then
-    print("Error processing Facebook request: " .. httpMethod .. " " .. path .. ", not currently logged in")
   elseif isSimulator then
     simulatorRequest(path, httpMethod, params)
   else
@@ -243,14 +237,11 @@ function M.showDialog(params, onDialogComplete)
   end
   dbg("Preparing to show dialog")
   if fbNextRequest ~= nil then
-    print("Error processing Facebook show dialog, a previous request is still being processed")
   else
     setNextRequest("showdialog", nil, params, onDialogComplete)
   end
   if not fbLoggedIn then
-    print("Error processing Facebook show dialog, not currently logged in")
   elseif isSimulator then
-    print("Facebook showDialog not supported in simulator")
   else
     facebook.showDialog("apprequests", params)
   end
@@ -262,12 +253,10 @@ function M.logout(onLogoutComplete)
   end
   dbg("Preparing to log out")
   if fbNextRequest ~= nil then
-    print("Error processing Facebook logout, a previous request is still being processed")
   else
     setNextRequest("logout", nil, nil, onLogoutComplete)
   end
   if not fbLoggedIn then
-    print("Error processing Facebook logout, not currently logged in")
   elseif isSimulator then
     simulatorLogout()
   else

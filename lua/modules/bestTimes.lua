@@ -1,5 +1,4 @@
--- The player's best finishing time on each map (Quick Play races), shown under the
--- map name at the start of a race and celebrated on the results screen.
+-- the player's best finishing time on each map (quick play)
 local composer = require("composer")
 local M = {}
 
@@ -13,12 +12,10 @@ local function load()
   return times
 end
 
--- Best time in milliseconds, or nil.
 function M.get(mapId)
   return tonumber(load()[tostring(mapId)])
 end
 
--- Records a finish; returns true when it is a new personal best.
 function M.record(mapId, milliseconds)
   milliseconds = tonumber(milliseconds)
   if not mapId or not milliseconds or milliseconds <= 0 then
@@ -35,7 +32,6 @@ function M.record(mapId, milliseconds)
   return true
 end
 
--- "31.66 s"
 function M.format(milliseconds)
   return string.format("%.2f s", milliseconds / 1000)
 end

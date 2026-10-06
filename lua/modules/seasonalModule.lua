@@ -1,5 +1,4 @@
--- Seasonal menu art, as in Fun Run 2: around Halloween, Christmas and Valentine's
--- Day the menus switch to themed backgrounds, picked from the device's date.
+-- seasonal menu art, as in fun run 2
 local composer = require("composer")
 local M = {}
 
@@ -27,7 +26,6 @@ local SEASONS = {
 local DEFAULT_BACKGROUND = "images/gui/common/bgBlur.png"
 local DEFAULT_BLURRED_BACKGROUND = "images/gui/common/bgMain_blur.png"
 
--- The season for a date (today when omitted), or nil outside the seasons.
 function M.getActiveSeason(date)
   date = date or os.date("*t")
   for _, season in ipairs(SEASONS) do
@@ -38,13 +36,11 @@ function M.getActiveSeason(date)
   return nil
 end
 
--- Landscape behind the menus.
 function M.menuBackground()
   local season = M.getActiveSeason()
   return season and season.background or DEFAULT_BACKGROUND
 end
 
--- Blurred landscape behind loading screens and the shop.
 function M.blurredBackground()
   local season = M.getActiveSeason()
   return season and season.blurredBackground or DEFAULT_BLURRED_BACKGROUND

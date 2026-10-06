@@ -2,7 +2,7 @@ local screenW, screenH = display.contentWidth, display.contentHeight
 local viewableScreenW, viewableScreenH = display.viewableContentWidth, display.viewableContentHeight
 local screenOffsetW, screenOffsetH = display.contentWidth - display.viewableContentWidth, display.contentHeight - display.viewableContentHeight
 local centerScreenX = display.contentWidth * 0.5
--- Touches left of this x (e.g. over a side panel) don't start a drag.
+-- touches left of this x (e.g. over a side panel) don't start a drag.
 local minTouchX = 100
 local currentTarget, detailScreen, velocity, currentDefault, currentOver, prevY, onScrollEnd, numberOfItems, delta, startPos, prevPos
 local startTime, lastTime, prevTime = 0, 0, 0
@@ -22,7 +22,7 @@ M.showHighlight = showHighlight
 local function trackVelocity(event)
   local timePassed = event.time - prevTime
   prevTime = prevTime + timePassed
-  if prevY then
+  if prevY and timePassed > 0 then
     velocity = (currentTarget.x - prevY) / timePassed
   end
   prevY = currentTarget.x
@@ -41,6 +41,23 @@ end
 
 M.in_table = in_table
 
+local function settleOn(list, x, item, time)
+  if list.tween then
+    transition.cancel(list.tween)
+  end
+  list.tween = transition.to(list, {
+    time = time,
+    x = x,
+    transition = easing.outQuad,
+    onComplete = function()
+      list.tween = nil
+      if list.parent then
+        onScrollEnd(item)
+      end
+    end
+  })
+end
+
 local function scrollList(event)
   local timePassed = event.time - lastTime
   lastTime = lastTime + timePassed
@@ -55,45 +72,20 @@ local function scrollList(event)
   local bottomLimit = screenW - currentTarget.width - currentTarget.right
   if upperLimit < currentTarget.x then
     velocity = 0
-    onScrollEnd(1)
     Runtime:removeEventListener("enterFrame", scrollList)
-    currentTarget.tween = transition.to(currentTarget, {
-      time = 400,
-      x = upperLimit,
-      transition = easing.outQuad
-    })
-  elseif bottomLimit > currentTarget.x and bottomLimit < 0 then
-    velocity = 0
-    onScrollEnd(numberOfItems)
-    Runtime:removeEventListener("enterFrame", scrollList)
-    currentTarget.tween = transition.to(currentTarget, {
-      time = 400,
-      x = bottomLimit,
-      transition = easing.outQuad
-    })
+    settleOn(currentTarget, upperLimit, 1, 400)
   elseif bottomLimit > currentTarget.x then
     velocity = 0
-    onScrollEnd(numberOfItems)
     Runtime:removeEventListener("enterFrame", scrollList)
-    currentTarget.tween = transition.to(currentTarget, {
-      time = 400,
-      x = bottomLimit,
-      transition = easing.outQuad
-    })
+    settleOn(currentTarget, bottomLimit, numberOfItems, 400)
   elseif velocity == 0 then
+    Runtime:removeEventListener("enterFrame", scrollList)
     if not currentTarget[1] then
-      Runtime:removeEventListener("enterFrame", scrollList)
       return true
     end
     local numberOfCells = math.round(math.abs((centerScreenX - currentTarget.x) / currentTarget[1].width))
-    onScrollEnd(numberOfCells + 1)
     local nearestCellPosition = centerScreenX - currentTarget[1].width * numberOfCells
-    Runtime:removeEventListener("enterFrame", scrollList)
-    currentTarget.tween = transition.to(currentTarget, {
-      time = 200,
-      x = nearestCellPosition,
-      transition = easing.outQuad
-    })
+    settleOn(currentTarget, nearestCellPosition, numberOfCells + 1, 200)
   end
   return true
 end
@@ -116,8 +108,14 @@ local function newListItemHandler(self, event)
       startPos = event.x
       prevPos = event.x
       delta, velocity = 0, 0
+      prevY = nil
+      prevTime = event.time or system.getTimer()
       if currentTarget.tween then
         transition.cancel(currentTarget.tween)
+        currentTarget.tween = nil
+      end
+      if currentTarget.cancelStep then
+        currentTarget:cancelStep()
       end
       Runtime:removeEventListener("enterFrame", scrollList)
       Runtime:addEventListener("enterFrame", trackVelocity)
@@ -151,17 +149,13 @@ local function newListItemHandler(self, event)
       local x, y = event.x, event.y
       local isWithinBounds = x >= bounds.xMin and x <= bounds.xMax and y >= bounds.yMin and y <= bounds.yMax
       if isWithinBounds and dragDistance < 10 and -10 < dragDistance then
-        onScrollEnd(self.data.index, true)
-        local newX = centerScreenX - self.width * (self.data.index - 1)
-        local timeVal = 400
         velocity = 0
         Runtime:removeEventListener("enterFrame", scrollList)
-        currentTarget.tween = transition.to(currentTarget, {
-          time = 400,
-          x = newX,
-          transition = easing.outQuad
-        })
-        velocity = 0
+        if t.tween then
+          transition.cancel(t.tween)
+          t.tween = nil
+        end
+        onScrollEnd(self.data.index, true)
         result = self.onRelease(event)
       end
       display.getCurrentStage():setFocus(nil)
@@ -310,7 +304,6 @@ local function newList(params)
     onScrollEnd = params.onScrollEnd
   else
     function onScrollEnd(i)
-      print("Missing onScrollEnd function " .. i)
     end
   end
 
@@ -318,12 +311,16 @@ local function newList(params)
     Runtime:removeEventListener("enterFrame", scrollList)
     Runtime:removeEventListener("enterFrame", showHighlight)
     Runtime:removeEventListener("enterFrame", trackVelocity)
-    local i
+    self:cancelStep()
+    if self.tween then
+      transition.cancel(self.tween)
+      self.tween = nil
+    end
     for i = listView.numChildren, 1, -1 do
       listView[i]:removeEventListener("touch", newListItemHandler)
       listView:remove(i)
-      listView[i] = nil
     end
+    display.remove(listView)
   end
 
   local function clampIndex(itemNumber)
@@ -350,18 +347,50 @@ local function newList(params)
     })
   end
 
-  -- Mouse wheel (PC): one item along, selected as if swiped there.
+  local STEP_GLIDE_TIME = 160
+  local STEP_SETTLE_DELAY = 200
+
+  function listView:cancelStep()
+    if self.stepTimer then
+      timer.cancel(self.stepTimer)
+      self.stepTimer = nil
+    end
+    self.stepTarget = nil
+  end
+
   function listView:step(direction)
     if not self[1] or not self.parent then
       return
     end
-    local current = math.floor((centerScreenX - self.x) / self[1].width + 0.5) + 1
-    -- (This list's own size: the module's shared count belongs to the newest list.)
+    local cellWidth = self[1].width
+    local current = self.stepTarget or (math.floor((centerScreenX - self.x) / cellWidth + 0.5) + 1)
     local target = math.max(1, math.min(current + direction, #data))
-    if target ~= current then
-      self:scrollTo(target)
-      onScrollEnd(target, false)
+    if target == current then
+      return
     end
+    self.stepTarget = target
+    velocity = 0
+    Runtime:removeEventListener("enterFrame", scrollList)
+    if self.tween then
+      transition.cancel(self.tween)
+    end
+    self.tween = transition.to(self, {
+      time = STEP_GLIDE_TIME,
+      x = centerScreenX - cellWidth * (target - 1),
+      transition = easing.outQuad
+    })
+    if self.stepTimer then
+      timer.cancel(self.stepTimer)
+    end
+    local list = self
+    self.stepTimer = timer.performWithDelay(STEP_SETTLE_DELAY, function()
+      list.stepTimer = nil
+      local chosen = list.stepTarget
+      list.stepTarget = nil
+      if chosen and list.parent then
+        onScrollEnd(chosen, false)
+      end
+    end)
   end
 
   function listView:startAt(itemNumber)
@@ -374,6 +403,26 @@ local function newList(params)
       self.tween = nil
     end
     self.x = centerScreenX - self[1].width * (itemNumber - 1)
+  end
+
+  function listView:glideFrom(x, itemNumber)
+    if not self[1] then
+      return
+    end
+    self:startAt(itemNumber)
+    local targetX = self.x
+    if not x or math.abs(x - targetX) < 0.5 then
+      return
+    end
+    self.x = x
+    self.tween = transition.to(self, {
+      time = 220,
+      x = targetX,
+      transition = easing.outQuad,
+      onComplete = function()
+        self.tween = nil
+      end
+    })
   end
 
   return listView

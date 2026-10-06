@@ -3,14 +3,10 @@ local screen = require("lua.modules.screen")
 local seasonal = require("lua.modules.seasonalModule")
 local league = require("lua.modules.offlineLeague")
 local quickPlayBots = require("lua.modules.quickPlayBots")
+local teamRace = require("lua.modules.teamRace")
 local scene = composer.newScene()
 local clean, stopLobby
 
--- Quick Play, offline. Like Fun Run 2's lobby (480x320 design units): the vote panel
--- on the left edge with two maps, "Game starting in" on top and the four racers on
--- their stands. Three bots join, everybody gets one vote (the bots vote too), and the
--- race starts on the map with the most votes when the countdown ends. Before that the
--- player can try a power-up set for one race for a gem.
 local DESIGN_W, DESIGN_H = 480, 320
 local PANEL_W = 132
 local COUNTDOWN_SECONDS = 5
@@ -24,9 +20,10 @@ local OFFER_Y = 200
 local OFFER_W, OFFER_H = 46, 35
 local SET_COUNT = 7
 local SEARCHING_COLOR = { 1, 1, 1 }
--- Name strips as in Fun Run 2: dark under the others, light (with dark text) under you.
 local PLATE_COLOR, NAME_COLOR = { 0, 0, 0, 0.3 }, { 1, 1, 1 }
 local OWN_PLATE_COLOR, OWN_NAME_COLOR = { 1, 1, 1, 0.5 }, { 0, 0, 0 }
+local TEAM_PLATE_COLOR, RIVAL_PLATE_COLOR = { 0.2, 0.5, 0.95, 0.75 }, { 0.62, 0.07, 0.05, 0.85 }
+local OWN_TEAM_PLATE_COLOR = { 0.55, 0.8, 1, 0.9 }
 local AVATAR_SCALE = 0.36
 
 function scene:create(event)
@@ -46,6 +43,7 @@ function scene:create(event)
   local votes = { 0, 0 }
   local chosenSet
   local playerInfo = composer.database.getPlayerInformation() or {}
+  local teamMode = composer.data.gameInfo.teamMode == true
 
   local function later(delay, listener, iterations)
     local handle = timer.performWithDelay(delay, function(event)
@@ -67,8 +65,6 @@ function scene:create(event)
     return text
   end
 
-  -- Back to its normal size, then shrunk to `maxWidth` design units if needed
-  -- (measured in the parent's units, so it works before or after insertion).
   local function fitWidth(text, maxWidth)
     text.xScale, text.yScale = 1 / s, 1 / s
     local width = text.width * text.xScale
@@ -87,8 +83,6 @@ function scene:create(event)
   local standsGroup = display.newGroup()
   ui:insert(standsGroup)
 
-  -- The vote panel hugs the left edge of the screen; the racers fill the space to
-  -- its right.
   local panelLeft = math.max(box.L, box.SL - 12)
   local panel = display.newImageRect(ui, "images/gui/lobby/bg_vote.png", PANEL_W, DESIGN_H - top)
   panel.anchorX, panel.anchorY = 0, 0
@@ -111,7 +105,6 @@ function scene:create(event)
   fitWidth(countdownText, 200)
   ui:insert(countdownText)
 
-  -- Gems and coins in the top right corner.
   local currencyBoard = display.newImageRect(ui, "images/gui/market/currentCoins.png", 70, 81)
   currencyBoard.anchorX, currencyBoard.anchorY = 0, 0
   currencyBoard.x, currencyBoard.y = box.SR - 80, top
@@ -122,7 +115,6 @@ function scene:create(event)
   moneyText.x, moneyText.y = currencyBoard.x + 24, top + 69
   ui:insert(moneyText)
 
-  -- Two maps to vote for.
   if composer.mapHandler.readMapDataToMemory then
     composer.mapHandler.readMapDataToMemory()
   end
@@ -211,7 +203,6 @@ function scene:create(event)
   ui:insert(homeButton)
   buttons[#buttons + 1] = homeButton
 
-  -- A racer on a stand (or an empty stand while searching).
   local function fillSlot(index, racer)
     local slot = slots[index]
     local x = slotXs[(index - 1) % 2 + 1]
@@ -227,7 +218,12 @@ function scene:create(event)
     stand.x, stand.y = x, y + STAND_DY
     local isMe = racer and racer == slots.me
     local namePlate = display.newRect(slot.group, x, y + NAME_DY, 130, 18)
-    namePlate:setFillColor(unpack(isMe and OWN_PLATE_COLOR or PLATE_COLOR))
+    local plateColor = isMe and OWN_PLATE_COLOR or PLATE_COLOR
+    if teamMode then
+      local team = racer and racer.team or (index <= 2 and teamRace.PLAYER_TEAM or teamRace.RIVAL_TEAM)
+      plateColor = team == teamRace.PLAYER_TEAM and (isMe and OWN_TEAM_PLATE_COLOR or TEAM_PLATE_COLOR) or RIVAL_PLATE_COLOR
+    end
+    namePlate:setFillColor(unpack(plateColor))
     if not racer then
       local searching = newText({ string = composer.localized.get("Searching"), size = 15, color = SEARCHING_COLOR })
       searching.x, searching.y = x, y + NAME_DY
@@ -247,7 +243,6 @@ function scene:create(event)
     name.x, name.y = x, y + NAME_DY
     fitWidth(name, 122)
     slot.group:insert(name)
-    -- The league shield sits apart from the name strip, in the gap left of it.
     local shield = display.newImageRect(slot.group, "images/gui/ranking/league/tierS_" .. (racer.league or league.WOOD) .. ".png", 17, 17)
     shield.x, shield.y = x - SLOT_DX, y + NAME_DY
     slot.group.alpha = 0
@@ -268,13 +263,10 @@ function scene:create(event)
     fillSlot(i, nil)
   end
 
-  -- Try a power-up set for one race (1 gem): just the button; once bought it shows
-  -- the set's own sign.
   local offer = display.newGroup()
   offer.x, offer.y = areaCenter, OFFER_Y
   ui:insert(offer)
   local offerButton
-  -- Behind the button the sets' power-ups (blades, rockets...) cycle until one is bought.
   local preview
   local previewSet = math.random(1, SET_COUNT)
   local function showPreview(setId)
@@ -287,7 +279,7 @@ function scene:create(event)
   showPreview(previewSet)
   local cycleTimer = later(400, function()
     if not chosenSet then
-      -- A random set each time, never the same one twice in a row.
+      -- a random set each time, never the same one twice in a row.
       local nextSet = math.random(1, SET_COUNT - 1)
       if nextSet >= previewSet then
         nextSet = nextSet + 1
@@ -296,7 +288,6 @@ function scene:create(event)
       showPreview(previewSet)
     end
   end, 0)
-  -- The price, on the button's blue strip next to its gem.
   local offerPrice = newText({ string = tostring(OFFER_GEMS), size = 10, color = { 1, 1, 1 }, ax = 1 })
 
   local function buySet()
@@ -313,7 +304,6 @@ function scene:create(event)
     end
     composer.database.decreaseGems(OFFER_GEMS)
     gemText.text = tostring(composer.database.getGems())
-    -- "- 1" rises from the gem count to show what the set cost.
     local cost = newText({ string = "- " .. OFFER_GEMS, size = 14, color = { 1, 0.35, 0.35 }, ax = 1 })
     cost.x, cost.y = gemText.x - 4, gemText.y
     ui:insert(cost)
@@ -325,7 +315,6 @@ function scene:create(event)
     showPreview(chosenSet)
     display.remove(offerButton)
     display.remove(offerPrice)
-    -- A puff of smoke, and the set's own sign in place of the button.
     display.newImageRect(offer, "images/gui/lobby/preview/buttonSkin" .. chosenSet .. ".png", OFFER_W, OFFER_H)
     local poof = composer.data.animations.poff and display.newSprite(offer, composer.powerUpEffectImageSheet, composer.data.animations.poff)
     if poof then
@@ -349,7 +338,6 @@ function scene:create(event)
   offerPrice.x, offerPrice.y = OFFER_W * 4 / 61, OFFER_H * 15 / 47
   offer:insert(offerPrice)
 
-  -- The race: everyone in a random start slot, on the map with the most votes.
   local function startRace()
     raceStarting = true
     local winner = votes[1] > votes[2] and 1 or (votes[2] > votes[1] and 2 or math.random(1, 2))
@@ -366,9 +354,11 @@ function scene:create(event)
       end
       composer.data.gameInfo.players = racers
       composer.data.gameInfo.gameType = 0
-      composer.data.gameInfo.ranked = true
+      composer.data.gameInfo.ranked = not teamMode
       composer.data.gameInfo.map = mapIds[winner]
-      league.startRankedRace()
+      if not teamMode then
+        league.startRankedRace()
+      end
       composer.gotoScene("lua.scenes.gamePlay")
     end)
   end
@@ -392,8 +382,10 @@ function scene:create(event)
     later(1000, tickCountdown, COUNTDOWN_SECONDS)
   end
 
-  -- Bots join one by one, then vote at random moments before the start.
   local bots = quickPlayBots.createBots()
+  if teamMode then
+    teamRace.assignTeams(me, bots)
+  end
   local joinTime = 0
   for i = 1, 3 do
     joinTime = joinTime + math.random(500, 1300)
@@ -411,7 +403,6 @@ function scene:create(event)
     end)
   end
 
-  -- Nothing more happens once the lobby is left (home, back, or the race starting).
   function stopLobby()
     startedClean = true
     for _, handle in ipairs(timers) do

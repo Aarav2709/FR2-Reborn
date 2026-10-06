@@ -1,7 +1,5 @@
 local M = {}
 
--- Super jump: a forward and upward push, weaker while already rising and stronger
--- while falling. Values are the original one-step (1/30 s) forces, applied as impulses.
 local STEP = 1 / 30
 
 local function new(id, playerList)

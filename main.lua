@@ -15,16 +15,11 @@ if audio.supportsSessionProperty == true then
 end
 local closeTime = os.time()
 local composer = require("composer")
-require("lua.modules.debugMode")
 local config = require("configuration")
--- Offline mode: push notifications disabled
--- local notificationPlugin = require("plugin.notifications")
--- notificationPlugin.registerForPushNotifications()
 composer.localized = require("localization")
 composer.database = require("database")
 require("lua.modules.buttonHelper")
 require("lua.modules.textHelper")
-require("lua.modules.debugHelper")
 require("lua.modules.validateInput")
 require("lua.modules.notification")
 require("lua.modules.audio")
@@ -34,11 +29,6 @@ require("lua.network.communicationModuleHttps")
 require("lua.modules.monsterConvert")
 require("lua.overlays.customOverlay")
 require("lua.modules.onboardingModule")
-
-if isSimulator then
-    require("lua.modules.devTools")
-    require("lua.modules.devMenu")
-end
 
 local function clearMemory()
     if composer.data then
@@ -78,7 +68,6 @@ local function showDisconnectAlert()
 end
 
 local onSystem = function(event)
-    -- Closed or sent to the background: back up the save (lua/modules/saveData.lua).
     if event.type == "applicationExit" or event.type == "applicationSuspend" then
         require("lua.modules.saveData").backup()
     end
@@ -92,13 +81,10 @@ local onSystem = function(event)
         closeTime = os.time()
         if composer.getSceneName("current") == "lua.scenes.marketplace" then
             composer.comm.sendHeartbeat()
-            print("keep connection open")
         elseif composer.data.openURL then
             composer.comm.sendHeartbeat()
-            print("open link, keep connection open")
         elseif composer.adsTable.active then
             composer.comm.sendHeartbeat()
-            print("is an ad, keep connection open")
         elseif composer.getSceneName("current") ~= "lua.scenes.gamePlay" then
             closeNetwork()
         else
@@ -129,15 +115,16 @@ local onSystem = function(event)
     end
 end
 Runtime:addEventListener("system", onSystem)
--- Android's back button, and Escape on Windows.
 local isDesktop = system.getInfo("platform") == "win32" or system.getInfo("environment") == "simulator"
 if isAndroid or isDesktop then
     local androidLogic = require("lua.modules.androidBackButton")
     androidLogic.startAndroidBackButton()
 end
--- PC: arrow keys and Enter work the menus (lua/modules/keyboardNav.lua).
 if isDesktop then
     require("lua.modules.keyboardNav").start()
+    if require("lua.modules.pcMode").isPC then
+        require("lua.modules.pcSettings").apply()
+    end
 end
 
 local function resolveGameFont()

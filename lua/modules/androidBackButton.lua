@@ -39,7 +39,6 @@ function androidButtonListener(event)
         purgeSceneName = nil
       end
     else
-      print("close app")
       composer.closeAppAndorid = true
       native.requestExit()
     end
@@ -49,7 +48,6 @@ end
 function androidKeyEvent(event)
   local phase = event.phase
   local keyName = event.keyName
-  -- Escape on PC works like Android's back button.
   if phase == "up" and (keyName == "back" or keyName == "escape") then
     if canPressButton then
       backButtonPushed = true

@@ -60,7 +60,6 @@ function scene:create(event)
       logo.y = contentTop + contentHeight * 0.25
     end
     if text1 then
-      -- Under the loading bar.
       text1.x = centerX
       text1.y = contentTop + contentHeight * 0.7 + 38
     end
@@ -225,7 +224,6 @@ function scene:show(event)
     assetLoader.createConfigChecksum()
     assetLoader.createMapChecksum()
 
-    -- Offline mode: disable IAP and online features
     if not composer.config.offlineMode then
       assetLoader.loadIAP()
       composer.comm.startSocialTCP()
@@ -242,7 +240,6 @@ function scene:show(event)
 
   local function downloadConfigDone(event)
     if event.success == false then
-      print("Warning: Failed to update config file.")
       if event.configType == "awards" then
         composer.awardsDownloadFailure = true
       elseif event.configType == "store" then
@@ -257,7 +254,6 @@ function scene:show(event)
         configFilesCorruptOnFirstRead = false
         if composer.awardsDownloadFailure or composer.storeDownloadFailure or composer.configDownloadFailure then
           showCorruptFilesAlert()
-          print("Warning: Could not get new config files and current ones are currupted. Closing app.")
           return
         end
         continueLoadingConfigCritical()
@@ -269,7 +265,6 @@ function scene:show(event)
 
   local function downloadMapDone(event)
     if event.success == false then
-      print("Warning: Failed to update map.")
       composer.mapDownloadFailure = true
     end
     fileDownloadAttempts = fileDownloadAttempts + 1
@@ -307,7 +302,6 @@ function scene:show(event)
   local function checkAndReloadConfigFiles()
     local filessAreOk = assetLoader.readJsonConfigFiles()
     if filessAreOk == 0 then
-      print("Current config files have errors. Need to get new.")
       configFilesCorruptOnFirstRead = true
       if composer.config.offlineMode then
         showCorruptFilesAlert()

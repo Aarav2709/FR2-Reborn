@@ -23,7 +23,6 @@ composer.databaseData = {
     itemsLoaded = false
 }
 local path = system.pathForFile("data.sqlite3", system.DocumentsDirectory)
----@type sqlite3_db|nil
 local db
 local M = {}
 local STARTING_COINS = 5000000
@@ -53,8 +52,6 @@ CREATE TABLE IF NOT EXISTS user_settings (id INTEGER PRIMARY KEY, username VARCH
     ]]
     db:exec(createTables)
 
-    -- Migration: Add rating column to existing economy table if it doesn't exist
-    -- SQLite will error if column exists, so we check first
     local hasRatingColumn = false
     for row in db:nrows("PRAGMA table_info(economy);") do
         if row.name == "rating" then
@@ -64,7 +61,6 @@ CREATE TABLE IF NOT EXISTS user_settings (id INTEGER PRIMARY KEY, username VARCH
     end
     if not hasRatingColumn then
         db:exec("ALTER TABLE economy ADD COLUMN rating INTEGER DEFAULT 0;")
-        print("DATABASE MIGRATION: Added rating column to economy table")
     end
 
     db:close()
@@ -114,7 +110,6 @@ local function getPlayerInformation()
     db:close()
     db = nil
     if not playerInformation.token then
-        print("WARNING: NO TOKEN")
         return nil
     end
     return playerInformation
@@ -126,7 +121,6 @@ local function setAvatarData(avatarData, networkFormat)
     if networkFormat then
         avatarData = composer.monsterConverter.fromServerFormat(avatarData)
     end
-    composer.debugger.debugTable("database", "setMonsterData :", avatarData)
     local tablefill
     if avatarData == nil or avatarData == "null" then
         tablefill = "INSERT OR REPLACE INTO user_avatar VALUES(1,101,0,0,0,0,0,0);"
@@ -174,8 +168,6 @@ end
 
 M.getAvatarData = getAvatarData
 
--- Backwear is stored separately so legacy seven-slot avatar saves and server
--- avatar packets keep their original layout.
 function M.getBackwear()
     return tonumber(M.getValue("avatar_backwear")) or 0
 end
@@ -347,7 +339,6 @@ end
 local function getFriends()
     if composer.databaseData.friends then
         removeDuplicateFriendRequests()
-        composer.debugger.debugTable("database", "getFriends :", composer.databaseData.friends)
         return composer.databaseData.friends
     else
         return {}
@@ -545,7 +536,6 @@ end
 
 M.setItems = setItems
 
--- Equipped powerup skins: one item id per powerup type, persisted as JSON.
 local function loadPowerupSkins()
     if composer.databaseData.powerupSkin then
         return composer.databaseData.powerupSkin
@@ -610,7 +600,6 @@ function M.isPowerupSkinEquipped(skinId)
             return true
         end
     end
-    -- Nothing chosen for this type yet: the original skin is the one in use.
     for i = 1, #skins do
         if composer.storeConfig.getPowerupCategoryFromId(skins[i]) == category then
             return false
@@ -629,8 +618,6 @@ function M.getPowerupSkin()
     return copy
 end
 
--- The skin each animal wears, saved for every animal (starter animals such as the bear
--- have no owned item entry to keep it on).
 local ANIMAL_SKINS_KEY = "animalSkins"
 
 function M.setNewDefaultSkinForAvatar(avatarId, skinId)
@@ -668,7 +655,6 @@ function M.getDefaultSkinForAvatar(avatarId)
             end
         end
     end
-    -- Saves from before the list existed: the animal being worn keeps its skin.
     local worn = getAvatarData()
     if worn and tonumber(worn[1]) == tonumber(avatarId) then
         return tonumber(worn[2]) or 0
@@ -690,7 +676,6 @@ end
 
 function M.updateWinsForAvatar()
     local avatarData = getAvatarData()
-    composer.debugger.debugTable("database", "getAvatarData :", avatarData)
     local avatarId = avatarData[1]
     loadItemsFromDb()
     if composer.databaseData.items then
@@ -1224,7 +1209,6 @@ end
 M.getFacebookId = getFacebookId
 
 function M.setFacebookFriends(facebookFriends)
-    composer.debugger.debugTable("database", "setFacebookFriends :" .. #facebookFriends, facebookFriends)
     composer.data.facebookFriends = facebookFriends
 end
 
@@ -1312,8 +1296,6 @@ function M.getPushEnableStatus()
     return pushGame, pushFriend, pushGeneral
 end
 
--- Small saved values (daily spin timer, league progress, news read...), stored as
--- text; getTable/setTable keep a Lua table as JSON.
 function M.getValue(key)
     local db = sqlite3.open(path)
     local value
@@ -1438,12 +1420,9 @@ function M.initPlayerVariables()
     composer.facebookLogin = false
     composer.todayChallenges = {}
     composer.todayChallenges.shouldShow = true
-    -- The save survives updates: a damaged one is set aside, an empty one comes back
-    -- from the backup, older ones are upgraded (lua/modules/saveData.lua).
     local saveData = require("lua.modules.saveData")
     saveData.checkSave()
     setupTables()
-    -- Keep the existing save state available until this version's migration commits.
     if M.getPlayerInformation() then
         saveData.backup()
     end
@@ -1451,36 +1430,30 @@ function M.initPlayerVariables()
         composer.databaseData.economyLoaded = false
         composer.databaseData.itemsLoaded = false
         composer.databaseData.avatarData = nil
-        -- Save the restored pre-migration state as the rollback copy.
         saveData.backup()
     end
     saveData.migrate()
 
-    -- Offline mode: create a default player
     if composer.config.offlineMode then
         M.createDefaultOfflinePlayer()
     end
 end
 
--- Offline mode: create a default player
 function M.createDefaultOfflinePlayer()
     local playerInfo = M.getPlayerInformation()
     if not playerInfo then
-        print("OFFLINE MODE: Creating default player...")
         M.setPlayerInformation("Player#1234", 1234, "OFFLINE_PLAYER_" .. os.time(), "offline_token_123")
-        M.setAvatarData({ 1, 0, 0, 0, 0, 0, 0 }, false) -- Default avatar c1s0
-        M.setMoney(STARTING_COINS)                      -- Starting money
+        M.setAvatarData({ 1, 0, 0, 0, 0, 0, 0 }, false)
+        M.setMoney(STARTING_COINS)
         M.setGems(STARTING_GEMS)
         M.setXp(0)
-        M.setRating(0)   -- Starting rating
-        M.setSound(1)    -- Sound enabled
-        M.setViolence(1) -- Violence enabled
-        print("OFFLINE MODE: Default player created!")
+        M.setRating(0)
+        M.setSound(1)
+        M.setViolence(1)
     end
 end
 
 local function reset()
-    -- A deliberate reset: the backup goes too, or it would be restored on the next start.
     require("lua.modules.saveData").deleteBackup()
     M.initPlayerVariables()
     local receipts = M.getReceipts()

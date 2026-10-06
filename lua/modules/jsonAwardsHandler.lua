@@ -18,7 +18,6 @@ end
 
 local function reloadConfigIfNil()
   if M.isFileCorrupt() then
-    print("WARNING: Reloading AwardsConfig File.")
     M.readFromFile()
   end
 end
@@ -28,7 +27,6 @@ function M.getVersion()
   return configInput.version
 end
 
--- The whole awards config (league prizes and thresholds are read by offlineLeague).
 function M.getConfig()
   reloadConfigIfNil()
   return configInput
@@ -58,7 +56,6 @@ function M.getDailyChallengeImage(id)
       end
     end
   end
-  print("WARNING: coud not find image for daily challenge ", id)
   return image
 end
 
@@ -130,8 +127,6 @@ function M.getAchievementName(id, stage)
       return value.title
     end
   end
-  print("WARNING: getAchievementName id", id)
-  print("WARNING: getAchievementName stage", stage)
   return "Cound not find name E:1"
 end
 
@@ -142,7 +137,6 @@ function M.getAchievementImage(id)
       return value.image
     end
   end
-  print("WARNING: failed getAchievementImage id", id)
   return "1"
 end
 

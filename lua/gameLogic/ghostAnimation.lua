@@ -1,6 +1,4 @@
--- The blue skull ghost that rises from a runner when they die, as in Fun Run 2: a
--- sensor body that floats upwards (negative gravity), carried a little by the speed
--- the runner died with, always facing the way it moves.
+-- the blue skull ghost that rises from a runner when they die, as in fun run 2
 local composer = require("composer")
 local physics = require("physics")
 local M = {}
@@ -55,10 +53,8 @@ function M.create(parentGroup)
     end
   end
 
-  -- Rises from `body` (the runner) after `delay` ms; vx, vy is the runner's speed.
   function ghost.show(body, vx, vy, delay)
     cancelTimers()
-    -- Bodies can't be moved inside a collision, so this always runs on a timer.
     showTimer = timer.performWithDelay(math.max(10, delay or 0), function()
       showTimer = nil
       if not sprite.removeSelf or not body or not body.x then

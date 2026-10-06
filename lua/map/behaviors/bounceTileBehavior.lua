@@ -1,10 +1,8 @@
--- Bounce pads (mushrooms / springs). Tiles 68 (small pad), 69/70 (the two halves of
--- a big pad; only one half spawns the sprite). The sprite carries the bouncy body.
+-- bounce pads (mushrooms / springs)
 local util = require("lua.map.behaviors.behaviorUtil")
 
 local M = {}
 
--- Physics bodies were renamed in some themes' data; accept both names.
 local PHYSICS_ALIASES = {
   small_bounce1 = { "small_bounce1", "small_shroom1" },
   big_bounce1 = { "big_bounce1", "big_shroom1" },
@@ -32,7 +30,6 @@ function M.addBehavior(block)
 
   local startFrame = util.frameIndex(block.animatedBlockSheetFile, frameName)
   if not startFrame then
-    -- No pad animation in this theme: make the tile itself bouncy instead.
     if block.image then
       block.image.bounce = true
     end

@@ -3,8 +3,6 @@ local screen = require("lua.modules.screen")
 local scene = composer.newScene()
 local clean, cleanEnter, overlayEndedData
 
--- The prize won on the wheel, on a sign hanging from the top of the screen (original
--- 480x320 design units), with the coin board in its usual corner.
 local DESIGN_W, DESIGN_H = 480, 320
 
 function scene:create(event)
@@ -38,7 +36,7 @@ function scene:create(event)
   backgroundWindow.x, backgroundWindow.y = 240, top
   local windowInfo = newText({ string = composer.localized.get("Purchase"), x = 240, y = top + 56, size = 20, color = { 1, 1, 1 } })
   dropdownGroup:insert(windowInfo)
-  local amountText = newText({ string = "", x = 240, y = top + 160, size = 10, color = { 1, 1, 1 } })
+  local amountText = newText({ string = "", x = 240, y = top + 160, size = 15, color = { 1, 1, 1 } })
 
   if reward.type == "mystery" then
     local item = composer.storeConfig.getItem(value)
@@ -59,7 +57,12 @@ function scene:create(event)
     icon.xScale, icon.yScale = 0.45, 0.45
     icon.x, icon.y = 240, top + 108
     amountText.text = "x " .. tostring(value or "")
-    amountText.y = icon.y + 10
+    amountText.y = icon.y + 19.5
+    local width = amountText.width * amountText.xScale
+    if width > 38 then
+      local fit = 38 / width
+      amountText.xScale, amountText.yScale = amountText.xScale * fit, amountText.yScale * fit
+    end
     if reward.type == "coins" then
       windowInfo.text = composer.localized.get("GotCoins")
     elseif reward.type == "gems" then

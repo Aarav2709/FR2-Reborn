@@ -40,9 +40,6 @@ end
 
 local function buyThis(itemTier, itemId)
   local productId = keyPrefix .. itemId
-  print("")
-  print("buyThis storeType ", storeType)
-  print("productId ", productId)
   if storeType == 0 or not store then
     if inAppCallback then
       inAppCallback(composer.localized.get("Store not available"), true)
@@ -62,10 +59,6 @@ local function buyThis(itemTier, itemId)
     if storeType == 1 then
       store.purchase({productId})
     elseif storeType == 2 then
-      print("Google v3")
-      print(store)
-      print(store.purchase)
-      print("")
       store.purchase(productId)
       buyingProductId = productId
     elseif storeType == 3 then
@@ -109,12 +102,10 @@ local function trackPurchase(storeType, productIdentifier)
 end
 
 local function loadProductsCallback(event)
-  composer.debugger.debugTable("iap", "loadProductsCallback :", event)
   if event and event.products then
     for i = 1, #event.products do
       validProductsOnKeys[event.products[i].productIdentifier] = event.products[i]
     end
-    composer.debugger.debugTable("iap", "validProducts from store:", validProductsOnKeys)
   end
   local iapDone = {name = "iapDone"}
   Runtime:dispatchEvent(iapDone)
@@ -126,30 +117,23 @@ local function loadSpecificProduct(key)
     return 2
   elseif isSimulator or (store and store.isActive) then
     if not isSimulator and store and store.canLoadProducts then
-      composer.debugger.debugPrint("iap", "canLoadProducts")
       store.loadProducts({productKey}, loadProductsCallback)
       return 1
     else
-      composer.debugger.debugPrint("iap", "cantLoadProducts")
     end
   else
-    print("WARNING: iap not supported on this device")
   end
   return 0
 end
 
 local function loadProducts()
-  composer.debugger.debugPrint("iap", "loadProducts")
   if isSimulator or (store and store.isActive) then
     if not isSimulator and store and store.canLoadProducts then
-      composer.debugger.debugPrint("iap", "canLoadProducts")
       store.loadProducts(preloadProductList, loadProductsCallback)
     else
-      composer.debugger.debugPrint("iap", "cantLoadProducts")
       loadProductsCallback()
     end
   else
-    print("WARNING: iap not supported on this device")
   end
 end
 
@@ -158,7 +142,6 @@ local function initInAppPurchase()
     local infoString
 
     local failed = true
-    composer.debugger.debugTable("iap", "transactionCallback :", event)
     if event.transaction.state == "purchased" then
       infoString = composer.localized.get("VerifyingPurchase")
       failed = false
@@ -175,7 +158,6 @@ local function initInAppPurchase()
         if tonumber(state) == 0 then
           store.consumePurchase(productId)
         else
-          print("WARNING: state = ", state)
           infoString = composer.localized.get("PurchaseFailed")
           failed = true
           composer.data.iapCallActive = false
@@ -191,7 +173,6 @@ local function initInAppPurchase()
         composer.data.iapCallActive = false
         trackPurchase(storeType, event.transaction.productIdentifier)
       else
-        print("WARNING: state = ", state)
         infoString = composer.localized.get("PurchaseFailed")
         composer.data.iapCallActive = false
       end
@@ -200,7 +181,6 @@ local function initInAppPurchase()
       composer.data.iapCallActive = false
     elseif event.transaction.state == "failed" then
       if storeType == 2 and buyingProductId and event.transaction.errorType == 7 then
-        print("WARNING: already owns item, try to use it ", buyingProductId)
         store.consumePurchase(buyingProductId)
         return
       end
@@ -228,42 +208,34 @@ local function initInAppPurchase()
 
   store = require("store")
   if store.availableStores.apple then
-    composer.debugger.debugPrint("iap", "Use Apple store")
     store.init("apple", transactionCallback)
     storeType = 1
   elseif system.getInfo("targetAppStore") == "amazon" then
-    composer.debugger.debugPrint("iap", "Use Amazon store")
     local success, amazonStore = pcall(require, "plugin.amazon.iap")
     if success then
       store = amazonStore
       store.init(transactionCallback)
       storeType = 3
     else
-      print("WARNING: plugin.amazon.iap not available")
       storeType = 0
     end
   elseif store.availableStores.google then
-    composer.debugger.debugPrint("iap", "Use Google store")
     local success, googleStore = pcall(require, "plugin.google.iap.v3")
     if success then
       store = googleStore
       store.init("google", transactionCallback)
-      print("Using Google's Android In-App Billing system.")
       storeType = 2
       if not store.isActive then
-        composer.debugger.debugPrint("iap", "Use old Google store")
         store = require("store")
         store.init("google", transactionCallback)
         storeType = 4
       end
     else
-      print("WARNING: plugin.google.iap.v3 not available, falling back to standard store")
       store = require("store")
       store.init("google", transactionCallback)
       storeType = 4
     end
   else
-    print("WARNING: iap no store supported on this device")
     storeType = 0
   end
   findPreloadProducts()

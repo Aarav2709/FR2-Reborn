@@ -13,17 +13,13 @@ local function addSpineDataToList(jsonObject)
     fullMonsterList.skeletonData = skeletonData
     fullMonsterList.animationStateData = spine.AnimationStateData.new(skeletonData)
     fullMonsterList.animationStateData.defaultMix = 0
-    composer.debugPrint("spine", "added monster to table")
   else
-    print("ERROR: NO MONSTER WITH THAT ID: ", skeletonData)
   end
 end
 
 function M.loadBasicSpine()
-  local timeToLoad = system.getTimer()
   local jsonObject = spine.SkeletonJson.new()
   addSpineDataToList(jsonObject)
-  composer.debugPrint("loadingTime", "SPINE basic timeToLoad  " .. system.getTimer() - timeToLoad)
 end
 
 function M.newMonster()
@@ -46,10 +42,8 @@ function M.newMonster()
   end
 
   local function setMixToAnimations()
-    -- FIXED: Optimized animation mixing for smoother transitions
-    -- Run animations
-    addMixToRunAnimations(1, "jump_start", 0.05)  -- Faster jump start
-    addMixToRunAnimations(1, "slide", 0.1)        -- Faster slide
+    addMixToRunAnimations(1, "jump_start", 0.05)
+    addMixToRunAnimations(1, "slide", 0.1)
     addMixToRunAnimations(1, "idle", 0.15)
     addMixToRunAnimations(1, "idle_var1", 0.15)
     addMixToRunAnimations(1, "idle_var2", 0.15)
@@ -57,7 +51,6 @@ function M.newMonster()
     addMixToRunAnimations(1, "sad", 0.15)
     addMixToRunAnimations(1, "jump_fall", 0.05)
 
-    -- Run board animations
     animationData:setMix("run_board", "jump_start", 0.05)
     animationData:setMix("run_board", "slide", 0.1)
     animationData:setMix("run_board", "idle", 0.15)
@@ -67,14 +60,12 @@ function M.newMonster()
     animationData:setMix("run_board", "sad", 0.15)
     animationData:setMix("run_board", "jump_fall", 0.05)
 
-    -- Jump transitions - smoother
     animationData:setMix("jump_start", "jump_fall", 0.1)
     addMixToRunAnimations(2, "jump_start", 0.1)
     animationData:setMix("jump_start", "run_board", 0.1)
     addMixToRunAnimations(2, "jump_fall", 0.05)
     animationData:setMix("jump_fall", "run_board", 0.05)
 
-    -- Idle transitions
     animationData:setMix("slide", "idle", 0.15)
     animationData:setMix("slide", "idle_var1", 0.15)
     animationData:setMix("slide", "idle_var2", 0.15)
@@ -98,7 +89,6 @@ function M.newMonster()
     animationData:setMix("idle_var2", "sad", 0.15)
     animationData:setMix("idle_var2", "idle", 0.1)
 
-    -- Emotion transitions
     animationData:setMix("sad", "happy", 0.15)
     animationData:setMix("sad", "idle_var1", 0.15)
     animationData:setMix("sad", "idle_var2", 0.15)

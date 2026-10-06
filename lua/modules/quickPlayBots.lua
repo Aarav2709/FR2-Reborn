@@ -1,10 +1,8 @@
--- Racers for offline Quick Play: player-like names, random characters, skins and
--- items, a league shield, and now and then a full power-up set.
+-- racers for offline quick play
 local composer = require("composer")
 local league = require("lua.modules.offlineLeague")
 local M = {}
 
--- How often a bot wears something in each slot.
 local ITEM_CHANCES = {
   hat = 0.6,
   facewear = 0.45,
@@ -13,6 +11,7 @@ local ITEM_CHANCES = {
   feet = 0.4
 }
 local SKIN_CHANCE = 0.5
+local BACKWEAR_CHANCE = 0.25
 local POWERUP_SET_CHANCE = 0.15
 local POWERUP_SET_COUNT = 7
 local POWERUP_CATEGORIES = { "sawblade", "beartrap", "rocket", "shield", "balloon", "magnet", "gun", "speed", "punchbox" }
@@ -32,7 +31,6 @@ local function randomItem(list, chance, random)
   return item and tonumber(item.key) or 0
 end
 
--- A random look; `random` (like math.random) makes it repeatable for a given seed.
 function M.randomAvatar(random)
   random = random or math.random
   local store = composer.storeConfig
@@ -54,7 +52,24 @@ function M.randomAvatar(random)
   }
 end
 
--- The skins of power-up set `setId` (1 gold, 2 diamond, 3 space, ...), one per type.
+function M.randomBackwear(random)
+  random = random or math.random
+  if random() > BACKWEAR_CHANCE then
+    return 0
+  end
+  local list = composer.storeConfig.getAllBackwearSortedOnPrice and composer.storeConfig.getAllBackwearSortedOnPrice() or {}
+  local items = {}
+  for _, item in ipairs(list) do
+    if tonumber(item.key) and tonumber(item.key) > 0 then
+      items[#items + 1] = tonumber(item.key)
+    end
+  end
+  if #items == 0 then
+    return 0
+  end
+  return items[random(#items)]
+end
+
 function M.powerupSet(setId)
   local skins = {}
   for _, category in ipairs(POWERUP_CATEGORIES) do
@@ -73,7 +88,6 @@ function M.randomPowerupSetId()
   return math.random(1, POWERUP_SET_COUNT)
 end
 
--- Rarity of an avatar's look (1 wood ... 5 diamond), for the stand it waits on.
 function M.plateFor(avatar)
   local store = composer.storeConfig
   local skin = tonumber(avatar and avatar[2]) or 0
@@ -81,7 +95,6 @@ function M.plateFor(avatar)
   return math.max(1, math.min(5, tonumber(item and item.plate) or 1))
 end
 
--- Three bots with distinct names.
 function M.createBots()
   local bots = {}
   local used = {}
@@ -99,6 +112,7 @@ function M.createBots()
     local bot = {
       username = name,
       avatar = M.randomAvatar(),
+      backwear = M.randomBackwear(),
       playerId = 200 + i,
       isBot = true,
       league = playerLeague

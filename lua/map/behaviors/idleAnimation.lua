@@ -1,12 +1,10 @@
--- Idle animation for animated tiles such as powerup boxes: plays the
--- "idleAnimation" sequence periodically while the tile is on screen.
+-- idle animation for animated tiles such as powerup boxes
 local util = require("lua.map.behaviors.behaviorUtil")
 
 local M = {}
 
 function M.addBehavior(block)
   local image = block.image
-  -- The tile may have fallen back to a static image when its frames are missing.
   if not image or not image.setSequence then
     return
   end

@@ -1,7 +1,4 @@
--- Screen metrics for laying out UI on any aspect ratio.
--- config.lua sizes the content area to the whole display, so the screen spans
--- left..right / top..bottom below. The "safe" edges keep buttons clear of notches,
--- rounded corners and camera cut-outs.
+-- screen metrics for laying out ui on any aspect ratio
 local M = {}
 
 function M.update()
@@ -19,12 +16,10 @@ function M.update()
   M.safeBottom = math.min(M.bottom, display.safeScreenOriginY + display.safeActualContentHeight)
   M.safeWidth = M.safeRight - M.safeLeft
   M.safeHeight = M.safeBottom - M.safeTop
-  -- Tablets and 3:2 phones have spare height rather than spare width.
   M.isTall = M.width / M.height < 1.7
   return M
 end
 
--- Scales an image to cover the whole screen, keeping its aspect ratio, and centers it.
 function M.cover(object)
   if not object or not object.width then
     return
@@ -35,7 +30,7 @@ function M.cover(object)
   object.x, object.y = M.centerX, M.centerY
 end
 
--- Uniform scale that fits a box of the given size inside the safe area (never above maxScale).
+-- uniform scale that fits a box of the given size inside the safe area (never above maxscale).
 function M.fitScale(boxWidth, boxHeight, maxScale)
   local scale = math.min(M.safeWidth / boxWidth, M.safeHeight / boxHeight)
   if maxScale and scale > maxScale then
@@ -44,13 +39,6 @@ function M.fitScale(boxWidth, boxHeight, maxScale)
   return scale
 end
 
--- Fits a fixed-size design (e.g. the original 480x320 screens) to the screen with
--- one uniform scale, centred horizontally and resting on the bottom edge. Fills
--- `box` (or a new table) with the scale, the box origin in content units, and the
--- screen / safe-area edges converted to design units:
---   L, R, T      screen left, right and top
---   SL, SR       safe-area left and right
--- A group holding design-unit objects takes scale = box.scale, x = box.left, y = box.top.
 function M.designBox(designWidth, designHeight, box)
   M.update()
   box = box or {}

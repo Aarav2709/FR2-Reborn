@@ -1,4 +1,4 @@
--- Shared helpers for map tile behaviors (hazards, bounce pads, cannons...).
+-- shared helpers for map tile behaviors (hazards, bounce pads, cannons...)
 local composer = require("composer")
 local physics = require("physics")
 
@@ -49,8 +49,6 @@ local function copyFixture(fixture)
   return copy
 end
 
--- Returns fresh copies of the first physics body found among the given names,
--- or nil when the current theme has none of them.
 function M.getBodies(block, ...)
   local sheet = getSpecialPhysics(block)
   if not sheet or not sheet.data then
@@ -70,8 +68,6 @@ function M.getBodies(block, ...)
   return nil
 end
 
--- Adds a static obstacle body. Fixtures are passed as a vararg so no trailing
--- nil arguments reach physics.addBody (which rejects them).
 function M.addStaticBody(object, fixtures, isSensor)
   for i = 1, #fixtures do
     fixtures[i].filter = obstacleFilter
@@ -83,7 +79,6 @@ function M.addStaticBody(object, fixtures, isSensor)
   object.isFixedRotation = true
 end
 
--- Lets the tile culler show the object only while it is near the camera.
 function M.registerAnimatedTile(block, object)
   if composer.culler and composer.culler.addAnimatedTile then
     composer.culler.addAnimatedTile(block.x, object)
@@ -97,9 +92,6 @@ function M.isOnScreen(x, y)
   return true
 end
 
--- Fun Run 2 animated its traps by a fixed step every frame at 30 fps. This returns a
--- function that, given an enterFrame event, says how many of those 30 fps frames have
--- passed since its last call (capped, so a culled object doesn't jump ahead).
 function M.newFrameClock()
   local lastTime
   return function(event)

@@ -79,11 +79,7 @@ function scene:create(event)
       return
     end
     local newName, nameError = composer.validateInput.validateUsername(nameTextField.text)
-    if not newName and isSimulator then
-      newName = "Guest" .. math.random(1, 1000)
-    end
     if not newName then
-      print("nameError ", nameError)
       errorInfo.text = nameError
       composer.analytics.newEvent("design", {
         event_id = "createUser:invalidUsername",

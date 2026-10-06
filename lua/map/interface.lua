@@ -13,7 +13,6 @@ local function getStartPos()
   return convertedX, convertedY
 end
 
--- Finish line position; maps only define its column (goalY may be missing).
 local function getGoal()
   return xSize * goalX, goalY and ySize * goalY or nil
 end
@@ -49,7 +48,6 @@ local function addmapNameText(frontCameraGroup, x, y)
   mapNameText.x = x + 120
   mapNameText.y = y + 85
   frontCameraGroup:insert(mapNameText)
-  -- Quick Play races also show the personal best on this map, under the name.
   local gameInfo = composer.data.gameInfo
   if gameInfo and gameInfo.ranked and currentMapId then
     local bestTimes = require("lua.modules.bestTimes")
@@ -90,7 +88,6 @@ end
 
 local function loadMapData(id)
   if not id then
-    print("WARNING: loadMapData called with nil id, defaulting to map 1")
     id = 1
   end
   local parser = require("lua.modules.jsonParser")
@@ -149,7 +146,6 @@ local function updateBackgrounds(x, y)
   if theme == "space" then
     parallaxScale = 0.3
   end
-  composer.debugger.profile("UpdateBackgrounds")
   local mapHeightInPixels = convertY(height)
   local partOfMapHeight = y / mapHeightInPixels
   local yPos = (1 + partOfMapHeight) * 20
@@ -172,7 +168,6 @@ local function updateBackgrounds(x, y)
       backgroundLayers[i].moved = backgroundLayers[i].moved + 1
     end
   end
-  composer.debugger.profile("UpdateBackgrounds")
 end
 
 local function getLength()

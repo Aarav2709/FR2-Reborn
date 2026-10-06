@@ -26,7 +26,6 @@ function scene:create(event)
   UI_BASE_W = display.contentWidth
   UI_BASE_H = display.contentHeight
   uiGroup, updateUiGroup = layoutGroup.new(screenGroup, UI_BASE_W, UI_BASE_H)
-  local allreadyRun = false
   local notifications = {}
   local notificationText = {}
   local startedClean = false
@@ -55,8 +54,6 @@ function scene:create(event)
     if composer.comm.isOnline() then
       local options = { isModal = true }
       composer.showOverlay("lua.overlays.messages", options)
-    else
-      composer.showOverlay("lua.overlays.lanFriends", { isModal = true })
     end
   end
 
@@ -74,7 +71,6 @@ function scene:create(event)
       local options = { isModal = true }
       composer.showOverlay("lua.overlays.achievementsScene", options)
     else
-      -- Offline the trophy opens the prize wheel: one free spin every 24 hours.
       composer.showOverlay("lua.overlays.spinningWheel", { isModal = true, params = {} })
     end
   end
@@ -164,7 +160,6 @@ function scene:create(event)
     if not avatarData then
       return
     end
-    -- Use local avatar format (same as marketplace) so equipped cosmetics are applied.
     playerAvatar = monsterLoader.new(avatarData, false, nil,
       composer.database.getBackwear and composer.database.getBackwear() or 0)
     if playerAvatar and playerAvatar.getGroup then
@@ -183,7 +178,6 @@ function scene:create(event)
     local height = screen.height
     local top = screen.top
     local bottom = screen.safeBottom
-    -- On taller screens (tablets) the centre stack grows a little to use the extra height.
     local stackScale = math.min(height / 400, 1.25)
 
     screen.cover(backgroundImage)
@@ -212,7 +206,6 @@ function scene:create(event)
       bearHead.x = centerX + 45
       bearHead.y = top + height * 0.9
     end
-    -- Corner buttons stay inside the safe area (notches, camera cut-outs).
     btnSettings.x = screen.safeLeft + 32
     btnSettings.y = screen.safeTop + 32
     btnNewsfeedSubtleSettings.x = screen.safeLeft + 82
@@ -233,6 +226,7 @@ function scene:create(event)
     if btnFriends then
       btnFriends.x = leftX + 142
       btnFriends.y = bottom - 28
+      btnFriends.isVisible = composer.comm.isOnline() == true
     end
     if btnCustomize then
       btnCustomize.x = screen.safeRight - 58
@@ -258,7 +252,6 @@ function scene:create(event)
     end
   end
 
-  -- The red badge with a count on a menu button.
   local function addBadge(index, button, count, offsetX)
     notifications[index] = display.newImageRect("images/gui/mainMenu/alert.png", 20, 20)
     notifications[index].x = button.x + offsetX
@@ -280,7 +273,7 @@ function scene:create(event)
     end
     cleanNotifications()
     local friendNotifications = composer.comm.getNumberOfNotifications()
-    if 0 < friendNotifications then
+    if 0 < friendNotifications and btnFriends and btnFriends.isVisible ~= false then
       if 99 < friendNotifications then
         friendNotifications = 99
       end
@@ -374,7 +367,6 @@ function scene:create(event)
       return
     end
     checkForNotifications()
-    -- (The PC menu has no corner buttons for the badges to sit on.)
     if pcMode.isPC then
       for _, badge in pairs(notifications) do
         badge.isVisible = false
@@ -406,18 +398,15 @@ function scene:create(event)
   updateDisplay()
   addTutorialImages()
 
-  -- PC: a column on the right with the logo, one wooden plank per option and the coins
-  -- and gems below; the player's animal stands large on the left of a softly blurred
-  -- scene. The planks are buttons (mouse,
-  -- arrow keys and Enter); the one in focus swings out (see keyboardNav.lua).
   if pcMode.isPC then
-    local PLANK_W, PLANK_H, PLANK_GAP, LABEL_SIZE = 200, 34, 6, 19
+    local PLANK_W, PLANK_H, PLANK_GAP, LABEL_SIZE = 200, 30, 5, 18
     local pcMenu = display.newGroup()
     uiGroup:insert(pcMenu)
     local items = {
       { "Play", btnPlayRelease },
       { "Shop", btnCustomizeRelease },
       { "Leagues", btnRankingRelease },
+      { "Clans", btnClanRelease },
       { "Daily Spin", btnEarnCoinsRelease },
       { "News", btnNewsfeedSubtleSettingsRelease },
       { "Settings", btnSettingsRelease },
@@ -437,7 +426,6 @@ function scene:create(event)
       label.y = 1
       plank:insert(label)
       pcMenu:insert(plank)
-      -- Every other plank leans a little, like a real signpost.
       plank.restRotation = (i % 2 == 0) and 1.5 or -1.5
       plank.navCustomFocus = function(isFocused)
         transition.cancel(plank)
@@ -449,7 +437,7 @@ function scene:create(event)
           yScale = isFocused and 1.06 or 1,
           transition = easing.outQuad
         })
-        label:setFillColor(1, isFocused and 0.85 or 1, isFocused and 0.3 or 1)
+        label:setFillColor(isFocused and 0.9 or 1, isFocused and 0.58 or 1, isFocused and 0 or 1)
       end
       planks[i] = plank
     end
@@ -460,7 +448,6 @@ function scene:create(event)
     local gemText = composer.newText({ string = "", size = 16, color = { 1, 1, 1 }, ax = 1 })
     pcMenu:insert(gemText)
 
-    -- A soft blur on the background puts the menu and the animal in front.
     backgroundImage.fill.effect = "filter.blurGaussian"
     backgroundImage.fill.effect.horizontal.blurSize = 12
     backgroundImage.fill.effect.horizontal.sigma = 6
@@ -476,10 +463,11 @@ function scene:create(event)
       end
       local top, height, width = screen.top, screen.height, screen.width
       local columnX = screen.safeRight - PLANK_W * 0.5 - 24
-      local logoScale = (PLANK_W - 30) / logo.width
-      local logoH = logo.height * logoScale
       local listH = #planks * PLANK_H + (#planks - 1) * PLANK_GAP
       local CURRENCY_H = 22
+      local logoRoom = height - (listH + 14 + 14 + CURRENCY_H) - 20
+      local logoScale = math.max(0.2, math.min((PLANK_W - 30) / logo.width, logoRoom / logo.height))
+      local logoH = logo.height * logoScale
       local columnTop = top + (height - (logoH + 14 + listH + 14 + CURRENCY_H)) * 0.5
       logo.xScale, logo.yScale = logoScale, logoScale
       logo.x, logo.y = columnX, columnTop + logoH * 0.5
@@ -489,7 +477,6 @@ function scene:create(event)
         plank.x, plank.y = plank.restX, firstY + (i - 1) * (PLANK_H + PLANK_GAP)
         plank.rotation = plank.restRotation
       end
-      -- Coins and gems in one centred line under the planks.
       coinText.text = tostring(composer.database.getMoney())
       gemText.text = tostring(composer.database.getGems())
       local currencyY = firstY + listH - PLANK_H * 0.5 + 14 + CURRENCY_H * 0.5
@@ -499,7 +486,6 @@ function scene:create(event)
       coinText.x, coinText.y = x + 24 + coinText.width, currencyY
       gemIcon.x, gemIcon.y = coinText.x + 22 + 9, currencyY
       gemText.x, gemText.y = gemIcon.x + 15 + gemText.width, currencyY
-      -- The animal, larger, standing in the open space left of the column.
       if playerAvatarGroup then
         local avatarScale = 1.75 * height / 460
         playerAvatarGroup.xScale, playerAvatarGroup.yScale = avatarScale, avatarScale
@@ -526,7 +512,6 @@ function scene:show(event)
   local androidLogic = require("lua.modules.androidBackButton")
   local saleGroup = display.newGroup()
   local pendingLeaguePromotion, leaguePopupTimer
-  -- A Quick Play race left by closing the app costs the same as leaving it.
   offlineLeague.settleAbandonedRace()
   local showingSaleInfo = false
   screenGroup:insert(saleGroup)
@@ -649,25 +634,6 @@ function scene:show(event)
     end
   end
 
-  local function startGame()
-    composer.data.gameInfo.players[1] = {
-      username = composer.database.getPlayerInformation().username,
-      avatar = composer.database.getAvatarData(),
-      playerId = composer.database.getPlayerInformation().playerId
-    }
-    composer.data.gameInfo.gameType = composer.config.gameType
-    composer.data.gameInfo.ranked = false
-    composer.data.gameInfo.map = composer.config.mapId
-    composer.gotoScene("lua.scenes.gamePlay")
-  end
-
-  local function runBot()
-    if isSimulator and composer.config.bot then
-      composer.comm.isOnline()
-      composer.gotoScene("lua.scenes.playMenu")
-    end
-  end
-
   function cleanEnter()
     androidLogic.removeBackButton()
     saleGroup:removeEventListener("tap", goToMarket)
@@ -680,7 +646,6 @@ function scene:show(event)
   checkForNewNotifications()
   composer.comm.setCallback(getUpdatesFromServer)
 
-  -- Last week's league prize and any league change, one popup after the other.
   local function showLeaguePopups()
     leaguePopupTimer = nil
     if composer.onboarding.isActive == true or composer.getSceneName("overlay") then
@@ -688,7 +653,6 @@ function scene:show(event)
     end
     if not pendingLeaguePromotion then
       local prize, promotion = offlineLeague.takePendingPopups()
-      -- A promotion from a race whose results were left before it was shown.
       pendingLeaguePromotion = promotion or composer.league
       composer.league = nil
       if prize then
@@ -718,57 +682,6 @@ function scene:show(event)
   if composer.errorTable.server and composer.errorTable.showServerError then
     composer.errorTable.showServerError = false
   end
-  if composer.config.startGameAtOnce then
-    startGame()
-  elseif composer.config.showPostLobby then
-    composer.data.gameInfo.map = composer.config.mapId
-    composer.data.gameInfo.gameType = composer.config.gameType
-    composer.data.gameInfo.players[1] = {
-      username = composer.database.getPlayerInformation().username,
-      avatar = composer.database.getAvatarData(),
-      playerId = composer.database.getPlayerInformation().playerId
-    }
-    composer.data.gameInfo.players[2] = {
-      username = "BearBot",
-      avatar = {
-        105,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-      },
-      playerId = 1
-    }
-    composer.data.gameInfo.players[3] = {
-      username = "PandaBot",
-      avatar = {
-        105,
-        214,
-        0,
-        0,
-        0,
-        0,
-        0
-      },
-      playerId = 2
-    }
-    composer.data.gameInfo.players[4] = {
-      username = "TurtleBot",
-      avatar = {
-        104,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-      },
-      playerId = 3
-    }
-    composer.gotoScene("lua.scenes.postLobby")
-  end
   if composer.contextualOnboarding.isActive == true then
     composer.onboarding.addGuiReference("mainMenu_playButton", screenGroup)
     if composer.contextualOnboarding.isPartActive(3) then
@@ -780,7 +693,6 @@ function scene:show(event)
     end
   end
   androidLogic.addBackButton()
-  timer.performWithDelay(2000, runBot, 1)
   composer.notification.checkForPushNotification()
   if notificationPlugin and notificationPlugin.cancelAllNotifications then
     notificationPlugin.cancelAllNotifications()

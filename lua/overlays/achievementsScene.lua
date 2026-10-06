@@ -6,7 +6,7 @@ function scene:create(event)
   local group = self.view
   local tableHelper = require("lua.modules.tableHelper")
   local tcpFormat = require("lua.network.tcpMessageFormat")
-  -- This build has no video ads, so "watch a video" rewards never show up.
+  -- this build has no video ads, so "watch a video" rewards never show up.
   local videoModule = {
     isVideoReady = function()
       return false
@@ -370,21 +370,18 @@ function scene:create(event)
       elseif activeTableInt == 1 then
         if tonumber(challengeId) == 1 then
         elseif claimingDaily[tonumber(challengeId)] and claimingDaily[tonumber(challengeId)] == 1 then
-          print("WARNING: already tried to claim ", challengeId)
         else
           claimingDaily[tonumber(challengeId)] = 1
           composer.comm.claimDailyChallenge(challengeId)
         end
       elseif activeTableInt == 2 then
         if claimingAchivements[tonumber(challengeId)] and claimingAchivements[tonumber(challengeId)] == 1 then
-          print("WARNING: already tried to claim ", challengeId)
         else
           claimingAchivements[tonumber(challengeId)] = 1
           composer.comm.claimAchievement(challengeId)
         end
       elseif activeTableInt == 3 then
         if claimingEarnCoins[tonumber(challengeId)] and claimingEarnCoins[tonumber(challengeId)] == 1 then
-          print("WARNING: already tried to claim ", challengeId)
         elseif tonumber(challengeId) == 1 then
           videoModule.showAd()
           timer.performWithDelay(700, checkIfAdsShoudBeRemoved, 1)
@@ -396,7 +393,6 @@ function scene:create(event)
             }
             composer.showOverlay("lua.overlays.marketBuy", options)
           end
-          print("challenge ", challenge.key)
         elseif challenge.link then
           composer.data.openURL = true
           claimingEarnCoins[tonumber(challengeId)] = 1
@@ -404,7 +400,6 @@ function scene:create(event)
           system.openURL(challenge.link)
         end
       else
-        print("invalid table", activeTableInt)
       end
     end
   end
@@ -454,7 +449,6 @@ function scene:create(event)
     end
     if data.m == tcpFormat.getEarnCoins() then
       infoTextServer.isVisible = false
-      local earnCoinsProgression = {}
       for i = 1, #data.a do
         for id, earnCoin in pairs(allEarnCoins) do
           if tonumber(earnCoin.id) == tonumber(data.a[i]) then
@@ -486,7 +480,6 @@ function scene:create(event)
       end
     elseif data.m == tcpFormat.getAchievementList() then
       infoTextServer.isVisible = false
-      local achievementsProgression = {}
       composer.data.achievementToClaim = 0
       for i, value in pairs(data.a) do
         for id, achivements in pairs(allAchivements) do

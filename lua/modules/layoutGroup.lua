@@ -7,8 +7,8 @@ function M.new(parent, baseW, baseH)
   end
 
   local function update()
-    -- Do not apply extra scaling or origin offsets here. Authored UI uses the
-    -- content coordinate space; full-screen backgrounds handle screenOriginX/Y.
+    -- do not apply extra scaling or origin offsets here. authored ui uses the
+    -- content coordinate space; full screen backgrounds handle screenoriginx/y.
     group.xScale = 1
     group.yScale = 1
     group.x = 0

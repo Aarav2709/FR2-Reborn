@@ -1,4 +1,4 @@
--- Boost pads: the tile itself carries the "boost" flag; this adds the looping arrows.
+-- boost pads
 local util = require("lua.map.behaviors.behaviorUtil")
 
 local M = {}

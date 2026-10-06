@@ -2,13 +2,11 @@ local sqlite3 = require("sqlite3")
 local json = require("json")
 local M = {}
 
--- Raise this (and add the step to MIGRATIONS) whenever an update changes the save.
 M.VERSION = 1
 
 local DB_NAME = "data.sqlite3"
 local BACKUP_NAME = "save_backup.json"
 local PREVIOUS_BACKUP_NAME = BACKUP_NAME .. ".previous"
--- Every table of the save (see setupTables in database.lua).
 local TABLES = {
   "user_settings", "playerIdToken", "user_avatar", "receipts", "iap_confirm", "settings", "deviceSync",
   "marketItemId", "facebook", "adTime", "marketNotification", "push_enabled", "onboarding",
@@ -19,7 +17,6 @@ for _, name in ipairs(TABLES) do
   KNOWN_TABLES[name] = true
 end
 
--- Steps that bring an older save up to date, keyed by the version they lead to.
 local MIGRATIONS = {}
 
 local function dbPath()
@@ -122,7 +119,6 @@ function M.checkSave()
   local damagedPath = system.pathForFile(DB_NAME .. ".damaged-" .. os.time(), system.DocumentsDirectory)
   local moved = os.rename(path, damagedPath)
   if not moved then
-    print("SAVE WARNING: Could not move the damaged database; keeping the original file.")
   end
 end
 
@@ -150,7 +146,6 @@ function M.restoreIfEmpty()
   end
   local backupVersion = tonumber(data.version) or 0
   if backupVersion > M.VERSION then
-    print("SAVE WARNING: Backup was made by a newer save version; leaving it untouched.")
     return false
   end
   local db = sqlite3.open(dbPath())
@@ -268,13 +263,12 @@ function M.migrate()
   end)
   closeQuietly(db)
   if not ok then
-    print("SAVE WARNING: Migration was not completed: " .. tostring(err))
   end
   return ok
 end
 
--- Writes every table to the backup file (through a temporary file, so a crash while
--- writing never leaves a half backup). Skipped while there is no player yet.
+-- writes every table to the backup file (through a temporary file, so a crash while
+-- writing never leaves a half backup). skipped while there is no player yet.
 function M.backup()
   local ok, err = pcall(function()
     local db = sqlite3.open(dbPath())
@@ -329,8 +323,6 @@ function M.backup()
       error("could not write complete temporary backup")
     end
 
-    -- Keep the previous good snapshot until the new one has been promoted. If the
-    -- app stops between the two renames, restoreIfEmpty() can still use that copy.
     if isUsableBackup(readBackupAt(path)) then
       local previous = previousBackupPath()
       os.remove(previous)
@@ -352,12 +344,10 @@ function M.backup()
     end
   end)
   if not ok then
-    print("SAVE WARNING: Backup was not updated: " .. tostring(err))
   end
   return ok
 end
 
--- A deliberate reset (log out, dev reset) also drops the backup, or it would come back.
 function M.deleteBackup()
   os.remove(backupPath())
   os.remove(previousBackupPath())

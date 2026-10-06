@@ -2,8 +2,6 @@ local M = {}
 local composer = require("composer")
 local monsterLoader = require("spine-corona.monsterLoader")
 local bubbleGroup, helperText, helperTextBuble, alphaBackground, closeImage, cleanOldOverlay, canClose, monster, monsterGroup, onCloseFunction, refreshTimer, helperTextBubbleArrow
-local bubbleArrowOffsetX = 0
-local bubbleArrowOffsetY = -20
 
 local function closeOnTouchEvent(event)
   if event.phase == "ended" and canClose then
@@ -18,17 +16,11 @@ local function closeOnTouchEvent(event)
   return true
 end
 
-local function androidBackButtonFunction()
-  onCloseFunction = nil
-  cleanOldOverlay()
-end
 
 local function allowCustomOverlay()
   composer.customOverlayActive = false
 end
 
--- A message left open is removed together with the scene it was shown on, so
--- its objects may already be gone here.
 local function removeObject(object)
   if object and object.removeSelf then
     object:removeSelf()
@@ -61,8 +53,6 @@ function cleanOldOverlay()
   refreshTimer = timer.performWithDelay(400, allowCustomOverlay, 1)
 end
 
--- Closes an open message without running its close callback, for when the
--- screen it belongs to goes away (e.g. the tutorial moves to its next step).
 local function dismiss()
   onCloseFunction = nil
   if alphaBackground or monster or bubbleGroup then

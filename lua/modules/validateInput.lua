@@ -20,6 +20,31 @@ local function validateUsername(text)
   end
 end
 
+local function validateUsernameWithTag(text)
+  if not text then
+    return nil, composer.localized.get("EnterUsername")
+  end
+  text = string.gsub(text, "%s", "")
+  local name, tag = text:match("^([^#]*)#(.*)$")
+  if not name then
+    name = text
+  end
+  local validName, nameError = validateUsername(name)
+  if not validName then
+    if nameError == composer.localized.get("ValidCharacterMessage") then
+      nameError = composer.localized.get("Use letters and numbers, with a #tag if you like (Aarav#2709)")
+    end
+    return nil, nameError
+  end
+  if tag then
+    if not tag:match("^%d%d?%d?%d?$") then
+      return nil, composer.localized.get("The tag after # is 1 to 4 numbers (Aarav#2709)")
+    end
+    return validName, tonumber(tag)
+  end
+  return validName, nil
+end
+
 local function validateUsernameSearch(text)
   if text then
     text = string.gsub(text, "%s", "")
@@ -107,6 +132,7 @@ local function stripUsernameCode(fullUsername)
 end
 
 M.validateUsername = validateUsername
+M.validateUsernameWithTag = validateUsernameWithTag
 M.validateEmail = validateEmail
 M.validatePassword = validatePassword
 M.validateMonsterName = validateMonsterName

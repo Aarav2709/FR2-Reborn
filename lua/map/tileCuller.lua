@@ -1,6 +1,4 @@
--- Column-based culler for animated map objects (hazards, bounce pads, cannons...).
--- Objects start hidden and are shown only while their column is near the camera,
--- which keeps sprite work off-screen to a minimum on long maps.
+-- column based culler for animated map objects (hazards, bounce pads, cannons...)
 local M = {}
 
 local COLUMN_WIDTH = 80
@@ -24,7 +22,6 @@ local function setColumnVisible(column, visible)
     if object.removeSelf then
       object.isVisible = visible
     else
-      -- The object was removed elsewhere; forget it.
       table.remove(objects, i)
     end
   end
@@ -54,7 +51,6 @@ function M.addAnimatedTile(x, object)
   object.isVisible = isColumnVisible(column)
 end
 
--- leftX: world x of the left screen edge; viewWidth: visible world width.
 function M.update(leftX, viewWidth)
   local newFirst = columnOf(leftX) - COLUMNS_BEHIND
   local newLast = columnOf(leftX + viewWidth) + COLUMNS_AHEAD

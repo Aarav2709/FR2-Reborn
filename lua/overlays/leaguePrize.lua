@@ -5,8 +5,6 @@ local fireworksHandler = require("lua.game.effects.fireworksHandler")
 local scene = composer.newScene()
 local clean, cleanEnter
 
--- Last week's league prize, on the hanging prize sign (original 480x320 design units).
--- The prizes are already paid out by offlineLeague when the week ends.
 local DESIGN_W, DESIGN_H = 480, 320
 local PRIZE_SPACING = 50
 
@@ -75,7 +73,6 @@ function scene:create(event)
   messageText.x, messageText.y = 240, plateY + 72
   design:insert(messageText)
 
-  -- The prizes side by side under the message.
   local prizeRow = display.newGroup()
   design:insert(prizeRow)
   local highlightItemId

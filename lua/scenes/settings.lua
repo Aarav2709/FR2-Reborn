@@ -5,10 +5,6 @@ local scene = composer.newScene()
 local clean, cleanEnter, httpsCallback
 local layoutSettings, resizeListener
 
--- The settings art is one 480x320 picture: a name plank (top left), a notice board
--- (centre left) and a wooden panel with a red banner (right). Like the original
--- game it is stretched to fill the screen; buttons and text keep their proportions
--- (uniform scale `art.ui`) and are placed on the art's features.
 local ART_W, ART_H = 480, 320
 local art = { sx = 1, sy = 1, ui = 1 }
 
@@ -27,13 +23,10 @@ local function artY(y)
   return screen.top + y * art.sy
 end
 
--- The cream face behind the board's hole (art units).
 local BOARD_FILL_X, BOARD_FILL_Y, BOARD_FILL_W, BOARD_FILL_H = 45, 85, 260, 145
--- Board interior (art units) holding the credits (left) and notes (right) columns.
 local BOARD_LEFT, BOARD_SPLIT, BOARD_RIGHT = 50, 176, 300
 local BOARD_TOP, BOARD_BOTTOM = 92, 226
 local TEXT_ROW_H = 19
--- Wooden panel with the settings buttons.
 local PANEL_LEFT = 352
 local BUTTON_W, BUTTON_ROW_H = 120, 38
 
@@ -45,17 +38,22 @@ function scene:create(event)
   local creditsTableData = {}
   local startedClean = false
   local offline = composer.config.offlineMode
+  local runningFps = display.fps == 30 and 30 or 60
   local savedFps = tonumber(system.getPreference("app", "preferredFps", "number"))
-  local currentFps = savedFps == 30 and 30 or 60
-  local lanFriendsEnabled = composer.database.getValue("lan_friends_enabled") == "1"
+  local currentFps = (savedFps == 30 or savedFps == 60) and savedFps or runningFps
   local onFpsClick, updateSettingsList
+
+  local function fpsText()
+    local text = currentFps .. " " .. composer.localized.get("FPS")
+    if currentFps ~= runningFps then
+      text = text .. " (" .. composer.localized.get("Restart") .. ")"
+    end
+    return text
+  end
   updateArt()
-  -- Texts are rasterised at the scale in use when the scene is built.
   local textUi = art.ui
 
-  -- The seasonal menu scenery behind the planks (the art itself has no scenery).
   local scenery = display.newImageRect(group, seasonal.blurredBackground(), 1920, 1080)
-  -- The board's face is a hole in the art; this cream fill shows through it.
   local boardFill = display.newImageRect(group, "images/gui/ranking/cell.png", BOARD_FILL_W, BOARD_FILL_H)
   boardFill.anchorX, boardFill.anchorY = 0, 0
   local background = display.newImageRect(group, "images/gui/settings/main.png", ART_W, ART_H)
@@ -74,7 +72,6 @@ function scene:create(event)
   })
   group:insert(tableTitleText)
 
-  -- Tables are rebuilt on layout; they live in their own group above the art.
   local tablesGroup = display.newGroup()
   group:insert(tablesGroup)
 
@@ -106,8 +103,6 @@ function scene:create(event)
   })
   group:insert(editNameButton)
 
-  -- Name and "#code" sit side by side, centred between the plank's left end and
-  -- the rename button, shrinking if the name is long.
   local function layoutUsername()
     local ui = art.ui
     local left = artX(62)
@@ -171,14 +166,6 @@ function scene:create(event)
     settingsTable.refreshTable()
   end
 
-  local function onLanFriendsClick()
-    lanFriendsEnabled = not lanFriendsEnabled
-    composer.database.setValue("lan_friends_enabled", lanFriendsEnabled and 1 or 0)
-    composer.data.lanFriendsEnabled = lanFriendsEnabled
-    updateSettingsList()
-    settingsTable.refreshTable(settingsList, tablesGroup)
-  end
-
   local function onFacebookClick()
     if not composer.database.getFacebookId() then
       composer.analytics.newEvent("design", {
@@ -210,25 +197,69 @@ function scene:create(event)
     composer.showOverlay("lua.overlays.editNotificationSettings", { isModal = true })
   end
 
+  local function pcRows()
+    local pcSettings = require("lua.modules.pcSettings")
+    local function refresh()
+      updateSettingsList()
+      settingsTable.refreshTable(settingsList, tablesGroup)
+    end
+    local function bindKey(action)
+      return function()
+        composer.capturingKey = function(key)
+          if key ~= "escape" then
+            pcSettings.setKey(action, key)
+          end
+          refresh()
+        end
+        refresh()
+      end
+    end
+    local function keyRow(action, label)
+      local text = label .. ": " .. pcSettings.keyLabel(action)
+      if composer.capturingKey then
+        text = label .. ": ..."
+      end
+      return { pcKey = true, text = text, onClick = bindKey(action) }
+    end
+    return {
+      { pcDisplay = true, text = pcSettings.isFullscreen() and "Fullscreen" or "Windowed", onClick = function()
+        pcSettings.toggleFullscreen()
+        refresh()
+      end },
+      { pcSize = true, text = "Window " .. pcSettings.sizeLabel(), onClick = function()
+        pcSettings.cycleSize()
+        refresh()
+      end },
+      { pcVolume = true, text = "Volume " .. pcSettings.volumePercent() .. "%", onClick = function()
+        pcSettings.cycleVolume()
+        refresh()
+      end },
+      keyRow("jump", "Jump"),
+      keyRow("power", "Power up")
+    }
+  end
+
   updateSettingsList = function()
     if offline then
-      -- Account, social and push features need the game server.
       settingsList = {
         { sound = true, onClick = onSoundClick },
-        { text = "FPS: " .. tostring(currentFps), onClick = onFpsClick },
-        { text = "LAN Friends: " .. (lanFriendsEnabled and "On" or "Off"), onClick = onLanFriendsClick },
+        { fps = true, text = fpsText(), onClick = onFpsClick },
         {
           tutorial = true,
           onClick = onTutorialClick,
           text = composer.localized.get("Tutorial")
         }
       }
+      if require("lua.modules.pcMode").isPC then
+        for i, row in ipairs(pcRows()) do
+          table.insert(settingsList, 2 + i, row)
+        end
+      end
       return
     end
     settingsList = {
       { sound = true, onClick = onSoundClick },
-      { text = "FPS: " .. tostring(currentFps), onClick = onFpsClick },
-      { text = "LAN Friends: " .. (lanFriendsEnabled and "On" or "Off"), onClick = onLanFriendsClick },
+      { fps = true, text = fpsText(), onClick = onFpsClick },
       {
         tutorial = true,
         onClick = onTutorialClick,
@@ -255,8 +286,7 @@ function scene:create(event)
         end
       end
     end
-    -- Logging out only makes sense for accounts that can be recovered.
-    if not composer.data.playerInfo.email and not composer.database.getFacebookId() and not isSimulator then
+    if not composer.data.playerInfo.email and not composer.database.getFacebookId() then
       for i = #settingsList, 1, -1 do
         if settingsList[i].logout then
           table.remove(settingsList, i)
@@ -271,18 +301,34 @@ function scene:create(event)
     local ok, saved = pcall(system.setPreferences, "app", { preferredFps = currentFps })
     if not ok or not saved then
       currentFps = previousFps
-      native.showAlert("Frame Rate", "Could not save the frame rate setting.", { "OK" })
+      native.showAlert(composer.localized.get("Frame rate"), composer.localized.get("Could not save the frame rate."),
+        { composer.localized.get("Ok") })
       return
     end
     updateSettingsList()
     settingsTable.refreshTable(settingsList, tablesGroup)
-    native.showAlert("Frame Rate", "Restart the game to use " .. tostring(currentFps) .. " FPS.", { "OK" })
+    if currentFps == runningFps then
+      return
+    end
+    local message = composer.localized.get("The game runs at") .. " " .. currentFps .. " " ..
+      composer.localized.get("FPS from the next start.")
+    local canClose = system.getInfo("platform") == "android" or system.getInfo("platform") == "win32"
+    if canClose and not isSimulator then
+      native.showAlert(composer.localized.get("Frame rate"), message,
+        { composer.localized.get("Later"), composer.localized.get("Close game") }, function(event)
+          if event.action == "clicked" and event.index == 2 then
+            require("lua.modules.saveData").backup()
+            native.requestExit()
+          end
+        end)
+    else
+      native.showAlert(composer.localized.get("Frame rate"), message, { composer.localized.get("Ok") })
+    end
   end
 
   local headerFontSize = 16
   local itemFontSize = 12
 
-  -- Credits scroll in the left column; roles follow the names in brown.
   local function addToCredits(name, size, detail)
     creditsTableData[#creditsTableData + 1] = { creditInfo = name, size = size or itemFontSize, x = 4, detail = detail }
   end
@@ -300,7 +346,6 @@ function scene:create(event)
     addToCredits(tester)
   end
 
-  -- Notes: a short text wrapped to the right column.
   local NOTES_TITLE = "Notes"
   local NOTES_TEXT = "Made by Fun Run 2 fans, for Fun Run 2 fans.\n\n"
     .. "You asked for it, you got it!\n\n"
@@ -329,8 +374,6 @@ function scene:create(event)
     creditsTable = tableHelper.new(artX(BOARD_LEFT), top, artX(BOARD_SPLIT) - artX(BOARD_LEFT), height,
       TEXT_ROW_H * ui, nil, "credits", creditsTableCallback, nil, ui)
     creditsTable.createTable(creditsTableData, tablesGroup)
-    -- Notes: the title on the first row, then the text wrapped to the column (and
-    -- shrunk if a long translation would not fit).
     notesGroup = display.newGroup()
     tablesGroup:insert(notesGroup)
     local notesLeft = artX(BOARD_SPLIT) + 4 * ui
@@ -359,7 +402,6 @@ function scene:create(event)
     background.xScale, background.yScale = art.sx, art.sy
     boardFill.x, boardFill.y = artX(BOARD_FILL_X), artY(BOARD_FILL_Y)
     boardFill.xScale, boardFill.yScale = art.sx, art.sy
-    -- "Settings" on the red banner, shrunk if the translation is long.
     local titleScale = ui / textUi
     local bannerWidth = (ART_W - 340) * art.sx
     if tableTitleText.width * titleScale > bannerWidth then

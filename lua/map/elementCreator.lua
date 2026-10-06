@@ -115,10 +115,8 @@ local function addBehaviorToBlock(block, behaviorData)
     if ok and behaviorFile and behaviorFile.addBehavior then
       local addOk, addErr = pcall(behaviorFile.addBehavior, block)
       if not addOk then
-        print("WARNING: failed to apply behavior", value, addErr)
       end
     else
-      print("WARNING: failed to load behavior", value)
     end
   end
 end
@@ -262,9 +260,6 @@ local function createElement(tileId, xPos, yPos, cameraGroup)
         block.image.mapElement = true
       end
       block.image.bodyType = "static"
-      -- Tropical tile 113 is a plain black wall that closes the level just outside
-      -- the original's 480-unit view. Wider screens can see it, so it stays solid
-      -- but invisible.
       if currentTheme == "tropical" and blockId == 113 then
         block.image.isVisible = false
       end
@@ -280,28 +275,6 @@ local function createElement(tileId, xPos, yPos, cameraGroup)
   return block
 end
 
-local function createPowerup(xPos, yPos, cameraGroup)
-  if startedClean then
-    return
-  end
-  local block = display.newImage(themeImageSheet, 1)
-  block.x = xSize * (xPos - 1)
-  block.y = ySize * (yPos - 1)
-  local bodies = {
-    physicsData:get("001")
-  }
-  for i, body in ipairs(bodies) do
-    body.filter = obstacleFilter
-    body.isSensor = true
-  end
-  physics.addBody(block, unpack(bodies))
-  block.bodyType = "static"
-  block.powerUp = true
-  block.xScale = block.xScale * scaleFactor
-  block.yScale = scaleFactor
-  cameraGroup:insert(block)
-  return block
-end
 
 local function setTilesets(tilesets)
   for i = 1, #tilesets do
@@ -334,7 +307,6 @@ local function setTilesets(tilesets)
         themeTileset = tileset
       end
     else
-      print("WARNING: NO TILESET DEFINITION FOR TILESET NAMED: ", tileset.name)
     end
   end
 end

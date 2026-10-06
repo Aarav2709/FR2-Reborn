@@ -111,11 +111,6 @@ function scene:create(event)
   local function searchForFriendButtonEvent()
     native.setKeyboardFocus(nil)
     local usernameTable, usernameError = composer.validateInput.validateUsernameSearch(usernameTextField.text)
-    if not usernameTable and isSimulator then
-      usernameTable = {}
-      usernameTable[1] = "hauki"
-      usernameTable[2] = nil
-    end
     if not usernameTable then
       informationTextLabel.text = usernameError
       composer.analytics.newEvent("design", {

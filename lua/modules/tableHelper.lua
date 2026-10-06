@@ -477,7 +477,6 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
     local params = row.params
     local id = tonumber(params.id)
     if id == nil then
-      print("WARNING: failed to find map id, set 0")
       id = 0
     end
     local path = "images/gui/practice/icon" .. id .. ".png"
@@ -847,7 +846,6 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
       if challenge then
         return clamed, progression, challengeId, numberInList, challenge
       else
-        print("WARNING: challenge is nil for id ", challengeId, " numberInList ", numberInList)
         return clamed, progression, challengeId, numberInList, false, false
       end
     end
@@ -870,7 +868,6 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
     if iconPath == "images/gui/market/categoryGlasses.png" and composer.onboarding.isActive == true then
       composer.onboarding.addGuiReference("market_glasses", row)
     end
-    -- The selected category is tinted green and a little larger, as in Fun Run 2.
     local function showActive(active)
       if active then
         button:setFillColor(0.7, 1, 0.7)
@@ -946,7 +943,6 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
     elseif params.facebook then
       iconPath = "images/gui/settings/buttonFB.png"
     end
-    -- The button fills its row, so a tap anywhere on it reaches this row.
     local s = rowScale
     local iconBackground = display.newImageRect(iconPath, 120 * s, 37 * s)
     iconBackground.anchorX = 0
@@ -1040,7 +1036,6 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
     })
     row:insert(credits)
     local rowWidth = credits.width
-    -- Optional detail after the text (e.g. someone's role), smaller and in brown.
     local detail
     if params.detail then
       detail = composer.newText({
@@ -1055,7 +1050,6 @@ local function new(x, y, width, height, cellHeight, background, scene, callback,
       row:insert(detail)
       rowWidth = detail.x + detail.width - credits.x
     end
-    -- Long lines shrink to fit the column.
     local maxWidth = row.contentWidth - credits.x - 2 * s
     if maxWidth > 0 and rowWidth > maxWidth then
       local fit = maxWidth / rowWidth

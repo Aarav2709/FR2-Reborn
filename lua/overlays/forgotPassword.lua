@@ -97,7 +97,6 @@ function scene:create(event)
     end
     local email, emailError = composer.validateInput.validateEmail(mailTextField.text)
     if not email then
-      print("nameError ", nameError)
       errorInfo.text = emailError
       composer.analytics.newEvent("design", {
         event_id = "forgotPassword:invalidEmail",

@@ -1,14 +1,16 @@
 local composer = require("composer")
 local screen = require("lua.modules.screen")
 local dailySpin = require("lua.modules.dailySpin")
+local pcMode = require("lua.modules.pcMode")
 local scene = composer.newScene()
 local clean, cleanEnter, overlayEndedData
 local lineLength = 100
 local WHEEL_RADIUS = lineLength * 0.75
+local STOP_SPREAD = 0.5
+local FRAME_MS = 1000 / 60
+local CLICK_SPIN_MIN, CLICK_SPIN_MAX = 60, 110
+local CLICK_MOVE_LIMIT = 6
 
--- The prize wheel sign, laid out in the original 480x320 design units: it hangs
--- from the top of the screen with the coin board in its usual corner. Offline the
--- player gets one free spin every 24 hours (see dailySpin).
 local DESIGN_W, DESIGN_H = 480, 320
 local WHEEL_X, WHEEL_Y = 240, 180
 
@@ -26,7 +28,7 @@ function scene:create(event)
   local prevX, prevY
   local spinSpeed = 0
   local spinSlowFactor = 1
-  local soundTimer, serverTimeoutTimer, imageFlipperRef, imageFlipper2Ref, showPriceRef
+  local soundTimer, serverTimeoutTimer, imageFlipper2Ref, showPriceRef
   local activeTable = params.tableActive
   local challengeId = params.challengeId
   local spinJson = require("lua.modules.jsonParser").getJsonFromFile("config/spin.json")
@@ -37,7 +39,6 @@ function scene:create(event)
   local shouldSendClaim = false
   local startedClean = false
 
-  -- Texts are rasterised at their final size, then scaled back into design units.
   local function newText(textParams)
     textParams.size = (textParams.size or composer.localized.getFontSize()) * s
     local text = composer.newText(textParams)
@@ -56,25 +57,21 @@ function scene:create(event)
   local dropdownGroup = display.newGroup()
   designGroup:insert(dropdownGroup)
 
-  -- The sign hanging from the top (its art is a little off centre, as in Fun Run 2).
   local backgroundWindow = display.newImageRect(dropdownGroup, "images/gui/wheel/window.png", 436, 173)
   backgroundWindow.anchorY = 0
   backgroundWindow.x, backgroundWindow.y = WHEEL_X - 16, top
 
   local spinningGroup = display.newGroup()
   spinningGroup.x, spinningGroup.y = WHEEL_X, top + WHEEL_Y
-  local wheel1 = display.newImageRect(spinningGroup, "images/gui/wheel/wheel1.png", 257, 258)
-  local wheel2 = display.newImageRect(spinningGroup, "images/gui/wheel/wheel2.png", 257, 258)
-  local midWheel = display.newImageRect(spinningGroup, "images/gui/wheel/wheelMid.png", 50, 50)
+  display.newImageRect(spinningGroup, "images/gui/wheel/wheel1.png", 257, 258)
+  display.newImageRect(spinningGroup, "images/gui/wheel/wheelMid.png", 50, 50)
   local headerBackground1 = display.newImageRect("images/gui/wheel/header1.png", 215, 75)
   headerBackground1.x, headerBackground1.y = WHEEL_X, top + 60
   local headerBackground2 = display.newImageRect("images/gui/wheel/header2.png", 215, 75)
   headerBackground2.x, headerBackground2.y = headerBackground1.x, headerBackground1.y
   local arrow = display.newImageRect("images/gui/wheel/arrow.png", 25, 45)
-  -- The arrow tip sits exactly one reward radius above the wheel centre.
   arrow.x, arrow.y = WHEEL_X, top + WHEEL_Y - WHEEL_RADIUS - arrow.height * 0.5
   local windowInfo = newText({ string = "", x = WHEEL_X, y = top + 50, size = 20, color = { 1, 1, 1 } })
-  -- Unused second line (the wait time now shares the sign's one line).
   local timeInfo = newText({ string = "", x = WHEEL_X, y = top + 62, size = 16, color = { 1, 1, 1 } })
   local errorInfo = newText({ string = "", x = WHEEL_X, y = top + 32 })
 
@@ -96,7 +93,6 @@ function scene:create(event)
     return composer.data.playerInfo.spins and composer.data.playerInfo.spins > 0
   end
 
-  -- Keeps a text on the sign, left of the close button.
   local function fitOnSign(text)
     local maxWidth = 108
     local width = text.width * text.baseScale
@@ -160,33 +156,41 @@ function scene:create(event)
         elseif reward.type == "mystery" then
           composer.database.addItem(value)
         else
-          print("WARNING: failed to find spin prize")
         end
       end
     end
   end
 
-  local function applyRotationToWheel()
+  local lastFrameTime
+  local function applyRotationToWheel(event)
+    local now = event and event.time or system.getTimer()
+    local frames = lastFrameTime and math.min(4, (now - lastFrameTime) / FRAME_MS) or 1
+    lastFrameTime = now
     if spinSpeed ~= 0 and not stoppingAtPrize then
-      spinSpeed = spinSpeed * spinSlowFactor
-      spinningGroup.rotation = spinningGroup.rotation + spinSpeed
+      local factor = spinSlowFactor
+      local turned
+      if factor == 1 then
+        turned = spinSpeed * frames
+      else
+        turned = spinSpeed * factor * (1 - math.pow(factor, frames)) / (1 - factor)
+      end
+      spinSpeed = spinSpeed * math.pow(factor, frames)
+      spinningGroup.rotation = spinningGroup.rotation + turned
+      if math.abs(spinSpeed) < 0.05 then
+        spinSpeed = 0
+      end
     end
   end
 
+  -- the wheel rotation that puts a point of reward `id`'s slice under the arrow:
+  -- near the middle of the slice, never close to its lines.
   local function getRandomStopAngle(id)
     for _, reward in ipairs(rewards) do
       if tonumber(reward.id) == tonumber(id) then
-        local firstAngle = reward.angleBefore + 5
-        local secondAngle = reward.angleAfter - 5
-        if firstAngle > secondAngle then
-          local meanAngle = (firstAngle + secondAngle) / 2
-          firstAngle = meanAngle
-          secondAngle = meanAngle
-        end
-        local sliceAngle = math.random(math.floor(firstAngle), math.floor(secondAngle))
+        local middle = (reward.angleBefore + reward.angleAfter) * 0.5
+        local halfWidth = (reward.angleAfter - reward.angleBefore) * 0.5
+        local sliceAngle = middle + (math.random() * 2 - 1) * halfWidth * STOP_SPREAD
         local rewardAngle = sliceAngle + spinJson.rotationOffset * (180 / math.pi)
-        -- Reward art is laid out clockwise from the top pointer. This keeps the
-        -- selected reward centre inside its slice and centred under the arrow.
         return -90 - rewardAngle
       end
     end
@@ -217,7 +221,6 @@ function scene:create(event)
     spinSlowFactor = 0.7
   end
 
-  -- Turn to a stop angle over a time that matches the current speed.
   local function spinTo(stop, onComplete, easingFunction)
     local spinTime = math.min(spinSpeed * 45, 3000)
     local degreesToSpin = 360 * math.floor(spinSpeed * 50 / 360)
@@ -330,7 +333,6 @@ function scene:create(event)
 
   local function sendMessagesToServer()
     if offline then
-      -- Offline the prize is drawn here, after a short pause like a server reply.
       local reward, value = dailySpin.rollPrize(rewards)
       dailySpin.useFreeSpin()
       serverTimeoutTimer = timer.performWithDelay(400, function()
@@ -376,16 +378,40 @@ function scene:create(event)
   end
 
   local dx, dy = 0, 0
+  local dragDistance = 0
+  local touchFocused = false
+
+  local function spinFromButton()
+    if not haveSpins() or spinActive or startedClean then
+      return false
+    end
+    transition.cancel(spinningGroup)
+    spinSpeed = math.random(CLICK_SPIN_MIN, CLICK_SPIN_MAX)
+    initiateValidSpin()
+    return true
+  end
+
+  local function releaseTouchFocus()
+    if touchFocused then
+      touchFocused = false
+      display.getCurrentStage():setFocus(nil)
+    end
+  end
 
   local function spinWheel(self, touchEvent)
     local phase = touchEvent.phase
     if not haveSpins() or spinActive then
+      if phase == "ended" or phase == "cancelled" then
+        releaseTouchFocus()
+      end
       return true
     end
-    -- Touches in the wheel's own coordinates.
     local x, y = spinningGroup.parent:contentToLocal(touchEvent.x, touchEvent.y)
     if phase == "began" then
+      display.getCurrentStage():setFocus(self, touchEvent.id)
+      touchFocused = true
       prevX, prevY = x, y
+      dx, dy, spinVector, dragDistance = 0, 0, 0, 0
       transition.cancel(spinningGroup)
     elseif phase == "moved" then
       if prevX == nil or prevY == nil then
@@ -397,8 +423,14 @@ function scene:create(event)
       spinningGroup.rotation = spinningGroup.rotation + (degree2 - degree)
       spinVector = getSpinSpeedFromTouch(prevX, prevY, x, y)
       dx, dy = x - prevX, y - prevY
+      dragDistance = dragDistance + math.sqrt(dx * dx + dy * dy)
       prevX, prevY = x, y
     elseif phase == "ended" or phase == "cancelled" then
+      releaseTouchFocus()
+      if phase == "ended" and pcMode.isPC and dragDistance < CLICK_MOVE_LIMIT then
+        spinFromButton()
+        return true
+      end
       dx = math.max(-3, math.min(3, dx))
       dy = math.max(-3, math.min(3, dy))
       spinSpeed = spinVector * 50 * math.sqrt(dx * dx + dy * dy)
@@ -407,34 +439,16 @@ function scene:create(event)
     return true
   end
 
-  local mouseDragging = false
-  local function onMouse(event)
-    local phase
-    if event.type == "down" then
-      local bounds = spinningGroup.contentBounds
-      if bounds and event.x >= bounds.xMin and event.x <= bounds.xMax and event.y >= bounds.yMin and event.y <= bounds.yMax then
-        mouseDragging = true
-        phase = "began"
-      end
-    elseif event.type == "move" and mouseDragging and event.isPrimaryButtonDown then
-      phase = "moved"
-    elseif event.type == "up" and mouseDragging then
-      phase = "ended"
-      mouseDragging = false
-    end
-    if phase then
-      spinWheel(spinningGroup, { phase = phase, x = event.x, y = event.y })
+  -- the wheel is swiped, not pressed: keyboard and mouse hover leave it alone
+  -- (its corners would otherwise grow and shrink the hover area as it turns).
+  spinningGroup.navIgnore = true
+
+  local function onKey(event)
+    if event.phase == "down" and not event.isRepeat and (event.keyName == "space" or event.keyName == "spacebar") then
+      spinFromButton()
       return true
     end
     return false
-  end
-
-  spinningGroup.navCustomFocus = function(isFocused)
-    if isFocused then
-      midWheel.xScale, midWheel.yScale = 1.08, 1.08
-    else
-      midWheel.xScale, midWheel.yScale = 1, 1
-    end
   end
 
   local function commCallback(data)
@@ -454,7 +468,6 @@ function scene:create(event)
     end
   end
 
-  -- Close on the right end of the red header (over the chains it would be lost).
   local btnExit = composer.newButton({
     image = "images/gui/common/buttonClosePopup.png",
     onRelease = function()
@@ -465,11 +478,6 @@ function scene:create(event)
     x = headerBackground1.x + 76,
     y = headerBackground1.y - 6
   })
-
-  local function flipImages()
-    wheel2.isVisible = not wheel2.isVisible
-    imageFlipperRef = timer.performWithDelay(spinActive and 150 or 300, flipImages, 1)
-  end
 
   local function flipImages2()
     headerBackground2.isVisible = not headerBackground2.isVisible
@@ -492,11 +500,12 @@ function scene:create(event)
     stopSpinSound()
     stopServerTimeout()
     transition.cancel(spinningGroup)
+    releaseTouchFocus()
     display.remove(btnExit)
     spinningGroup:removeEventListener("touch", spinningGroup)
-    Runtime:removeEventListener("mouse", onMouse)
+    Runtime:removeEventListener("key", onKey)
     Runtime:removeEventListener("enterFrame", applyRotationToWheel)
-    for _, ref in pairs({ imageFlipperRef, imageFlipper2Ref, showPriceRef }) do
+    for _, ref in pairs({ imageFlipper2Ref, showPriceRef }) do
       timer.cancel(ref)
     end
   end
@@ -505,10 +514,7 @@ function scene:create(event)
   composer.bouncer.down(dropdownGroup)
   spinningGroup.touch = spinWheel
   spinningGroup:addEventListener("touch", spinningGroup)
-  if require("lua.modules.pcMode").isPC then
-    Runtime:addEventListener("mouse", onMouse)
-  end
-  imageFlipperRef = timer.performWithDelay(300, flipImages, 1)
+  Runtime:addEventListener("key", onKey)
   imageFlipper2Ref = timer.performWithDelay(300, flipImages2, 1)
   spinningGroup.rotation = math.random(0, 360)
   Runtime:addEventListener("enterFrame", applyRotationToWheel)

@@ -7,25 +7,8 @@ local function offlineMode()
   return composer.config and composer.config.offlineMode
 end
 
-local function preparePostData(receipt)
-  receipt = receipt:sub(2, -2)
-  receipt = receipt:gsub(" ", "")
-  local ascii = ""
-  local l = receipt:len()
-  for i = 1, l, 2 do
-    local hex = receipt:sub(i, i + 1)
-    local dec = tonumber(hex, 16)
-    if dec then
-      local char = string.char(dec)
-      ascii = ascii .. char
-    end
-  end
-  local b64encode = base64.encode(ascii)
-  return b64encode
-end
 
 local function localListener(event)
-  composer.debugger.debugTable("iap", "localListener", event)
   local jsonObject = event.response
   if event.isError then
     jsonObject = "{\"message\":\"Error: Your purchase was successful, but our server is currently down\"}"
@@ -62,7 +45,6 @@ local function validateApple(params)
     }
   end
   if postData then
-    composer.debugger.debugTable("iap", "send purchase to server :", postData)
     local jsonObject = json.encode(postData)
     network.request(url, "POST", localListener, {body = jsonObject})
   else
@@ -104,7 +86,6 @@ local function validateGoogle(params)
     }
   end
   if postData then
-    composer.debugger.debugTable("iap", "send purchase to server :", postData)
     local jsonObject = json.encode(postData)
     network.request(url, "POST", localListener, {body = jsonObject})
   else
@@ -146,7 +127,6 @@ local function validateOldGoogle(params)
     }
   end
   if postData then
-    composer.debugger.debugTable("iap", "send purchase to server :", postData)
     local jsonObject = json.encode(postData)
     network.request(url, "POST", localListener, {body = jsonObject})
   else
@@ -184,7 +164,6 @@ local function validateAmazon(params)
     }
   end
   if postData then
-    composer.debugger.debugTable("iap", "Amazon send purchase to server :", postData)
     local jsonObject = json.encode(postData)
     network.request(url, "POST", localListener, {body = jsonObject})
   else

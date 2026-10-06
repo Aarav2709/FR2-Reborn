@@ -1,29 +1,49 @@
 name: Report a bug
-description: Tell us what went wrong so we can understand and reproduce it.
+description: Something in the game does not work the way it should.
 title: "Bug: "
+labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        Please share what you saw and what you expected. A short report is welcome.
-  - type: input
-    id: version
+        Thanks for taking the time to report this. The more of this form you fill in, the faster the bug can be found and fixed.
+
+        **Tip:** write your game version (it is on the download page) and your device in the box below.
+  - type: textarea
+    id: debug-info
     attributes:
-      label: Game version
-      description: Find the version on the Settings screen.
-      placeholder: 1.1.0
+      label: Game version and device
+      description: For example, the game version, your platform and device, and the frame rate setting (30 or 60).
+      placeholder: |
+        Game version: 1.1.0
+        Platform: android 14
+        Device: Samsung SM-A546B
+        Frame rate: 60 FPS
+      render: text
     validations:
       required: true
   - type: dropdown
-    id: platform
+    id: area
     attributes:
-      label: Where did this happen?
+      label: Where in the game?
       options:
-        - Android
-        - iOS
-        - Windows PC
-        - Solar2D Simulator
-        - Other
+        - Racing (jumping, running, the map itself)
+        - Bots
+        - Power-ups
+        - Quick Play lobby or results
+        - 2 vs 2
+        - Practice
+        - LAN races with friends
+        - Clans
+        - Leagues
+        - Shop, items or wings
+        - Daily spin
+        - Menus, buttons or layout
+        - PC controls (keyboard or mouse)
+        - Saves or progress
+        - Sound or music
+        - Tutorial
+        - Something else
     validations:
       required: true
   - type: textarea
@@ -31,18 +51,7 @@ body:
     attributes:
       label: What happened?
       description: Describe the problem in your own words.
-      placeholder: The game closed when I started a race.
-    validations:
-      required: true
-  - type: textarea
-    id: steps
-    attributes:
-      label: How can we see it?
-      description: List the steps you took before the problem appeared.
-      placeholder: |
-        1. Open the game.
-        2. Choose Quick Play.
-        3. Start a race.
+      placeholder: My runner fell through the floor right after the second jump pad.
     validations:
       required: true
   - type: textarea
@@ -52,9 +61,54 @@ body:
     validations:
       required: true
   - type: textarea
-    id: extra
+    id: steps
     attributes:
-      label: Screenshots or other details
-      description: Add a screenshot or any detail that could help. Do not include private account information.
+      label: Steps to make it happen again
+      description: The exact steps, starting from the main menu. Name the map if it happens in a race.
+      placeholder: |
+        1. Play > Quick Play
+        2. Vote for Frosty Forest
+        3. Use a rocket right after the first slope
+    validations:
+      required: true
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: How often does it happen?
+      options:
+        - Every time
+        - Often
+        - Sometimes
+        - It happened once
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console log or error text
+      description: |
+        If an error box appeared, copy its text. Logs help a lot:
+        - **Solar2D Simulator / PC:** copy the lines from the console window.
+        - **Android:** connect the phone and run `adb logcat -s Corona` while it happens.
+        - **iOS:** open the device console in Xcode (Window > Devices and Simulators).
+      render: text
     validations:
       required: false
+  - type: textarea
+    id: media
+    attributes:
+      label: Screenshots or a short video
+      description: Drag files here. A video of the moment it goes wrong is the most useful thing you can add.
+    validations:
+      required: false
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you send it
+      options:
+        - label: I searched the open issues and this is not already reported.
+          required: true
+        - label: I am using the latest release (or say which version you use above).
+          required: false
+        - label: I removed private information (passwords, emails, real names) from what I shared.
+          required: true

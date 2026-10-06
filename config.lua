@@ -1,6 +1,4 @@
 local DESIGN_HEIGHT = 400
--- The Windows build packs the menus a little tighter than on a phone (the same check as
--- lua/modules/pcMode.lua, which config.lua can't require).
 if (system.getInfo("platform") == "win32" and system.getInfo("environment") ~= "simulator")
     or os.getenv("FR2_PC_UI") == "1" then
   DESIGN_HEIGHT = 460
@@ -29,7 +27,6 @@ end
 
 application = {
   content = {
-    -- Solar2D expects the portrait dimensions here, even for landscape apps.
     width = math.floor(landscapeHeight + 0.5),
     height = math.floor(landscapeWidth + 0.5),
     scale = "letterbox",

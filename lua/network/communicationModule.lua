@@ -30,14 +30,12 @@ end
 
 local function tcpReceiveFunction(data)
   if data.r then
-    print("WARNING: got error in tcpReceiveFunction type ", data.r)
   end
   if data.m == tcpFormat.challenge() then
     if data.s == nil then
       data.s = "1"
     end
     local minVersion = data.s
-    local currentVersion = data.v
     if tonumber(composer.config.serverVersion) >= tonumber(minVersion) then
       composer.data.wrongVersion = false
       assetLoader.checksumProcedure(data.c, data.p)
@@ -166,11 +164,9 @@ local function tcpReceiveFunction(data)
     composer.config.authenticate = true
   elseif data.m == tcpFormat.refreshConfig() then
     if data.c ~= composer.data.configChecksum then
-      print("WARNING: config checksum wrong, get new")
       assetLoader.updateConfigFiles()
     end
     if data.p ~= composer.data.mapChecksum then
-      print("WARNING: map checksum wrong, get new")
       assetLoader.updateMapFiles()
     end
   elseif data.m == tcpFormat.getNewSeasonalSale() then
@@ -350,7 +346,6 @@ local function tcpReceiveFunction(data)
       local category = composer.storeConfig.getItemCategory(data.a)
       options.params.item.imagePath = "images/gui/market/items/" .. category .. "/" .. data.a .. ".png"
       composer.showOverlay("lua.overlays.marketFree", options)
-      composer.debugger.debugPrint("network", "Got item from claiming mystery box ", data.a)
     end
   elseif data.m == tcpFormat.getMysteryBox() then
     if data.a then
@@ -403,7 +398,6 @@ local function tcpReceiveFunction(data)
     end
   elseif data.m == tcpFormat.purchaseItem() then
     if data.i then
-      composer.debugger.debugPrint("network", "purchaseItem ", data.i)
       local price = composer.storeConfig.getCoinPrice(data.i)
       if price then
         composer.database.decreaseMoney(price)
@@ -467,7 +461,6 @@ local function tcpReceiveFunction(data)
       local category = composer.storeConfig.getItemCategory(data.b)
       options.params.item.imagePath = "images/gui/market/items/" .. category .. "/" .. data.b .. ".png"
       composer.showOverlay("lua.overlays.marketFree", options)
-      composer.debugger.debugPrint("network", "Got item from claiming achievement ", data.b)
     end
   elseif data.m == tcpFormat.gotAchievement() then
     if data.r then
@@ -528,11 +521,8 @@ local function tcpReceiveFunction(data)
     end
   elseif data.m == tcpFormat.heartbeat() then
   else
-    print("WARNING: unknown tcp format")
     if data then
-      print("data.m ", data.m)
       if data.corrupt then
-        print("WARNING: got corrupt data")
       end
     end
   end
@@ -730,7 +720,7 @@ function C.deleteFriend(playerId)
 end
 
 function C.isOnline()
-  -- The offline build never connects (asking tcpSocial would start a connection).
+  -- the offline build never connects (asking tcpsocial would start a connection).
   if composer.config.offlineMode then
     return false
   end

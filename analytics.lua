@@ -1,4 +1,4 @@
--- Don't delete this, the game still needs it, idk why.
+-- analytics stub: the game still calls it
 local M = {}
 
 function M.newEvent(category, params)

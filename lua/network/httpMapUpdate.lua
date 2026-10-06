@@ -27,11 +27,9 @@ end
 
 local function didDownloadSucceed(event)
   if not isValidRequest(event) then
-    print("Warning: Not valid request getting map.")
     return false
   end
   if not jsonParser.isValidJson(event.response.filename) then
-    print("Downloaded map file is not valid format!", event.response.filename)
     return false
   end
   return true

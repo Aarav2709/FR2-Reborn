@@ -1,0 +1,92 @@
+name: Report a LAN (friends) problem
+description: Playing with friends on the same network does not work as it should.
+title: "LAN: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        LAN races need every device on the same network. The host's game uses UDP port 48828 (finding games) and TCP port 48829 (the race itself). On Windows, allow the game through the firewall when asked.
+
+        Please fill this in for **each device** in the race if you can: problems often come from just one of them.
+  - type: dropdown
+    id: problem
+    attributes:
+      label: What went wrong?
+      options:
+        - The host's game does not show up in the list
+        - Joining by address could not connect
+        - A player was refused (game full, already racing, other version)
+        - Someone dropped out during the lobby or the race
+        - Runners jump around or are in the wrong place during the race
+        - Power-ups or hits did not show up for the others
+        - The results or finish times were wrong
+        - Something else
+    validations:
+      required: true
+  - type: dropdown
+    id: role
+    attributes:
+      label: Were you the host or did you join?
+      options:
+        - I hosted
+        - I joined
+        - I tried both
+    validations:
+      required: true
+  - type: input
+    id: players
+    attributes:
+      label: How many players were in the game?
+      placeholder: "3"
+    validations:
+      required: true
+  - type: dropdown
+    id: network
+    attributes:
+      label: What kind of network?
+      options:
+        - Home Wi-Fi
+        - Wired (Ethernet)
+        - Some on Wi-Fi, some wired
+        - A phone's hotspot
+        - School, office or public Wi-Fi
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: debug-info
+    attributes:
+      label: Game version and device of every player
+      description: Write the game version and device of each player. All devices should run the same game version.
+      placeholder: |
+        Host: Game version 1.1.0, Platform win32 10.0, ...
+        Joined: Game version 1.1.0, Platform android 14, ...
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: What did you do?
+      description: Include the address you typed if you used "Join address" (a local address like 192.168.1.20 is fine to share).
+      placeholder: |
+        1. PC: Friends > Host a game
+        2. Phone: Friends > the PC's game did not appear, so I used Join address with 192.168.1.20
+        3. The phone said "Could not reach that game"
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console logs
+      description: Lines starting with "LAN:" are the most useful. On Android run `adb logcat -s Corona`.
+      render: text
+    validations:
+      required: false
+  - type: textarea
+    id: media
+    attributes:
+      label: Screenshots or video
+    validations:
+      required: false

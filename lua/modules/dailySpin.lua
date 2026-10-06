@@ -1,13 +1,11 @@
--- The prize wheel offline: one free spin every 24 hours, prizes drawn from
--- config/spin.json by their weights.
+-- the prize wheel offline
 local composer = require("composer")
 local M = {}
 
 local SPIN_INTERVAL = 24 * 60 * 60
 local LAST_SPIN_KEY = "lastFreeSpin"
--- Categories a mystery prize can come from.
 local MYSTERY_LISTS = { "getAllHatsSortedOnPrice", "getAllFacewearSortedOnPrice", "getAllNecksSortedOnPrice",
-  "getAllFeetSortedOnPrice", "getAllTrailsSortedOnPrice" }
+  "getAllFeetSortedOnPrice", "getAllTrailsSortedOnPrice", "getAllBackwearSortedOnPrice" }
 
 local function lastSpinTime()
   return tonumber(composer.database.getValue(LAST_SPIN_KEY)) or 0
@@ -21,7 +19,6 @@ function M.secondsUntilFreeSpin()
   return math.max(0, SPIN_INTERVAL - (os.time() - lastSpinTime()))
 end
 
--- "5h 12m" / "12m" until the next free spin.
 function M.timeUntilFreeSpinText()
   local seconds = M.secondsUntilFreeSpin()
   local hours = math.floor(seconds / 3600)
@@ -36,8 +33,6 @@ function M.useFreeSpin()
   composer.database.setValue(LAST_SPIN_KEY, os.time())
 end
 
--- A shop item the player doesn't own yet, for a mystery prize (nil when they own
--- everything).
 function M.pickMysteryItem()
   local owned = {}
   for key in pairs(composer.database.getItems() or {}) do
@@ -58,8 +53,6 @@ function M.pickMysteryItem()
   return candidates[math.random(1, #candidates)]
 end
 
--- The wheel's slots all have the same weight in config/spin.json (the server used to
--- pick the prize); offline the coin jackpot is kept rare.
 local JACKPOT_COINS = 100000
 local JACKPOT_WEIGHT_FACTOR = 0.08
 
@@ -71,8 +64,6 @@ local function prizeWeight(reward)
   return weight
 end
 
--- Draws a prize from the wheel's rewards by weight; returns the reward and the value
--- won (the item id for a mystery prize, or coins instead when nothing is left).
 function M.rollPrize(rewards)
   local total = 0
   for _, reward in ipairs(rewards) do

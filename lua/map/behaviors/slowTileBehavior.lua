@@ -1,5 +1,4 @@
--- Slow tiles (forest thorns): a sensor that halves the runner's speed.
--- Special tile 1 hangs from the roof, special tile 2 lies on the ground.
+-- slow tiles (forest thorns)
 local util = require("lua.map.behaviors.behaviorUtil")
 
 local M = {}

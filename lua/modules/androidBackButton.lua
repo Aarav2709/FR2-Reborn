@@ -49,6 +49,10 @@ function androidKeyEvent(event)
   local phase = event.phase
   local keyName = event.keyName
   if phase == "up" and (keyName == "back" or keyName == "escape") then
+    -- escape while typing only leaves the text box
+    if require("lua.modules.textInput").ownsKey(event) then
+      return true
+    end
     if canPressButton then
       backButtonPushed = true
     end

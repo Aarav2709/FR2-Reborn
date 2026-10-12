@@ -49,6 +49,21 @@ local CATCH_UP_GAP = 120
 local CATCH_UP_STEP = 40
 local CATCH_UP_MAX = 0.14
 local CATCH_UP_EASE = 0.1
+-- form: each bot's speed drifts inside BOT_SPEED_MIN..MAX during the race (higher when
+-- trailing, lower when leading), so no bot is stuck at the back for the whole race
+local FORM_CHANGE_MIN, FORM_CHANGE_MAX = 3000, 7000
+local FORM_EASE = 0.04
+local FORM_PLACE_PULL = (BOT_SPEED_MAX - BOT_SPEED_MIN) * 0.5
+-- slipstream: right behind another runner a bot gains enough to come past
+local SLIPSTREAM_MIN, SLIPSTREAM_MAX = 40, 200
+local SLIPSTREAM = 0.015
+-- no attacks this soon after the start (a lightning at "go" floors the whole line)
+local START_GRACE = 2500
+local ATTACKS = { [1] = true, [2] = true, [3] = true, [7] = true, [8] = true, [9] = true }
+-- hunter's mark: the leader is worth it this close ahead; someone another bot just
+-- marked is left alone
+local MARK_CONTENTION = 1500
+local MARK_PILE_TIME = 4000
 
 local function arcPosition(vx, t, topSpeed)
   local x
@@ -71,8 +86,11 @@ end
 
 M.arcPosition = arcPosition
 M.CATCH_UP_MAX = CATCH_UP_MAX
+M.FORM_MIN, M.FORM_MAX = BOT_SPEED_MIN, BOT_SPEED_MAX
+M.START_GRACE = START_GRACE
 
 local function new(player, playerList)
+  local markTarget
   local composer = require("composer")
   local botPlayer = player
   playerList = playerList or {}
@@ -93,11 +111,11 @@ local function new(player, playerList)
   local rocketBlasts = {}
   local paceFactor = 1
 
-  if composer.onboarding.isActive == true then
-    botPlayer.speedMultiplier = 1
-  else
-    botPlayer.speedMultiplier = BOT_SPEED_MIN + math.random() * (BOT_SPEED_MAX - BOT_SPEED_MIN)
-  end
+  -- the speed is set by keepUp (form and catch up); the tutorial's bots run at 1
+  botPlayer.speedMultiplier = 1
+  local form = BOT_SPEED_MIN + math.random() * (BOT_SPEED_MAX - BOT_SPEED_MIN)
+  local formTarget, formChangeAt = form, startTime + math.random(FORM_CHANGE_MIN, FORM_CHANGE_MAX)
+  local raceRunningSince
 
   local function topSpeed()
     return botPlayer.getTopSpeedX and botPlayer.getTopSpeedX() or 350
@@ -159,9 +177,6 @@ local function new(player, playerList)
             end
             if not around.leader or other.x > around.leader.x then
               around.leader = other
-            end
-            if other.mainPlayer then
-              around.human = other
             end
           end
         end
@@ -476,6 +491,49 @@ local function new(player, playerList)
     jump(now)
   end
 
+  -- hunter's mark: whom taking out helps this bot most
+  function markTarget()
+    local now = system.getTimer()
+    local markedByOthers = {}
+    local casts = powerUps.getRecentCasts and powerUps.getRecentCasts() or {}
+    for i = 1, #casts do
+      local cast = casts[i]
+      if (cast.type == 9 or cast.type == 59) and cast.caster ~= botPlayer.id and cast.target and now - cast.time < MARK_PILE_TIME then
+        markedByOthers[cast.target] = true
+      end
+    end
+    local leader
+    for i = 1, #playerList do
+      local other = playerList[i]
+      if isTarget(other) and (not leader or other.x > leader.x) then
+        leader = other
+      end
+    end
+    local best, bestScore
+    for i = 1, #playerList do
+      local other = playerList[i]
+      if isTarget(other) and not markedByOthers[other.id] then
+        local dx = other.x - botPlayer.x
+        local score
+        if dx > 0 then
+          -- ahead: the leader while in the hunt, else whoever is closest
+          score = 3 - dx / 1000
+          if other == leader and dx < MARK_CONTENTION then
+            score = score + 2
+          end
+        else
+          -- behind: only the closest chaser
+          score = 1 + dx / 500
+        end
+        score = score + math.random() * 0.3
+        if not bestScore or score > bestScore then
+          best, bestScore = other, score
+        end
+      end
+    end
+    return best
+  end
+
   local function send(powerUpType, x)
     if gameFunction then
       gameFunction({ "11", botPlayer.id, {}, powerUpType, x or botPlayer.x, botPlayer.y })
@@ -530,7 +588,7 @@ local function new(player, playerList)
     elseif kind == 7 then
       return around.targetsAhead > 0 or held > 15000
     elseif kind == 9 then
-      local target = around.human or around.leader
+      local target = markTarget()
       if target then
         return true, target.id
       end
@@ -564,6 +622,9 @@ local function new(player, playerList)
       end
     end
     if now < useAfter then
+      return
+    end
+    if ATTACKS[kind] and (not raceRunningSince or now - raceRunningSince < START_GRACE) then
       return
     end
     local use, target = shouldUse(kind, now - heldSince, vx)
@@ -622,25 +683,55 @@ local function new(player, playerList)
     end
   end
 
-  local function keepUp()
+  local function keepUp(now)
     if not botPlayer.setBotSpeedFactor or composer.data.gameInfo.gameType ~= 0 or botPlayer.mainPlayer then
       return
     end
-    local human
+    if composer.onboarding.isActive == true then
+      botPlayer.setBotSpeedFactor(1)
+      return
+    end
+    if now >= formChangeAt then
+      local ahead, others = 0, 0
+      for i = 1, #playerList do
+        local other = playerList[i]
+        if inRace(other) then
+          others = others + 1
+          if other.x > botPlayer.x then
+            ahead = ahead + 1
+          end
+        end
+      end
+      local back = others > 0 and ahead / others or 0.5
+      local low = BOT_SPEED_MIN + FORM_PLACE_PULL * back
+      local high = BOT_SPEED_MAX - FORM_PLACE_PULL * (1 - back)
+      formTarget = low + math.random() * (high - low)
+      formChangeAt = now + math.random(FORM_CHANGE_MIN, FORM_CHANGE_MAX)
+    end
+    form = form + (formTarget - form) * FORM_EASE
+    -- catch up with whoever leads the runners still racing ahead (you or a bot)
+    local leaderX
     for i = 1, #playerList do
       local other = playerList[i]
-      if other ~= botPlayer and type(other) == "table" and other.mainPlayer and type(other.x) == "number" then
-        human = other
-        break
+      if inRace(other) and other.x > botPlayer.x and (not leaderX or other.x > leaderX) then
+        leaderX = other.x
       end
     end
-    local target = 1
-    if human and not (human.getPlayerGoalTime and human.getPlayerGoalTime() > 0) then
-      local gap = human.x - botPlayer.x
-      if gap > CATCH_UP_GAP then
-        target = 1 + math.min(CATCH_UP_MAX, (gap - CATCH_UP_GAP) / CATCH_UP_STEP * 0.01)
+    local catchUp = 0
+    if leaderX and leaderX - botPlayer.x > CATCH_UP_GAP then
+      catchUp = math.min(CATCH_UP_MAX, (leaderX - botPlayer.x - CATCH_UP_GAP) / CATCH_UP_STEP * 0.01)
+    end
+    for i = 1, #playerList do
+      local other = playerList[i]
+      if inRace(other) then
+        local gap = other.x - botPlayer.x
+        if gap > SLIPSTREAM_MIN and gap < SLIPSTREAM_MAX and math.abs(other.y - botPlayer.y) < 60 then
+          catchUp = math.max(catchUp, SLIPSTREAM)
+          break
+        end
       end
     end
+    local target = form * (1 + catchUp)
     paceFactor = paceFactor + (target - paceFactor) * CATCH_UP_EASE
     if math.abs(paceFactor - target) < 0.001 then
       paceFactor = target
@@ -668,8 +759,9 @@ local function new(player, playerList)
     if gameState ~= 1 then
       return
     end
+    raceRunningSince = raceRunningSince or now
     sampleProgress(now, vx)
-    keepUp()
+    keepUp(now)
     steer(now, vx)
     watchAttacks(now, vx)
     handlePowerUp(now, vx)

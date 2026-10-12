@@ -404,7 +404,9 @@ function scene:create(event)
       placeholder = "192.168.1.20",
       maxLength = 15,
       allowed = "[%d%.]",
-      inputType = "decimal",
+      -- android's number pad takes only one ".", so only iphones get it
+      inputType = system.getInfo("platform") == "ios" and "decimal" or "default",
+      typeToFocus = true,
       onSubmit = function(typed)
         joinAddress(typed)
       end

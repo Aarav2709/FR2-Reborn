@@ -7,6 +7,13 @@ local PLACEHOLDER_COLOR = { 0.29, 0.16, 0.06, 0.4 }
 local CARET_BLINK = 500
 
 M.focused = nil
+-- keys a box took on "down": their "up" is the box's too
+local keysTaken = {}
+
+-- whether a key event belongs to a text box (other key handlers leave it alone)
+function M.ownsKey(event)
+  return M.focused ~= nil or (event ~= nil and keysTaken[event.keyName] ~= nil)
+end
 
 local NAMED_KEYS = {
   space = " ", period = ".", comma = ",", minus = "-", numberSign = "#", ["#"] = "#",
@@ -48,7 +55,9 @@ function M.new(params)
   plank:setFillColor(0.98, 0.93, 0.8)
   plank:setStrokeColor(0.36, 0.22, 0.12)
   plank.strokeWidth = 2
-  local field, label, caret, blinkTimer, keyListener
+  local field, label, caret, selection, blinkTimer, keyListener
+  -- pc: a click selects the text, so typing replaces it
+  local selected = false
 
   local function filter(value)
     local out = {}
@@ -99,6 +108,9 @@ function M.new(params)
   end
 
   if not field then
+    selection = display.newRect(group, 0, 0, 10, size * 1.1)
+    selection:setFillColor(0.45, 0.68, 1, 0.55)
+    selection.isVisible = false
     label = display.newText({ parent = group, text = "", font = composer.data.font or native.systemFontBold, fontSize = size })
     caret = display.newRect(group, 0, 0, 2, size * 0.95)
     caret:setFillColor(TEXT_COLOR[1], TEXT_COLOR[2], TEXT_COLOR[3])
@@ -120,16 +132,56 @@ function M.new(params)
       label.x, label.y = 0, 1
       caret.x = (text == "" and 0 or label.width * fit * 0.5 + 2)
       caret.y = 0
+      selection.isVisible = selected and text ~= "" and M.focused == box
+      selection.width = label.width * fit + 4
+      selection.x, selection.y = 0, 1
     end
     box.redraw = redraw
 
+    local function isShown()
+      local object = group
+      while object do
+        if object.isVisible == false then
+          return false
+        end
+        object = object.parent
+      end
+      return group.parent ~= nil
+    end
+
     function keyListener(event)
-      if M.focused ~= box or event.phase ~= "down" then
+      local key = event.keyName
+      if event.phase == "up" then
+        if keysTaken[key] then
+          timer.performWithDelay(1, function()
+            keysTaken[key] = nil
+          end)
+          return true
+        end
         return false
       end
-      local key = event.keyName
+      if event.phase ~= "down" then
+        return false
+      end
+      -- typeToFocus: typing straight away starts a new text in this box
+      if M.focused == nil and params.typeToFocus and isShown() and not composer.getSceneName("overlay") then
+        local character = characterFor(event)
+        if character and (not allowed or character:match(allowed)) then
+          box.focus()
+          selected = text ~= ""
+        end
+      end
+      if M.focused ~= box then
+        return false
+      end
+      keysTaken[key] = true
       if key == "deleteBack" then
-        text = text:sub(1, -2)
+        if selected then
+          text = ""
+          selected = false
+        else
+          text = text:sub(1, -2)
+        end
       elseif key == "enter" or key == "numPadEnter" then
         if params.onSubmit then
           params.onSubmit(text)
@@ -138,15 +190,19 @@ function M.new(params)
       elseif key == "escape" then
         box.blur()
         return true
+      elseif key == "right" or key == "end" or key == "home" or key == "left" then
+        selected = false
       else
         local character = characterFor(event)
         if not character then
           return false
         end
-        local added = filter(text .. character)
-        if added == text then
+        local base = selected and "" or text
+        local added = filter(base .. character)
+        if added == base then
           return true
         end
+        selected = false
         text = added
       end
       redraw()
@@ -158,6 +214,8 @@ function M.new(params)
     Runtime:addEventListener("key", keyListener)
     plank:addEventListener("tap", function()
       box.focus()
+      selected = text ~= ""
+      box.redraw()
       return true
     end)
     redraw()
@@ -172,6 +230,7 @@ function M.new(params)
 
   function box.setText(value)
     text = filter(value)
+    selected = false
     if field then
       field.text = text
     elseif box.redraw then
@@ -205,6 +264,7 @@ function M.new(params)
     if M.focused == box then
       M.focused = nil
     end
+    selected = false
     if blinkTimer then
       timer.cancel(blinkTimer)
       blinkTimer = nil

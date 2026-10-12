@@ -631,7 +631,7 @@ local function onKey(event)
   if navSkipped() then
     return false
   end
-  if require("lua.modules.textInput").focused then
+  if require("lua.modules.textInput").ownsKey(event) then
     return false
   end
   local direction = DIRECTIONS[key]

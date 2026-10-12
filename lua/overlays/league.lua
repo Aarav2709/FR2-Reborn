@@ -103,15 +103,16 @@ function scene:create(event)
   local ownRowY = 0
   local y = 0
   if tier > league.ELITE then
-    local plankW, plankH = 176, 48
-    local nextLeague = display.newImageRect(listContent, "images/gui/ranking/league/nextLeague.png", plankW, plankH)
+    -- the next league's own plank (360x120, shield on its left third), kept at 3:1
+    local plankW = 176
+    local plankH = plankW * 120 / 360
+    local nextLeague = display.newImageRect(listContent, "images/gui/ranking/league/nextLeague_" .. (tier - 1) .. ".png",
+      plankW, plankH)
     nextLeague.x, nextLeague.y = LIST_W * 0.5, y + NEXT_LEAGUE_ROW_H * 0.5
     local plankLeft = nextLeague.x - plankW * 0.5
-    local shield = display.newImageRect(listContent, "images/gui/ranking/league/tierB_" .. (tier - 1) .. ".png", 38, 37)
-    shield.x, shield.y = plankLeft + 25, nextLeague.y
     local advancement = league.advancementText(tier)
     if advancement then
-      local textLeft = plankLeft + 48
+      local textLeft = plankLeft + plankW * 125 / 360
       local textW = plankLeft + plankW - 8 - textLeft
       local advancementText = newText({ string = composer.localized.get(advancement), size = 9, width = textW * s,
         align = "center", color = WHITE })

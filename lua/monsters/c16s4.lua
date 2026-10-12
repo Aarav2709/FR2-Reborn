@@ -1,214 +1,69 @@
-local L0_1, L1_1, L2_1, L3_1, L4_1, L5_1, L6_1, L7_1, L8_1, L9_1, L10_1, L11_1, L12_1, L13_1, L14_1, L15_1, L16_1, L17_1, L18_1, L19_1, L20_1
-L0_1 = {}
-L1_1 = {}
-L2_1 = {}
-L3_1 = {}
-L3_1.x = 214
-L3_1.y = 2
-L3_1.width = 40
-L3_1.height = 16
-L3_1.sourceX = 0
-L3_1.sourceY = 0
-L3_1.sourceWidth = 39
-L3_1.sourceHeight = 15
-L4_1 = {}
-L4_1.x = 146
-L4_1.y = 186
-L4_1.width = 42
-L4_1.height = 16
-L4_1.sourceX = 0
-L4_1.sourceY = 0
-L4_1.sourceWidth = 41
-L4_1.sourceHeight = 15
-L5_1 = {}
-L5_1.x = 214
-L5_1.y = 20
-L5_1.width = 36
-L5_1.height = 42
-L5_1.sourceX = 0
-L5_1.sourceY = 0
-L5_1.sourceWidth = 36
-L5_1.sourceHeight = 41
-L6_1 = {}
-L6_1.x = 146
-L6_1.y = 234
-L6_1.width = 22
-L6_1.height = 36
-L7_1 = {}
-L7_1.x = 214
-L7_1.y = 64
-L7_1.width = 36
-L7_1.height = 40
-L7_1.sourceX = 0
-L7_1.sourceY = 2
-L7_1.sourceWidth = 36
-L7_1.sourceHeight = 41
-L8_1 = {}
-L8_1.x = 170
-L8_1.y = 254
-L8_1.width = 22
-L8_1.height = 36
-L9_1 = {}
-L9_1.x = 190
-L9_1.y = 192
-L9_1.width = 58
-L9_1.height = 60
-L10_1 = {}
-L10_1.x = 78
-L10_1.y = 186
-L10_1.width = 66
-L10_1.height = 116
-L10_1.sourceX = 20
-L10_1.sourceY = 0
-L10_1.sourceWidth = 95
-L10_1.sourceHeight = 116
-L11_1 = {}
-L11_1.x = 2
-L11_1.y = 224
-L11_1.width = 66
-L11_1.height = 116
-L11_1.sourceX = 20
-L11_1.sourceY = 0
-L11_1.sourceWidth = 95
-L11_1.sourceHeight = 116
-L12_1 = {}
-L12_1.x = 108
-L12_1.y = 2
-L12_1.width = 104
-L12_1.height = 66
-L12_1.sourceX = 4
-L12_1.sourceY = 14
-L12_1.sourceWidth = 110
-L12_1.sourceHeight = 87
-L13_1 = {}
-L13_1.x = 2
-L13_1.y = 2
-L13_1.width = 104
-L13_1.height = 106
-L13_1.sourceX = 8
-L13_1.sourceY = 0
-L13_1.sourceWidth = 115
-L13_1.sourceHeight = 106
-L14_1 = {}
-L14_1.x = 2
-L14_1.y = 168
-L14_1.width = 74
-L14_1.height = 54
-L14_1.sourceX = 36
-L14_1.sourceY = 0
-L14_1.sourceWidth = 115
-L14_1.sourceHeight = 54
-L15_1 = {}
-L15_1.x = 108
-L15_1.y = 70
-L15_1.width = 96
-L15_1.height = 56
-L15_1.sourceX = 0
-L15_1.sourceY = 0
-L15_1.sourceWidth = 95
-L15_1.sourceHeight = 57
-L16_1 = {}
-L16_1.x = 2
-L16_1.y = 110
-L16_1.width = 96
-L16_1.height = 56
-L16_1.sourceX = 0
-L16_1.sourceY = 0
-L16_1.sourceWidth = 95
-L16_1.sourceHeight = 57
-L17_1 = {}
-L17_1.x = 100
-L17_1.y = 128
-L17_1.width = 96
-L17_1.height = 56
-L17_1.sourceX = 0
-L17_1.sourceY = 0
-L17_1.sourceWidth = 95
-L17_1.sourceHeight = 57
-L18_1 = {}
-L18_1.x = 146
-L18_1.y = 204
-L18_1.width = 36
-L18_1.height = 28
-L18_1.sourceX = 0
-L18_1.sourceY = 0
-L18_1.sourceWidth = 37
-L18_1.sourceHeight = 27
-L19_1 = {}
-L19_1.x = 198
-L19_1.y = 150
-L19_1.width = 50
-L19_1.height = 40
-L19_1.sourceX = 4
-L19_1.sourceY = 0
-L19_1.sourceWidth = 58
-L19_1.sourceHeight = 39
-L20_1 = {}
-L20_1.x = 206
-L20_1.y = 106
-L20_1.width = 46
-L20_1.height = 42
-L20_1.sourceX = 6
-L20_1.sourceY = 0
-L20_1.sourceWidth = 57
-L20_1.sourceHeight = 41
-L2_1[1] = L3_1
-L2_1[2] = L4_1
-L2_1[3] = L5_1
-L2_1[4] = L6_1
-L2_1[5] = L7_1
-L2_1[6] = L8_1
-L2_1[7] = L9_1
-L2_1[8] = L10_1
-L2_1[9] = L11_1
-L2_1[10] = L12_1
-L2_1[11] = L13_1
-L2_1[12] = L14_1
-L2_1[13] = L15_1
-L2_1[14] = L16_1
-L2_1[15] = L17_1
-L2_1[16] = L18_1
-L2_1[17] = L19_1
-L2_1[18] = L20_1
-L1_1.frames = L2_1
-L1_1.sheetContentWidth = 256
-L1_1.sheetContentHeight = 512
-L0_1.sheet = L1_1
-L1_1 = {}
-L1_1["0l"] = 1
-L1_1["0r"] = 2
-L1_1.arm_l_lower = 3
-L1_1.arm_l_upper = 4
-L1_1.arm_r_lower = 5
-L1_1.arm_r_upper = 6
-L1_1["deaths/headSkull"] = 7
-L1_1["deaths/lightning1"] = 8
-L1_1["deaths/lightning2"] = 9
-L1_1.hair = 10
-L1_1.head = 11
-L1_1.head_lower = 12
-L1_1["misc/eyes_closed"] = 13
-L1_1["misc/eyes_dead"] = 14
-L1_1["misc/eyes_normal"] = 15
-L1_1.tail = 16
-L1_1.torso_lower = 17
-L1_1.torso_upper = 18
-L0_1.frameIndex = L1_1
+-- Sprite sheet of c16s4 (images/monsters/c16s4/monster.png): the parts the rig draws
+-- and the death frames (lightning1 and lightning2 must stay next to each other).
+local sheet = {
+  frames = {
+    { x = 212, y = 20, width = 40, height = 16, sourceX = 0, sourceY = 0, sourceWidth = 39, sourceHeight = 15 }, -- 0l
+    { x = 212, y = 2, width = 42, height = 16, sourceX = 0, sourceY = 0, sourceWidth = 41, sourceHeight = 15 }, -- 0r
+    { x = 212, y = 38, width = 36, height = 42, sourceX = 0, sourceY = 0, sourceWidth = 36, sourceHeight = 41 }, -- arm_l_lower
+    { x = 70, y = 228, width = 22, height = 36 }, -- arm_l_upper
+    { x = 212, y = 82, width = 36, height = 40, sourceX = 0, sourceY = 2, sourceWidth = 36, sourceHeight = 41 }, -- arm_r_lower
+    { x = 176, y = 168, width = 22, height = 36 }, -- arm_r_upper
+    { x = 72, y = 186, width = 23, height = 40 }, -- deaths/body
+    { x = 98, y = 226, width = 65, height = 68 }, -- deaths/headSingle
+    { x = 70, y = 300, width = 65, height = 67 }, -- deaths/headSingleShot
+    { x = 66, y = 406, width = 58, height = 60 }, -- deaths/headSkull
+    { x = 176, y = 210, width = 66, height = 116, sourceX = 20, sourceY = 0, sourceWidth = 95, sourceHeight = 116 }, -- deaths/lightning1
+    { x = 2, y = 186, width = 66, height = 116, sourceX = 20, sourceY = 0, sourceWidth = 95, sourceHeight = 116 }, -- deaths/lightning2
+    { x = 3, y = 305, width = 62, height = 97 }, -- deaths/sawbladeLeft
+    { x = 3, y = 407, width = 60, height = 98 }, -- deaths/sawbladeRight
+    { x = 2, y = 2, width = 104, height = 66, sourceX = 4, sourceY = 14, sourceWidth = 110, sourceHeight = 87 }, -- hair
+    { x = 106, y = 2, width = 104, height = 106, sourceX = 8, sourceY = 0, sourceWidth = 115, sourceHeight = 106 }, -- head
+    { x = 100, y = 168, width = 74, height = 54, sourceX = 36, sourceY = 0, sourceWidth = 115, sourceHeight = 54 }, -- head_lower
+    { x = 2, y = 70, width = 96, height = 56, sourceX = 0, sourceY = 0, sourceWidth = 95, sourceHeight = 57 }, -- misc/eyes_closed
+    { x = 100, y = 110, width = 96, height = 56, sourceX = 0, sourceY = 0, sourceWidth = 95, sourceHeight = 57 }, -- misc/eyes_dead
+    { x = 2, y = 128, width = 96, height = 56, sourceX = 0, sourceY = 0, sourceWidth = 95, sourceHeight = 57 }, -- misc/eyes_normal
+    { x = 138, y = 298, width = 36, height = 28, sourceX = 0, sourceY = 0, sourceWidth = 37, sourceHeight = 27 }, -- tail
+    { x = 196, y = 124, width = 50, height = 40, sourceX = 4, sourceY = 0, sourceWidth = 58, sourceHeight = 39 }, -- torso_lower
+    { x = 198, y = 166, width = 46, height = 42, sourceX = 6, sourceY = 0, sourceWidth = 57, sourceHeight = 41 }, -- torso_upper
+  },
+  sheetContentWidth = 256,
+  sheetContentHeight = 512
+}
 
-function L1_1(A0_2)
-  local L1_2
-  L1_2 = A0_2.sheet
-  return L1_2
+local frameIndex = {
+  ["0l"] = 1,
+  ["0r"] = 2,
+  ["arm_l_lower"] = 3,
+  ["arm_l_upper"] = 4,
+  ["arm_r_lower"] = 5,
+  ["arm_r_upper"] = 6,
+  ["deaths/body"] = 7,
+  ["deaths/headSingle"] = 8,
+  ["deaths/headSingleShot"] = 9,
+  ["deaths/headSkull"] = 10,
+  ["deaths/lightning1"] = 11,
+  ["deaths/lightning2"] = 12,
+  ["deaths/sawbladeLeft"] = 13,
+  ["deaths/sawbladeRight"] = 14,
+  ["hair"] = 15,
+  ["head"] = 16,
+  ["head_lower"] = 17,
+  ["misc/eyes_closed"] = 18,
+  ["misc/eyes_dead"] = 19,
+  ["misc/eyes_normal"] = 20,
+  ["tail"] = 21,
+  ["torso_lower"] = 22,
+  ["torso_upper"] = 23,
+}
+
+local M = { sheet = sheet, frameIndex = frameIndex }
+
+function M:getSheet()
+  return self.sheet
 end
 
-L0_1.getSheet = L1_1
-
-function L1_1(A0_2, A1_2)
-  local L2_2
-  L2_2 = A0_2.frameIndex
-  L2_2 = L2_2[A1_2]
-  return L2_2
+function M:getFrameIndex(name)
+  return self.frameIndex[name]
 end
 
-L0_1.getFrameIndex = L1_1
-return L0_1
+return M

@@ -1,5 +1,19 @@
 -- news shown in the main menu's news feed, newest first
 return {
+    {
+    id = 3,
+    tag = "Version 1.1.1: 13th of October, 2026",
+    title = "FR2: Reborn 1.1.1 is out!",
+    text = "Hey everyone, I'm Aarav, and here's a quick hotfix update for y'all. "
+      .. "This is just a small hotfix.\n\n"
+      .. "Changelog:\n\n"
+      .. "LAN IP inputs fixed.\n"
+      .. "Better bot stuck logic.\n"
+      .. "Add animal gore sprites, fix animal sprites.\n"
+      .. "Better bot powerup using system.\n"
+      .. "Fixed elite league showcase.\n\n"
+      .. "I guess that's it. This update concludes our FR2R Journey, that was a long 1 year, 8 months. But everything has to eventually come to an end. I might release more updates in the future IF NEEDED, otherwise this is it."
+      },
   {
     id = 2,
     tag = "Version 1.1.0: 6th of October, 2026",
@@ -23,7 +37,7 @@ return {
       .. "Added an FPS toggle, 30 or 60.\n"
       .. "Made the bots even harder.\n"
       .. "Reworked the PC UI.\n\n"
-      .. "For now, that's it. See you in Fun Run 1: Replayed!"
+      .. "Nothing more to say, enjoy the update!"
   },
   {
     id = 1,

@@ -1,5 +1,15 @@
 -- news shown in the main menu's news feed, newest first
 return {
+  {
+    id = 4,
+    tag = "Version 1.1.2: 19th of October, 2026",
+    title = "FR2: Reborn 1.1.2 is out!",
+    text = "Hey everyone, Aarav here. This is an unexpected patch, but an important one, so please update.\n\n"
+      .. "Changelog:\n\n"
+      .. "Fixed bumps.\n"
+      .. "Better camera.\n\n"
+      .. "Thanks for playing!"
+  },
     {
     id = 3,
     tag = "Version 1.1.1: 13th of October, 2026",

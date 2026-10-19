@@ -15,7 +15,7 @@ body:
       label: Game version and device
       description: For example, the game version, your platform and device, and the frame rate setting (30 or 60).
       placeholder: |
-        Game version: 1.1.0
+        Game version: 1.1.2
         Platform: android 14
         Device: Samsung SM-A546B
         Frame rate: 60 FPS

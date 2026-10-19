@@ -333,7 +333,7 @@ function scene:create(event)
     creditsTableData[#creditsTableData + 1] = { creditInfo = name, size = size or itemFontSize, x = 4, detail = detail }
   end
 
-  addToCredits("FR2: Reborn", headerFontSize, "v1.1.0")
+  addToCredits("FR2: Reborn", headerFontSize, "v1.1.2")
   addToCredits("")
   addToCredits("Developers", headerFontSize)
   addToCredits("Aarav Gupta", itemFontSize, "Creator & Frontend")

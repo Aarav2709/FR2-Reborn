@@ -10,7 +10,7 @@ Open [Issues](../../issues/new/choose) and pick the form that fits:
 - **Report a crash or error box** when the game closes, freezes or shows a "Runtime error".
 - **Report a LAN (friends) problem** for races with friends on the same network.
 
-Every form asks for your game version and device (for example: version 1.1.0, Android 14, Samsung A54). Never include passwords or private account information.
+Every form asks for your game version and device (for example: version 1.1.2, Android 14, Samsung A54). Never include passwords or private account information.
 
 ## Suggest an improvement
 

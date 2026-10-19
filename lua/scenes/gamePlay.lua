@@ -7,11 +7,14 @@ local powerUpButton, powerUpButtonFX, jumpButton, homeButton, shineEffect, jumpB
 local cameraAnchorX, cameraAnchorY
 local teamScoreGroup, teamScoreOwn, teamScoreRival
 local teamRace = require("lua.modules.teamRace")
-local worldGroup, viewScale, viewWidth, viewHeight
+local worldGroup, viewScale, hudScale, viewWidth, viewHeight
 local CAMERA_ANCHOR_BASE_X = 150
 local CAMERA_ANCHOR_BASE_Y = 204
 local POSITION_TOP_BASE_Y = 20
 local VIEW_WIDTH, VIEW_HEIGHT = 480, 320
+-- the original filled every screen with exactly 480x320 world units; here the view never shows
+-- more than this wide, so on very wide or tall screens it zooms in instead of showing map edges
+local MAX_VIEW_WIDTH = 568
 local pcHud = require("lua.modules.pcMode").isPC
 local puScale = pcHud and 0.6 or 1
 
@@ -19,14 +22,15 @@ function scene:create(event)
   local screenGroup = self.view
   composer.raceMenuOpen = false
   screen.update()
-  viewScale = math.min(screen.height / VIEW_HEIGHT, screen.width / VIEW_WIDTH)
+  hudScale = math.min(screen.height / VIEW_HEIGHT, screen.width / VIEW_WIDTH)
+  viewScale = math.max(screen.height / VIEW_HEIGHT, screen.width / MAX_VIEW_WIDTH)
   viewWidth = screen.width / viewScale
   viewHeight = screen.height / viewScale
   composer.gameViewport = { width = viewWidth, height = viewHeight, scale = viewScale }
-  local hud = viewScale
+  local hud = hudScale
 
   local function relativeY(value)
-    return value * viewScale
+    return value * hudScale
   end
 
   cameraAnchorX = CAMERA_ANCHOR_BASE_X
@@ -214,7 +218,7 @@ function scene:show(event)
   end
   local screenGroup = self.view
   local killMessagesGroup = display.newGroup()
-  killMessagesGroup.xScale, killMessagesGroup.yScale = viewScale, viewScale
+  killMessagesGroup.xScale, killMessagesGroup.yScale = hudScale, hudScale
   local mapInterface = require("lua.map.interface")
   local physics = require("physics")
   local powerUps = require("lua.gameLogic.powerUps")
@@ -247,10 +251,10 @@ function scene:show(event)
   local HEAD_HALF_WIDTH, BAR_MARGIN = 20, 6
   local bottomBarStartX, bottomBarLength2
   local function computeBottomBar()
-    local startX = powerupButtonImage.x + powerupButtonImage.width * 0.5 + (HEAD_HALF_WIDTH + BAR_MARGIN) * viewScale
-    local endX = jumpButtonImage.x - jumpButtonImage.width * 0.5 - (HEAD_HALF_WIDTH + BAR_MARGIN) * viewScale
+    local startX = powerupButtonImage.x + powerupButtonImage.width * 0.5 + (HEAD_HALF_WIDTH + BAR_MARGIN) * hudScale
+    local endX = jumpButtonImage.x - jumpButtonImage.width * 0.5 - (HEAD_HALF_WIDTH + BAR_MARGIN) * hudScale
     if pcHud then
-      endX = screen.safeRight - (HEAD_HALF_WIDTH + BAR_MARGIN * 2) * viewScale
+      endX = screen.safeRight - (HEAD_HALF_WIDTH + BAR_MARGIN * 2) * hudScale
     end
     bottomBarStartX = math.min(startX, endX)
     bottomBarLength2 = math.max(1, math.abs(endX - startX))
@@ -413,11 +417,11 @@ function scene:show(event)
     if 50 < puType then
       puType = puType - 50
     end
-    powerUpImage = getPuIcon(puType, 60 * viewScale * puScale)
+    powerUpImage = getPuIcon(puType, 60 * hudScale * puScale)
     powerUpImage.anchorX = 0.5
     powerUpImage.anchorY = 0.5
-    powerUpImage.x = powerupButtonImage.x - 6 * viewScale * puScale
-    powerUpImage.y = powerupButtonImage.y + 1.5 * viewScale * puScale
+    powerUpImage.x = powerupButtonImage.x - 6 * hudScale * puScale
+    powerUpImage.y = powerupButtonImage.y + 1.5 * hudScale * puScale
     powerUpButtonGroup:insert(powerUpImage)
     powerUpImageReady = true
     powerUpButtonFX:setSequence("gotPU")
@@ -909,12 +913,12 @@ function scene:show(event)
       countdownImg = nil
     end
     if imageText == "GO!" then
-      countdownImg = display.newImageRect("images/game/countdownGo.png", 129 * viewScale, 70 * viewScale)
+      countdownImg = display.newImageRect("images/game/countdownGo.png", 129 * hudScale, 70 * hudScale)
     else
       if string.len(imageText) > 1 then
         imageText = imageText:sub(1, 1)
       end
-      countdownImg = display.newImageRect("images/game/countdown" .. imageText .. ".png", 129 * viewScale, 70 * viewScale)
+      countdownImg = display.newImageRect("images/game/countdown" .. imageText .. ".png", 129 * hudScale, 70 * hudScale)
     end
     if countdownImg then
       countdownImg.x = display.contentWidth * 0.5
@@ -1517,8 +1521,8 @@ function scene:show(event)
     computeBottomBar()
     layoutKillFeedGroup()
     if powerUpImage and powerupButtonImage then
-      powerUpImage.x = powerupButtonImage.x - 6 * viewScale * puScale
-      powerUpImage.y = powerupButtonImage.y + 1.5 * viewScale * puScale
+      powerUpImage.x = powerupButtonImage.x - 6 * hudScale * puScale
+      powerUpImage.y = powerupButtonImage.y + 1.5 * hudScale * puScale
     end
     for i = 1, #bottomBarList do
       if bottomBarList[i] then
@@ -1629,7 +1633,7 @@ function scene:show(event)
     end
     for i = 1, #playerList do
       bottomBarList[i] = playerList[i].getPlayerHead()
-      bottomBarList[i].xScale, bottomBarList[i].yScale = viewScale, viewScale
+      bottomBarList[i].xScale, bottomBarList[i].yScale = hudScale, hudScale
       local length = mapInterface.getLength() - 10
       if length <= 0 then
         bottomBarList[i].x = bottomBarStartX

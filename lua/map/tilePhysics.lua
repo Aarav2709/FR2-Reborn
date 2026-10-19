@@ -3096,7 +3096,7 @@ function M.physicsData(scale)
             -80,
             39,
             -80,
-            26
+            27
           }
         },
         {

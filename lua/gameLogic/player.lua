@@ -726,8 +726,10 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
         local topSpeed = speeds.topSpeedX * speeds.botFactor
         local acceleration = speeds.accelerateX
         local newTime = system.getTimer()
-        local multiplier = (newTime - lastAccelerateTime) * 0.01
+        local elapsed = newTime - lastAccelerateTime
+        local multiplier = elapsed * 0.01
         lastAccelerateTime = newTime
+        local ease = 0.9 ^ math.min(elapsed / (1000 / 30), 3)
         acceleration = acceleration * multiplier
         if vx < topSpeed * 0.2 then
           acceleration = acceleration * 4
@@ -743,13 +745,13 @@ local function new(playerId, name, accessorize, powerUp, mainPlayer, playerList,
           if vx - topSpeed < acceleration * 1.5 then
             vx = topSpeed
           else
-            vx = vx * 0.9
+            vx = vx * ease
           end
         elseif vx > topSpeed * 1.5 and 0 < vy then
           if vx - topSpeed < acceleration * 1.5 then
             vx = topSpeed * 1.5
           else
-            vx = vx * 0.9
+            vx = vx * ease
           end
         end
         if booleanStates.playerDead then

@@ -2091,9 +2091,8 @@ Let's have a REAL race!]], composer.onboarding.screenDisplayGroup, helperMonster
       description = "Shop scene",
       scene = "lua.scenes.marketplace",
       postLoad = function()
-        composer.onboarding.hideReferences("marketplace_back")
-
-
+        -- keep the back button visible: this step is resumed on every launch until finished,
+        -- so hiding it until the glasses are equipped can trap the player in the shop (#15)
         local function friendlyHelperCloseFunction()
           friendlyHelper.createMessage("Let's put on the new glasses! Follow the arrows.", composer.onboarding.screenDisplayGroup, helperMonsterData, false)
           friendlyHelper.setOnCloseFunction(composer.onboarding.showMarketArrow)

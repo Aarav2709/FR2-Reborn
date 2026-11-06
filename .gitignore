@@ -1,1 +1,4 @@
 FR2-References
+
+# dev code signing key: private, never commit
+tools/devcode/dev-signing-key.json

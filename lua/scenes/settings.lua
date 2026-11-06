@@ -72,6 +72,21 @@ function scene:create(event)
   })
   group:insert(tableTitleText)
 
+  -- hidden dev menu: tap the title 7 times within a few seconds
+  local titleTaps, firstTitleTap = 0, 0
+  tableTitleText:addEventListener("tap", function()
+    local now = system.getTimer()
+    if now - firstTitleTap > 4000 then
+      titleTaps, firstTitleTap = 0, now
+    end
+    titleTaps = titleTaps + 1
+    if titleTaps >= 7 then
+      titleTaps = 0
+      composer.showOverlay("lua.overlays.devMenu", { isModal = true })
+    end
+    return true
+  end)
+
   local tablesGroup = display.newGroup()
   group:insert(tablesGroup)
 

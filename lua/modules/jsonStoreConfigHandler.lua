@@ -697,6 +697,29 @@ function M.isThisAPowerupSet(skinList)
   return setId or false
 end
 
+-- every item a player can own (animals, skins, wearables, power up skins), hidden and dev ones too,
+-- and for each animal the most wins any of its master skins asks for
+function M.getAllOwnableItems()
+  reloadConfigIfNil()
+  local keys, winsNeeded = {}, {}
+  local categories = { "characters", "skins", "hats", "facewear", "necks", "trails", "feet", "backwear" }
+  for _, cat in ipairs(powerupCategories) do
+    categories[#categories + 1] = cat.name
+  end
+  for _, name in ipairs(categories) do
+    for key, value in pairs(configInput[name] or {}) do
+      if type(value) == "table" then
+        keys[#keys + 1] = tostring(key)
+        if value.master and value.characterId and value.winsReq then
+          local characterId = tostring(value.characterId)
+          winsNeeded[characterId] = math.max(winsNeeded[characterId] or 0, tonumber(value.winsReq) or 0)
+        end
+      end
+    end
+  end
+  return keys, winsNeeded
+end
+
 function M.hasHitImage(itemId)
   itemId = tonumber(itemId)
   if not itemId then return false end
